@@ -4,9 +4,9 @@ import { fileURLToPath } from "node:url"
 
 const rootDir = dirname(fileURLToPath(new URL("../package.json", import.meta.url)))
 const sourceByPlatform = {
-  darwin: "liblean_wc_node.dylib",
-  linux: "liblean_wc_node.so",
-  win32: "lean_wc_node.dll",
+  darwin: "libiktia_node.dylib",
+  linux: "libiktia_node.so",
+  win32: "iktia_node.dll",
 }
 
 const sourceFileName = sourceByPlatform[process.platform]
@@ -15,10 +15,9 @@ if (!sourceFileName) {
 }
 
 const sourcePath = join(rootDir, "target", "debug", sourceFileName)
-const targetDir = join(rootDir, "packages", "core-node", "native")
-const targetPath = join(targetDir, "lean_wc_node.node")
+const targetDir = join(rootDir, "packages", "compiler", "native")
+const targetPath = join(targetDir, "iktia_node.node")
 
 mkdirSync(targetDir, { recursive: true })
 copyFileSync(sourcePath, targetPath)
 console.log(`Copied native binding to ${targetPath}`)
-

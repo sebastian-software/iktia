@@ -8,7 +8,7 @@ import {
   on,
   signal,
   type ComponentOptions,
-} from "lean-wc"
+} from "@iktia/core"
 
 export type ToggleProps = {
   disabled?: boolean

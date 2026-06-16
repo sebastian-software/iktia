@@ -1,5 +1,5 @@
 {
-  "name": "@lean-wc/example-counter",
+  "name": "@iktia/example-counter",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,7 +10,8 @@
     "type-check": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "lean-wc": "workspace:^"
+    "@iktia/core": "workspace:^",
+    "@iktia/vite": "workspace:^"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",

@@ -1,7 +1,7 @@
 {
-  "name": "lean-wc-workspace",
+  "name": "iktia-workspace",
   "private": true,
-  "description": "Rust/OXC-powered TSX compiler for lean native Web Components.",
+  "description": "Rust/OXC-powered TSX compiler for Iktia native interface elements.",
   "license": "MIT",
   "type": "module",
   "packageManager": "pnpm@11.6.0",
@@ -11,7 +11,7 @@
   "scripts": {
     "build": "pnpm -r --filter './packages/**' --if-present build",
     "build:examples": "pnpm -r --filter './examples/**' --if-present build",
-    "build:native": "cargo build -p lean-wc-node && node scripts/copy-native-binding.mjs",
+    "build:native": "cargo build -p iktia-node && node scripts/copy-native-binding.mjs",
     "check": "pnpm check-types && pnpm check:rust",
     "check-types": "pnpm -r --filter './packages/**' --if-present check-types",
     "check:rust": "cargo check --workspace",

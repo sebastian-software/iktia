@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url"
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = resolve(__dirname, "../../..")
 const native = createRequire(import.meta.url)(
-  resolve(root, "packages/core-node/native/lean_wc_node.node")
+  resolve(root, "packages/compiler/native/iktia_node.node")
 )
 
 const components = [
@@ -57,14 +57,14 @@ const html = `<!doctype html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="lean-wc Declarative Shadow DOM demo with delayed custom element upgrade."
+      content="Iktia Declarative Shadow DOM demo with delayed custom element upgrade."
     />
-    <title>lean-wc Declarative Shadow DOM demo</title>
+    <title>Iktia Declarative Shadow DOM demo</title>
     <link rel="stylesheet" href="/src/demo.css" />
   </head>
   <body data-demo-mode="dsd">
     <header class="site-header">
-      <p class="eyebrow">lean-wc DSD demo</p>
+      <p class="eyebrow">Iktia DSD demo</p>
       <h1>Declarative Shadow DOM before JavaScript upgrade.</h1>
       <p class="intro">
         This page is generated from the same <code>.wc.tsx</code> sources as the
@@ -107,9 +107,9 @@ const html = `<!doctype html>
 
     <script type="module">
       const params = new URLSearchParams(window.location.search)
-      window.__leanWcUpgrade = () => import("/src/main.ts")
+      window.__iktiaUpgrade = () => import("/src/main.ts")
       if (!params.has("delayUpgrade")) {
-        window.__leanWcUpgrade()
+        window.__iktiaUpgrade()
       }
     </script>
   </body>

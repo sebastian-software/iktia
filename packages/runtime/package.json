@@ -1,0 +1,33 @@
+{
+  "name": "@iktia/runtime",
+  "version": "0.0.0",
+  "description": "Runtime helpers for Iktia generated native interface elements.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/runtime.ts",
+      "import": "./src/runtime.ts",
+      "require": "./dist/runtime.cjs"
+    }
+  },
+  "main": "./dist/runtime.cjs",
+  "module": "./dist/runtime.mjs",
+  "types": "./src/runtime.ts",
+  "sideEffects": false,
+  "files": ["dist/"],
+  "scripts": {
+    "build": "unbuild",
+    "check-types": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --globals src/*.test.ts"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.0",
+    "typescript": "^6.0.3",
+    "unbuild": "^3.6.1",
+    "vitest": "^4.1.6"
+  }
+}

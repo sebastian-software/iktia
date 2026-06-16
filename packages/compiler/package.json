@@ -1,0 +1,33 @@
+{
+  "name": "@iktia/compiler",
+  "version": "0.0.0",
+  "description": "Thin Node.js wrapper around the Iktia native compiler.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./src/index.ts",
+  "sideEffects": false,
+  "files": ["dist/", "native/"],
+  "scripts": {
+    "build": "unbuild",
+    "check-types": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --globals src/*.test.ts"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.0",
+    "typescript": "^6.0.3",
+    "unbuild": "^3.6.1",
+    "vitest": "^4.1.6"
+  }
+}

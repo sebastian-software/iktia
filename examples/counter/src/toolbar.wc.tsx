@@ -1,4 +1,4 @@
-import { type ComponentOptions } from "lean-wc"
+import { type ComponentOptions } from "@iktia/core"
 
 import { Counter } from "./counter.wc.tsx"
 import { Toggle } from "./toggle.wc.tsx"

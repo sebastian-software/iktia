@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "composite": true,
+    "ignoreDeprecations": "6.0",
+    "jsx": "react-jsx",
+    "jsxImportSource": "@iktia/core",
+    "paths": {
+      "@iktia/core": ["src/index.ts"],
+      "@iktia/core/jsx-runtime": ["src/jsx-runtime.ts"],
+      "@iktia/core/jsx-dev-runtime": ["src/jsx-dev-runtime.ts"]
+    },
+    "rootDir": "src",
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
+}

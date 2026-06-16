@@ -80,8 +80,8 @@ test("declarative shadow dom renders useful DOM before upgrade and hydrates afte
   await expect(
     counter.evaluate(
       (element) =>
-        Boolean(element.shadowRoot?.querySelector("[data-lean-root]")) &&
-        Boolean(element.shadowRoot?.querySelector("[data-lean-text='text0']"))
+        Boolean(element.shadowRoot?.querySelector("[data-iktia-root]")) &&
+        Boolean(element.shadowRoot?.querySelector("[data-iktia-text='text0']"))
     )
   ).resolves.toBe(true)
 
@@ -96,9 +96,9 @@ test("declarative shadow dom renders useful DOM before upgrade and hydrates afte
   await page.evaluate(() =>
     (
       window as unknown as Window & {
-        __leanWcUpgrade(): Promise<unknown>
+        __iktiaUpgrade(): Promise<unknown>
       }
-    ).__leanWcUpgrade()
+    ).__iktiaUpgrade()
   )
   await expect
     .poll(() => page.evaluate(() => customElements.get("x-counter") !== undefined))
@@ -129,22 +129,22 @@ test("declarative shadow dom reports development hydration mismatches", async ({
   await page.goto("/dsd.html?delayUpgrade=1")
   await page.locator("#dsd-counter-case x-counter").evaluate((element) => {
     element.shadowRoot
-      ?.querySelector("[data-lean-node='node0']")
-      ?.removeAttribute("data-lean-node")
+      ?.querySelector("[data-iktia-node='node0']")
+      ?.removeAttribute("data-iktia-node")
   })
 
   await page.evaluate(() =>
     (
       window as unknown as Window & {
-        __leanWcUpgrade(): Promise<unknown>
+        __iktiaUpgrade(): Promise<unknown>
       }
     )
-      .__leanWcUpgrade()
+      .__iktiaUpgrade()
       .catch(() => undefined)
   )
 
   await expect
-    .poll(() => pageErrors.some((message) => message.includes("lean-wc hydration mismatch")))
+    .poll(() => pageErrors.some((message) => message.includes("Iktia hydration mismatch")))
     .toBe(true)
 })
 
@@ -160,8 +160,8 @@ test("declarative shadow dom remounts on production hydration mismatches", async
   const counter = page.locator("#dsd-counter-case x-counter")
   await counter.evaluate((element) => {
     element.shadowRoot
-      ?.querySelector("[data-lean-node='node0']")
-      ?.removeAttribute("data-lean-node")
+      ?.querySelector("[data-iktia-node='node0']")
+      ?.removeAttribute("data-iktia-node")
   })
 
   await page.evaluate(async () => {
@@ -182,7 +182,7 @@ test("declarative shadow dom remounts on production hydration mismatches", async
   await expect(counterButton).toHaveText("Count: 0")
   await expect(
     counter.evaluate((element) =>
-      Boolean(element.shadowRoot?.querySelector("[data-lean-root]"))
+      Boolean(element.shadowRoot?.querySelector("[data-iktia-root]"))
     )
   ).resolves.toBe(false)
 

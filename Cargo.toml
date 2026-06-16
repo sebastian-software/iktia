@@ -1,11 +1,11 @@
 [workspace]
-members = ["crates/lean-wc-core", "crates/lean-wc-node"]
+members = ["crates/iktia-core", "crates/iktia-node"]
 resolver = "2"
 
 [workspace.package]
 edition = "2024"
 license = "MIT"
-repository = "https://github.com/sebastian-software/lean-wc"
+repository = "https://github.com/sebastian-software/iktia"
 rust-version = "1.93"
 version = "0.0.0"
 

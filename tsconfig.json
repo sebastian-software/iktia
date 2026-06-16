@@ -2,8 +2,9 @@
   "extends": "./tsconfig.base.json",
   "files": [],
   "references": [
-    { "path": "./packages/core-node" },
-    { "path": "./packages/lean-wc" }
+    { "path": "./packages/compiler" },
+    { "path": "./packages/core" },
+    { "path": "./packages/runtime" },
+    { "path": "./packages/vite" }
   ]
 }
-

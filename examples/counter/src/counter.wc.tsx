@@ -1,4 +1,4 @@
-import { computed, effect, event, signal, type ComponentOptions } from "lean-wc"
+import { computed, effect, event, signal, type ComponentOptions } from "@iktia/core"
 
 export type CounterProps = {
   label?: string

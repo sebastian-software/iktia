@@ -1,10 +1,10 @@
 import { resolve } from "node:path"
 
 import { defineConfig } from "vite"
-import { leanWebComponents } from "lean-wc/vite"
+import { iktia } from "@iktia/vite"
 
 function demoBasePath(): string {
-  if (process.env.LEAN_WC_GITHUB_PAGES !== "true") {
+  if (process.env.IKTIA_GITHUB_PAGES !== "true") {
     return "/"
   }
 
@@ -22,5 +22,5 @@ export default defineConfig({
       },
     },
   },
-  plugins: [leanWebComponents({ prerender: true })],
+  plugins: [iktia({ prerender: true })],
 })

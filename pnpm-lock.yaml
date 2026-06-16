@@ -23,9 +23,12 @@ importers:
 
   examples/counter:
     dependencies:
-      lean-wc:
+      '@iktia/core':
         specifier: workspace:^
-        version: link:../../packages/lean-wc
+        version: link:../../packages/core
+      '@iktia/vite':
+        specifier: workspace:^
+        version: link:../../packages/vite
     devDependencies:
       '@playwright/test':
         specifier: ^1.60.0
@@ -37,7 +40,7 @@ importers:
         specifier: ^8.0.16
         version: 8.0.16(@types/node@25.9.3)(jiti@2.7.0)
 
-  packages/core-node:
+  packages/compiler:
     devDependencies:
       '@types/node':
         specifier: ^25.0.0
@@ -52,11 +55,41 @@ importers:
         specifier: ^4.1.6
         version: 4.1.8(@types/node@25.9.3)(vite@8.0.16(@types/node@25.9.3)(jiti@2.7.0))
 
-  packages/lean-wc:
+  packages/core:
+    devDependencies:
+      '@types/node':
+        specifier: ^25.0.0
+        version: 25.9.3
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      unbuild:
+        specifier: ^3.6.1
+        version: 3.6.1(typescript@6.0.3)
+      vitest:
+        specifier: ^4.1.6
+        version: 4.1.8(@types/node@25.9.3)(vite@8.0.16(@types/node@25.9.3)(jiti@2.7.0))
+
+  packages/runtime:
+    devDependencies:
+      '@types/node':
+        specifier: ^25.0.0
+        version: 25.9.3
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      unbuild:
+        specifier: ^3.6.1
+        version: 3.6.1(typescript@6.0.3)
+      vitest:
+        specifier: ^4.1.6
+        version: 4.1.8(@types/node@25.9.3)(vite@8.0.16(@types/node@25.9.3)(jiti@2.7.0))
+
+  packages/vite:
     dependencies:
-      '@lean-wc/core-node':
+      '@iktia/compiler':
         specifier: workspace:^
-        version: link:../core-node
+        version: link:../compiler
     devDependencies:
       '@types/node':
         specifier: ^25.0.0

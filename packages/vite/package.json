@@ -1,0 +1,40 @@
+{
+  "name": "@iktia/vite",
+  "version": "0.0.0",
+  "description": "Vite plugin for compiling Iktia native interface elements.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/vite.ts",
+      "import": "./src/vite.ts",
+      "require": "./dist/vite.cjs"
+    }
+  },
+  "main": "./dist/vite.cjs",
+  "module": "./dist/vite.mjs",
+  "types": "./src/vite.ts",
+  "sideEffects": false,
+  "files": ["dist/"],
+  "scripts": {
+    "build": "unbuild",
+    "check-types": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --globals src/*.test.ts"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "@iktia/compiler": "workspace:^"
+  },
+  "peerDependencies": {
+    "vite": "^6 || ^7 || ^8"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.0",
+    "typescript": "^6.0.3",
+    "unbuild": "^3.6.1",
+    "vite": "^8.0.16",
+    "vitest": "^4.1.6"
+  }
+}

@@ -1,0 +1,24 @@
+[package]
+name = "iktia-core"
+description = "Rust compiler core for Iktia TSX-to-Web-Component transforms."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+oxc_allocator = "0.132.0"
+oxc_ast = "0.132.0"
+oxc_parser = "0.132.0"
+oxc_span = "0.132.0"
+regex = "1.12.3"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
+thiserror = "2.0.18"
+
+[lints]
+workspace = true
