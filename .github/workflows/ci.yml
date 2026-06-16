@@ -133,6 +133,9 @@ jobs:
       - name: Build local native binding
         run: pnpm build:native
 
+      - name: Build packages
+        run: pnpm build
+
       - name: Prepare demo DSD
         run: pnpm --filter @iktia/example-counter prepare:dsd
 
