@@ -414,6 +414,10 @@ mod tests {
         assert!(result.code.contains("#runEffects()"));
         assert!(result.code.contains("document.body.dataset.lastEffect"));
         assert!(result.code.contains("this.#flush();"));
+        assert!(
+            !result.code.contains("@iktia/runtime"),
+            "state, computed, and effects should remain generated component semantics"
+        );
     }
 
     #[test]
@@ -825,7 +829,11 @@ mod tests {
         assert!(result.code.contains("\"pointer-move\": \"pointermove\""));
         assert!(result.code.contains("\"pointer-over\": \"pointerover\""));
         assert!(result.code.contains("\"pointer-leave\": \"pointerleave\""));
-        assert!(result.code.contains("\"pointer-cancel\": \"pointercancel\""));
+        assert!(
+            result
+                .code
+                .contains("\"pointer-cancel\": \"pointercancel\"")
+        );
         assert!(result.code.contains("\"context-menu\": \"contextmenu\""));
         assert!(result.code.contains("\"before-input\": \"beforeinput\""));
         assert!(result.code.contains("target.style[property]"));

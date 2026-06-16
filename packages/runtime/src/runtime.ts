@@ -7,7 +7,7 @@ export type EventInitOptions = {
 export function createIktiaEvent<Detail>(
   name: string,
   detail: Detail,
-  options: EventInitOptions = {}
+  options: Readonly<EventInitOptions> = {}
 ): CustomEvent<Detail> {
   return new CustomEvent(name, {
     bubbles: options.bubbles ?? true,

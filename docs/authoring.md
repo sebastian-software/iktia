@@ -73,6 +73,10 @@ The package exposes:
 * `@iktia/cli`: `iktia compile`, `iktia prerender`, and `iktia info`.
 * `@iktia/vite`: Vite transform plugin.
 
+The runtime package is intentionally limited to small browser platform helpers;
+it is not where component state, effects, control flow, or list rendering live.
+See [Runtime boundary](runtime-boundary.md) for the current helper policy.
+
 ## Vite Setup
 
 Installed packages resolve the matching optional native package automatically.
