@@ -147,3 +147,45 @@ test("declarative shadow dom reports development hydration mismatches", async ({
     .poll(() => pageErrors.some((message) => message.includes("lean-wc hydration mismatch")))
     .toBe(true)
 })
+
+test("declarative shadow dom remounts on production hydration mismatches", async ({
+  page,
+}) => {
+  const pageErrors: string[] = []
+  page.on("pageerror", (error) => {
+    pageErrors.push(error.message)
+  })
+
+  await page.goto("/dsd.html?delayUpgrade=1")
+  const counter = page.locator("#dsd-counter-case x-counter")
+  await counter.evaluate((element) => {
+    element.shadowRoot
+      ?.querySelector("[data-lean-node='node0']")
+      ?.removeAttribute("data-lean-node")
+  })
+
+  await page.evaluate(async () => {
+    const response = await fetch("/src/counter.wc.tsx")
+    let code = await response.text()
+    code = code.replace("return import.meta.env?.DEV ?? true;", "return false;")
+    const url = URL.createObjectURL(new Blob([code], { type: "text/javascript" }))
+    try {
+      await import(url)
+    } finally {
+      URL.revokeObjectURL(url)
+    }
+  })
+
+  expect(pageErrors).toEqual([])
+
+  const counterButton = counter.locator("button")
+  await expect(counterButton).toHaveText("Count: 0")
+  await expect(
+    counter.evaluate((element) =>
+      Boolean(element.shadowRoot?.querySelector("[data-lean-root]"))
+    )
+  ).resolves.toBe(false)
+
+  await counterButton.click()
+  await expect(counterButton).toHaveText("Count: 1")
+})
