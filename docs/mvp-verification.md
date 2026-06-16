@@ -15,9 +15,9 @@ cargo clippy --all-targets --all-features -- -D warnings
 cargo test --workspace
 pnpm check-types
 pnpm test
-pnpm --filter @lean-wc/example-counter type-check
-pnpm --filter @lean-wc/example-counter build
-pnpm --filter @lean-wc/example-counter test
+pnpm --filter @iktia/example-counter type-check
+pnpm --filter @iktia/example-counter build
+pnpm --filter @iktia/example-counter test
 ```
 
 ## Expected Coverage
@@ -50,7 +50,7 @@ Rust core:
 * Generated classes reuse existing declarative shadow roots before any
   `attachShadow()` fallback.
 * DSD prerender emits `<template shadowrootmode="open">`, supported initial
-  values, scoped styles, slots, and DSD-only `data-lean-*` hydration markers.
+  values, scoped styles, slots, and DSD-only `data-iktia-*` hydration markers.
 * DSD hydration binds existing nodes, installs event listeners, reports
   development mismatches, and preserves the imperative remount path.
 * PascalCase child component JSX rewrites to inferred kebab-case Custom Element

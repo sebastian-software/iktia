@@ -1,4 +1,4 @@
-# lean-wc Milestone Plan v2
+# Iktia Milestone Plan v2
 
 Status: 2026-06-16
 
@@ -176,7 +176,7 @@ must make mount, update, disconnect, and cleanup behavior explicit.
 ```sh
 cargo test --workspace
 pnpm check-types
-pnpm --filter @lean-wc/example-counter test
+pnpm --filter @iktia/example-counter test
 ```
 
 ### Planned Commits
@@ -190,7 +190,7 @@ pnpm --filter @lean-wc/example-counter test
 
 Add explicit control-flow constructs rather than accepting arbitrary JSX
 JavaScript patterns. This follows the spirit of Solid's `<Show>` and `<For>`
-while keeping lean-wc compiler-owned and statically analyzable.
+while keeping Iktia compiler-owned and statically analyzable.
 
 ### Scope
 
@@ -248,7 +248,7 @@ semantics.
   practical.
 * Keep helpers usable independently from the compiler where possible.
 * Document the deliberate disagreement with Remix v3's "religiously runtime"
-  principle: lean-wc is intentionally compiler-first for Web Component output.
+  principle: Iktia is intentionally compiler-first for Web Component output.
 
 ### Out of Scope
 
@@ -283,7 +283,7 @@ cargo test --workspace
 
 ### Purpose
 
-Define the styling and accessibility contracts expected from lean-wc primitive
+Define the styling and accessibility contracts expected from Iktia primitive
 components. This is not a UI kit milestone. It establishes conventions that
 make generated Web Components inspectable, styleable, and composable.
 
@@ -313,7 +313,7 @@ make generated Web Components inspectable, styleable, and composable.
 ### Verification
 
 ```sh
-pnpm --filter @lean-wc/example-counter test
+pnpm --filter @iktia/example-counter test
 pnpm check-types
 cargo test --workspace
 ```
@@ -333,7 +333,7 @@ to be trusted by users.
 
 ### Scope
 
-* Introduce a component AST analyzer module in `lean-wc-core`.
+* Introduce a component AST analyzer module in `iktia-core`.
 * Preserve existing accepted fixtures during the refactor.
 * Add rejected syntax fixtures for unsupported patterns.
 * Capture stable spans for future diagnostics and source maps.

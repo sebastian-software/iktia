@@ -7,7 +7,7 @@ of becoming a general playground.
 ## Current Demo Site
 
 The first published site is `examples/counter`. It is a Vite app that imports
-`.wc.tsx` modules through the `lean-wc` Vite plugin and renders the generated
+`.wc.tsx` modules through the Iktia Vite plugin and renders the generated
 native Custom Elements in a normal browser page.
 
 | Section | Component | Demonstrates |
@@ -36,16 +36,16 @@ Run these commands from the workspace root.
 ```sh
 pnpm install
 pnpm build:native
-pnpm --filter @lean-wc/example-counter prepare:dsd
-pnpm --filter @lean-wc/example-counter type-check
-pnpm --filter @lean-wc/example-counter build
-pnpm --filter @lean-wc/example-counter test
+pnpm --filter @iktia/example-counter prepare:dsd
+pnpm --filter @iktia/example-counter type-check
+pnpm --filter @iktia/example-counter build
+pnpm --filter @iktia/example-counter test
 ```
 
 Use the Vite dev server when iterating on the demo copy or visual structure.
 
 ```sh
-pnpm --filter @lean-wc/example-counter vite --host 127.0.0.1
+pnpm --filter @iktia/example-counter vite --host 127.0.0.1
 ```
 
 ## GitHub Pages Deployment
@@ -66,7 +66,7 @@ Repository maintainers still need to set the GitHub Pages source to
 `GitHub Actions` in the repository settings. No generated `dist` files are
 committed to the repository.
 
-The demo Vite config reads `LEAN_WC_GITHUB_PAGES=true` and derives the public
+The demo Vite config reads `IKTIA_GITHUB_PAGES=true` and derives the public
 base path from `GITHUB_REPOSITORY`, so project pages are served from
 `/<repository>/` while local development keeps `/`.
 

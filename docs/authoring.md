@@ -1,9 +1,9 @@
-# lean-wc Authoring Guide
+# Iktia Authoring Guide
 
-`lean-wc` is a Rust/OXC-powered TSX compiler for native Web Components. The
-TypeScript package provides the authoring types, JSX surface, and Vite plugin;
-the compiler semantics live in Rust and are exposed to Node through the native
-`@lean-wc/core-node` wrapper.
+Iktia is a Rust/OXC-powered TSX compiler for native Web Components. The
+TypeScript packages provide authoring types, JSX runtime types, runtime helpers,
+and Vite integration. Compiler semantics live in Rust and are exposed to Node
+through the native `@iktia/compiler` wrapper.
 
 This guide describes the current MVP authoring model. The authoring functions
 are compile-time APIs. They throw if a `.wc.tsx` source file is executed without
@@ -20,7 +20,7 @@ Component source files should use the `.wc.tsx` extension so the Vite plugin can
 select them with its default include filter.
 
 ```tsx
-import { computed, event, on, signal, type ComponentOptions } from "lean-wc"
+import { computed, event, on, signal, type ComponentOptions } from "@iktia/core"
 
 export type CounterProps = {
   label?: string
@@ -56,13 +56,13 @@ function component name plus a default export.
 
 ## TypeScript Setup
 
-Use the automatic JSX runtime and point `jsxImportSource` at `lean-wc`.
+Use the automatic JSX runtime and point `jsxImportSource` at `@iktia/core`.
 
 ```json
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "lean-wc",
+    "jsxImportSource": "@iktia/core",
     "types": ["vite/client"]
   }
 }
@@ -70,10 +70,10 @@ Use the automatic JSX runtime and point `jsxImportSource` at `lean-wc`.
 
 The package exposes:
 
-* `lean-wc`: authoring functions and shared runtime helpers.
-* `lean-wc/jsx-runtime`: intrinsic JSX element and attribute types.
-* `lean-wc/jsx-dev-runtime`: development JSX runtime surface.
-* `lean-wc/vite`: Vite transform plugin.
+* `@iktia/core`: authoring functions and JSX types.
+* `@iktia/runtime`: runtime helpers.
+* `@iktia/compiler`: native compiler wrapper.
+* `@iktia/vite`: Vite transform plugin.
 
 ## Vite Setup
 
@@ -87,17 +87,17 @@ Add the plugin before normal framework or app plugins.
 
 ```ts
 import { defineConfig } from "vite"
-import leanWebComponents from "lean-wc/vite"
+import { iktia } from "@iktia/vite"
 
 export default defineConfig({
-  plugins: [leanWebComponents()],
+  plugins: [iktia()],
 })
 ```
 
 The default filter transforms `.wc.tsx` files and excludes `node_modules`.
 
 ```ts
-leanWebComponents({
+iktia({
   include: /\.wc\.tsx$/,
   exclude: /node_modules/,
 })
@@ -108,11 +108,11 @@ component authoring option. Enable the optional Vite manifest only when a build
 step needs DSD metadata.
 
 ```ts
-leanWebComponents({
+iktia({
   prerender: {
     include: /\.wc\.tsx$/,
     exclude: /node_modules/,
-    manifestFile: "lean-wc-manifest.json",
+    manifestFile: "iktia-manifest.json",
   },
 })
 ```
@@ -122,7 +122,7 @@ initial props. The Rust core serializes `shadow: true` components as host HTML
 with `<template shadowrootmode="open">`.
 
 ```ts
-import { renderDeclarativeShadowDom } from "@lean-wc/core-node"
+import { renderDeclarativeShadowDom } from "@iktia/compiler"
 
 const rendered = renderDeclarativeShadowDom({
   filename: "counter.wc.tsx",
@@ -428,9 +428,9 @@ pnpm install
 pnpm build:native
 pnpm check-types
 pnpm test
-pnpm --filter @lean-wc/example-counter type-check
-pnpm --filter @lean-wc/example-counter build
-pnpm --filter @lean-wc/example-counter test
+pnpm --filter @iktia/example-counter type-check
+pnpm --filter @iktia/example-counter build
+pnpm --filter @iktia/example-counter test
 cargo fmt --check
 cargo clippy --all-targets --all-features -- -D warnings
 cargo test --workspace

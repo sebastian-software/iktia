@@ -6,7 +6,7 @@ Weight: P0
 
 ## Context
 
-TSX can express arbitrary JavaScript. lean-wc cannot safely compile all of that
+TSX can express arbitrary JavaScript. Iktia cannot safely compile all of that
 without becoming a runtime framework. The project needs clear syntax boundaries
 that keep generated output predictable.
 

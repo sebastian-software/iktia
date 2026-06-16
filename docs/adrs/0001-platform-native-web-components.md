@@ -6,7 +6,7 @@ Weight: P0
 
 ## Context
 
-lean-wc exists to turn typed TSX authoring into native browser components. The
+Iktia exists to turn typed TSX authoring into native browser components. The
 project needs a stable integration contract for design systems, embedded
 widgets, and multi-framework product surfaces.
 

@@ -1,15 +1,16 @@
-# lean-wc
+# Iktia
 
-Rust/OXC-powered TSX compilation for native Web Components.
+Iktia is a lean TSX compiler for native interface elements.
 
-`lean-wc` is an experimental compiler for teams that want the authoring comfort
-of typed TSX without shipping a framework runtime, virtual DOM, or React
-compatibility layer. You write a small, statically analyzable `.wc.tsx` file.
-The Vite plugin sends it through a typed Node wrapper into a Rust compiler core,
-and the output is a native `HTMLElement` class.
+Write declarative TypeScript and TSX. Iktia compiles your components into
+lightweight Web Components that work across frameworks, CMS pages, and classic
+web applications.
+
+No React runtime. No virtual DOM. Just typed components shaped into native
+elements.
 
 ```tsx
-import { computed, event, on, signal, type ComponentOptions } from "lean-wc"
+import { computed, event, on, signal, type ComponentOptions } from "@iktia/core"
 
 export type CounterProps = {
   label?: string
@@ -68,8 +69,8 @@ accepted syntax boundary.
 
 Web Components are the browser platform's reusable component primitive. The
 ecosystem already has mature ways to build them: runtime libraries, framework
-adapters, full compilers, and design-system toolkits. `lean-wc` explores a
-specific point in that landscape:
+adapters, full compilers, and design-system toolkits. Iktia explores a focused
+point in that landscape:
 
 * Rust owns compiler semantics.
 * TypeScript owns authoring types, package ergonomics, and Vite integration.
@@ -82,7 +83,7 @@ less runtime surface than framework-backed wrappers.
 
 ## Good Fit
 
-`lean-wc` is aimed at:
+Iktia is aimed at:
 
 * design-system packages that need framework-neutral output
 * embedded widgets that should not bring an app framework with them
@@ -115,7 +116,7 @@ Configure TypeScript for the automatic JSX runtime.
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "lean-wc"
+    "jsxImportSource": "@iktia/core"
   }
 }
 ```
@@ -124,10 +125,10 @@ Add the Vite plugin.
 
 ```ts
 import { defineConfig } from "vite"
-import leanWebComponents from "lean-wc/vite"
+import { iktia } from "@iktia/vite"
 
 export default defineConfig({
-  plugins: [leanWebComponents()],
+  plugins: [iktia()],
 })
 ```
 
@@ -140,8 +141,8 @@ import "./counter.wc.tsx"
 Run the example.
 
 ```sh
-pnpm --filter @lean-wc/example-counter build
-pnpm --filter @lean-wc/example-counter test
+pnpm --filter @iktia/example-counter build
+pnpm --filter @iktia/example-counter test
 ```
 
 The demo site is designed as a small public proof surface. It currently covers
@@ -159,7 +160,7 @@ compiler detail. `Counter` compiles to `x-counter`, while multi-word names such
 as `CounterButton` compile to `counter-button`.
 
 ```tsx
-import { Show, computed, event, on, signal, type ComponentOptions } from "lean-wc"
+import { Show, computed, event, on, signal, type ComponentOptions } from "@iktia/core"
 
 export type ButtonProps = {
   label?: string
@@ -224,41 +225,50 @@ Current APIs:
 
 For details, see [docs/authoring.md](docs/authoring.md).
 
+## Packages
+
+```txt
+@iktia/core       Authoring API and JSX runtime types
+@iktia/runtime    Runtime helpers used by generated elements
+@iktia/compiler   Node wrapper around the Rust compiler
+@iktia/vite       Vite transform and optional DSD manifest plugin
+```
+
 ## Architecture
 
 ```text
 .wc.tsx source
   -> Vite plugin filter
-  -> @lean-wc/core-node typed wrapper
-  -> lean-wc-node N-API module
-  -> lean-wc-core Rust compiler
+  -> @iktia/compiler typed wrapper
+  -> iktia-node N-API module
+  -> iktia-core Rust compiler
   -> OXC TSX parse validation
   -> component analysis and code generation
   -> native Custom Element JavaScript
 ```
 
-The TypeScript package is intentionally thin. It provides types, authoring
-stubs, runtime helpers, and Vite integration. The Rust crates own parsing,
-analysis, and output decisions.
+The TypeScript packages stay thin. They provide types, authoring stubs, runtime
+helpers, and bundler integration. The Rust crates own parsing, analysis, and
+output decisions.
 
-The normal Vite transform still emits imperative Custom Element modules. The
-separate `renderDeclarativeShadowDom()` path prerenders compiler-known
-`shadow: true` components as `<template shadowrootmode="open">` host HTML. The
-generated client class adopts an existing declarative shadow root before any
-`attachShadow()` fallback, binds `data-lean-*` hydration markers, throws a
-clear development mismatch diagnostic, and remounts imperatively in production
-when a stale prerender artifact cannot be hydrated.
+The normal Vite transform emits imperative Custom Element modules. The separate
+`renderDeclarativeShadowDom()` path prerenders compiler-known `shadow: true`
+components as `<template shadowrootmode="open">` host HTML. The generated client
+class adopts an existing declarative shadow root before any `attachShadow()`
+fallback, binds `data-iktia-*` hydration markers, throws a clear development
+mismatch diagnostic, and remounts imperatively in production when a stale
+prerender artifact cannot be hydrated.
 
 ## Landscape
 
 This section is a product-positioning snapshot from June 2026. It is meant to
-explain where `lean-wc` fits, not to rank mature projects against an MVP.
+explain where Iktia fits, not to rank mature projects against an MVP.
 
-| Tool or category | Authoring model | Runtime or output model | Strong fit | How `lean-wc` differs |
+| Tool or category | Authoring model | Runtime or output model | Strong fit | How Iktia differs |
 | --- | --- | --- | --- | --- |
 | Native Custom Elements | JavaScript classes extending `HTMLElement` | Browser-native Custom Elements | Maximum platform control and minimum dependency surface | Adds typed TSX authoring and compiler-generated boilerplate |
 | Lit | `LitElement`, reactive properties, tagged template literals | Lightweight Lit runtime and reactive update cycle | Mature web component libraries with broad docs and ecosystem | Avoids a template/runtime library and compiles a narrow TSX subset to direct DOM code |
-| Stencil | TypeScript, JSX, and CSS compiler for Web Components | Compiler-generated Custom Elements | Production component libraries that need a complete Web Component compiler toolchain | Closest category neighbor, but `lean-wc` is Rust/OXC-first and intentionally smaller |
+| Stencil | TypeScript, JSX, and CSS compiler for Web Components | Compiler-generated Custom Elements | Production component libraries that need a complete Web Component compiler toolchain | Closest category neighbor, but Iktia is Rust/OXC-first and intentionally smaller |
 | FAST | Web Component libraries and design-system foundation | FAST element/runtime model and component packages | Design systems aligned with FAST/Fluent patterns | Does not provide a design system or runtime foundation package |
 | Svelte custom elements | Svelte components compiled behind a Custom Element wrapper | Svelte component lifecycle wrapped as a custom element | Teams already building in Svelte that need custom-element distribution | The source component is the Custom Element contract itself, not a wrapped framework component |
 | Vue custom elements | Vue component APIs through `defineCustomElement()` | Native Custom Element constructor backed by Vue's component model | Vue teams publishing embeddable components | Does not bring Vue's component/runtime model into the element |
@@ -269,111 +279,38 @@ explain where `lean-wc` fits, not to rank mature projects against an MVP.
 | Solid custom elements | Solid integration for Custom Web Components | Solid primitives exposed through Custom Elements | Solid teams that want custom-element distribution | Solid-inspired ergonomics without depending on Solid runtime semantics |
 | Mitosis | JSX source compiled to many frameworks | Framework-specific generated outputs | Design systems that must target React, Vue, Svelte, Angular, Solid, Qwik, and more | Targets one output deliberately: native Custom Elements |
 
-The most direct comparison is Stencil because it is also a Web Component
-compiler with TSX authoring. The strategic distinction is scope. Stencil is a
-complete, established compiler ecosystem. `lean-wc` is a focused experiment in
-whether Rust/OXC can provide a smaller compiler core with a typed TypeScript
+Stencil is the closest established category neighbor because it is also a
+complete, established compiler ecosystem. Iktia is a focused experiment in
+what a smaller Rust/OXC-first compiler can provide with a deliberately narrow
 authoring boundary and no framework runtime goal.
-
-## Technical Relatives
-
-The JavaScript tooling direction matters here. OXC, SWC, Rolldown, and esbuild
-show that high-performance native tooling is now normal in frontend pipelines.
-`lean-wc` follows that direction, but it is not a general bundler or TypeScript
-transpiler. Its job is narrower: analyze a constrained component authoring
-format and emit native Custom Element modules.
-
-OXC is the parser and analysis foundation used by the Rust core. The Vite
-integration stays thin so the project can benefit from existing bundler
-infrastructure instead of becoming a bundler itself.
-
-## Current Limitations
-
-The MVP accepts a deliberately small TSX subset:
-
-* one exported PascalCase function component or one legacy `component()` call
-  per transformed module
-* deterministic native tag inference from the PascalCase function name
-* destructured function props with defaults
-* arrow function callback with a block body for legacy `component()` syntax
-* `return (...)` around the TSX template
-* `const` authoring declarations for signals, computed values, effects, and
-  events
-* one root TSX element
-* static attributes, dynamic attributes, text interpolation, event handlers,
-  PascalCase child components, explicit `<Show>` / `<For>` control flow, slots,
-  and inline style strings
-
-Unsupported today:
-
-* fragments and multiple root elements
-* arbitrary conditional child trees outside `<Show>`
-* arbitrary array mapping to JSX children outside `<For>`
-* spread attributes
-* component composition that requires module graph analysis beyond direct `.wc`
-  imports
-* imported CSS module object access
-* source maps
-* production native package publishing
-* arbitrary JavaScript execution during Declarative Shadow DOM prerendering
-
-The compiler should fail early on unsupported syntax rather than quietly add a
-framework runtime.
 
 ## Development
 
-Run the normal checks from the workspace root.
+Build and test from the workspace root.
 
 ```sh
 pnpm install
 pnpm build:native
-cargo fmt --check
-cargo clippy --all-targets --all-features -- -D warnings
-cargo test --workspace
-pnpm check-types
+pnpm check
 pnpm test
-pnpm --filter @lean-wc/example-counter type-check
-pnpm --filter @lean-wc/example-counter build
-pnpm --filter @lean-wc/example-counter test
+pnpm --filter @iktia/example-counter type-check
+pnpm --filter @iktia/example-counter build
+pnpm --filter @iktia/example-counter test
 ```
 
-Useful package boundaries:
+Workspace layout:
 
-* `crates/lean-wc-core`: Rust compiler analysis and code generation
-* `crates/lean-wc-node`: N-API wrapper around the Rust core
-* `packages/core-node`: typed Node loader for the native binding
-* `packages/lean-wc`: authoring API, JSX types, runtime helper, and Vite plugin
-* `examples/counter`: Vite example and browser smoke test
+* `crates/iktia-core`: Rust compiler analysis and code generation
+* `crates/iktia-node`: N-API wrapper around the Rust core
+* `packages/compiler`: typed Node loader for the native binding
+* `packages/core`: authoring API and JSX types
+* `packages/runtime`: runtime helper surface
+* `packages/vite`: Vite plugin and DSD manifest integration
+* `examples/counter`: browser smoke-test example and static DSD output
 
-## Roadmap
+Useful references:
 
-Near-term work should focus on compiler correctness before broadening the API:
-
-* continue replacing MVP extraction logic with fuller OXC AST-driven analysis
-* add source-map generation
-* add span-based diagnostics for unsupported syntax
-* expand accepted TSX fixtures and rejection fixtures
-* decide the CSS strategy for imported styles and Vanilla Extract
-* prepare native binary packaging for supported platforms
-* document migration and comparison pages once the API stabilizes
-
-## Research Links
-
-Official or primary references used for the comparison snapshot:
-
+* [Authoring guide](docs/authoring.md)
+* [Compiler limitations](docs/compiler-limitations.md)
+* [Declarative Shadow DOM plan](docs/declarative-shadow-dom-plan.md)
 * [MDN Web Components](https://developer.mozilla.org/en-US/docs/Web/API/Web_components)
-* [Lit](https://lit.dev/docs/)
-* [Stencil](https://stenciljs.com/docs/introduction)
-* [FAST](https://www.fast.design/)
-* [Svelte custom elements](https://svelte.dev/docs/svelte/custom-elements)
-* [Vue custom elements](https://vuejs.org/guide/extras/web-components)
-* [Angular Elements](https://angular.dev/guide/elements)
-* [Atomico](https://atomicojs.dev/)
-* [Hybrids](https://hybrids.js.org/)
-* [Preact custom elements](https://preactjs.com/guide/v10/preact-custom-element/)
-* [Solid Element](https://github.com/solidjs/solid/blob/main/packages/solid-element/README.md)
-* [Mitosis](https://mitosis.builder.io/docs/overview/)
-* [OXC](https://oxc.rs/)
-* [SWC](https://swc.rs/)
-* [Rolldown](https://rolldown.rs/)
-* [esbuild](https://esbuild.github.io/)

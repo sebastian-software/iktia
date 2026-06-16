@@ -1,4 +1,4 @@
-# Lean TSX-to-Web-Component Compiler: Meilenstein-Plan
+# Iktia TSX-to-Web-Component Compiler: Meilenstein-Plan
 
 Stand: 2026-06-16
 
@@ -74,7 +74,7 @@ zwischen Compiler, TypeScript-Hostschicht und Tiny Runtime.
 * Repo-Scaffold, Cargo Workspace oder pnpm Workspace.
 * Compiler-, Runtime-, Vite- oder Beispielcode.
 * Auswahl eines finalen Package-Namens jenseits der Arbeitsbezeichnung
-  `lean-wc`.
+  Iktia.
 
 ### Deliverables
 
@@ -112,8 +112,8 @@ spaeteren Compiler-, Binding-, Runtime- und Vite-Pakete aufnehmen kann.
 
 * pnpm Workspace mit Root-`package.json`, `pnpm-workspace.yaml`, gemeinsamen
   Scripts und Node-Engine.
-* Cargo Workspace mit `lean-wc-core` und `lean-wc-node`.
-* Package-Skeletons fuer `lean-wc` und `@lean-wc/core-node`.
+* Cargo Workspace mit `iktia-core` und `iktia-node`.
+* Package-Skeletons fuer Iktia und `@iktia/compiler`.
 * Lints nach Ferrocat/Palamedes-Muster: strikte Rust-Lints, Clippy-Warnungen,
   TypeScript-Check, Oxlint/Oxfmt oder lokale aequivalente Repo-Standards.
 * Minimale CI-nahe Verifikationsscripts im Root.
@@ -180,7 +180,7 @@ Produktmerkmal, nicht nur ein Implementierungsdetail.
 
 ### Deliverables
 
-* Public Package `lean-wc`.
+* Public Package Iktia.
 * Exportierte Authoring-Typen und JSX Runtime Types.
 * Type-Test-Fixtures fuer gueltige und ungueltige Nutzung.
 
@@ -189,19 +189,19 @@ Produktmerkmal, nicht nur ein Implementierungsdetail.
 * Falsche Event-Details schlagen im Typecheck fehl.
 * Prop-Defaults bestimmen den erwarteten Rueckgabetyp.
 * `prop.boolean` und `prop.number` sind getrennt typisiert.
-* Autorenseitiger Import aus `lean-wc` und TSX-Konfiguration funktionieren in
+* Autorenseitiger Import aus Iktia und TSX-Konfiguration funktionieren in
   einer isolierten Fixture.
 
 ### Tests und Pruefkommandos
 
 ```sh
 pnpm check-types
-pnpm --filter lean-wc test
+pnpm --filter Iktia test
 ```
 
 ### Geplante Commits
 
-* `feat: add lean-wc authoring types`
+* `feat: add Iktia authoring types`
 * `feat: add jsx runtime type surface`
 * `test: add authoring type tests`
 
@@ -234,7 +234,7 @@ Diagnosen ab.
 
 ### Deliverables
 
-* `lean-wc-core` mit oeffentlicher `analyze_component_module()`-API.
+* `iktia-core` mit oeffentlicher `analyze_component_module()`-API.
 * Strukturierte Rust-IR-Typen mit Dokumentation.
 * Parser- und Analyse-Fehler mit Positionen, soweit OXC-Spans verfuegbar sind.
 * Fixtures fuer Button, Counter und bewusst ungueltige Komponenten.
@@ -324,10 +324,10 @@ Operation auf. Der Rust-Core bleibt frei von N-API-Abhaengigkeiten.
 
 ### Scope
 
-* `lean-wc-node` als `cdylib` mit `napi-rs`.
+* `iktia-node` als `cdylib` mit `napi-rs`.
 * Typed Request/Response-Objekte fuer `transformComponent`.
 * Fehlerkonvertierung von Rust-Fehlern zu Node-Errors mit Dateikontext.
-* `@lean-wc/core-node` als duenne TypeScript-Schicht fuer Plattformauflösung
+* `@iktia/compiler` als duenne TypeScript-Schicht fuer Plattformauflösung
   und ergonomische Exports.
 * Generierte oder abgeleitete TypeScript-Typen aus dem Binding-Vertrag.
 
@@ -354,14 +354,14 @@ Operation auf. Der Rust-Core bleibt frei von N-API-Abhaengigkeiten.
 
 ```sh
 cargo test --workspace
-pnpm --filter @lean-wc/core-node test
+pnpm --filter @iktia/compiler test
 pnpm check-types
 ```
 
 ### Geplante Commits
 
 * `feat: expose native transform through napi`
-* `feat: add core-node wrapper`
+* `feat: add compiler wrapper`
 * `test: add native wrapper tests`
 
 ## M6: Vite-Plugin Vertical Slice
@@ -373,7 +373,7 @@ nativen Compiler in einem realen Bundler-Flow nutzen.
 
 ### Scope
 
-* `lean-wc/vite` Export mit `leanWebComponents(options)`.
+* `@iktia/vite` Export mit `iktia(options)`.
 * Default-Include `/\.wc\.tsx$/`, Exclude fuer `node_modules`.
 * `enforce: "pre"` Transform.
 * Plugin-Optionen fuer `include`, `exclude`, `shadow`, `styles` und
@@ -402,7 +402,7 @@ nativen Compiler in einem realen Bundler-Flow nutzen.
 ### Tests und Pruefkommandos
 
 ```sh
-pnpm --filter lean-wc test
+pnpm --filter Iktia test
 pnpm check-types
 ```
 

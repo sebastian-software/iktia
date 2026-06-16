@@ -3,7 +3,7 @@
 Status: 2026-06-16
 
 This document evaluates Declarative Shadow DOM as a first-class output target
-for lean-wc. The goal is to make generated Web Components useful to the browser
+for Iktia. The goal is to make generated Web Components useful to the browser
 as early as possible: parsed markup, scoped styles, slots, and static structure
 should be available before the custom element JavaScript has downloaded,
 executed, and upgraded the element.
@@ -16,7 +16,7 @@ browser tests for delayed upgrade and development mismatch diagnostics.
 
 ## Executive Recommendation
 
-Declarative Shadow DOM should become a core direction for lean-wc, but it
+Declarative Shadow DOM should become a core direction for Iktia, but it
 should be implemented in layers:
 
 1. Make generated custom elements safely adopt an existing declarative shadow
@@ -52,7 +52,7 @@ These decisions are fixed for the first DSD implementation pass:
 * v1 static evaluation includes prop defaults, signal/state initializers,
   literal arrays/objects, and simple template strings over those values.
 * v1 does not execute arbitrary JavaScript or TypeScript.
-* Visible `data-lean-*` hydration markers are emitted only in DSD HTML.
+* Visible `data-iktia-*` hydration markers are emitted only in DSD HTML.
 * v1 emits only `shadowrootmode="open"`.
 * `closed` roots, `shadowrootserializable`, and DSD polyfills are deferred.
 * Unsupported browsers use the existing imperative JavaScript fallback.
@@ -96,7 +96,7 @@ The implementation has to account for several non-obvious browser rules:
 * A custom element upgraded from DSD HTML already has a shadow root before its
   constructor runs.
 * Calling `attachShadow({ mode: "open" })` on a host with a matching
-  declarative root returns the existing root but clears its children. lean-wc
+  declarative root returns the existing root but clears its children. Iktia
   must avoid doing this during hydration.
 * `ElementInternals.shadowRoot` can expose the declarative root to the custom
   element, including closed roots.
@@ -105,11 +105,11 @@ The implementation has to account for several non-obvious browser rules:
 * `shadowrootclonable`, `shadowrootserializable`,
   `shadowrootdelegatesfocus`, `shadowrootreferencetarget`, and
   `shadowrootslotassignment` exist as advanced knobs, but should not be part of
-  the first lean-wc milestone unless the implementation needs them.
+  the first Iktia milestone unless the implementation needs them.
 
-## Why This Fits lean-wc
+## Why This Fits Iktia
 
-lean-wc already has the right strategic shape:
+Iktia already has the right strategic shape:
 
 * The output is native Custom Elements.
 * The compiler owns the template semantics.
@@ -151,8 +151,8 @@ A prerendered host could eventually look like:
 <x-counter label="Count">
   <template shadowrootmode="open">
     <style>:host { display: inline-block; }</style>
-    <button part="button" data-count="0" data-lean-node="0">
-      <span data-lean-text="0">Count: 0</span>
+    <button part="button" data-count="0" data-iktia-node="0">
+      <span data-iktia-text="0">Count: 0</span>
     </button>
   </template>
 </x-counter>
@@ -263,17 +263,17 @@ Hydration should be structural and deterministic, not virtual-DOM based.
 
 The compiler can assign stable internal markers during code generation:
 
-* `data-lean-node="0"` for dynamic element nodes that need event listeners or
+* `data-iktia-node="0"` for dynamic element nodes that need event listeners or
   dynamic attributes.
-* `data-lean-text="0"` for dynamic text placeholders.
+* `data-iktia-text="0"` for dynamic text placeholders.
 * comment or element markers for `<Show>` and `<For>` containers.
-* optional `data-lean-root` on the first generated child for diagnostic checks.
+* optional `data-iktia-root` on the first generated child for diagnostic checks.
 
 The generated class can then use the existing shadow root:
 
 ```js
-this.#button0 = this.#root.querySelector("[data-lean-node='0']")
-this.#text0 = this.#root.querySelector("[data-lean-text='0']")
+this.#button0 = this.#root.querySelector("[data-iktia-node='0']")
+this.#text0 = this.#root.querySelector("[data-iktia-text='0']")
 ```
 
 If required markers are missing, the component should throw a development
@@ -281,7 +281,7 @@ diagnostic. In production it should fall back to imperative remounting so
 published pages do not fail hard because of a stale prerender artifact.
 
 Markers are part of DSD HTML only. Normal imperative client rendering should
-not add `data-lean-*` attributes merely for debugging symmetry.
+not add `data-iktia-*` attributes merely for debugging symmetry.
 
 ## Vite And Build Integration
 
@@ -290,7 +290,7 @@ needs build-time HTML generation too.
 
 Possible integration layers:
 
-1. A low-level Node API in `@lean-wc/core-node`:
+1. A low-level Node API in `@iktia/compiler`:
 
    ```ts
    transformComponent(source, filename)
@@ -502,8 +502,8 @@ cargo clippy --all-targets --all-features -- -D warnings
 cargo test --workspace
 pnpm check-types
 pnpm test
-pnpm --filter @lean-wc/example-counter build
-pnpm --filter @lean-wc/example-counter test
+pnpm --filter @iktia/example-counter build
+pnpm --filter @iktia/example-counter test
 rg -n "TO""DO|TB""D|FIX""ME|PLACE""HOLDER" docs README.md
 ```
 

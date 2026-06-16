@@ -13,7 +13,7 @@ details.
 
 ## Decision
 
-Adopt a lean-wc-owned signal vocabulary:
+Adopt a Iktia-owned signal vocabulary:
 
 * `signal<T>()` is the preferred local state primitive.
 * `state<T>()` remains a compatibility alias.

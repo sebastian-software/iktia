@@ -1,4 +1,4 @@
-# Specification: Lean TSX-to-Web-Component Compiler
+# Specification: Iktia TSX-to-Web-Component Compiler
 
 ## 1. Zielbild
 
@@ -20,7 +20,7 @@ Gesucht wird daher ein Layer, der nicht zur Laufzeit abstrahiert, sondern zur Bu
 TSX Component Source
   → Vite Transform
   → Native Custom Element Class
-  → Browser executes lean Web Component
+  → Browser executes Iktia Web Component
 ```
 
 Das Authoring-Modell soll deklarativ sein. Die generierte Komponente darf intern imperative DOM-Mutationen enthalten.
@@ -62,7 +62,7 @@ Eine Komponente besteht aus:
 Beispiel:
 
 ```tsx
-import { component, prop, state, event } from "lean-wc";
+import { component, prop, state, event } from "@iktia/core";
 import * as styles from "./counter.css";
 
 export default component("x-counter", () => {
@@ -540,11 +540,11 @@ Das Projekt wird primär als Vite-Plugin entwickelt.
 ```ts
 // vite.config.ts
 import { defineConfig } from "vite";
-import { leanWebComponents } from "lean-wc/vite";
+import { iktia } from "@iktia/vite";
 
 export default defineConfig({
   plugins: [
-    leanWebComponents({
+    iktia({
       include: /\.wc\.tsx$/,
       shadow: true,
       styles: "adoptedStyleSheets",
@@ -649,13 +649,13 @@ Ein kleiner Shared Helper ist akzeptabel, solange er nicht zum Framework wird.
 Beispiel akzeptabel:
 
 ```ts
-import { attrToBool, scheduleMicrotask } from "lean-wc/runtime";
+import { attrToBool, scheduleMicrotask } from "@iktia/runtime";
 ```
 
 Nicht akzeptabel:
 
 ```ts
-import { render, createVNode, diff } from "lean-wc/runtime";
+import { render, createVNode, diff } from "@iktia/runtime";
 ```
 
 ## 19. MVP-Scope
@@ -692,7 +692,7 @@ Explizit noch nicht im MVP:
 ## 20. Beispielkomponente: Button
 
 ```tsx
-import { component, prop, event } from "lean-wc";
+import { component, prop, event } from "@iktia/core";
 import * as styles from "./button.css";
 
 export default component("x-button", { shadow: true }, () => {
@@ -733,7 +733,7 @@ button.addEventListener("press", () => {
 ## 21. Beispielkomponente: Text Field
 
 ```tsx
-import { component, prop, state, event } from "lean-wc";
+import { component, prop, state, event } from "@iktia/core";
 import * as styles from "./text-field.css";
 
 export default component("x-text-field", { shadow: true }, () => {
@@ -789,7 +789,7 @@ Das Projekt besteht aus drei Teilen.
 ### 22.1 Authoring Package
 
 ```txt
-lean-wc
+Iktia
 ```
 
 Exportiert die Authoring-API:
@@ -808,7 +808,7 @@ Diese API ist primär für TypeScript und Compiler-Erkennung da. Im Idealfall wi
 ### 22.2 Vite Plugin
 
 ```txt
-lean-wc/vite
+@iktia/vite
 ```
 
 Verantwortlich für:
@@ -825,7 +825,7 @@ Verantwortlich für:
 ### 22.3 Tiny Runtime
 
 ```txt
-lean-wc/runtime
+@iktia/runtime
 ```
 
 Nur kleine, stabile Helper:
@@ -854,7 +854,7 @@ return <Tag />;
 Fehlermeldung:
 
 ```txt
-Dynamic component tags are not supported in lean-wc.
+Dynamic component tags are not supported in Iktia.
 Use explicit conditional branches instead.
 ```
 
@@ -915,6 +915,6 @@ Im Vergleich zu Mitosis:
 Kurzform:
 
 ```txt
-A Vite-native TSX compiler for lean Web Components.
+A Vite-native TSX compiler for native Web Components.
 React-like authoring, native Custom Element output, no framework runtime.
 ```

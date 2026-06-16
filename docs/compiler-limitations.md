@@ -103,12 +103,12 @@ The DSD serializer supports:
 * Literal arrays and objects for initial values.
 * Simple template strings, identifier reads, accessor reads, boolean negation,
   and simple boolean conditionals over supported values.
-* Visible `data-lean-*` markers in DSD HTML only.
+* Visible `data-iktia-*` markers in DSD HTML only.
 
 The DSD serializer does not execute arbitrary JavaScript or TypeScript. Computed
 callbacks, effects, event handlers, imports, browser APIs, and unsupported
 dynamic expressions are left for client hydration. Development hydration
-mismatches throw a `lean-wc hydration mismatch` diagnostic. Production builds
+mismatches throw a `Iktia hydration mismatch` diagnostic. Production builds
 fall back to an imperative remount.
 
 ## Unsupported Patterns
@@ -140,7 +140,7 @@ Currently unsupported:
 ## Native Binding Boundary
 
 The Node package is a thin typed adapter around the Rust N-API module. It expects
-the native binding to exist at `packages/core-node/native/lean_wc_node.node` in
+the native binding to exist at `packages/compiler/native/iktia_node.node` in
 local workspace development.
 
 ```sh

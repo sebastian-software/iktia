@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-This directory records major lean-wc architecture decisions in English. ADRs are
+This directory records major Iktia architecture decisions in English. ADRs are
 sorted by architectural weight so foundational constraints are easier to review
 than chronological trivia.
 
