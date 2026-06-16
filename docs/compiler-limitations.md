@@ -65,14 +65,13 @@ container on update; keyed diffing is not part of the current MVP.
 
 ## Styling Boundary
 
-`styles: [...]` injects string expressions into a generated `<style>` element
-when `shadow: true`. Public v0.1 component CSS uses Vite `?inline` imports.
+`styles: [...]` injects string expressions into a generated `<style>` element.
+Public v0.1 component CSS uses Vite `?inline` imports.
 
 ```tsx
 import css from "./button.css?inline"
 
 export const options = {
-  shadow: true,
   styles: [css],
 } satisfies ComponentOptions
 
@@ -91,11 +90,11 @@ properties are the v0.1 theming mechanism.
 
 Declarative Shadow DOM is generated through the explicit prerender API. Normal
 client builds keep the imperative Custom Element path. Once a component enters
-the prerender path, `shadow: true` emits DSD host HTML by default.
+the prerender path, Iktia emits DSD host HTML by default.
 
 The DSD serializer supports:
 
-* `shadow: true` components with `shadowrootmode="open"`.
+* `shadowrootmode="open"` host HTML.
 * Static elements, static attributes, text, slots, and resolved `?inline` CSS
   text.
 * Prop defaults and JSON-provided prerender props.

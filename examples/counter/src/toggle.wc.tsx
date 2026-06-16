@@ -16,7 +16,6 @@ export type ToggleProps = {
 }
 
 export const options = {
-  shadow: true,
   styles: [css],
 } satisfies ComponentOptions
 

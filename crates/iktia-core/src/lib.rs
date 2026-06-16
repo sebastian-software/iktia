@@ -80,7 +80,6 @@ mod tests {
             import { computed, effect, event, state, type ComponentOptions } from "@iktia/core";
 
             export const options = {
-              shadow: true,
               styles: [":host { display: block; }"],
             } satisfies ComponentOptions;
 
@@ -190,6 +189,56 @@ mod tests {
             error
                 .to_string()
                 .contains("prop.*() and prop() were removed")
+        );
+    }
+
+    #[test]
+    fn analyze_component_module_should_reject_public_shadow_option() {
+        let source = r#"
+            import { state, type ComponentOptions } from "@iktia/core";
+
+            export const options = {
+              shadow: false,
+            } satisfies ComponentOptions;
+
+            export function Counter() {
+              const count = state(0);
+              return <button>{count()}</button>;
+            }
+        "#;
+
+        let error = analyze_component_module(source, "counter.wc.tsx")
+            .expect_err("shadow should not be a public component option");
+
+        assert!(
+            error
+                .to_string()
+                .contains("Component options only support `styles`")
+        );
+    }
+
+    #[test]
+    fn analyze_component_module_should_reject_public_define_option() {
+        let source = r#"
+            import { state, type ComponentOptions } from "@iktia/core";
+
+            export const options = {
+              define: false,
+            } satisfies ComponentOptions;
+
+            export function Counter() {
+              const count = state(0);
+              return <button>{count()}</button>;
+            }
+        "#;
+
+        let error = analyze_component_module(source, "counter.wc.tsx")
+            .expect_err("define should not be a public component option");
+
+        assert!(
+            error
+                .to_string()
+                .contains("Component options only support `styles`")
         );
     }
 
@@ -551,7 +600,6 @@ mod tests {
             import css from "./button.css?inline";
 
             export const options = {
-              shadow: true,
               styles: [css],
             } satisfies ComponentOptions;
 
@@ -588,7 +636,6 @@ mod tests {
             import { event, state, type ComponentOptions } from "@iktia/core";
 
             export const options = {
-              shadow: true,
               styles: [":host { display: inline-block; }"],
             } satisfies ComponentOptions;
 
@@ -641,7 +688,6 @@ mod tests {
             import css from "./counter.css?inline";
 
             export const options = {
-              shadow: true,
               styles: [css],
             } satisfies ComponentOptions;
 

@@ -7,6 +7,7 @@ import {
   host,
   on,
   state,
+  type ComponentOptions,
 } from "@iktia/core"
 
 type IktiaCore = typeof import("@iktia/core")
@@ -25,6 +26,24 @@ type RemovedUseHostApi = IktiaCore["useHost"]
 
 // @ts-expect-error <For> is not part of the v0.1 public API
 type RemovedForApi = IktiaCore["For"]
+
+const componentOptions = {
+  styles: [":host { display: block; }"],
+} satisfies ComponentOptions
+
+const componentOptionsWithShadow = {
+  // @ts-expect-error shadow is not part of the public v0.1 ComponentOptions API
+  shadow: false,
+} satisfies ComponentOptions
+
+const componentOptionsWithDefine = {
+  // @ts-expect-error define is not part of the public v0.1 ComponentOptions API
+  define: false,
+} satisfies ComponentOptions
+
+void componentOptions
+void componentOptionsWithShadow
+void componentOptionsWithDefine
 
 type FunctionCounterProps = {
   enabled?: boolean

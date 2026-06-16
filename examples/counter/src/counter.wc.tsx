@@ -6,7 +6,6 @@ export type CounterProps = {
 }
 
 export const options = {
-  shadow: true,
   styles: [css],
 } satisfies ComponentOptions
 

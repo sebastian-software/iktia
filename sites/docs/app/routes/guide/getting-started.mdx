@@ -53,7 +53,6 @@ import { computed, event, state, type ComponentOptions } from "@iktia/core"
 import css from "./counter.css?inline"
 
 export const options = {
-  shadow: true,
   styles: [css],
 } satisfies ComponentOptions
 
@@ -93,8 +92,7 @@ Application builds should use the Vite plugin.
 
 ## Static HTML And DSD
 
-Declarative Shadow DOM is the default HTML output for `shadow: true` components
-inside the prerender path:
+Declarative Shadow DOM is the default HTML output inside the prerender path:
 
 ```sh
 iktia prerender src/counter.wc.tsx --props '{"label":"Static"}' -o dist/counter.html
@@ -115,9 +113,9 @@ The snippet above only customizes the manifest path. `iktia()` already uses
 `iktia-manifest.json`. Use `prerender: false` only when a build should not emit
 static HTML metadata.
 
-There is no component-level DSD switch. If you prerender a `shadow: true`
-component, Iktia emits `<template shadowrootmode="open">` host HTML and the
-client module hydrates it on upgrade.
+There is no component-level DSD switch. If you prerender an Iktia component,
+Iktia emits `<template shadowrootmode="open">` host HTML and the client module
+hydrates it on upgrade.
 
 ## Native Install Checks
 

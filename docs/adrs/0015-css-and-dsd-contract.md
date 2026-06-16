@@ -21,7 +21,6 @@ Use Vite `?inline` CSS text imports for v0.1:
 import css from "./button.css?inline"
 
 export const options = {
-  shadow: true,
   styles: [css],
 } satisfies ComponentOptions
 ```

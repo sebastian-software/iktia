@@ -10,15 +10,11 @@ No React runtime. No virtual DOM. Just typed components shaped into native
 elements.
 
 ```tsx
-import { computed, event, on, state, type ComponentOptions } from "@iktia/core"
+import { computed, event, on, state } from "@iktia/core"
 
 export type CounterProps = {
   label?: string
 }
-
-export const options = {
-  shadow: true,
-} satisfies ComponentOptions
 
 export function Counter({ label = "Count" }: CounterProps = {}) {
   const count = state(0)
@@ -180,8 +176,6 @@ export type ButtonProps = {
 }
 
 export const options = {
-  shadow: true,
-  define: true,
   styles: [css],
 } satisfies ComponentOptions
 
@@ -225,7 +219,7 @@ export function Toolbar() {
 Current APIs:
 
 * exported PascalCase functions with typed props
-* `export const options satisfies ComponentOptions`
+* optional `export const options satisfies ComponentOptions` for CSS styles
 * `state(initialValue)` for writable local state
 * `computed(() => value)` for read-only derived values
 * `effect(() => cleanup?)` for lifecycle side effects
@@ -286,11 +280,11 @@ properties are the supported theming boundary.
 
 The normal Vite transform emits imperative Custom Element modules. When a build
 uses an explicit prerender entry point, Declarative Shadow DOM is the default
-HTML output for compiler-known `shadow: true` components. The generated client
-class adopts an existing declarative shadow root before any `attachShadow()`
-fallback, binds internal `data-iktia-*` hydration markers, throws a clear
-development mismatch diagnostic, and remounts imperatively in production when a
-stale prerender artifact cannot be hydrated.
+HTML output for Iktia components. The generated client class adopts an existing
+declarative shadow root before any `attachShadow()` fallback, binds internal
+`data-iktia-*` hydration markers, throws a clear development mismatch
+diagnostic, and remounts imperatively in production when a stale prerender
+artifact cannot be hydrated.
 
 ## Landscape
 

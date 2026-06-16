@@ -34,7 +34,7 @@ should be implemented in layers:
 
 Declarative Shadow DOM should not become a separate authoring model. The
 preferred authoring surface should remain typed `.wc.tsx`; DSD is an additional
-HTML output mode for `shadow: true` components in the explicit prerender path.
+HTML output mode for Iktia components in the explicit prerender path.
 Normal client builds keep the imperative Custom Element path.
 
 ## Locked Decisions
@@ -42,8 +42,7 @@ Normal client builds keep the imperative Custom Element path.
 These decisions are fixed for the first DSD implementation pass:
 
 * DSD is generated only by the explicit prerender/static-HTML path.
-* In that prerender path, DSD is enabled by default for `shadow: true`
-  components.
+* In that prerender path, DSD is enabled by default for Iktia components.
 * DSD is not a new authoring API. Do not add `ComponentOptions.dsd` or a
   general render-mode flag for v1.
 * Prerender include/exclude filters are the v1 opt-out mechanism.
@@ -131,7 +130,6 @@ For a component like:
 import css from "./counter.css?inline"
 
 export const options = {
-  shadow: true,
   styles: [css],
 } satisfies ComponentOptions
 
@@ -414,7 +412,7 @@ Acceptance criteria:
   during prerender.
 * Unsupported dynamic structures that cannot be hydrated fail with clear
   diagnostics.
-* `shadow: false` components are not serialized as DSD.
+* Component-level render-mode flags are not part of the public DSD contract.
 
 ### D3: Hydration Markers And Binding
 

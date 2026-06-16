@@ -20,15 +20,11 @@ Component source files should use the `.wc.tsx` extension so the Vite plugin can
 select them with its default include filter.
 
 ```tsx
-import { computed, event, on, state, type ComponentOptions } from "@iktia/core"
+import { computed, event, on, state } from "@iktia/core"
 
 export type CounterProps = {
   label?: string
 }
-
-export const options = {
-  shadow: true,
-} satisfies ComponentOptions
 
 export function Counter({ label = "Count" }: CounterProps = {}) {
   const count = state(0)
@@ -123,8 +119,8 @@ Set `prerender: false` only for builds that never need static HTML metadata.
 For direct prerendering, call the Node wrapper with source text and initial
 props. If the source uses `?inline` CSS imports outside the Vite plugin, pass
 resolved CSS text through `inlineStyles` keyed by local import name. Once a
-component enters the prerender path, the Rust core serializes `shadow: true`
-components as host HTML with `<template shadowrootmode="open">`.
+component enters the prerender path, the Rust core serializes it as host HTML
+with `<template shadowrootmode="open">`.
 
 ```ts
 import { renderDeclarativeShadowDom } from "@iktia/compiler"
@@ -187,23 +183,16 @@ kebab-case, so `maxLength` observes `max-length`.
 
 ## Component Options
 
-Function components can export an `options` constant. It uses the defaults shown
-below.
+Function components can export an `options` constant for component CSS.
 
 ```ts
 import css from "./text-field.css?inline"
 
 export const options = {
-  shadow: true,
-  define: true,
   styles: [css],
 } satisfies ComponentOptions
 ```
 
-* `shadow`: when `true`, the generated element attaches an open shadow root.
-  When `false`, it renders into the element itself.
-* `define`: when `true`, the generated module registers the element. When
-  `false`, the module exports a generated `defineXName()` function instead.
 * `styles`: string expressions injected into a generated `<style>` element at
   the start of the shadow root. Public v0.1 CSS should come from Vite
   `?inline` text imports, for example `import css from "./x.css?inline"`.

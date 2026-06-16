@@ -15,10 +15,10 @@ iktia info
 CLI also writes a sibling `.map` file when the compiler returns a source map.
 Without `-o`, compiled JavaScript is printed to stdout.
 
-`prerender` emits static host HTML. For `shadow: true` components, that HTML
-uses Declarative Shadow DOM by default. `--props` must be a JSON object. CSS
-uses the same flat `?inline` import convention as Vite, and the CLI resolves
-those CSS files before calling the native prerender workflow.
+`prerender` emits static host HTML with Declarative Shadow DOM by default.
+`--props` must be a JSON object. CSS uses the same flat `?inline` import
+convention as Vite, and the CLI resolves those CSS files before calling the
+native prerender workflow.
 
 `info` prints Node platform metadata and native compiler version metadata as
 JSON.

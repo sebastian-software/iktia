@@ -6,11 +6,10 @@ Weight: P1
 
 ## Context
 
-Iktia currently generates imperative Custom Element modules. Components with
-`shadow: true` attach an open shadow root in JavaScript and then create DOM
-nodes during upgrade. That is a reasonable client-side MVP, but it means the
-browser cannot see the component's shadow DOM structure or scoped styles during
-initial HTML parsing.
+Iktia currently generates imperative Custom Element modules that attach an open
+shadow root in JavaScript and then create DOM nodes during upgrade. That is a
+reasonable client-side MVP, but it means the browser cannot see the component's
+shadow DOM structure or scoped styles during initial HTML parsing.
 
 Declarative Shadow DOM allows a server, static generator, or prerender tool to
 emit `<template shadowrootmode="open">` inside the host element. Modern browsers
@@ -22,13 +21,13 @@ roots instead of blindly calling `attachShadow()`.
 ## Decision
 
 Treat Declarative Shadow DOM as a first-class prerender output and hydration
-direction for `shadow: true` components.
+direction for Iktia components.
 
 The first implementation must:
 
 * keep DSD in an explicit prerender/static-HTML path, not the normal client
   transform;
-* enable DSD by default for `shadow: true` components in that prerender path;
+* enable DSD by default for components in that prerender path;
 * avoid a new `ComponentOptions.dsd` or render-mode option in v1;
 * use prerender include/exclude filters for opt-out;
 * adopt existing declarative shadow roots before any `attachShadow()` fallback;

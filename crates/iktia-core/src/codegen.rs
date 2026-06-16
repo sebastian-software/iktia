@@ -34,8 +34,7 @@ pub fn transform_component_module(source: &str, filename: &str) -> CompilerResul
 /// Prerenders a TSX module into Declarative Shadow DOM host HTML.
 ///
 /// The `props_json` argument is an optional JSON object with initial host prop
-/// values. DSD output is emitted only for `shadow: true` components; other
-/// components still return host metadata and a plain custom element host.
+/// values. The returned host HTML uses Declarative Shadow DOM.
 ///
 /// # Errors
 ///

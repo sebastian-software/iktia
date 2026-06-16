@@ -1,9 +1,7 @@
 import type { JSX, JsxChild } from "./jsx-runtime.js"
 
 export type ComponentOptions = {
-  shadow?: boolean
   styles?: readonly string[]
-  define?: boolean
 }
 
 export type Accessor<T> = {

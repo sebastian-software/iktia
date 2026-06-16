@@ -9,7 +9,6 @@ export type ToolbarProps = {
 }
 
 export const options = {
-  shadow: true,
   styles: [css],
 } satisfies ComponentOptions
 

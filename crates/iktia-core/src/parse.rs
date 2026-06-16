@@ -108,11 +108,46 @@ fn strip_optional_delimiters(source: &str, open: char, close: char) -> &str {
 }
 
 fn capture_component_options(component_call: &str) -> CompilerResult<ComponentOptions> {
+    for property in
+        split_top_level_commas(strip_optional_delimiters(component_call.trim(), '{', '}'))
+    {
+        if starts_with_property_key(property, "shadow")
+            || starts_with_property_key(property, "define")
+        {
+            return Err(unsupported(
+                "Component options only support `styles` in the public v0.1 API.",
+            ));
+        }
+    }
+
     Ok(ComponentOptions {
-        shadow: !component_call.contains("shadow: false"),
-        define: !component_call.contains("define: false"),
+        shadow: true,
+        define: true,
         styles: capture_style_expressions(component_call)?,
     })
+}
+
+fn starts_with_property_key(source: &str, key: &str) -> bool {
+    let trimmed = source.trim_start();
+    if let Some(rest) = trimmed.strip_prefix(key) {
+        return rest.trim_start().starts_with(':');
+    }
+
+    for quote in ['"', '\''] {
+        let Some(after_quote) = trimmed.strip_prefix(quote) else {
+            continue;
+        };
+        let Some(rest) = after_quote.strip_prefix(key) else {
+            continue;
+        };
+        let Some(rest) = rest.strip_prefix(quote) else {
+            continue;
+        };
+
+        return rest.trim_start().starts_with(':');
+    }
+
+    false
 }
 
 fn capture_exported_component_options(source: &str) -> CompilerResult<ComponentOptions> {
