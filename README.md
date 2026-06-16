@@ -142,6 +142,12 @@ pnpm --filter @lean-wc/example-counter build
 pnpm --filter @lean-wc/example-counter test
 ```
 
+The demo site is designed as a small public proof surface. It currently covers
+reactive state, primitive contracts, and PascalCase component composition, and
+is published through GitHub Pages from the `main` branch. See
+[docs/demos.md](docs/demos.md) for the demo matrix, local commands, and Pages
+workflow details.
+
 ## Authoring Model
 
 Exported PascalCase functions are the preferred component declaration form. The

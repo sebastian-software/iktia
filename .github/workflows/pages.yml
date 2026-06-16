@@ -1,0 +1,81 @@
+name: Deploy demos to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build demo site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.6.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build native compiler
+        run: pnpm build:native
+
+      - name: Check TypeScript packages
+        run: pnpm check-types
+
+      - name: Check demo types
+        run: pnpm --filter @lean-wc/example-counter type-check
+
+      - name: Install Playwright Chromium
+        run: pnpm --filter @lean-wc/example-counter exec playwright install --with-deps chromium
+
+      - name: Test demo
+        run: pnpm --filter @lean-wc/example-counter test
+
+      - name: Build demo site
+        run: pnpm --filter @lean-wc/example-counter build
+        env:
+          LEAN_WC_GITHUB_PAGES: "true"
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload demo artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: examples/counter/dist
+
+  deploy:
+    name: Deploy demo site
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

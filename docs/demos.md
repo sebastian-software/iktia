@@ -1,0 +1,72 @@
+# Demos
+
+The demo site is the public proof surface for the current compiler milestone.
+It should stay small, explicit, and focused on one use case per section instead
+of becoming a general playground.
+
+## Current Demo Site
+
+The first published site is `examples/counter`. It is a Vite app that imports
+`.wc.tsx` modules through the `lean-wc` Vite plugin and renders the generated
+native Custom Elements in a normal browser page.
+
+| Section | Component | Demonstrates |
+| --- | --- | --- |
+| Reactive counter | `Counter` / `x-counter` | `signal()`, `computed()`, `effect()`, typed `CustomEvent` emission, Shadow DOM output |
+| Primitive toggle | `Toggle` / `x-toggle` | `part`, `slot`, `data-state`, ARIA, `<Show>`, `<For>`, `on()`, `host()`, cleanup-aware lifecycle work |
+| PascalCase composition | `Toolbar` / `x-toolbar` | TypeScript component imports, PascalCase JSX nesting, compiler-owned kebab-case Custom Element output |
+
+The examples intentionally use the generated Custom Elements from regular
+HTML. That keeps the demo honest: the public output is platform-native DOM, not
+a React, Solid, Remix, or framework adapter surface.
+
+## Local Commands
+
+Run these commands from the workspace root.
+
+```sh
+pnpm install
+pnpm build:native
+pnpm --filter @lean-wc/example-counter type-check
+pnpm --filter @lean-wc/example-counter build
+pnpm --filter @lean-wc/example-counter test
+```
+
+Use the Vite dev server when iterating on the demo copy or visual structure.
+
+```sh
+pnpm --filter @lean-wc/example-counter vite --host 127.0.0.1
+```
+
+## GitHub Pages Deployment
+
+`.github/workflows/pages.yml` publishes the demo site on pushes to `main` and
+through manual `workflow_dispatch` runs. The workflow:
+
+1. installs the pinned pnpm and Node.js toolchain;
+2. installs a stable Rust toolchain;
+3. builds the native compiler binding;
+4. type-checks the TypeScript packages and demo;
+5. runs the Playwright browser smoke tests for the demo;
+6. builds the Vite static site with a GitHub Pages base path;
+7. uploads `examples/counter/dist`;
+8. deploys the uploaded artifact to GitHub Pages.
+
+Repository maintainers still need to set the GitHub Pages source to
+`GitHub Actions` in the repository settings. No generated `dist` files are
+committed to the repository.
+
+The demo Vite config reads `LEAN_WC_GITHUB_PAGES=true` and derives the public
+base path from `GITHUB_REPOSITORY`, so project pages are served from
+`/<repository>/` while local development keeps `/`.
+
+## Demo Expansion Rules
+
+Future demo sections should keep the same shape:
+
+* one isolated compiler capability per section;
+* a visible generated element, not only a code snippet;
+* a short explanation of what the example proves;
+* a Playwright assertion covering the behavior;
+* no framework runtime adapter unless the milestone being documented is
+  explicitly about interop.

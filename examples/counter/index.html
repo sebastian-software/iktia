@@ -3,11 +3,98 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>lean-wc counter example</title>
+    <meta
+      name="description"
+      content="lean-wc demo cases for native Web Components generated from typed TSX."
+    />
+    <title>lean-wc demos</title>
   </head>
   <body>
-    <x-counter label="Count"></x-counter>
-    <x-toggle label="Power"></x-toggle>
+    <header class="site-header">
+      <p class="eyebrow">lean-wc demos</p>
+      <h1>Typed TSX authoring, native Web Component output.</h1>
+      <p class="intro">
+        These examples isolate the current compiler vertical slice: reactive
+        authoring primitives, Web Component primitive contracts, and PascalCase
+        composition that compiles to native Custom Elements.
+      </p>
+    </header>
+
+    <main class="demo-layout">
+      <section class="demo-case" id="counter-case" aria-labelledby="counter-title">
+        <div class="case-copy">
+          <p class="case-kicker">Use case 01</p>
+          <h2 id="counter-title">Reactive counter</h2>
+          <p>
+            A focused component that combines <code>signal()</code>,
+            <code>computed()</code>, <code>effect()</code>, and a typed native
+            <code>CustomEvent</code>.
+          </p>
+          <ul>
+            <li>Local state is read through accessors and changed with setters.</li>
+            <li>Derived text updates from a read-only computed value.</li>
+            <li>The host page receives a bubbling <code>change</code> event.</li>
+          </ul>
+        </div>
+        <div class="case-surface">
+          <x-counter label="Count"></x-counter>
+          <output id="counter-event">Last counter event: none</output>
+          <pre><code>const count = signal(0)
+const text = computed(() =&gt; `Count: ${count()}`)</code></pre>
+        </div>
+      </section>
+
+      <section class="demo-case" id="toggle-case" aria-labelledby="toggle-title">
+        <div class="case-copy">
+          <p class="case-kicker">Use case 02</p>
+          <h2 id="toggle-title">Primitive toggle</h2>
+          <p>
+            A small design-system primitive using Shadow DOM, parts, slots,
+            state attributes, typed DOM event helpers, and explicit control
+            flow.
+          </p>
+          <ul>
+            <li><code>part</code>, <code>data-state</code>, and ARIA form the styling contract.</li>
+            <li><code>&lt;Show&gt;</code> and <code>&lt;For&gt;</code> keep dynamic trees analyzable.</li>
+            <li><code>host()</code> and <code>AbortSignal</code> model lifecycle work.</li>
+          </ul>
+        </div>
+        <div class="case-surface">
+          <x-toggle label="Power">manual slot content</x-toggle>
+          <output id="toggle-event">Last toggle event: none</output>
+          <pre><code>&lt;button part="root control"
+  data-state={pressed() ? "on" : "off"}&gt;</code></pre>
+        </div>
+      </section>
+
+      <section
+        class="demo-case"
+        id="composition-case"
+        aria-labelledby="composition-title"
+      >
+        <div class="case-copy">
+          <p class="case-kicker">Use case 03</p>
+          <h2 id="composition-title">PascalCase composition</h2>
+          <p>
+            Authoring code composes imported components by their TypeScript
+            names. The native kebab-case tag names remain compiler output
+            details.
+          </p>
+          <ul>
+            <li><code>&lt;Counter /&gt;</code> compiles to the inferred counter element.</li>
+            <li><code>&lt;Toggle /&gt;</code> compiles to the inferred toggle element.</li>
+            <li>The page listens to native events without a framework adapter.</li>
+          </ul>
+        </div>
+        <div class="case-surface">
+          <x-toolbar label="Composed controls"></x-toolbar>
+          <pre><code>import { Counter } from "./counter.wc.tsx"
+
+return &lt;Counter label="Nested count" /&gt;</code></pre>
+        </div>
+      </section>
+    </main>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
