@@ -9,10 +9,17 @@ The Vite plugin sends it through a typed Node wrapper into a Rust compiler core,
 and the output is a native `HTMLElement` class.
 
 ```tsx
-import { component, event, prop, state } from "lean-wc"
+import { event, state, type ComponentOptions } from "lean-wc"
 
-export default component("x-counter", { shadow: true }, () => {
-  const label = prop.string("label", "Count")
+export type CounterProps = {
+  label?: string
+}
+
+export const options = {
+  shadow: true,
+} satisfies ComponentOptions
+
+export function Counter({ label = "Count" }: CounterProps = {}) {
   const count = state(0)
   const change = event<number>("change")
 
@@ -25,10 +32,10 @@ export default component("x-counter", { shadow: true }, () => {
         change.emit(count())
       }}
     >
-      {label()}: {count()}
+      {label}: {count()}
     </button>
   )
-})
+}
 ```
 
 The generated module defines a Custom Element, synchronizes props and
@@ -41,6 +48,7 @@ This repository is an MVP and compiler architecture spike, not a production
 release. The current implementation proves the vertical slice:
 
 * typed TypeScript authoring API and JSX surface
+* PascalCase function component authoring with kebab-case Custom Element output
 * Rust/OXC TSX parse validation and compiler analysis
 * native Custom Element code generation
 * typed N-API boundary and Node wrapper
@@ -133,16 +141,25 @@ pnpm --filter @lean-wc/example-counter test
 
 ## Authoring Model
 
-`component()` declares the Custom Element. The authoring functions only make
-sense inside transformed source files.
+Exported PascalCase functions are the preferred component declaration form. The
+TypeScript name is the authoring contract; the native Custom Element tag is a
+compiler detail. `Counter` compiles to `x-counter`, while multi-word names such
+as `CounterButton` compile to `counter-button`.
 
 ```tsx
-component("x-button", {
+import { event, state, type ComponentOptions } from "lean-wc"
+
+export type ButtonProps = {
+  label?: string
+}
+
+export const options = {
   shadow: true,
   define: true,
   styles: [":host { display: inline-block; }"],
-}, () => {
-  const label = prop.string("label", "Save")
+} satisfies ComponentOptions
+
+export function Button({ label = "Save" }: ButtonProps = {}) {
   const pressed = state(false)
   const submit = event<{ label: string }>("submit")
 
@@ -152,25 +169,36 @@ component("x-button", {
       data-pressed={pressed()}
       onClick={() => {
         pressed.set(true)
-        submit.emit({ label: label() })
+        submit.emit({ label })
       }}
     >
       <slot name="icon" />
-      {label()}
+      {label}
     </button>
   )
-})
+}
+```
+
+PascalCase components can be nested without caring about the native tag name.
+The compiler rewrites the JSX tag and keeps `.wc` imports as side-effect imports
+so the nested element is registered.
+
+```tsx
+import { Button } from "./button.wc.tsx"
+
+export function Toolbar() {
+  return <Button label="Save" />
+}
 ```
 
 Current APIs:
 
-* `component(tagName, options?, render)`
-* `prop.string(name, defaultValue?)`
-* `prop.boolean(name, defaultValue?)`
-* `prop.number(name, defaultValue?)`
+* exported PascalCase functions with typed props
+* `export const options satisfies ComponentOptions`
 * `state(initialValue)`
 * `event<Detail>(name)`
 * typed JSX intrinsic elements and common DOM/event attributes
+* legacy `component(tagName, options?, render)` and `prop.*()` accessors
 
 For details, see [docs/authoring.md](docs/authoring.md).
 
@@ -233,14 +261,16 @@ infrastructure instead of becoming a bundler itself.
 
 The MVP accepts a deliberately small TSX subset:
 
-* one supported `component()` call per transformed module
-* string literal tag name
-* arrow function callback with a block body
+* one exported PascalCase function component or one legacy `component()` call
+  per transformed module
+* deterministic native tag inference from the PascalCase function name
+* destructured function props with defaults
+* arrow function callback with a block body for legacy `component()` syntax
 * `return (...)` around the TSX template
-* `const` authoring declarations for props, state, and events
+* `const` authoring declarations for state and events
 * one root TSX element
 * static attributes, dynamic attributes, text interpolation, event handlers,
-  slots, and inline style strings
+  PascalCase child components, slots, and inline style strings
 
 Unsupported today:
 
@@ -248,7 +278,8 @@ Unsupported today:
 * conditional child trees
 * array mapping to JSX children
 * spread attributes
-* component composition through capitalized TSX tags
+* component composition that requires module graph analysis beyond direct `.wc`
+  imports
 * imported CSS module object access
 * source maps
 * production native package publishing

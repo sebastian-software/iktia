@@ -25,17 +25,22 @@ pnpm --filter @lean-wc/example-counter test
 Rust core:
 
 * OXC rejects invalid TSX before transform-specific analysis.
-* `component()` analysis extracts tag name, props, state, events, options, and
-  the returned TSX template.
+* Function component analysis infers tag name, props, state, events, options,
+  imports, and the returned TSX template.
+* Legacy `component()` analysis still extracts tag name, props, state, events,
+  options, and the returned TSX template.
 * Codegen emits native `HTMLElement` classes without a framework runtime.
 * Props synchronize with attributes.
 * State writes update generated text and dynamic attributes.
 * Events dispatch native `CustomEvent` instances.
 * Shadow DOM rendering supports style injection and slots.
+* PascalCase child component JSX rewrites to inferred kebab-case Custom Element
+  tags.
 
 TypeScript packages:
 
-* Authoring APIs expose typed props, state, events, component options, and JSX.
+* Authoring APIs expose typed function props, state, events, component options,
+  and JSX.
 * Authoring runtime stubs throw when used without the compiler.
 * The Node wrapper exposes a typed native boundary.
 * The Vite plugin filters `.wc.tsx` modules and returns transformed code.
@@ -79,4 +84,3 @@ Before a public prerelease, add or confirm:
 * Span-based diagnostics for unsupported syntax.
 * Documented CSS strategy for imported styles and Vanilla Extract.
 * Fixture coverage for accepted and rejected TSX patterns.
-

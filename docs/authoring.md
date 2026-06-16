@@ -20,10 +20,17 @@ Component source files should use the `.wc.tsx` extension so the Vite plugin can
 select them with its default include filter.
 
 ```tsx
-import { component, event, prop, state } from "lean-wc"
+import { event, state, type ComponentOptions } from "lean-wc"
 
-export default component("x-counter", { shadow: true }, () => {
-  const label = prop.string("label", "Count")
+export type CounterProps = {
+  label?: string
+}
+
+export const options = {
+  shadow: true,
+} satisfies ComponentOptions
+
+export function Counter({ label = "Count" }: CounterProps = {}) {
   const count = state(0)
   const change = event<number>("change")
 
@@ -36,15 +43,15 @@ export default component("x-counter", { shadow: true }, () => {
         change.emit(count())
       }}
     >
-      {label()}: {count()}
+      {label}: {count()}
     </button>
   )
-})
+}
 ```
 
 The compiler emits a native `HTMLElement` subclass, registers it with
-`customElements.define()` by default, and exports the generated class as both a
-named and default export.
+`customElements.define()` by default, and exports the generated class as the
+function component name plus a default export.
 
 ## TypeScript Setup
 
@@ -95,18 +102,57 @@ leanWebComponents({
 })
 ```
 
+## Function Components
+
+Exported PascalCase functions are the preferred component declaration form. The
+function name is the authoring name; the native Custom Element tag is inferred
+by the compiler.
+
+* `Counter` becomes `x-counter`.
+* `CounterButton` becomes `counter-button`.
+* `URLBadge` becomes `url-badge`.
+
+Single-word component names receive the `x-` prefix because native Custom
+Element tag names must contain a hyphen.
+
+Function props use normal TypeScript types and destructuring defaults. The
+compiler turns those destructured names into observed properties and attributes.
+
+```tsx
+export type TextFieldProps = {
+  disabled?: boolean
+  label?: string
+  maxLength?: number
+}
+
+export function TextField({
+  disabled = false,
+  label = "Name",
+  maxLength = 80,
+}: TextFieldProps = {}) {
+  return (
+    <label>
+      {label}
+      <input disabled={disabled} data-max-length={maxLength} />
+    </label>
+  )
+}
+```
+
+The generated JavaScript property names stay camelCase. Observed attributes use
+kebab-case, so `maxLength` observes `max-length`.
+
 ## Component Options
 
-`component(tagName, render)` uses the defaults shown below.
+Function components can export an `options` constant. It uses the defaults shown
+below.
 
 ```ts
-component("x-name", {
+export const options = {
   shadow: true,
   define: true,
   styles: [":host { display: block; }"],
-}, () => {
-  return <slot />
-})
+} satisfies ComponentOptions
 ```
 
 * `shadow`: when `true`, the generated element attaches an open shadow root.
@@ -118,7 +164,34 @@ component("x-name", {
 
 ## Props
 
-Props are declared inside the component callback.
+Preferred props are declared through the function parameter type and destructured
+defaults.
+
+```tsx
+export type CounterProps = {
+  enabled?: boolean
+  label?: string
+  step?: number
+}
+
+export function Counter({
+  enabled = true,
+  label = "Count",
+  step = 1,
+}: CounterProps = {}) {
+  return <button disabled={!enabled}>{label}: {step}</button>
+}
+```
+
+The compiler infers the MVP conversion kind from the default value:
+
+* string literal defaults become string props.
+* `true` or `false` defaults become boolean props.
+* numeric defaults become number props.
+* props without defaults currently fall back to string conversion.
+
+The legacy `component()` API can still declare accessor props inside the
+component callback.
 
 ```ts
 const label = prop.string("label", "Count")
@@ -168,13 +241,13 @@ The generated emitter dispatches a `CustomEvent` with `bubbles: true`,
 ## JSX Surface
 
 The MVP supports native element tags, text interpolation, static attributes,
-dynamic attributes, event handlers, and slots.
+dynamic attributes, event handlers, PascalCase child components, and slots.
 
 ```tsx
 return (
-  <button part="button" disabled={disabled()} onClick={() => count.update((n) => n + 1)}>
+  <button part="button" disabled={disabled} onClick={() => count.update((n) => n + 1)}>
     <slot name="icon" />
-    {label()}: {count()}
+    {label}: {count()}
   </button>
 )
 ```
@@ -183,6 +256,24 @@ Supported typed attributes include common DOM attributes, `aria-*`, `data-*`,
 `part`, `slot`, `class`, `value`, and common event handlers such as `onClick`,
 `onInput`, `onFocus`, and `onBlur`. Additional intrinsic element names are
 accepted through the JSX index signature.
+
+PascalCase child components are rewritten to inferred Custom Element tags.
+Direct `.wc` imports are preserved as side-effect imports so the generated child
+element module still runs.
+
+```tsx
+import { Counter } from "./counter.wc.tsx"
+
+export function Dashboard() {
+  return <Counter label="Nested" />
+}
+```
+
+## Legacy Component API
+
+The original `component(tagName, options?, render)` form remains available as a
+low-level compatibility path. New component files should prefer exported
+PascalCase functions.
 
 ## Verification Commands
 
@@ -200,4 +291,3 @@ cargo fmt --check
 cargo clippy --all-targets --all-features -- -D warnings
 cargo test --workspace
 ```
-
