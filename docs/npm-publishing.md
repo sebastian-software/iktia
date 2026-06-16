@@ -40,6 +40,9 @@ Prerequisites:
 * The publisher is an owner of the `iktia` npm organization.
 * The GitHub repository is public.
 * The GitHub repository has a temporary `NPM_TOKEN` secret with publish access.
+  Use a granular access token with read/write access for the `iktia` scope and
+  `Bypass 2FA` enabled for this bootstrap run. GitHub Actions cannot answer an
+  interactive one-time-password prompt during the native matrix publish.
 * The release workflow uses GitHub-hosted runners, `id-token: write`, and Node
   `22.18.0` or newer.
 
@@ -81,6 +84,9 @@ Manual workflow sequence:
 5. Verify all packages exist on npm with version `0.0.0`.
 
 Do not rerun `dry_run=false` for the same version. npm versions are immutable.
+
+After the first publish, delete the temporary `NPM_TOKEN` repository secret and
+revoke the npm token unless another bootstrap run is still required.
 
 ## Trusted Publishing Setup
 
