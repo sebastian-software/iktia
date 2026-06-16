@@ -1,14 +1,17 @@
 use oxc_allocator::Allocator;
+use oxc_ast::ast::{Declaration, ExportDefaultDeclarationKind, Function, Program, Statement};
 use oxc_parser::Parser;
 use oxc_span::SourceType;
 use regex::Regex;
 
 use crate::error::{CompilerError, CompilerResult};
 use crate::model::{
-    ComponentImport, ComponentModule, ComponentOptions, EventDefinition, PropAccess,
-    PropDefinition, PropKind, StateDefinition,
+    ComponentImport, ComponentModule, ComponentOptions, ComputedDefinition, EffectDefinition,
+    EventDefinition, PropAccess, PropDefinition, PropKind, StateDefinition, StateKind,
 };
-use crate::naming::{custom_element_tag_for_component, kebab_case_identifier};
+use crate::naming::{
+    custom_element_tag_for_component, is_pascal_case_identifier, kebab_case_identifier,
+};
 
 /// Analyzes a TSX module containing a lean-wc component definition.
 ///
@@ -17,10 +20,10 @@ use crate::naming::{custom_element_tag_for_component, kebab_case_identifier};
 /// Returns [`CompilerError`] when the source does not parse as TSX or when no
 /// supported function component or `component()` call can be found.
 pub fn analyze_component_module(source: &str, filename: &str) -> CompilerResult<ComponentModule> {
-    parse_with_oxc(source, filename)?;
+    let ast_facts = analyze_with_oxc(source, filename)?;
 
     let component_imports = capture_component_imports(source)?;
-    if let Some(function_component) = capture_function_component(source)? {
+    if let Some(function_component) = capture_function_component(source, &ast_facts)? {
         return analyze_function_component(source, function_component, component_imports);
     }
 
@@ -38,6 +41,9 @@ pub fn analyze_component_module(source: &str, filename: &str) -> CompilerResult<
         component_imports,
         props: capture_props(callback_body)?,
         states: capture_states(callback_body)?,
+        computed: capture_computed(callback_body)?,
+        effects: capture_effects(callback_body)?,
+        uses_host_helpers: captures_host_helpers(callback_body)?,
         events: capture_events(callback_body)?,
         template_source,
     })
@@ -66,31 +72,93 @@ fn analyze_function_component(
         component_imports,
         props: capture_function_props(function_component.params)?,
         states: capture_states(function_component.body)?,
+        computed: capture_computed(function_component.body)?,
+        effects: capture_effects(function_component.body)?,
+        uses_host_helpers: captures_host_helpers(function_component.body)?,
         events: capture_events(function_component.body)?,
         template_source: capture_template_source(function_component.body)?,
     })
 }
 
-fn parse_with_oxc(source: &str, filename: &str) -> CompilerResult<()> {
+fn analyze_with_oxc(source: &str, filename: &str) -> CompilerResult<AstModuleFacts> {
     let allocator = Allocator::default();
     let source_type = SourceType::from_path(filename).unwrap_or_else(|_| SourceType::tsx());
     let parsed = Parser::new(&allocator, source, source_type).parse();
 
-    if parsed.errors.is_empty() {
-        return Ok(());
+    if !parsed.errors.is_empty() {
+        let messages = parsed
+            .errors
+            .iter()
+            .map(ToString::to_string)
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        return Err(CompilerError::ParseModuleSource {
+            filename: filename.to_owned(),
+            messages,
+        });
     }
 
-    let messages = parsed
-        .errors
-        .iter()
-        .map(ToString::to_string)
-        .collect::<Vec<_>>()
-        .join(", ");
+    Ok(AstAnalyzer::new(&parsed.program).analyze())
+}
 
-    Err(CompilerError::ParseModuleSource {
-        filename: filename.to_owned(),
-        messages,
-    })
+#[derive(Debug, Default)]
+struct AstModuleFacts {
+    exported_function_names: Vec<String>,
+}
+
+impl AstModuleFacts {
+    fn component_function_names(&self) -> impl Iterator<Item = &str> {
+        self.exported_function_names
+            .iter()
+            .map(String::as_str)
+            .filter(|name| is_pascal_case_identifier(name))
+    }
+}
+
+struct AstAnalyzer<'a, 'program> {
+    program: &'program Program<'a>,
+}
+
+impl<'a, 'program> AstAnalyzer<'a, 'program> {
+    const fn new(program: &'program Program<'a>) -> Self {
+        Self { program }
+    }
+
+    fn analyze(&self) -> AstModuleFacts {
+        let mut facts = AstModuleFacts::default();
+        for statement in &self.program.body {
+            self.capture_exported_function(statement, &mut facts);
+        }
+        facts
+    }
+
+    fn capture_exported_function(&self, statement: &Statement<'a>, facts: &mut AstModuleFacts) {
+        match statement {
+            Statement::ExportNamedDeclaration(export) => {
+                if let Some(Declaration::FunctionDeclaration(function)) = &export.declaration {
+                    push_function_name(function, facts);
+                }
+            }
+            Statement::ExportDefaultDeclaration(export) => {
+                if let ExportDefaultDeclarationKind::FunctionDeclaration(function) =
+                    &export.declaration
+                {
+                    push_function_name(function, facts);
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
+fn push_function_name(function: &Function<'_>, facts: &mut AstModuleFacts) {
+    let Some(identifier) = &function.id else {
+        return;
+    };
+    facts
+        .exported_function_names
+        .push(identifier.name.as_str().to_owned());
 }
 
 fn extract_component_call<'a>(source: &'a str, filename: &str) -> CompilerResult<&'a str> {
@@ -105,34 +173,48 @@ fn extract_component_call<'a>(source: &'a str, filename: &str) -> CompilerResult
     Ok(&source[start..=end])
 }
 
-fn capture_function_component(source: &str) -> CompilerResult<Option<FunctionComponent<'_>>> {
-    let regex = compile_regex(r#"export\s+(?:default\s+)?function\s+([A-Z][A-Za-z0-9_$]*)\s*\("#)?;
-    let Some(captures) = regex.captures(source) else {
-        return Ok(None);
-    };
-    let Some(full_match) = captures.get(0) else {
-        return Ok(None);
-    };
-    let Some(name) = captures.get(1) else {
-        return Ok(None);
-    };
+fn capture_function_component<'a>(
+    source: &'a str,
+    ast_facts: &AstModuleFacts,
+) -> CompilerResult<Option<FunctionComponent<'a>>> {
+    for component_name in ast_facts.component_function_names() {
+        let pattern = format!(
+            r#"export\s+(?:default\s+)?function\s+({})\s*\("#,
+            regex::escape(component_name)
+        );
+        let regex = Regex::new(&pattern).map_err(|source| CompilerError::InternalPattern {
+            pattern: "dynamic function component pattern",
+            source,
+        })?;
+        let Some(captures) = regex.captures(source) else {
+            continue;
+        };
+        let Some(full_match) = captures.get(0) else {
+            continue;
+        };
+        let Some(name) = captures.get(1) else {
+            continue;
+        };
 
-    let params_open = full_match.end() - 1;
-    let params_close = find_matching_delimiter(source, params_open, '(', ')')?;
-    let after_params = &source[params_close + 1..];
-    let Some(body_open_relative) = after_params.find('{') else {
-        return Err(unsupported(
-            "Function component must use a block body in the current compiler milestone.",
-        ));
-    };
-    let body_open = params_close + 1 + body_open_relative;
-    let body_close = find_matching_delimiter(source, body_open, '{', '}')?;
+        let params_open = full_match.end() - 1;
+        let params_close = find_matching_delimiter(source, params_open, '(', ')')?;
+        let after_params = &source[params_close + 1..];
+        let Some(body_open_relative) = after_params.find('{') else {
+            return Err(unsupported(
+                "Function component must use a block body in the current compiler milestone.",
+            ));
+        };
+        let body_open = params_close + 1 + body_open_relative;
+        let body_close = find_matching_delimiter(source, body_open, '{', '}')?;
 
-    Ok(Some(FunctionComponent {
-        name: name.as_str(),
-        params: &source[params_open + 1..params_close],
-        body: &source[body_open + 1..body_close],
-    }))
+        return Ok(Some(FunctionComponent {
+            name: name.as_str(),
+            params: &source[params_open + 1..params_close],
+            body: &source[body_open + 1..body_close],
+        }));
+    }
+
+    Ok(None)
 }
 
 fn capture_component_imports(source: &str) -> CompilerResult<Vec<ComponentImport>> {
@@ -225,16 +307,17 @@ fn capture_exported_component_options(source: &str) -> CompilerResult<ComponentO
 }
 
 fn capture_style_expressions(component_call: &str) -> CompilerResult<Vec<String>> {
-    let regex = compile_regex(r#"styles\s*:\s*\[([^\]]*)\]"#)?;
-    let Some(captures) = regex.captures(component_call) else {
+    let Some(styles_index) = component_call.find("styles") else {
         return Ok(Vec::new());
     };
-    let Some(styles) = captures.get(1) else {
+    let after_styles = &component_call[styles_index..];
+    let Some(open_relative) = after_styles.find('[') else {
         return Ok(Vec::new());
     };
-    Ok(styles
-        .as_str()
-        .split(',')
+    let open = styles_index + open_relative;
+    let close = find_matching_delimiter(component_call, open, '[', ']')?;
+    Ok(split_top_level_commas(&component_call[open + 1..close])
+        .into_iter()
         .map(str::trim)
         .filter(|style| !style.is_empty())
         .map(ToOwned::to_owned)
@@ -259,7 +342,7 @@ fn capture_callback_body(component_call: &str) -> CompilerResult<&str> {
 }
 
 fn capture_template_source(callback_body: &str) -> CompilerResult<String> {
-    let Some(return_index) = callback_body.find("return") else {
+    let Some(return_index) = find_top_level_keyword(callback_body, "return") else {
         return Err(unsupported(
             "component() callback must return a TSX template.",
         ));
@@ -273,6 +356,58 @@ fn capture_template_source(callback_body: &str) -> CompilerResult<String> {
     let open = return_index + "return".len() + relative_open;
     let close = find_matching_delimiter(callback_body, open, '(', ')')?;
     Ok(callback_body[open + 1..close].trim().to_owned())
+}
+
+fn find_top_level_keyword(source: &str, keyword: &str) -> Option<usize> {
+    let mut depth = 0usize;
+    let mut in_string: Option<char> = None;
+    let mut escaped = false;
+
+    for (index, ch) in source.char_indices() {
+        if let Some(quote) = in_string {
+            if escaped {
+                escaped = false;
+                continue;
+            }
+            if ch == '\\' {
+                escaped = true;
+                continue;
+            }
+            if ch == quote {
+                in_string = None;
+            }
+            continue;
+        }
+
+        if matches!(ch, '"' | '\'' | '`') {
+            in_string = Some(ch);
+            continue;
+        }
+
+        if matches!(ch, '(' | '[' | '{') {
+            depth += 1;
+            continue;
+        }
+
+        if matches!(ch, ')' | ']' | '}') {
+            depth = depth.saturating_sub(1);
+            continue;
+        }
+
+        if depth == 0 && source[index..].starts_with(keyword) {
+            let before = source[..index].chars().next_back();
+            let after = source[index + keyword.len()..].chars().next();
+            if !before.is_some_and(is_identifier_char) && !after.is_some_and(is_identifier_char) {
+                return Some(index);
+            }
+        }
+    }
+
+    None
+}
+
+fn is_identifier_char(ch: char) -> bool {
+    ch.is_ascii_alphanumeric() || matches!(ch, '_' | '$')
 }
 
 fn capture_props(callback_body: &str) -> CompilerResult<Vec<PropDefinition>> {
@@ -433,16 +568,50 @@ fn prop_kind_for_default(default_value: &str) -> PropKind {
 }
 
 fn capture_states(callback_body: &str) -> CompilerResult<Vec<StateDefinition>> {
-    let regex =
-        compile_regex(r#"const\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*state\s*\(\s*([^)]+?)\s*\)"#)?;
+    let regex = compile_regex(
+        r#"const\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*(state|signal)\s*\(\s*([^)]+?)\s*\)"#,
+    )?;
     let mut states = Vec::new();
     for captures in regex.captures_iter(callback_body) {
+        let kind = match capture_str(&captures, 2)? {
+            "signal" => StateKind::Signal,
+            _ => StateKind::State,
+        };
         states.push(StateDefinition {
             local_name: capture_str(&captures, 1)?.to_owned(),
-            initial_value: capture_str(&captures, 2)?.trim().to_owned(),
+            initial_value: capture_str(&captures, 3)?.trim().to_owned(),
+            kind,
         });
     }
     Ok(states)
+}
+
+fn capture_computed(callback_body: &str) -> CompilerResult<Vec<ComputedDefinition>> {
+    let calls = capture_const_calls(callback_body, "computed")?;
+    calls
+        .into_iter()
+        .map(|call| {
+            Ok(ComputedDefinition {
+                local_name: call.local_name,
+                expression: capture_arrow_expression(&call.arguments)?,
+            })
+        })
+        .collect()
+}
+
+fn capture_effects(callback_body: &str) -> CompilerResult<Vec<EffectDefinition>> {
+    let mut effects = Vec::new();
+    for call in capture_calls(callback_body, "effect")? {
+        effects.push(EffectDefinition {
+            body: capture_arrow_body(&call.arguments)?,
+        });
+    }
+    Ok(effects)
+}
+
+fn captures_host_helpers(callback_body: &str) -> CompilerResult<bool> {
+    let regex = compile_regex(r#"\b(?:host|useHost)\s*\("#)?;
+    Ok(regex.is_match(callback_body))
 }
 
 fn capture_events(callback_body: &str) -> CompilerResult<Vec<EventDefinition>> {
@@ -458,6 +627,85 @@ fn capture_events(callback_body: &str) -> CompilerResult<Vec<EventDefinition>> {
         });
     }
     Ok(events)
+}
+
+struct ConstCall {
+    local_name: String,
+    arguments: String,
+}
+
+struct Call {
+    arguments: String,
+}
+
+fn capture_const_calls(callback_body: &str, function_name: &str) -> CompilerResult<Vec<ConstCall>> {
+    let pattern = format!(
+        r#"const\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*{}\s*\("#,
+        regex::escape(function_name)
+    );
+    let regex = Regex::new(&pattern).map_err(|source| CompilerError::InternalPattern {
+        pattern: "dynamic const call pattern",
+        source,
+    })?;
+    let mut calls = Vec::new();
+    for captures in regex.captures_iter(callback_body) {
+        let Some(full_match) = captures.get(0) else {
+            continue;
+        };
+        let open = full_match.end() - 1;
+        let close = find_matching_delimiter(callback_body, open, '(', ')')?;
+        calls.push(ConstCall {
+            local_name: capture_str(&captures, 1)?.to_owned(),
+            arguments: callback_body[open + 1..close].trim().to_owned(),
+        });
+    }
+    Ok(calls)
+}
+
+fn capture_calls(callback_body: &str, function_name: &str) -> CompilerResult<Vec<Call>> {
+    let pattern = format!(r#"\b{}\s*\("#, regex::escape(function_name));
+    let regex = Regex::new(&pattern).map_err(|source| CompilerError::InternalPattern {
+        pattern: "dynamic call pattern",
+        source,
+    })?;
+    let mut calls = Vec::new();
+    for full_match in regex.find_iter(callback_body) {
+        let open = full_match.end() - 1;
+        let close = find_matching_delimiter(callback_body, open, '(', ')')?;
+        calls.push(Call {
+            arguments: callback_body[open + 1..close].trim().to_owned(),
+        });
+    }
+    Ok(calls)
+}
+
+fn capture_arrow_expression(arguments: &str) -> CompilerResult<String> {
+    let Some(arrow_index) = arguments.find("=>") else {
+        return Err(unsupported(
+            "computed() requires an arrow function callback.",
+        ));
+    };
+    let body = arguments[arrow_index + 2..].trim();
+    if body.starts_with('{') {
+        return Err(unsupported(
+            "computed() must use an expression body in the current compiler milestone.",
+        ));
+    }
+    Ok(body.to_owned())
+}
+
+fn capture_arrow_body(arguments: &str) -> CompilerResult<String> {
+    let Some(arrow_index) = arguments.find("=>") else {
+        return Err(unsupported("effect() requires an arrow function callback."));
+    };
+    let body = arguments[arrow_index + 2..].trim();
+    if body.starts_with('{') {
+        if !body.ends_with('}') || body.len() < 2 {
+            return Err(unsupported("effect() callback body is malformed."));
+        }
+        return Ok(body[1..body.len() - 1].trim().to_owned());
+    }
+    Ok(format!("return {body};"))
 }
 
 fn capture_str<'a>(captures: &'a regex::Captures<'_>, index: usize) -> CompilerResult<&'a str> {

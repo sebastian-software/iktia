@@ -1,4 +1,4 @@
-import type { JSX } from "./jsx-runtime.js"
+import type { JSX, JsxChild } from "./jsx-runtime.js"
 
 export type ComponentOptions = {
   shadow?: boolean
@@ -32,6 +32,34 @@ export type PropAccessor<T> = WritableAccessor<T> & {
 
 export type StateAccessor<T> = WritableAccessor<T>
 
+export type SignalAccessor<T> = WritableAccessor<T>
+
+export type ComputedAccessor<T> = Accessor<T>
+
+export type EffectCleanup = () => void
+
+export type EffectCallback = () => void | EffectCleanup
+
+export type ShowProps = {
+  when: boolean
+  fallback?: JsxChild
+  children?: JsxChild
+}
+
+export type ForProps<Item> = {
+  each: readonly Item[] | null | undefined
+  children: (item: Item, index: number) => JSX.Element
+}
+
+export type HostHandle = {
+  readonly element: HTMLElement
+  readonly root: ParentNode
+  readonly signal: AbortSignal
+  update(): void
+}
+
+export type KnownDomEventMap = HTMLElementEventMap
+
 export type EventOptions = {
   bubbles?: boolean
   cancelable?: boolean
@@ -40,7 +68,7 @@ export type EventOptions = {
 
 export type EventEmitter<Detail> = {
   readonly eventName: string
-  emit: Detail extends void ? (detail?: void) => void : (detail: Detail) => void
+  emit: [Detail] extends [void] ? (detail?: void) => void : (detail: Detail) => void
 }
 
 export type PropFactory = {
@@ -102,6 +130,46 @@ export const prop: PropFactory = Object.assign(
 
 export function state<T>(initialValue: T): StateAccessor<T> {
   return authoringRuntimeError("state")
+}
+
+export function signal<T>(initialValue: T): SignalAccessor<T> {
+  return authoringRuntimeError("signal")
+}
+
+export function computed<T>(derive: () => T): ComputedAccessor<T> {
+  return authoringRuntimeError("computed")
+}
+
+export function effect(callback: EffectCallback): void {
+  authoringRuntimeError("effect")
+}
+
+export function Show(props: ShowProps): JSX.Element {
+  return authoringRuntimeError("Show")
+}
+
+export function For<Item>(props: ForProps<Item>): JSX.Element {
+  return authoringRuntimeError("For")
+}
+
+export function on<Name extends keyof KnownDomEventMap & string>(
+  name: Name,
+  handler: (event: KnownDomEventMap[Name]) => void
+): (event: KnownDomEventMap[Name] & { currentTarget: EventTarget }) => void
+export function on<Name extends string, EventType extends Event = Event>(
+  name: Name extends keyof KnownDomEventMap ? never : Name,
+  handler: (event: EventType) => void
+): (event: EventType & { currentTarget: EventTarget }) => void
+export function on(): never {
+  return authoringRuntimeError("on")
+}
+
+export function host(): HostHandle {
+  return authoringRuntimeError("host")
+}
+
+export function useHost(): HostHandle {
+  return authoringRuntimeError("useHost")
 }
 
 export function event<Detail = void>(

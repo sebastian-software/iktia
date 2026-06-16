@@ -14,8 +14,9 @@ mod parse;
 pub use codegen::transform_component_module;
 pub use error::{CompilerError, CompilerResult};
 pub use model::{
-    ComponentImport, ComponentModule, ComponentOptions, EventDefinition, PropAccess,
-    PropDefinition, PropKind, StateDefinition, TransformResult,
+    ComponentImport, ComponentModule, ComponentOptions, ComputedDefinition, EffectDefinition,
+    EventDefinition, PropAccess, PropDefinition, PropKind, StateDefinition, StateKind,
+    TransformResult,
 };
 pub use parse::analyze_component_module;
 
@@ -27,7 +28,7 @@ pub fn core_version() -> &'static str {
 
 #[cfg(test)]
 mod tests {
-    use super::{analyze_component_module, core_version, transform_component_module};
+    use super::{StateKind, analyze_component_module, core_version, transform_component_module};
 
     #[test]
     fn core_version_should_match_crate_version() {
@@ -61,6 +62,7 @@ mod tests {
         assert!(module.options.shadow);
         assert_eq!(module.props.len(), 1);
         assert_eq!(module.states.len(), 1);
+        assert_eq!(module.states[0].kind, StateKind::State);
         assert_eq!(module.events.len(), 1);
         assert!(module.template_source.contains("<button"));
     }
@@ -76,12 +78,17 @@ mod tests {
             } satisfies ComponentOptions;
 
             export function Counter({ label = "Count", enabled = true, step = 1 }: CounterProps = {}) {
-              const count = state(0);
+              const count = signal(0);
+              const doubled = computed(() => count() * 2);
+              effect(() => {
+                console.log(doubled());
+                return () => console.log("cleanup");
+              });
               const change = event<number>("change");
 
               return (
                 <button disabled={!enabled} onClick={() => change.emit(count())}>
-                  {label}: {count()}
+                  {label}: {doubled()}
                 </button>
               );
             }
@@ -99,6 +106,10 @@ mod tests {
         assert_eq!(module.props[0].prop_name, "label");
         assert_eq!(module.props[1].attribute_name, "enabled");
         assert_eq!(module.props[2].attribute_name, "step");
+        assert_eq!(module.states[0].kind, StateKind::Signal);
+        assert_eq!(module.computed.len(), 1);
+        assert_eq!(module.computed[0].local_name, "doubled");
+        assert_eq!(module.effects.len(), 1);
         assert_eq!(module.options.styles, vec!["\":host { display: block; }\""]);
     }
 
@@ -187,6 +198,111 @@ mod tests {
                 .code
                 .contains("export { CounterElement as Counter };")
         );
+    }
+
+    #[test]
+    fn transform_component_module_should_generate_signals_computed_and_effects() {
+        let source = r#"
+            import { computed, effect, event, signal } from "lean-wc";
+
+            export function Counter({ label = "Count" }: CounterProps = {}) {
+              const count = signal(0);
+              const doubled = computed(() => count() * 2);
+              const change = event<number>("change");
+
+              effect(() => {
+                document.body.dataset.lastEffect = String(doubled());
+                return () => {
+                  document.body.dataset.cleaned = "true";
+                };
+              });
+
+              return (
+                <button
+                  data-count={doubled()}
+                  onClick={() => {
+                    count.update((value) => value + 1);
+                    change.emit(doubled());
+                  }}
+                >
+                  {label}: {doubled()}
+                </button>
+              );
+            }
+        "#;
+
+        let result = match transform_component_module(source, "counter.wc.tsx") {
+            Ok(result) => result,
+            Err(error) => panic!("transform failed: {error}"),
+        };
+
+        assert!(result.code.contains("#effectCleanups = [];"));
+        assert!(result.code.contains("const doubled = () => (count() * 2);"));
+        assert!(result.code.contains("#runEffects()"));
+        assert!(result.code.contains("document.body.dataset.lastEffect"));
+        assert!(result.code.contains("this.#flush();"));
+    }
+
+    #[test]
+    fn transform_component_module_should_generate_control_flow_and_web_composition_helpers() {
+        let source = r#"
+            import { For, Show, computed, effect, event, host, on, signal } from "lean-wc";
+
+            export function ToggleList({ visible = true }: ToggleListProps = {}) {
+              const pressed = signal(false);
+              const items = computed(() => pressed() ? ["On"] : ["Off"]);
+              const toggled = event<boolean>("toggle-change");
+
+              effect(() => {
+                const { element, signal } = host();
+                element.dataset.effect = signal.aborted ? "off" : "on";
+                return () => {
+                  delete element.dataset.effect;
+                };
+              });
+
+              return (
+                <button
+                  part="root control"
+                  data-state={pressed() ? "on" : "off"}
+                  aria-pressed={pressed()}
+                  onClick={on("click", () => {
+                    pressed.update((value) => !value);
+                    toggled.emit(pressed());
+                  })}
+                >
+                  <Show when={visible} fallback={<span part="label">Hidden</span>}>
+                    <span part="label">Visible</span>
+                  </Show>
+                  <For each={items()}>
+                    {(item, index) => (
+                      <span part="indicator" data-index={index}>
+                        {item}
+                      </span>
+                    )}
+                  </For>
+                </button>
+              );
+            }
+        "#;
+
+        let result = match transform_component_module(source, "toggle-list.wc.tsx") {
+            Ok(result) => result,
+            Err(error) => panic!("transform failed: {error}"),
+        };
+
+        assert!(result.code.contains("data-lean-control\", \"show"));
+        assert!(result.code.contains("data-lean-control\", \"for"));
+        assert!(result.code.contains(".replaceChildren("));
+        assert!(result.code.contains("addEventListener(\"click\""));
+        assert!(!result.code.contains("on(\"click\""));
+        assert!(
+            result
+                .code
+                .contains("#abortController = new AbortController();")
+        );
+        assert!(result.code.contains("const host = () => ({"));
+        assert!(result.code.contains("this.#abortController.abort();"));
     }
 
     #[test]

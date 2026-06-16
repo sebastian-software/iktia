@@ -17,6 +17,12 @@ pub struct ComponentModule {
     pub props: Vec<PropDefinition>,
     /// Internal state declarations.
     pub states: Vec<StateDefinition>,
+    /// Pure derived value declarations.
+    pub computed: Vec<ComputedDefinition>,
+    /// Lifecycle side effect declarations.
+    pub effects: Vec<EffectDefinition>,
+    /// Whether the component body references `host()` or `useHost()`.
+    pub uses_host_helpers: bool,
     /// Custom event declarations.
     pub events: Vec<EventDefinition>,
     /// Raw JSX template returned by the component callback.
@@ -99,6 +105,33 @@ pub struct StateDefinition {
     pub local_name: String,
     /// Source text for the initial value.
     pub initial_value: String,
+    /// Authoring function used for this reactive value.
+    pub kind: StateKind,
+}
+
+/// State-like reactive authoring declaration.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum StateKind {
+    /// Legacy `state()` declaration.
+    State,
+    /// Preferred v2 `signal()` declaration.
+    Signal,
+}
+
+/// Pure derived value declaration.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ComputedDefinition {
+    /// Local variable name used in the component callback.
+    pub local_name: String,
+    /// Source text for the derived value expression.
+    pub expression: String,
+}
+
+/// Lifecycle side effect declaration.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct EffectDefinition {
+    /// Source text for the effect callback body.
+    pub body: String,
 }
 
 /// Custom event declaration.

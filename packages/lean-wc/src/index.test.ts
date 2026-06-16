@@ -1,6 +1,20 @@
 import { describe, expect, it } from "vitest"
 
-import { component, createLeanEvent, event, prop, state } from "./index.js"
+import {
+  For,
+  Show,
+  component,
+  computed,
+  createLeanEvent,
+  effect,
+  event,
+  host,
+  on,
+  prop,
+  signal,
+  state,
+  useHost,
+} from "./index.js"
 
 describe("authoring runtime stubs", () => {
   it("throw clear errors outside compiler transforms", () => {
@@ -19,10 +33,19 @@ describe("authoring runtime stubs", () => {
     expect(customEvent.cancelable).toBe(false)
   })
 
-  it("keeps prop state and event stubs compiler-only", () => {
+  it("keeps authoring stubs compiler-only", () => {
     expect(() => prop.string("label", "Label")).toThrow("lean-wc prop()")
     expect(() => state(false)).toThrow("lean-wc state()")
+    expect(() => signal(false)).toThrow("lean-wc signal()")
+    expect(() => computed(() => true)).toThrow("lean-wc computed()")
+    expect(() => effect(() => undefined)).toThrow("lean-wc effect()")
+    expect(() => Show({ when: true })).toThrow("lean-wc Show()")
+    expect(() => For({ each: [1], children: () => ({ kind: "lean-wc.jsx" }) })).toThrow(
+      "lean-wc For()"
+    )
+    expect(() => on("click", () => undefined)).toThrow("lean-wc on()")
+    expect(() => host()).toThrow("lean-wc host()")
+    expect(() => useHost()).toThrow("lean-wc useHost()")
     expect(() => event<number>("change")).toThrow("lean-wc event()")
   })
 })
-

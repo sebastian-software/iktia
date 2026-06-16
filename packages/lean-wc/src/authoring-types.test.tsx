@@ -1,5 +1,18 @@
 /** @jsxImportSource lean-wc */
-import { component, event, prop, state } from "lean-wc"
+import {
+  For,
+  Show,
+  component,
+  computed,
+  effect,
+  event,
+  host,
+  on,
+  prop,
+  signal,
+  state,
+  useHost,
+} from "lean-wc"
 
 component("x-counter", { shadow: true }, () => {
   const label = prop.string("label", "Count")
@@ -47,19 +60,58 @@ function FunctionCounter({
   label = "Count",
   onChange,
 }: FunctionCounterProps = {}) {
-  const count = state(0)
+  const count = signal(0)
+  const doubled = computed(() => count() * 2)
+  const items = computed(() => [label, String(doubled())] as const)
   const change = event<number>("change")
+
+  count.set(1)
+  count.update((value) => value + 1)
+  const doubledValue: number = doubled()
+
+  // @ts-expect-error computed values are read-only
+  doubled.set(1)
+
+  effect(() => {
+    const lifecycle = host()
+    lifecycle.element.dataset.ready = "true"
+    lifecycle.signal.addEventListener("abort", () => undefined)
+    count()
+    return () => {
+      onChange?.(new CustomEvent("change", { detail: doubledValue }))
+    }
+  })
+
+  // @ts-expect-error effects may only return cleanup functions
+  effect(() => "wrong")
+
+  const hostHandle = useHost()
+  hostHandle.update()
+
+  // @ts-expect-error click handlers receive MouseEvent, not KeyboardEvent
+  on("click", (event: KeyboardEvent) => event.key)
 
   return (
     <button
       disabled={!enabled}
-      onClick={() => {
+      onClick={on("click", (event) => {
+        event.preventDefault()
         count.update((value) => value + 1)
         change.emit(count())
         onChange?.(new CustomEvent("change", { detail: count() }))
-      }}
+      })}
     >
       {label}: {count()}
+      <Show when={count() > 0} fallback={<span>Empty</span>}>
+        <span>{doubled()}</span>
+      </Show>
+      <For each={items()}>
+        {(item, index) => (
+          <span data-index={index} part="item">
+            {item}
+          </span>
+        )}
+      </For>
     </button>
   )
 }

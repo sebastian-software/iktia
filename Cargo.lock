@@ -199,6 +199,7 @@ name = "lean-wc-core"
 version = "0.0.0"
 dependencies = [
  "oxc_allocator",
+ "oxc_ast",
  "oxc_parser",
  "oxc_span",
  "regex",

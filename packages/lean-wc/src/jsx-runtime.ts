@@ -21,7 +21,7 @@ export type IntrinsicElementAttributes = {
   id?: string
   name?: string
   onBlur?: EventHandler<FocusEvent>
-  onClick?: EventHandler<MouseEvent>
+  onClick?: EventHandler<PointerEvent>
   onFocus?: EventHandler<FocusEvent>
   onInput?: EventHandler<InputEvent>
   part?: string
@@ -65,4 +65,3 @@ function jsxRuntimeError(): never {
     "lean-wc JSX can only be used in source files transformed by the lean-wc compiler."
   )
 }
-
