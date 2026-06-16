@@ -79,6 +79,63 @@ test("compiled elements accept host-provided css custom properties", async ({
   await expect(toggle.locator("button")).toHaveCSS("background-color", "rgb(204, 251, 241)")
 })
 
+test("compiled design-system primitives expose native contracts", async ({
+  page,
+}) => {
+  await page.goto("/")
+
+  const disclosure = page.locator("#primitive-suite-case x-disclosure")
+  const disclosureRoot = disclosure.locator("section")
+  const disclosureButton = disclosure.locator("button")
+
+  await expect(disclosureRoot).toHaveAttribute("part", "root")
+  await expect(disclosureRoot).toHaveAttribute("data-state", "closed")
+  await expect(disclosureButton).toHaveAttribute("part", "trigger")
+  await expect(disclosureButton).toHaveAttribute("aria-expanded", "false")
+  await expect(disclosureButton).toContainText("Deployment settings")
+  await expect(disclosure.locator("[slot='summary']")).toHaveText("Production")
+
+  await disclosureButton.click()
+
+  await expect(disclosureRoot).toHaveAttribute("data-state", "open")
+  await expect(disclosureButton).toHaveAttribute("aria-expanded", "true")
+  await expect(disclosure.locator("[part~='panel']")).toBeVisible()
+  await expect(disclosure).toContainText(
+    "Publish native Custom Elements"
+  )
+  await expect(page.locator("body")).toHaveAttribute("data-last-disclosure", "true")
+  await expect(page.locator("#disclosure-event")).toHaveText(
+    "Last disclosure event: true"
+  )
+
+  const field = page.locator("#primitive-suite-case x-field")
+  const fieldRoot = field.locator("label")
+  const input = field.locator("input")
+  const fieldAction = field.locator("button")
+
+  await expect(fieldRoot).toHaveAttribute("part", "root")
+  await expect(fieldRoot).toHaveAttribute("data-state", "valid")
+  await expect(field.locator("[part~='label']")).toHaveText("Package scope")
+  await expect(field.locator("[part~='hint']")).toBeVisible()
+  await expect(field).toContainText(
+    "Used by generated package names"
+  )
+  await expect(field.locator("[part~='status']")).toHaveText("Ready: @iktia")
+  await expect(input).toHaveAttribute("aria-invalid", "false")
+  await expect(input).toHaveValue("@iktia")
+  await expect(input).toHaveCSS("border-color", "rgb(15, 118, 110)")
+  await expect(fieldAction).toHaveAttribute("part", "action")
+
+  await fieldAction.click()
+
+  await expect(field.locator("[part~='status']")).toHaveText("Ready: @iktia/labs")
+  await expect(input).toHaveValue("@iktia/labs")
+  await expect(page.locator("body")).toHaveAttribute("data-last-field", "@iktia/labs")
+  await expect(page.locator("#field-event")).toHaveText(
+    "Last field event: @iktia/labs"
+  )
+})
+
 test("declarative shadow dom renders useful DOM before upgrade and hydrates after upgrade", async ({
   page,
 }) => {

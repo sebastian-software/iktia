@@ -1,0 +1,8 @@
+:host { display: block; font-family: system-ui, sans-serif; }
+label { display: grid; gap: 0.45rem; width: min(100%, 24rem); color: var(--iktia-field-fg, #0f172a); }
+[part~='label'] { font-size: 0.78rem; font-weight: 800; letter-spacing: 0; text-transform: uppercase; color: var(--iktia-field-label, #475569); }
+input { min-height: 2.5rem; border: 1px solid var(--iktia-field-border, #94a3b8); border-radius: 0.375rem; padding: 0.5rem 0.65rem; background: var(--iktia-field-bg, #ffffff); color: inherit; font: inherit; }
+input[aria-invalid='true'] { border-color: var(--iktia-field-invalid, #dc2626); box-shadow: 0 0 0 3px color-mix(in srgb, var(--iktia-field-invalid, #dc2626) 16%, transparent); }
+button { justify-self: start; border: 1px solid var(--iktia-field-border, #94a3b8); border-radius: 0.375rem; padding: 0.45rem 0.65rem; background: var(--iktia-field-action-bg, #f0fdfa); color: var(--iktia-field-action-fg, #134e4a); font: inherit; font-weight: 700; }
+[part~='hint'] { color: var(--iktia-field-muted, #64748b); font-size: 0.86rem; }
+[part~='status'] { color: var(--iktia-field-status, #0f766e); font-size: 0.86rem; font-weight: 700; }

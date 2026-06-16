@@ -158,6 +158,8 @@ output {
 }
 
 x-counter,
+x-disclosure,
+x-field,
 x-toggle,
 x-toolbar {
   justify-self: start;
@@ -165,6 +167,15 @@ x-toolbar {
 
 .theme-surface {
   align-content: start;
+}
+
+.primitive-surface {
+  align-content: start;
+}
+
+.primitive-surface x-disclosure,
+.primitive-surface x-field {
+  width: 100%;
 }
 
 @media (max-width: 780px) {

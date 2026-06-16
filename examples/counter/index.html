@@ -139,6 +139,54 @@ return &lt;Counter label="Nested count" /&gt;</code></pre>
           <pre><code>style="--iktia-control-bg: #f5f3ff"</code></pre>
         </div>
       </section>
+
+      <section
+        class="demo-case"
+        id="primitive-suite-case"
+        aria-labelledby="primitive-suite-title"
+      >
+        <div class="case-copy">
+          <p class="case-kicker">Use case 05</p>
+          <h2 id="primitive-suite-title">Design-system primitives</h2>
+          <p>
+            A small primitive set shows Iktia output as framework-neutral UI:
+            interactive disclosure and field controls expose native attributes,
+            events, slots, parts, and CSS variables.
+          </p>
+          <ul>
+            <li><code>x-disclosure</code> pairs ARIA state with a typed event and slots.</li>
+            <li><code>x-field</code> exposes label, hint, status, and input contracts.</li>
+            <li>The host page observes both controls with plain DOM listeners.</li>
+          </ul>
+        </div>
+        <div class="case-surface primitive-surface">
+          <x-disclosure
+            label="Deployment settings"
+            style="
+              --iktia-disclosure-border: #334155;
+              --iktia-disclosure-button-bg: #e2e8f0;
+              --iktia-disclosure-panel-bg: #f8fafc;
+            "
+          >
+            <span slot="summary">Production</span>
+            Publish native Custom Elements without a host framework adapter.
+          </x-disclosure>
+          <output id="disclosure-event">Last disclosure event: none</output>
+
+          <x-field
+            label="Package scope"
+            style="
+              --iktia-field-border: #0f766e;
+              --iktia-field-status: #0f766e;
+            "
+          >
+            Used by generated package names and docs examples.
+          </x-field>
+          <output id="field-event">Last field event: none</output>
+          <pre><code>&lt;x-disclosure&gt; and &lt;x-field&gt;
+dispatch native CustomEvents.</code></pre>
+        </div>
+      </section>
     </main>
 
     <script type="module" src="/src/main.ts"></script>

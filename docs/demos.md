@@ -27,6 +27,7 @@ browser page.
 | Primitive toggle | `Toggle` / `x-toggle` | `part`, `slot`, `data-state`, ARIA, `<Show>`, keyed `.map()`, `on()`, `host()`, cleanup-aware lifecycle work |
 | PascalCase composition | `Toolbar` / `x-toolbar` | TypeScript component imports, PascalCase JSX nesting, compiler-owned kebab-case Custom Element output |
 | CSS variable theming | `Counter` and `Toggle` | Host-provided CSS custom properties crossing Shadow DOM, with parts and state attributes as styling hooks |
+| Design-system primitives | `Disclosure` / `x-disclosure`, `Field` / `x-field` | Framework-free primitives with slots, parts, ARIA, `data-state`, typed events, and CSS custom properties |
 | Declarative Shadow DOM | `Counter` and `Toggle` | Prerendered static HTML, `<template shadowrootmode="open">`, DSD-only hydration markers, delayed custom-element upgrade, post-upgrade interactivity |
 
 The examples intentionally use the generated Custom Elements from regular
