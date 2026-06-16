@@ -1,4 +1,5 @@
 import "./counter.wc.tsx"
+import "./toggle.wc.tsx"
 
 document.querySelector("x-counter")?.addEventListener("change", (event) => {
   if (event instanceof CustomEvent) {
@@ -6,3 +7,8 @@ document.querySelector("x-counter")?.addEventListener("change", (event) => {
   }
 })
 
+document.querySelector("x-toggle")?.addEventListener("toggle-change", (event) => {
+  if (event instanceof CustomEvent) {
+    document.body.dataset.lastToggle = String(event.detail)
+  }
+})

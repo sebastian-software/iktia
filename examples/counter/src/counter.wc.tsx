@@ -1,4 +1,4 @@
-import { event, state, type ComponentOptions } from "lean-wc"
+import { computed, effect, event, signal, type ComponentOptions } from "lean-wc"
 
 export type CounterProps = {
   label?: string
@@ -9,8 +9,13 @@ export const options = {
 } satisfies ComponentOptions
 
 export function Counter({ label = "Count" }: CounterProps = {}) {
-  const count = state(0)
+  const count = signal(0)
+  const displayLabel = computed(() => `${label}: ${count()}`)
   const change = event<number>("change")
+
+  effect(() => {
+    document.body.dataset.lastRendered = String(count())
+  })
 
   return (
     <button
@@ -21,7 +26,7 @@ export function Counter({ label = "Count" }: CounterProps = {}) {
         change.emit(count())
       }}
     >
-      {label}: {count()}
+      {displayLabel()}
     </button>
   )
 }
