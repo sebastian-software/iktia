@@ -26,6 +26,8 @@ pub struct ComponentOptions {
     pub shadow: bool,
     /// Whether the generated module should call `customElements.define()`.
     pub define: bool,
+    /// Style source expressions injected into the shadow root.
+    pub styles: Vec<String>,
 }
 
 impl Default for ComponentOptions {
@@ -33,6 +35,7 @@ impl Default for ComponentOptions {
         Self {
             shadow: true,
             define: true,
+            styles: Vec::new(),
         }
     }
 }

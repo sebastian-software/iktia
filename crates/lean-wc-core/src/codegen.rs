@@ -462,6 +462,17 @@ impl<'a> CodeGenerator<'a> {
 
     fn emit_mount(&self, code: &mut String) -> CompilerResult<()> {
         writeln!(code, "  #mount() {{").map_err(format_error)?;
+        if self.module.options.shadow && !self.module.options.styles.is_empty() {
+            writeln!(code, "    const style = document.createElement(\"style\");")
+                .map_err(format_error)?;
+            writeln!(
+                code,
+                "    style.textContent = [{}].join(\"\\n\");",
+                self.module.options.styles.join(", ")
+            )
+            .map_err(format_error)?;
+            writeln!(code, "    this.#root.append(style);").map_err(format_error)?;
+        }
         for line in &self.mount_lines {
             writeln!(code, "    {line}").map_err(format_error)?;
         }

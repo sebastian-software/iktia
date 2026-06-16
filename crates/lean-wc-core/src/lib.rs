@@ -104,4 +104,33 @@ mod tests {
         assert!(result.code.contains("new CustomEvent(\"change\""));
         assert!(result.code.contains("this.#text0.data"));
     }
+
+    #[test]
+    fn transform_component_module_should_generate_slots_and_shadow_styles() {
+        let source = r#"
+            import { component } from "lean-wc";
+
+            export default component("x-button", {
+              shadow: true,
+              styles: [":host { display: inline-block; }", "button { color: red; }"],
+            }, () => {
+              return (
+                <button part="button">
+                  <slot name="icon" />
+                  <slot />
+                </button>
+              );
+            });
+        "#;
+
+        let result = match transform_component_module(source, "button.wc.tsx") {
+            Ok(result) => result,
+            Err(error) => panic!("transform failed: {error}"),
+        };
+
+        assert!(result.code.contains("style.textContent"));
+        assert!(result.code.contains("document.createElement(\"slot\")"));
+        assert!(result.code.contains("setAttribute(\"name\", \"icon\")"));
+        assert!(result.code.contains("setAttribute(\"part\", \"button\")"));
+    }
 }

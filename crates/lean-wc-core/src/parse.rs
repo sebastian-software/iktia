@@ -19,7 +19,7 @@ pub fn analyze_component_module(source: &str, filename: &str) -> CompilerResult<
 
     let component_call = extract_component_call(source, filename)?;
     let tag_name = capture_tag_name(component_call, filename)?;
-    let options = capture_component_options(component_call);
+    let options = capture_component_options(component_call)?;
     let callback_body = capture_callback_body(component_call)?;
     let template_source = capture_template_source(callback_body)?;
 
@@ -83,11 +83,29 @@ fn capture_tag_name(component_call: &str, filename: &str) -> CompilerResult<Stri
     Ok(tag_name.as_str().to_owned())
 }
 
-fn capture_component_options(component_call: &str) -> ComponentOptions {
-    ComponentOptions {
+fn capture_component_options(component_call: &str) -> CompilerResult<ComponentOptions> {
+    Ok(ComponentOptions {
         shadow: !component_call.contains("shadow: false"),
         define: !component_call.contains("define: false"),
-    }
+        styles: capture_style_expressions(component_call)?,
+    })
+}
+
+fn capture_style_expressions(component_call: &str) -> CompilerResult<Vec<String>> {
+    let regex = compile_regex(r#"styles\s*:\s*\[([^\]]*)\]"#)?;
+    let Some(captures) = regex.captures(component_call) else {
+        return Ok(Vec::new());
+    };
+    let Some(styles) = captures.get(1) else {
+        return Ok(Vec::new());
+    };
+    Ok(styles
+        .as_str()
+        .split(',')
+        .map(str::trim)
+        .filter(|style| !style.is_empty())
+        .map(ToOwned::to_owned)
+        .collect())
 }
 
 fn capture_callback_body(component_call: &str) -> CompilerResult<&str> {
