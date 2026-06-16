@@ -1,5 +1,4 @@
 import {
-  For,
   Show,
   computed,
   effect,
@@ -64,13 +63,11 @@ export function Toggle({ disabled = false, label = "Toggle" }: ToggleProps = {})
       <Show when={pressed()} fallback={<span part="indicator">Off</span>}>
         <span part="indicator">{stateLabel()}</span>
       </Show>
-      <For each={indicators()}>
-        {(item, index) => (
-          <span part="indicator" data-index={index}>
-            {item}
-          </span>
-        )}
-      </For>
+      {indicators().map((item, index) => (
+        <span key={item} part="indicator" data-index={index}>
+          {item}
+        </span>
+      ))}
       <slot />
     </button>
   )

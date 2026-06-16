@@ -52,7 +52,7 @@ release. The current implementation proves the vertical slice:
 * typed TypeScript authoring API and JSX surface
 * PascalCase function component authoring with kebab-case Custom Element output
 * `state()`, `computed()`, and `effect()` authoring primitives
-* explicit `<Show>` and `<For>` compile-time control flow
+* `<Show>` and keyed `.map()` compile-time control flow
 * Rust/OXC TSX parse validation and compiler analysis
 * native Custom Element code generation
 * Declarative Shadow DOM prerender output and hydration for explicit static
@@ -219,7 +219,7 @@ Current APIs:
 * `event<Detail>(name)`
 * `on(name, handler)` for typed DOM event composition
 * `host()` for element, root, update, and abort-signal access
-* `<Show>` and `<For>` as explicit compile-time control flow
+* `<Show>` and keyed `.map()` as explicit compile-time control flow
 * typed JSX intrinsic elements and common DOM/event attributes
 
 For details, see [docs/authoring.md](docs/authoring.md).

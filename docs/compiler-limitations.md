@@ -57,14 +57,15 @@ The MVP template parser supports:
 * Event attributes such as `onClick`.
 * Text interpolation with `{expression}` chunks.
 * Explicit `<Show when={...} fallback={...}>...</Show>` control flow.
-* Explicit `<For each={...}>{(item, index) => <span />}</For>` control flow.
+* Keyed `.map()` list control flow, for example
+  `{items().map((item, index) => <span key={item.id} />)}`.
 * PascalCase child components imported from direct `.wc` modules.
 * Default and named slots.
 * `part`, `class`, `data-*`, `aria-*`, and common DOM attributes.
 
 Generated updates currently cover dynamic attributes, text bindings, effects,
-`<Show>` containers, and `<For>` containers. `<For>` re-renders its container on
-update; keyed list diffing is not part of the current MVP.
+`<Show>` containers, and keyed `.map()` list containers. Lists re-render their
+container on update; keyed diffing is not part of the current MVP.
 
 ## Styling Boundary
 
@@ -118,7 +119,10 @@ Currently unsupported:
 
 * Multiple root JSX elements or fragments.
 * Conditional JSX branches outside `<Show>`.
-* Array mapping to JSX children outside `<For>`.
+* Unkeyed `.map()` JSX list children.
+* `.map()` list callbacks with block bodies or non-JSX return values.
+* Arbitrary array mapping or list expressions outside the accepted keyed
+  `.map()` form.
 * Spread attributes.
 * Component composition that requires module graph analysis beyond direct `.wc`
   imports.

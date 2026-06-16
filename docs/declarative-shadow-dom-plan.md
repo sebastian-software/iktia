@@ -217,7 +217,7 @@ Recommended Rust-core additions:
 * Add `serialize_declarative_shadow_dom(module, options)` returning an HTML
   fragment or a structured render result.
 * Add deterministic hydration IDs for dynamic attributes, text nodes, event
-  targets, `<Show>` anchors, and `<For>` containers.
+  targets, `<Show>` anchors, and keyed `.map()` containers.
 * Generate hydration lookup code in the JS module when DSD hydration is
   enabled.
 * Keep unsupported expressions explicit. The serializer should omit or mark
@@ -266,7 +266,7 @@ The compiler can assign stable internal markers during code generation:
 * `data-iktia-node="0"` for dynamic element nodes that need event listeners or
   dynamic attributes.
 * `data-iktia-text="0"` for dynamic text placeholders.
-* comment or element markers for `<Show>` and `<For>` containers.
+* comment or element markers for `<Show>` and keyed `.map()` containers.
 * optional `data-iktia-root` on the first generated child for diagnostic checks.
 
 The generated class can then use the existing shadow root:

@@ -1,6 +1,5 @@
 /** @jsxImportSource @iktia/core */
 import {
-  For,
   Show,
   computed,
   effect,
@@ -23,6 +22,9 @@ type RemovedSignalApi = IktiaCore["signal"]
 
 // @ts-expect-error useHost() is not part of the v0.1 public API
 type RemovedUseHostApi = IktiaCore["useHost"]
+
+// @ts-expect-error <For> is not part of the v0.1 public API
+type RemovedForApi = IktiaCore["For"]
 
 type FunctionCounterProps = {
   enabled?: boolean
@@ -87,13 +89,11 @@ function FunctionCounter({
       <Show when={count() > 0} fallback={<span>Empty</span>}>
         <span>{doubled()}</span>
       </Show>
-      <For each={items()}>
-        {(item, index) => (
-          <span data-index={index} part="item">
-            {item}
-          </span>
-        )}
-      </For>
+      {items().map((item, index) => (
+        <span key={item} data-index={index} part="item">
+          {item}
+        </span>
+      ))}
     </button>
   )
 }

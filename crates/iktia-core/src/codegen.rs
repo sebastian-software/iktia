@@ -922,6 +922,12 @@ impl<'a> CodeGenerator<'a> {
                     .push(format!("{parent_variable}.append({child_variable});"));
             }
             TemplateChild::Expression(expression) => {
+                if let Some(renderer) = parse_map_renderer(expression)? {
+                    let child_variable = self.emit_list_control(&renderer)?;
+                    self.mount_lines
+                        .push(format!("{parent_variable}.append({child_variable});"));
+                    return Ok(());
+                }
                 self.emit_expression(parent_variable, expression)?;
             }
             TemplateChild::Text(text) => {
@@ -1018,8 +1024,11 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn emit_for_control(&mut self, element: &TemplateElement) -> CompilerResult<String> {
-        let each = required_expression_attribute(element, "each")?.to_owned();
         let renderer = parse_for_renderer(element)?;
+        self.emit_list_control(&renderer)
+    }
+
+    fn emit_list_control(&mut self, renderer: &ListRenderer) -> CompilerResult<String> {
         let rendered_template = TemplateParser::new(&renderer.template_source).parse_element()?;
         let index = self.next_node_index;
         self.next_node_index += 1;
@@ -1049,11 +1058,16 @@ impl<'a> CodeGenerator<'a> {
             .push(format!("this.#{field} = {variable};"));
 
         self.update_lines.push(format!(
-            "const {items_variable} = Array.from(({each}) ?? []);"
+            "const {items_variable} = Array.from(({}) ?? []);",
+            renderer.each_expression
         ));
         self.update_lines.push(format!(
             "this.#{field}.replaceChildren(...{items_variable}.map(({}, {}) => {{",
             renderer.item_name, renderer.index_name
+        ));
+        self.update_lines.push(format!(
+            "  const {render_prefix}Key = {}; void {render_prefix}Key;",
+            renderer.key_expression
         ));
         for line in render_lines {
             self.update_lines.push(format!("  {line}"));
@@ -1132,6 +1146,9 @@ impl<'a> CodeGenerator<'a> {
         is_component_element: bool,
         lines: &mut Vec<String>,
     ) -> CompilerResult<()> {
+        if attribute.name == "key" {
+            return Ok(());
+        }
         if let Some(event_name) = event_name_from_attribute(&attribute.name) {
             let AttributeValue::Expression(expression) = &attribute.value else {
                 return Err(unsupported(format!(
@@ -1202,6 +1219,9 @@ impl<'a> CodeGenerator<'a> {
         attribute: &TemplateAttribute,
         is_component_element: bool,
     ) -> CompilerResult<()> {
+        if attribute.name == "key" {
+            return Ok(());
+        }
         if let Some(event_name) = event_name_from_attribute(&attribute.name) {
             let AttributeValue::Expression(expression) = &attribute.value else {
                 return Err(unsupported(format!(
@@ -1401,7 +1421,12 @@ impl<'a> DeclarativeShadowDomRenderer<'a> {
     fn render_child(&mut self, child: &TemplateChild) -> CompilerResult<String> {
         match child {
             TemplateChild::Element(element) => self.render_element(element, false),
-            TemplateChild::Expression(expression) => self.render_expression_text(expression),
+            TemplateChild::Expression(expression) => {
+                if parse_map_renderer(expression)?.is_some() {
+                    return self.render_list_control();
+                }
+                self.render_expression_text(expression)
+            }
             TemplateChild::Text(text) => self.render_text(text),
         }
     }
@@ -1412,6 +1437,9 @@ impl<'a> DeclarativeShadowDomRenderer<'a> {
         attribute: &TemplateAttribute,
         is_component_element: bool,
     ) -> CompilerResult<()> {
+        if attribute.name == "key" {
+            return Ok(());
+        }
         if event_name_from_attribute(&attribute.name).is_some() {
             return Ok(());
         }
@@ -1522,6 +1550,10 @@ impl<'a> DeclarativeShadowDomRenderer<'a> {
     }
 
     fn render_for_control(&mut self) -> CompilerResult<String> {
+        self.render_list_control()
+    }
+
+    fn render_list_control(&mut self) -> CompilerResult<String> {
         let field = self.next_node_field();
         Ok(format!(
             "<span style=\"display: contents\" data-iktia-control=\"for\" data-iktia-node=\"{}\"></span>",
@@ -2023,13 +2055,16 @@ fn optional_attribute<'a>(
         .find(|attribute| attribute.name == name)
 }
 
-struct ForRenderer {
+struct ListRenderer {
+    each_expression: String,
     item_name: String,
     index_name: String,
+    key_expression: String,
     template_source: String,
 }
 
-fn parse_for_renderer(element: &TemplateElement) -> CompilerResult<ForRenderer> {
+fn parse_for_renderer(element: &TemplateElement) -> CompilerResult<ListRenderer> {
+    let each_expression = required_expression_attribute(element, "each")?.to_owned();
     let expressions = element
         .children
         .iter()
@@ -2047,43 +2082,116 @@ fn parse_for_renderer(element: &TemplateElement) -> CompilerResult<ForRenderer> 
         ));
     }
 
-    let expression = expressions[0];
-    let Some(arrow_index) = expression.find("=>") else {
-        return Err(unsupported("<For> child must be an arrow function."));
+    let renderer = parse_list_callback(expressions[0], "<For> child")?;
+    Ok(ListRenderer {
+        each_expression,
+        ..renderer
+    })
+}
+
+fn parse_map_renderer(expression: &str) -> CompilerResult<Option<ListRenderer>> {
+    let trimmed = expression.trim();
+    let Some(map_index) = trimmed.find(".map") else {
+        return Ok(None);
     };
-    let params = expression[..arrow_index].trim();
-    let body = strip_wrapping_parentheses(expression[arrow_index + 2..].trim());
-    if !body.starts_with('<') {
+    let each_expression = trimmed[..map_index].trim();
+    if each_expression.is_empty() {
         return Err(unsupported(
-            "<For> arrow child must return a TSX element expression.",
+            "Iktia .map() list expressions must have an array expression before .map().",
         ));
     }
+    let map_name_end = map_index + ".map".len();
+    let after_map = &trimmed[map_name_end..];
+    let open_offset = after_map.len() - after_map.trim_start().len();
+    let open = map_name_end + open_offset;
+    if !trimmed[open..].starts_with('(') {
+        return Err(unsupported(
+            "Iktia .map() list expressions must call .map(...).",
+        ));
+    }
+    let close = find_matching_delimiter(trimmed, open, '(', ')')?;
+    if !trimmed[close + 1..].trim().is_empty() {
+        return Err(unsupported(
+            "Iktia .map() list expressions must be the full JSX child expression.",
+        ));
+    }
+    let arguments = split_top_level_commas(&trimmed[open + 1..close]);
+    if arguments.len() != 1 {
+        return Err(unsupported(
+            "Iktia .map() list expressions support exactly one callback argument.",
+        ));
+    }
+    let renderer = parse_list_callback(arguments[0].trim(), ".map() callback")?;
+    Ok(Some(ListRenderer {
+        each_expression: each_expression.to_owned(),
+        ..renderer
+    }))
+}
 
+fn parse_list_callback(expression: &str, label: &str) -> CompilerResult<ListRenderer> {
+    let Some(arrow_index) = expression.find("=>") else {
+        return Err(unsupported(format!("{label} must be an arrow function.")));
+    };
+    let params = expression[..arrow_index].trim();
+    let raw_body = expression[arrow_index + 2..].trim();
+    if raw_body.starts_with('{') {
+        return Err(unsupported(format!(
+            "{label} must use an expression body that returns JSX."
+        )));
+    }
+    let body = strip_wrapping_parentheses(raw_body);
+    if !body.starts_with('<') {
+        return Err(unsupported(format!(
+            "{label} must return a JSX element expression."
+        )));
+    }
     let params = strip_wrapping_parentheses(params);
     let mut param_parts = split_top_level_commas(params)
         .into_iter()
         .map(str::trim)
         .filter(|value| !value.is_empty());
     let Some(item_name) = param_parts.next() else {
-        return Err(unsupported("<For> child must name an item parameter."));
+        return Err(unsupported(format!("{label} must name an item parameter.")));
     };
     let index_name = param_parts.next().unwrap_or("index");
     if param_parts.next().is_some() {
-        return Err(unsupported(
-            "<For> child currently supports item and index parameters only.",
-        ));
+        return Err(unsupported(format!(
+            "{label} currently supports item and index parameters only.",
+        )));
     }
     if !is_identifier(item_name) || !is_identifier(index_name) {
-        return Err(unsupported(
-            "<For> child parameters must be simple identifiers.",
-        ));
+        return Err(unsupported(format!(
+            "{label} parameters must be simple identifiers.",
+        )));
     }
 
-    Ok(ForRenderer {
+    let template = TemplateParser::new(body).parse_element()?;
+    let key_expression = required_key_expression(&template)?;
+
+    Ok(ListRenderer {
+        each_expression: String::new(),
         item_name: item_name.to_owned(),
         index_name: index_name.to_owned(),
+        key_expression,
         template_source: body.to_owned(),
     })
+}
+
+fn required_key_expression(element: &TemplateElement) -> CompilerResult<String> {
+    let Some(attribute) = optional_attribute(element, "key") else {
+        return Err(unsupported(
+            "Dynamic .map() lists require a key attribute on the returned root JSX element.",
+        ));
+    };
+    match &attribute.value {
+        AttributeValue::Expression(expression) if !expression.trim().is_empty() => {
+            Ok(expression.trim().to_owned())
+        }
+        AttributeValue::Static(value) => Ok(format!("\"{}\"", escape_js_string(value))),
+        AttributeValue::Boolean | AttributeValue::Expression(_) => Err(unsupported(
+            "Dynamic .map() list keys must use a non-empty expression or static value.",
+        )),
+    }
 }
 
 fn setter_parse_expression(prop: &PropDefinition) -> String {
@@ -2153,7 +2261,7 @@ fn validate_child_expression(expression: &str) -> CompilerResult<()> {
     }
     if expression.contains(".map(") {
         return Err(unsupported(
-            "JSX array mapping is not supported. Use the explicit <For each={...}> control-flow primitive.",
+            "Unsupported JSX array mapping. Use items().map((item) => <Row key={item.id} />) with a JSX element expression body.",
         ));
     }
     if expression.contains('?') || expression.contains("&&") || expression.contains("||") {

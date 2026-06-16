@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest"
 
 import {
-  For,
   Show,
   computed,
   effect,
@@ -17,9 +16,6 @@ describe("authoring runtime stubs", () => {
     expect(() => computed(() => true)).toThrow("Iktia computed()")
     expect(() => effect(() => undefined)).toThrow("Iktia effect()")
     expect(() => Show({ when: true })).toThrow("Iktia Show()")
-    expect(() => For({ each: [1], children: () => ({ kind: "iktia.jsx" }) })).toThrow(
-      "Iktia For()"
-    )
     expect(() => on("click", () => undefined)).toThrow("Iktia on()")
     expect(() => host()).toThrow("Iktia host()")
     expect(() => event<number>("change")).toThrow("Iktia event()")

@@ -139,7 +139,8 @@ Deliverables:
 * Implement the v0.1 decision that legacy `component()`, `prop.*()`, `prop()`,
   `signal()`, and `useHost()` are removed from the public authoring API.
 * Freeze the first public shape of `state()`, `computed()`, `effect()`,
-  `event()`, `on()`, `host()`, `<Show>`, `<For>`, and `ComponentOptions`.
+  `event()`, `on()`, `host()`, `<Show>`, keyed `.map()`, and
+  `ComponentOptions`.
 * Decide whether event options belong in `event(name, options)`, `on(type,
   handler, options)`, both, or neither for the first release.
 * Define the public DSD API boundary for `renderDeclarativeShadowDom()` and Vite
@@ -392,7 +393,7 @@ Candidate feature groups:
 
 * Form-associated Custom Elements and form lifecycle APIs.
 * Event option code generation.
-* Keyed `<For>` diffing or an explicitly documented non-keyed list contract.
+* Keyed `.map()` diffing or an explicitly documented re-render list contract.
 * CSS import strategy for Shadow DOM, including how far Vite integration goes.
 * Component module graph analysis beyond direct `.wc` imports.
 * Vite cache invalidation and better dev-server diagnostics.

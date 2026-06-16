@@ -55,7 +55,7 @@ const text = computed(() =&gt; `Count: ${count()}`)</code></pre>
           </p>
           <ul>
             <li><code>part</code>, <code>data-state</code>, and ARIA form the styling contract.</li>
-            <li><code>&lt;Show&gt;</code> and <code>&lt;For&gt;</code> keep dynamic trees analyzable.</li>
+            <li><code>&lt;Show&gt;</code> and keyed <code>.map()</code> keep dynamic trees analyzable.</li>
             <li><code>host()</code> and <code>AbortSignal</code> model lifecycle work.</li>
           </ul>
         </div>

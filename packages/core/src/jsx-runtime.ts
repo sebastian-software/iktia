@@ -19,6 +19,7 @@ export type IntrinsicElementAttributes = {
   class?: string
   disabled?: boolean
   id?: string
+  key?: string | number
   name?: string
   onBlur?: EventHandler<FocusEvent>
   onClick?: EventHandler<PointerEvent>

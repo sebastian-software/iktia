@@ -13,7 +13,7 @@ native Custom Elements in a normal browser page.
 | Section | Component | Demonstrates |
 | --- | --- | --- |
 | Reactive counter | `Counter` / `x-counter` | `state()`, `computed()`, `effect()`, typed `CustomEvent` emission, Shadow DOM output |
-| Primitive toggle | `Toggle` / `x-toggle` | `part`, `slot`, `data-state`, ARIA, `<Show>`, `<For>`, `on()`, `host()`, cleanup-aware lifecycle work |
+| Primitive toggle | `Toggle` / `x-toggle` | `part`, `slot`, `data-state`, ARIA, `<Show>`, keyed `.map()`, `on()`, `host()`, cleanup-aware lifecycle work |
 | PascalCase composition | `Toolbar` / `x-toolbar` | TypeScript component imports, PascalCase JSX nesting, compiler-owned kebab-case Custom Element output |
 | Declarative Shadow DOM | `Counter` and `Toggle` | Explicit prerender output, `<template shadowrootmode="open">`, DSD-only hydration markers, delayed custom-element upgrade, post-upgrade interactivity |
 

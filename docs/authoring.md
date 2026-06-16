@@ -261,7 +261,7 @@ doubled()
 
 The current compiler milestone supports pure expression-body callbacks. Computed
 values can be used in text bindings, dynamic attributes, `<Show when={...}>`,
-`<For each={...}>`, events, and effects.
+keyed `.map()` list expressions, events, and effects.
 
 ## Effects And Host Lifecycle
 
@@ -321,7 +321,7 @@ keeping the generated output as a plain `addEventListener()` callback.
 
 The MVP supports native element tags, text interpolation, static attributes,
 dynamic attributes, event handlers, PascalCase child components, explicit
-control-flow primitives, and slots.
+`<Show>` conditionals, keyed `.map()` lists, and slots.
 
 ```tsx
 return (
@@ -349,25 +349,27 @@ export function Dashboard() {
 }
 ```
 
-`<Show>` and `<For>` are compiler primitives, not runtime components.
+`<Show>` is a compiler primitive, not a runtime component. Lists use a narrow
+typed `.map()` syntax that the compiler lowers into list IR.
 
 ```tsx
 <Show when={count() > 0} fallback={<span>Empty</span>}>
   <span>{count()}</span>
 </Show>
 
-<For each={items()}>
-  {(item, index) => (
-    <span part="indicator" data-index={index}>
-      {item}
-    </span>
-  )}
-</For>
+{items().map((item, index) => (
+  <span key={item.id} part="indicator" data-index={index}>
+    {item.label}
+  </span>
+))}
 ```
 
-`<For>` intentionally supports an explicit arrow-function child instead of
-arbitrary `items.map()` JSX. The generated MVP output re-renders the list
-container on update; keyed diffing is a later compiler decision.
+The accepted `.map()` form must be the whole JSX child expression, use simple
+item and optional index parameters, return a JSX element expression body, and
+put `key` on the returned root element. Block bodies, missing keys, non-JSX map
+returns, and arbitrary list expressions fail during compiler analysis. The
+generated v0.1 output re-renders the list container on update; keyed diffing is
+a later compiler implementation detail.
 
 ## Primitive Contracts
 

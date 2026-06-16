@@ -362,7 +362,7 @@ mod tests {
     #[test]
     fn transform_component_module_should_generate_control_flow_and_web_composition_helpers() {
         let source = r#"
-            import { For, Show, computed, effect, event, host, on, state } from "@iktia/core";
+            import { Show, computed, effect, event, host, on, state } from "@iktia/core";
 
             export function ToggleList({ visible = true }: ToggleListProps = {}) {
               const pressed = state(false);
@@ -390,13 +390,11 @@ mod tests {
                   <Show when={visible} fallback={<span part="label">Hidden</span>}>
                     <span part="label">Visible</span>
                   </Show>
-                  <For each={items()}>
-                    {(item, index) => (
-                      <span part="indicator" data-index={index}>
+                  {items().map((item, index) => (
+                      <span key={item} part="indicator" data-index={index}>
                         {item}
                       </span>
-                    )}
-                  </For>
+                  ))}
                 </button>
               );
             }
@@ -422,7 +420,7 @@ mod tests {
     }
 
     #[test]
-    fn transform_component_module_should_reject_map_jsx_children() {
+    fn transform_component_module_should_reject_unkeyed_map_jsx_children() {
         let source = r#"
             import { computed } from "@iktia/core";
 
@@ -438,9 +436,51 @@ mod tests {
         "#;
 
         let error = transform_component_module(source, "list.wc.tsx")
-            .expect_err("map JSX child should be rejected");
+            .expect_err("unkeyed map JSX child should be rejected");
 
-        assert!(error.to_string().contains("Use the explicit <For"));
+        assert!(error.to_string().contains("require a key attribute"));
+    }
+
+    #[test]
+    fn transform_component_module_should_reject_map_block_bodies() {
+        let source = r#"
+            import { computed } from "@iktia/core";
+
+            export function List() {
+              const items = computed(() => ["One", "Two"]);
+
+              return (
+                <ul>
+                  {items().map((item) => {
+                    return <li key={item}>{item}</li>;
+                  })}
+                </ul>
+              );
+            }
+        "#;
+
+        let error = transform_component_module(source, "list.wc.tsx")
+            .expect_err("map block body should be rejected");
+
+        assert!(error.to_string().contains("expression body"));
+    }
+
+    #[test]
+    fn transform_component_module_should_reject_non_jsx_map_returns() {
+        let source = r#"
+            import { computed } from "@iktia/core";
+
+            export function List() {
+              const items = computed(() => ["One", "Two"]);
+
+              return <ul>{items().map((item) => item)}</ul>;
+            }
+        "#;
+
+        let error = transform_component_module(source, "list.wc.tsx")
+            .expect_err("non-JSX map return should be rejected");
+
+        assert!(error.to_string().contains("must return a JSX element"));
     }
 
     #[test]

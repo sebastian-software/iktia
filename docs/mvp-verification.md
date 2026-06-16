@@ -42,9 +42,9 @@ Rust core:
 * Events dispatch native `CustomEvent` instances.
 * `on()` compiles away to a native `addEventListener()` handler body.
 * `host()` exposes a generated lifecycle handle with an `AbortSignal`.
-* `<Show>` and `<For>` compile as explicit control-flow containers.
+* `<Show>` and keyed `.map()` compile as explicit control-flow containers.
 * Unsupported JSX `.map()` and conditional expression children produce
-  deterministic diagnostics pointing to `<For>` and `<Show>`.
+  deterministic diagnostics pointing to keyed `.map()` and `<Show>`.
 * Shadow DOM rendering supports style injection and slots.
 * Generated classes reuse existing declarative shadow roots before any
   `attachShadow()` fallback.
