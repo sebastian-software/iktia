@@ -605,8 +605,9 @@ impl<'a> CodeGenerator<'a> {
         self.mount_lines
             .push(format!("this.#{field} = {variable};"));
 
+        let field_reference = format!("this.#{field}");
         for attribute in &element.attributes {
-            self.emit_attribute(&variable, attribute)?;
+            self.emit_attribute(&variable, &field_reference, &field, attribute)?;
         }
 
         for child in &element.children {
@@ -628,6 +629,8 @@ impl<'a> CodeGenerator<'a> {
     fn emit_attribute(
         &mut self,
         variable: &str,
+        field_reference: &str,
+        field_name: &str,
         attribute: &TemplateAttribute,
     ) -> CompilerResult<()> {
         if let Some(event_name) = event_name_from_attribute(&attribute.name) {
@@ -669,7 +672,8 @@ impl<'a> CodeGenerator<'a> {
             }
             AttributeValue::Expression(expression) => {
                 self.update_lines.push(dynamic_attribute_update(
-                    variable,
+                    field_reference,
+                    field_name,
                     &attribute.name,
                     expression,
                 ));
@@ -734,15 +738,20 @@ fn default_value_for_prop(prop: &PropDefinition) -> String {
     }
 }
 
-fn dynamic_attribute_update(variable: &str, name: &str, expression: &str) -> String {
+fn dynamic_attribute_update(
+    target: &str,
+    target_key: &str,
+    name: &str,
+    expression: &str,
+) -> String {
     if name == "disabled" {
         return format!(
-            "{variable}.toggleAttribute(\"disabled\", Boolean({expression})); {variable}.disabled = Boolean({expression});"
+            "{target}.toggleAttribute(\"disabled\", Boolean({expression})); {target}.disabled = Boolean({expression});"
         );
     }
-    let value_variable = format!("{}_{}_value", variable, name.replace('-', "_"));
+    let value_variable = format!("{}_{}_value", target_key, name.replace('-', "_"));
     format!(
-        "const {value_variable} = {expression}; if ({value_variable} == null || {value_variable} === false) {{ {variable}.removeAttribute(\"{name}\"); }} else {{ {variable}.setAttribute(\"{name}\", String({value_variable})); }}"
+        "const {value_variable} = {expression}; if ({value_variable} == null || {value_variable} === false) {{ {target}.removeAttribute(\"{name}\"); }} else {{ {target}.setAttribute(\"{name}\", String({value_variable})); }}"
     )
 }
 
