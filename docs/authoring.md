@@ -20,7 +20,7 @@ Component source files should use the `.wc.tsx` extension so the Vite plugin can
 select them with its default include filter.
 
 ```tsx
-import { event, state, type ComponentOptions } from "lean-wc"
+import { computed, event, on, signal, type ComponentOptions } from "lean-wc"
 
 export type CounterProps = {
   label?: string
@@ -31,19 +31,20 @@ export const options = {
 } satisfies ComponentOptions
 
 export function Counter({ label = "Count" }: CounterProps = {}) {
-  const count = state(0)
+  const count = signal(0)
+  const text = computed(() => `${label}: ${count()}`)
   const change = event<number>("change")
 
   return (
     <button
       part="button"
       data-count={count()}
-      onClick={() => {
+      onClick={on("click", () => {
         count.set(count() + 1)
         change.emit(count())
-      }}
+      })}
     >
-      {label}: {count()}
+      {text()}
     </button>
   )
 }
@@ -211,19 +212,64 @@ The compiler generates property getters/setters and observed attribute handling.
 String and number props synchronize as string attributes. Boolean props
 synchronize through attribute presence.
 
-## State
+## Signals
 
-State is local to the generated element instance.
+Signals are local to the generated element instance. `signal()` is the preferred
+v2 API. `state()` remains available as a legacy alias for older examples and the
+low-level `component()` path.
 
 ```ts
-const count = state(0)
+const count = signal(0)
 
 count()
 count.set(count() + 1)
 count.update((current) => current + 1)
 ```
 
-State writes trigger an update pass for generated text and dynamic attributes.
+Signal writes trigger an update pass for generated text, dynamic attributes,
+control-flow containers, and effects.
+
+## Computed Values
+
+Computed values are read-only derived accessors.
+
+```ts
+const count = signal(0)
+const doubled = computed(() => count() * 2)
+
+doubled()
+```
+
+The current compiler milestone supports pure expression-body callbacks. Computed
+values can be used in text bindings, dynamic attributes, `<Show when={...}>`,
+`<For each={...}>`, events, and effects.
+
+## Effects And Host Lifecycle
+
+Effects run after the element mounts and run again after generated update
+passes. Cleanup functions run before the next effect pass and on disconnect.
+
+```ts
+effect(() => {
+  const { element, signal } = host()
+  element.dataset.ready = "true"
+
+  signal.addEventListener("abort", () => {
+    element.dataset.aborted = "true"
+  })
+
+  return () => {
+    delete element.dataset.ready
+  }
+})
+```
+
+`host()` and `useHost()` return a typed lifecycle handle:
+
+* `element`: the generated custom element instance.
+* `root`: the render root, either the shadow root or the host element.
+* `signal`: an `AbortSignal` aborted during `disconnectedCallback()`.
+* `update()`: an explicit request to run the generated update pass.
 
 ## Events
 
@@ -238,10 +284,25 @@ change.emit(count())
 The generated emitter dispatches a `CustomEvent` with `bubbles: true`,
 `composed: true`, and `cancelable: false` in the current MVP.
 
+Use `on(name, handler)` when you want DOM event typing at the callsite while
+keeping the generated output as a plain `addEventListener()` callback.
+
+```tsx
+<button
+  onClick={on("click", (event) => {
+    event.preventDefault()
+    count.update((value) => value + 1)
+  })}
+>
+  {count()}
+</button>
+```
+
 ## JSX Surface
 
 The MVP supports native element tags, text interpolation, static attributes,
-dynamic attributes, event handlers, PascalCase child components, and slots.
+dynamic attributes, event handlers, PascalCase child components, explicit
+control-flow primitives, and slots.
 
 ```tsx
 return (
@@ -267,6 +328,52 @@ import { Counter } from "./counter.wc.tsx"
 export function Dashboard() {
   return <Counter label="Nested" />
 }
+```
+
+`<Show>` and `<For>` are compiler primitives, not runtime components.
+
+```tsx
+<Show when={count() > 0} fallback={<span>Empty</span>}>
+  <span>{count()}</span>
+</Show>
+
+<For each={items()}>
+  {(item, index) => (
+    <span part="indicator" data-index={index}>
+      {item}
+    </span>
+  )}
+</For>
+```
+
+`<For>` intentionally supports an explicit arrow-function child instead of
+arbitrary `items.map()` JSX. The generated MVP output re-renders the list
+container on update; keyed diffing is a later compiler decision.
+
+## Primitive Contracts
+
+Primitive Web Component fixtures should use platform-readable contracts rather
+than framework-specific class conventions:
+
+* `part="root|label|control|indicator"` for styling from outside Shadow DOM.
+* `slot` for caller-provided content.
+* `data-state` for state such as `on`, `off`, `open`, or `closed`.
+* `data-disabled` when disabled state needs styling hooks.
+* `data-orientation` for horizontal or vertical primitives.
+* `aria-*` for accessibility state. Dynamic `aria-*` values preserve `false`
+  as the string `"false"` instead of removing the attribute.
+
+```tsx
+<button
+  part="root control"
+  data-state={pressed() ? "on" : "off"}
+  data-disabled={disabled || undefined}
+  aria-pressed={pressed()}
+  disabled={disabled}
+>
+  <span part="label">{label}</span>
+  <slot />
+</button>
 ```
 
 ## Legacy Component API

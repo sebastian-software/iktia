@@ -11,10 +11,10 @@ A component module should contain one exported PascalCase function component:
 
 ```tsx
 export function Counter({ label = "Label" }: CounterProps = {}) {
-  const count = state(0)
+  const count = signal(0)
 
   return (
-    <button onClick={() => count.update((value) => value + 1)}>
+    <button onClick={on("click", () => count.update((value) => value + 1))}>
       {label}: {count()}
     </button>
   )
@@ -27,13 +27,13 @@ Current analysis expects:
 * A deterministic inferred Custom Element tag name.
 * Destructured function props when props are needed.
 * A `return (...)` TSX template.
-* `const` declarations for `state()` and `event()`.
+* `const` declarations for `signal()`, `computed()`, `effect()`, and `event()`.
 * A single root TSX element.
 
 The legacy `component(tagName, options?, render)` form is still supported for
 compatibility. That path expects a string literal tag name, an arrow function
 callback with a block body, and `const` declarations for `prop.*()`, `prop()`,
-`state()`, and `event()`.
+`state()`, `signal()`, `computed()`, `effect()`, and `event()`.
 
 OXC validates that the module parses as TSX before the MVP extraction logic
 runs. The current extraction layer is intentionally conservative and does not
@@ -51,12 +51,15 @@ The MVP template parser supports:
 * Braced attribute expressions.
 * Event attributes such as `onClick`.
 * Text interpolation with `{expression}` chunks.
+* Explicit `<Show when={...} fallback={...}>...</Show>` control flow.
+* Explicit `<For each={...}>{(item, index) => <span />}</For>` control flow.
 * PascalCase child components imported from direct `.wc` modules.
 * Default and named slots.
 * `part`, `class`, `data-*`, `aria-*`, and common DOM attributes.
 
-Generated updates currently cover dynamic attributes and text bindings. The
-compiler does not diff child lists or re-run JSX construction.
+Generated updates currently cover dynamic attributes, text bindings, effects,
+`<Show>` containers, and `<For>` containers. `<For>` re-renders its container on
+update; keyed list diffing is not part of the current MVP.
 
 ## Styling Boundary
 
@@ -86,12 +89,12 @@ silently producing framework-like runtime behavior.
 Currently unsupported:
 
 * Multiple root JSX elements or fragments.
-* Conditional JSX branches.
-* Array mapping to JSX children.
+* Conditional JSX branches outside `<Show>`.
+* Array mapping to JSX children outside `<For>`.
 * Spread attributes.
 * Component composition that requires module graph analysis beyond direct `.wc`
   imports.
-* React hooks, Solid signals, or framework lifecycle compatibility.
+* React hooks, Solid runtime signals, or framework lifecycle compatibility.
 * Runtime virtual DOM reconciliation.
 * Imported CSS object access such as `styles.button`.
 * Rest props in function component parameter destructuring.

@@ -25,32 +25,44 @@ pnpm --filter @lean-wc/example-counter test
 Rust core:
 
 * OXC rejects invalid TSX before transform-specific analysis.
-* Function component analysis infers tag name, props, state, events, options,
-  imports, and the returned TSX template.
-* Legacy `component()` analysis still extracts tag name, props, state, events,
-  options, and the returned TSX template.
+* Function component analysis infers tag name, props, signals, computed values,
+  effects, events, host helper usage, options, imports, and the returned TSX
+  template.
+* Legacy `component()` analysis still extracts tag name, props, state, signals,
+  computed values, effects, events, options, and the returned TSX template.
 * Codegen emits native `HTMLElement` classes without a framework runtime.
 * Props synchronize with attributes.
-* State writes update generated text and dynamic attributes.
+* Signal writes update generated text, dynamic attributes, control-flow
+  containers, and effects.
+* Computed values are generated as read-only derived bindings.
+* Effects run after mount/update and clean up on disconnect.
 * Events dispatch native `CustomEvent` instances.
+* `on()` compiles away to a native `addEventListener()` handler body.
+* `host()` / `useHost()` expose a generated lifecycle handle with an
+  `AbortSignal`.
+* `<Show>` and `<For>` compile as explicit control-flow containers.
 * Shadow DOM rendering supports style injection and slots.
 * PascalCase child component JSX rewrites to inferred kebab-case Custom Element
   tags.
+* Dynamic `aria-*` values preserve `false` as `"false"`.
 
 TypeScript packages:
 
-* Authoring APIs expose typed function props, state, events, component options,
-  and JSX.
+* Authoring APIs expose typed function props, signals, computed values, effects,
+  DOM event helpers, host helpers, events, component options, and JSX.
 * Authoring runtime stubs throw when used without the compiler.
 * The Node wrapper exposes a typed native boundary.
 * The Vite plugin filters `.wc.tsx` modules and returns transformed code.
 
 Example app:
 
-* The counter component builds through Vite.
-* The compiled element renders inside the browser.
+* The counter and toggle components build through Vite.
+* The compiled elements render inside the browser.
 * Clicking the button updates visible text.
 * The `change` event carries a numeric detail payload to the host page.
+* The toggle fixture exposes primitive `part`, `data-state`, and `aria-pressed`
+  contracts.
+* The `toggle-change` event carries a boolean detail payload to the host page.
 
 ## Commit Audit
 
@@ -67,6 +79,8 @@ each milestone:
 * M7: example app and browser smoke test
 * M8: slots and Shadow DOM styling
 * M9: documentation and verification checklist
+* M10-M16: v2 reactive APIs, control flow, Web composition helpers, primitive
+  contracts, and AST analyzer groundwork
 
 Use this command to inspect the local sequence:
 

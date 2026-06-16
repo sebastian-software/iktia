@@ -9,7 +9,7 @@ The Vite plugin sends it through a typed Node wrapper into a Rust compiler core,
 and the output is a native `HTMLElement` class.
 
 ```tsx
-import { event, state, type ComponentOptions } from "lean-wc"
+import { computed, event, on, signal, type ComponentOptions } from "lean-wc"
 
 export type CounterProps = {
   label?: string
@@ -20,19 +20,20 @@ export const options = {
 } satisfies ComponentOptions
 
 export function Counter({ label = "Count" }: CounterProps = {}) {
-  const count = state(0)
+  const count = signal(0)
+  const text = computed(() => `${label}: ${count()}`)
   const change = event<number>("change")
 
   return (
     <button
       part="button"
       data-count={count()}
-      onClick={() => {
+      onClick={on("click", () => {
         count.set(count() + 1)
         change.emit(count())
-      }}
+      })}
     >
-      {label}: {count()}
+      {text()}
     </button>
   )
 }
@@ -49,6 +50,8 @@ release. The current implementation proves the vertical slice:
 
 * typed TypeScript authoring API and JSX surface
 * PascalCase function component authoring with kebab-case Custom Element output
+* `signal()`, `computed()`, and `effect()` authoring primitives
+* explicit `<Show>` and `<For>` compile-time control flow
 * Rust/OXC TSX parse validation and compiler analysis
 * native Custom Element code generation
 * typed N-API boundary and Node wrapper
@@ -147,7 +150,7 @@ compiler detail. `Counter` compiles to `x-counter`, while multi-word names such
 as `CounterButton` compile to `counter-button`.
 
 ```tsx
-import { event, state, type ComponentOptions } from "lean-wc"
+import { Show, computed, event, on, signal, type ComponentOptions } from "lean-wc"
 
 export type ButtonProps = {
   label?: string
@@ -160,20 +163,25 @@ export const options = {
 } satisfies ComponentOptions
 
 export function Button({ label = "Save" }: ButtonProps = {}) {
-  const pressed = state(false)
+  const pressed = signal(false)
+  const stateLabel = computed(() => (pressed() ? "Pressed" : "Idle"))
   const submit = event<{ label: string }>("submit")
 
   return (
     <button
-      part="button"
-      data-pressed={pressed()}
-      onClick={() => {
+      part="root control"
+      data-state={pressed() ? "on" : "off"}
+      aria-pressed={pressed()}
+      onClick={on("click", () => {
         pressed.set(true)
         submit.emit({ label })
-      }}
+      })}
     >
       <slot name="icon" />
       {label}
+      <Show when={pressed()} fallback={<span part="indicator">Idle</span>}>
+        <span part="indicator">{stateLabel()}</span>
+      </Show>
     </button>
   )
 }
@@ -195,8 +203,13 @@ Current APIs:
 
 * exported PascalCase functions with typed props
 * `export const options satisfies ComponentOptions`
-* `state(initialValue)`
+* `signal(initialValue)` for writable local state
+* `computed(() => value)` for read-only derived values
+* `effect(() => cleanup?)` for lifecycle side effects
 * `event<Detail>(name)`
+* `on(name, handler)` for typed DOM event composition
+* `host()` / `useHost()` for element, root, update, and abort-signal access
+* `<Show>` and `<For>` as explicit compile-time control flow
 * typed JSX intrinsic elements and common DOM/event attributes
 * legacy `component(tagName, options?, render)` and `prop.*()` accessors
 
@@ -267,16 +280,18 @@ The MVP accepts a deliberately small TSX subset:
 * destructured function props with defaults
 * arrow function callback with a block body for legacy `component()` syntax
 * `return (...)` around the TSX template
-* `const` authoring declarations for state and events
+* `const` authoring declarations for signals, computed values, effects, and
+  events
 * one root TSX element
 * static attributes, dynamic attributes, text interpolation, event handlers,
-  PascalCase child components, slots, and inline style strings
+  PascalCase child components, explicit `<Show>` / `<For>` control flow, slots,
+  and inline style strings
 
 Unsupported today:
 
 * fragments and multiple root elements
-* conditional child trees
-* array mapping to JSX children
+* arbitrary conditional child trees outside `<Show>`
+* arbitrary array mapping to JSX children outside `<For>`
 * spread attributes
 * component composition that requires module graph analysis beyond direct `.wc`
   imports
@@ -316,7 +331,7 @@ Useful package boundaries:
 
 Near-term work should focus on compiler correctness before broadening the API:
 
-* replace MVP extraction logic with fuller OXC AST-driven analysis
+* continue replacing MVP extraction logic with fuller OXC AST-driven analysis
 * add source-map generation
 * add span-based diagnostics for unsupported syntax
 * expand accepted TSX fixtures and rejection fixtures
