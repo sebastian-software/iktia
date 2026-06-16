@@ -35,9 +35,16 @@ compatibility. That path expects a string literal tag name, an arrow function
 callback with a block body, and `const` declarations for `prop.*()`, `prop()`,
 `state()`, `signal()`, `computed()`, `effect()`, and `event()`.
 
-OXC validates that the module parses as TSX before the MVP extraction logic
-runs. The current extraction layer is intentionally conservative and does not
-yet use the full OXC AST for every semantic read.
+OXC validates that the module parses as TSX before transform-specific analysis
+runs. The primary component analyzer uses OXC AST facts for `.wc` imports,
+function component discovery, legacy `component()` call discovery, local
+`signal()`, `state()`, `computed()`, `effect()`, and `event()` declarations,
+host helper usage, and returned TSX template spans.
+
+Some MVP detail parsers remain intentionally conservative: function prop
+destructuring, legacy `prop.*()` declarations, component options, inline style
+arrays, and generated-template parsing still use narrow source-slice analysis
+fed by AST-selected regions.
 
 ## Template Support
 

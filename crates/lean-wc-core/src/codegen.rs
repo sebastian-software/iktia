@@ -819,7 +819,7 @@ impl<'a> CodeGenerator<'a> {
                     .push(format!("{parent_variable}.append({child_variable});"));
             }
             TemplateChild::Expression(expression) => {
-                self.emit_expression(parent_variable, expression);
+                self.emit_expression(parent_variable, expression)?;
             }
             TemplateChild::Text(text) => {
                 self.emit_text(parent_variable, text);
@@ -901,7 +901,7 @@ impl<'a> CodeGenerator<'a> {
                     self.mount_lines
                         .push(format!("{fallback_variable}.append({fallback_child});"));
                 } else {
-                    self.emit_expression(fallback_variable, trimmed);
+                    self.emit_expression(fallback_variable, trimmed)?;
                 }
             }
             AttributeValue::Static(value) => {
@@ -1168,11 +1168,12 @@ impl<'a> CodeGenerator<'a> {
             .push(format!("this.#{field}.data = {expression};"));
     }
 
-    fn emit_expression(&mut self, parent_variable: &str, expression: &str) {
+    fn emit_expression(&mut self, parent_variable: &str, expression: &str) -> CompilerResult<()> {
         let trimmed = expression.trim();
         if trimmed.is_empty() {
-            return;
+            return Ok(());
         }
+        validate_child_expression(trimmed)?;
         let index = self.next_text_index;
         self.next_text_index += 1;
         let variable = format!("text{index}");
@@ -1186,6 +1187,7 @@ impl<'a> CodeGenerator<'a> {
             .push(format!("{parent_variable}.append({variable});"));
         self.update_lines
             .push(format!("this.#{field}.data = String({trimmed});"));
+        Ok(())
     }
 }
 
@@ -1353,6 +1355,41 @@ fn text_expression(text: &str) -> Option<String> {
         .collect::<Vec<_>>()
         .join(" + ");
     Some(expression)
+}
+
+fn validate_child_expression(expression: &str) -> CompilerResult<()> {
+    if !contains_jsx_tag_start(expression) {
+        return Ok(());
+    }
+    if expression.contains(".map(") {
+        return Err(unsupported(
+            "JSX array mapping is not supported. Use the explicit <For each={...}> control-flow primitive.",
+        ));
+    }
+    if expression.contains('?') || expression.contains("&&") || expression.contains("||") {
+        return Err(unsupported(
+            "Conditional JSX expressions are not supported. Use the explicit <Show when={...}> control-flow primitive.",
+        ));
+    }
+    Err(unsupported(
+        "JSX expression children are not supported outside explicit compiler primitives.",
+    ))
+}
+
+fn contains_jsx_tag_start(expression: &str) -> bool {
+    let mut chars = expression.chars().peekable();
+    while let Some(ch) = chars.next() {
+        if ch != '<' {
+            continue;
+        }
+        let Some(next) = chars.peek().copied() else {
+            continue;
+        };
+        if next == '/' || next.is_ascii_alphabetic() {
+            return true;
+        }
+    }
+    false
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

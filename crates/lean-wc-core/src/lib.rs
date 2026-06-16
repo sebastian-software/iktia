@@ -5,6 +5,7 @@
 //! this crate through a thin Node binding and keep bundler integration outside
 //! the semantic pipeline.
 
+mod ast;
 mod codegen;
 mod error;
 mod model;
@@ -303,6 +304,50 @@ mod tests {
         );
         assert!(result.code.contains("const host = () => ({"));
         assert!(result.code.contains("this.#abortController.abort();"));
+    }
+
+    #[test]
+    fn transform_component_module_should_reject_map_jsx_children() {
+        let source = r#"
+            import { computed, signal } from "lean-wc";
+
+            export function List() {
+              const items = computed(() => ["One", "Two"]);
+
+              return (
+                <ul>
+                  {items().map((item) => <li>{item}</li>)}
+                </ul>
+              );
+            }
+        "#;
+
+        let error = transform_component_module(source, "list.wc.tsx")
+            .expect_err("map JSX child should be rejected");
+
+        assert!(error.to_string().contains("Use the explicit <For"));
+    }
+
+    #[test]
+    fn transform_component_module_should_reject_conditional_jsx_children() {
+        let source = r#"
+            import { signal } from "lean-wc";
+
+            export function Status() {
+              const ready = signal(false);
+
+              return (
+                <section>
+                  {ready() ? <span>Ready</span> : <span>Waiting</span>}
+                </section>
+              );
+            }
+        "#;
+
+        let error = transform_component_module(source, "status.wc.tsx")
+            .expect_err("conditional JSX child should be rejected");
+
+        assert!(error.to_string().contains("Use the explicit <Show"));
     }
 
     #[test]

@@ -30,6 +30,9 @@ Rust core:
   template.
 * Legacy `component()` analysis still extracts tag name, props, state, signals,
   computed values, effects, events, options, and the returned TSX template.
+* The OXC AST analyzer owns `.wc` import discovery, component entrypoint
+  discovery, local authoring declarations, host helper detection, and return
+  template spans.
 * Codegen emits native `HTMLElement` classes without a framework runtime.
 * Props synchronize with attributes.
 * Signal writes update generated text, dynamic attributes, control-flow
@@ -41,6 +44,8 @@ Rust core:
 * `host()` / `useHost()` expose a generated lifecycle handle with an
   `AbortSignal`.
 * `<Show>` and `<For>` compile as explicit control-flow containers.
+* Unsupported JSX `.map()` and conditional expression children produce
+  deterministic diagnostics pointing to `<For>` and `<Show>`.
 * Shadow DOM rendering supports style injection and slots.
 * PascalCase child component JSX rewrites to inferred kebab-case Custom Element
   tags.
@@ -80,7 +85,7 @@ each milestone:
 * M8: slots and Shadow DOM styling
 * M9: documentation and verification checklist
 * M10-M16: v2 reactive APIs, control flow, Web composition helpers, primitive
-  contracts, and AST analyzer groundwork
+  contracts, and OXC AST analyzer refactor
 
 Use this command to inspect the local sequence:
 

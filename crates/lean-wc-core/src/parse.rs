@@ -1,17 +1,14 @@
-use oxc_allocator::Allocator;
-use oxc_ast::ast::{Declaration, ExportDefaultDeclarationKind, Function, Program, Statement};
-use oxc_parser::Parser;
-use oxc_span::SourceType;
 use regex::Regex;
 
+use crate::ast::{
+    AstComponentSemantics, AstFunctionComponent, AstModuleFacts, SourceSpan, analyze_module,
+};
 use crate::error::{CompilerError, CompilerResult};
 use crate::model::{
     ComponentImport, ComponentModule, ComponentOptions, ComputedDefinition, EffectDefinition,
     EventDefinition, PropAccess, PropDefinition, PropKind, StateDefinition, StateKind,
 };
-use crate::naming::{
-    custom_element_tag_for_component, is_pascal_case_identifier, kebab_case_identifier,
-};
+use crate::naming::{custom_element_tag_for_component, kebab_case_identifier};
 
 /// Analyzes a TSX module containing a lean-wc component definition.
 ///
@@ -20,18 +17,47 @@ use crate::naming::{
 /// Returns [`CompilerError`] when the source does not parse as TSX or when no
 /// supported function component or `component()` call can be found.
 pub fn analyze_component_module(source: &str, filename: &str) -> CompilerResult<ComponentModule> {
-    let ast_facts = analyze_with_oxc(source, filename)?;
+    let ast_facts = analyze_module(source, filename)?;
 
-    let component_imports = capture_component_imports(source)?;
+    let component_imports = ast_facts.component_imports.clone();
     if let Some(function_component) = capture_function_component(source, &ast_facts)? {
         return analyze_function_component(source, function_component, component_imports);
     }
 
-    let component_call = extract_component_call(source, filename)?;
+    let component_call = extract_component_call(source, filename, &ast_facts)?;
     let tag_name = capture_tag_name(component_call, filename)?;
     let options = capture_component_options(component_call)?;
     let callback_body = capture_callback_body(component_call)?;
-    let template_source = capture_template_source(callback_body)?;
+    let ast_semantics = ast_facts
+        .legacy_component
+        .as_ref()
+        .and_then(|component| component.semantics.clone());
+    let states = match &ast_semantics {
+        Some(semantics) => semantics.states.clone(),
+        None => capture_states(callback_body)?,
+    };
+    let computed = match &ast_semantics {
+        Some(semantics) => semantics.computed.clone(),
+        None => capture_computed(callback_body)?,
+    };
+    let effects = match &ast_semantics {
+        Some(semantics) => semantics.effects.clone(),
+        None => capture_effects(callback_body)?,
+    };
+    let uses_host_helpers = match &ast_semantics {
+        Some(semantics) => semantics.uses_host_helpers,
+        None => captures_host_helpers(callback_body)?,
+    };
+    let events = match &ast_semantics {
+        Some(semantics) => semantics.events.clone(),
+        None => capture_events(callback_body)?,
+    };
+    let template_source = match ast_semantics {
+        Some(semantics) => semantics
+            .template_source
+            .ok_or_else(|| unsupported("component() callback must return a TSX template."))?,
+        None => capture_template_source(callback_body)?,
+    };
 
     Ok(ComponentModule {
         class_name: class_name_for_tag(&tag_name),
@@ -40,19 +66,19 @@ pub fn analyze_component_module(source: &str, filename: &str) -> CompilerResult<
         options,
         component_imports,
         props: capture_props(callback_body)?,
-        states: capture_states(callback_body)?,
-        computed: capture_computed(callback_body)?,
-        effects: capture_effects(callback_body)?,
-        uses_host_helpers: captures_host_helpers(callback_body)?,
-        events: capture_events(callback_body)?,
+        states,
+        computed,
+        effects,
+        uses_host_helpers,
+        events,
         template_source,
     })
 }
 
 struct FunctionComponent<'a> {
-    name: &'a str,
+    name: String,
     params: &'a str,
-    body: &'a str,
+    semantics: AstComponentSemantics,
 }
 
 fn analyze_function_component(
@@ -60,214 +86,78 @@ fn analyze_function_component(
     function_component: FunctionComponent<'_>,
     component_imports: Vec<ComponentImport>,
 ) -> CompilerResult<ComponentModule> {
-    let tag_name = custom_element_tag_for_component(function_component.name);
+    let tag_name = custom_element_tag_for_component(&function_component.name);
     let class_name = format!("{}Element", function_component.name);
     let options = capture_exported_component_options(source)?;
 
     Ok(ComponentModule {
         class_name,
         tag_name,
-        export_name: Some(function_component.name.to_owned()),
+        export_name: Some(function_component.name),
         options,
         component_imports,
         props: capture_function_props(function_component.params)?,
-        states: capture_states(function_component.body)?,
-        computed: capture_computed(function_component.body)?,
-        effects: capture_effects(function_component.body)?,
-        uses_host_helpers: captures_host_helpers(function_component.body)?,
-        events: capture_events(function_component.body)?,
-        template_source: capture_template_source(function_component.body)?,
+        states: function_component.semantics.states,
+        computed: function_component.semantics.computed,
+        effects: function_component.semantics.effects,
+        uses_host_helpers: function_component.semantics.uses_host_helpers,
+        events: function_component.semantics.events,
+        template_source: function_component
+            .semantics
+            .template_source
+            .ok_or_else(|| unsupported("component() callback must return a TSX template."))?,
     })
 }
 
-fn analyze_with_oxc(source: &str, filename: &str) -> CompilerResult<AstModuleFacts> {
-    let allocator = Allocator::default();
-    let source_type = SourceType::from_path(filename).unwrap_or_else(|_| SourceType::tsx());
-    let parsed = Parser::new(&allocator, source, source_type).parse();
-
-    if !parsed.errors.is_empty() {
-        let messages = parsed
-            .errors
-            .iter()
-            .map(ToString::to_string)
-            .collect::<Vec<_>>()
-            .join(", ");
-
-        return Err(CompilerError::ParseModuleSource {
-            filename: filename.to_owned(),
-            messages,
-        });
-    }
-
-    Ok(AstAnalyzer::new(&parsed.program).analyze())
-}
-
-#[derive(Debug, Default)]
-struct AstModuleFacts {
-    exported_function_names: Vec<String>,
-}
-
-impl AstModuleFacts {
-    fn component_function_names(&self) -> impl Iterator<Item = &str> {
-        self.exported_function_names
-            .iter()
-            .map(String::as_str)
-            .filter(|name| is_pascal_case_identifier(name))
-    }
-}
-
-struct AstAnalyzer<'a, 'program> {
-    program: &'program Program<'a>,
-}
-
-impl<'a, 'program> AstAnalyzer<'a, 'program> {
-    const fn new(program: &'program Program<'a>) -> Self {
-        Self { program }
-    }
-
-    fn analyze(&self) -> AstModuleFacts {
-        let mut facts = AstModuleFacts::default();
-        for statement in &self.program.body {
-            self.capture_exported_function(statement, &mut facts);
-        }
-        facts
-    }
-
-    fn capture_exported_function(&self, statement: &Statement<'a>, facts: &mut AstModuleFacts) {
-        match statement {
-            Statement::ExportNamedDeclaration(export) => {
-                if let Some(Declaration::FunctionDeclaration(function)) = &export.declaration {
-                    push_function_name(function, facts);
-                }
-            }
-            Statement::ExportDefaultDeclaration(export) => {
-                if let ExportDefaultDeclarationKind::FunctionDeclaration(function) =
-                    &export.declaration
-                {
-                    push_function_name(function, facts);
-                }
-            }
-            _ => {}
-        }
-    }
-}
-
-fn push_function_name(function: &Function<'_>, facts: &mut AstModuleFacts) {
-    let Some(identifier) = &function.id else {
-        return;
-    };
-    facts
-        .exported_function_names
-        .push(identifier.name.as_str().to_owned());
-}
-
-fn extract_component_call<'a>(source: &'a str, filename: &str) -> CompilerResult<&'a str> {
-    let Some(start) = source.find("component(") else {
+fn extract_component_call<'a>(
+    source: &'a str,
+    filename: &str,
+    ast_facts: &AstModuleFacts,
+) -> CompilerResult<&'a str> {
+    let Some(component) = &ast_facts.legacy_component else {
         return Err(CompilerError::ComponentNotFound {
             filename: filename.to_owned(),
         });
     };
 
-    let open = start + "component".len();
-    let end = find_matching_delimiter(source, open, '(', ')')?;
-    Ok(&source[start..=end])
+    source_span(source, component.call)
 }
 
 fn capture_function_component<'a>(
     source: &'a str,
     ast_facts: &AstModuleFacts,
 ) -> CompilerResult<Option<FunctionComponent<'a>>> {
-    for component_name in ast_facts.component_function_names() {
-        let pattern = format!(
-            r#"export\s+(?:default\s+)?function\s+({})\s*\("#,
-            regex::escape(component_name)
-        );
-        let regex = Regex::new(&pattern).map_err(|source| CompilerError::InternalPattern {
-            pattern: "dynamic function component pattern",
-            source,
-        })?;
-        let Some(captures) = regex.captures(source) else {
-            continue;
-        };
-        let Some(full_match) = captures.get(0) else {
-            continue;
-        };
-        let Some(name) = captures.get(1) else {
-            continue;
-        };
-
-        let params_open = full_match.end() - 1;
-        let params_close = find_matching_delimiter(source, params_open, '(', ')')?;
-        let after_params = &source[params_close + 1..];
-        let Some(body_open_relative) = after_params.find('{') else {
-            return Err(unsupported(
-                "Function component must use a block body in the current compiler milestone.",
-            ));
-        };
-        let body_open = params_close + 1 + body_open_relative;
-        let body_close = find_matching_delimiter(source, body_open, '{', '}')?;
-
+    if let Some(component) = ast_facts.function_components.first() {
         return Ok(Some(FunctionComponent {
-            name: name.as_str(),
-            params: &source[params_open + 1..params_close],
-            body: &source[body_open + 1..body_close],
+            name: component.name.clone(),
+            params: function_params_source(source, component)?,
+            semantics: component.semantics.clone(),
         }));
     }
 
     Ok(None)
 }
 
-fn capture_component_imports(source: &str) -> CompilerResult<Vec<ComponentImport>> {
-    let named_regex = compile_regex(r#"import\s*\{([^}]+)\}\s*from\s*["']([^"']+)["']"#)?;
-    let default_regex =
-        compile_regex(r#"import\s+([A-Z][A-Za-z0-9_$]*)\s+from\s*["']([^"']+)["']"#)?;
-    let mut imports = Vec::new();
-
-    for captures in named_regex.captures_iter(source) {
-        let specifier = capture_str(&captures, 2)?;
-        if !is_component_import_source(specifier) {
-            continue;
-        }
-        for import_name in capture_str(&captures, 1)?.split(',') {
-            let trimmed = import_name.trim();
-            if trimmed.is_empty() || trimmed.starts_with("type ") {
-                continue;
-            }
-            let (imported_name, local_name) = parse_named_import(trimmed);
-            imports.push(ComponentImport {
-                imported_name,
-                local_name,
-                source: specifier.to_owned(),
-            });
-        }
-    }
-
-    for captures in default_regex.captures_iter(source) {
-        let specifier = capture_str(&captures, 2)?;
-        if !is_component_import_source(specifier) {
-            continue;
-        }
-        let local_name = capture_str(&captures, 1)?.to_owned();
-        imports.push(ComponentImport {
-            imported_name: local_name.clone(),
-            local_name,
-            source: specifier.to_owned(),
-        });
-    }
-
-    Ok(imports)
+fn function_params_source<'a>(
+    source: &'a str,
+    component: &AstFunctionComponent,
+) -> CompilerResult<&'a str> {
+    let params = source_span(source, component.params)?.trim();
+    Ok(strip_optional_delimiters(params, '(', ')'))
 }
 
-fn is_component_import_source(specifier: &str) -> bool {
-    specifier.contains(".wc")
+fn source_span(source: &str, span: SourceSpan) -> CompilerResult<&str> {
+    source
+        .get(span.start..span.end)
+        .ok_or_else(|| unsupported("OXC AST span did not align with source text."))
 }
 
-fn parse_named_import(value: &str) -> (String, String) {
-    if let Some((imported, local)) = value.split_once(" as ") {
-        return (imported.trim().to_owned(), local.trim().to_owned());
+fn strip_optional_delimiters(source: &str, open: char, close: char) -> &str {
+    let trimmed = source.trim();
+    if trimmed.starts_with(open) && trimmed.ends_with(close) {
+        return trimmed[open.len_utf8()..trimmed.len() - close.len_utf8()].trim();
     }
-    let name = value.trim().to_owned();
-    (name.clone(), name)
+    trimmed
 }
 
 fn capture_tag_name(component_call: &str, filename: &str) -> CompilerResult<String> {
