@@ -126,14 +126,36 @@ mod tests {
             "{filename} message should contain {message:?}, got {:?}",
             diagnostic.message
         );
-        assert_eq!(
-            diagnostic.span, None,
-            "{filename} should document that spans are not yet available"
-        );
+        if let Some(span) = diagnostic.span {
+            assert!(span.start < span.end, "{filename} span should be non-empty");
+        }
         let diagnostic_hint = diagnostic.hint.as_deref().expect("hint should be present");
         assert!(
             diagnostic_hint.contains(hint),
             "{filename} hint should contain {hint:?}, got {diagnostic_hint:?}"
+        );
+    }
+
+    fn assert_diagnostic_source_span<T: std::fmt::Debug>(
+        result: Result<T, super::CompilerError>,
+        source: &str,
+        filename: &str,
+        expected_source: &str,
+    ) {
+        let error = result.expect_err("fixture should fail with a diagnostic");
+        let diagnostic = error
+            .diagnostics(filename)
+            .into_iter()
+            .next()
+            .expect("compiler error should expose diagnostics");
+        let span = diagnostic
+            .span
+            .expect("diagnostic should expose a source span");
+
+        assert_eq!(
+            &source[span.start..span.end],
+            expected_source,
+            "{filename} span should point at the rejected source"
         );
     }
 
@@ -309,6 +331,44 @@ mod tests {
             DIAGNOSTIC_CODE_TEMPLATE_PARSE,
             "Attribute `data-count` must use a quoted or braced value",
             "authoring limitations",
+        );
+    }
+
+    #[test]
+    fn compiler_diagnostics_should_include_ast_source_spans() {
+        let removed_signal_source = r#"
+            import { signal } from "@iktia/core";
+
+            export function RemovedSignal() {
+              const count = signal(0);
+              return <button>{count()}</button>;
+            }
+        "#;
+
+        assert_diagnostic_source_span(
+            transform_component_module(removed_signal_source, "removed-signal.wc.tsx"),
+            removed_signal_source,
+            "removed-signal.wc.tsx",
+            "signal(0)",
+        );
+
+        let computed_block_source = r#"
+            import { computed, state } from "@iktia/core";
+
+            export function ComputedBlock() {
+              const count = state(0);
+              const doubled = computed(() => {
+                return count() * 2;
+              });
+              return <button>{doubled()}</button>;
+            }
+        "#;
+
+        assert_diagnostic_source_span(
+            transform_component_module(computed_block_source, "computed-block.wc.tsx"),
+            computed_block_source,
+            "computed-block.wc.tsx",
+            "() => {\n                return count() * 2;\n              }",
         );
     }
 

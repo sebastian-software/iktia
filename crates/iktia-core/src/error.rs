@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-use crate::model::{CompilerDiagnostic, DiagnosticSeverity};
+use crate::model::{CompilerDiagnostic, DiagnosticSeverity, DiagnosticSpan};
 
 pub(crate) const DIAGNOSTIC_HINT_AUTHORING_LIMITATIONS: &str =
     "Check the v0.1 authoring limitations for supported TSX.";
@@ -78,6 +78,8 @@ pub enum CompilerError {
         hint: &'static str,
         /// Human-readable diagnostic message.
         message: String,
+        /// Optional UTF-8 source span.
+        span: Option<DiagnosticSpan>,
     },
 }
 
@@ -116,13 +118,14 @@ impl CompilerError {
                 code,
                 hint,
                 message,
+                span,
             } => CompilerDiagnostic {
                 code: (*code).to_owned(),
                 filename: fallback_filename.to_owned(),
                 hint: Some((*hint).to_owned()),
                 message: message.clone(),
                 severity: DiagnosticSeverity::Error,
-                span: None,
+                span: *span,
             },
         }]
     }
@@ -141,6 +144,18 @@ pub(crate) fn removed_authoring_api(message: impl Into<String>) -> CompilerError
         DIAGNOSTIC_CODE_REMOVED_AUTHORING_API,
         message,
         DIAGNOSTIC_HINT_REMOVED_API,
+    )
+}
+
+pub(crate) fn removed_authoring_api_with_span(
+    message: impl Into<String>,
+    span: DiagnosticSpan,
+) -> CompilerError {
+    unsupported_with_code_and_span(
+        DIAGNOSTIC_CODE_REMOVED_AUTHORING_API,
+        message,
+        DIAGNOSTIC_HINT_REMOVED_API,
+        span,
     )
 }
 
@@ -169,5 +184,20 @@ pub(crate) fn unsupported_with_code(
         code,
         hint,
         message: message.into(),
+        span: None,
+    }
+}
+
+pub(crate) fn unsupported_with_code_and_span(
+    code: &'static str,
+    message: impl Into<String>,
+    hint: &'static str,
+    span: DiagnosticSpan,
+) -> CompilerError {
+    CompilerError::Unsupported {
+        code,
+        hint,
+        message: message.into(),
+        span: Some(span),
     }
 }

@@ -172,12 +172,19 @@ and optional hint. Vite and the CLI render that shared structure.
 See [Compiler diagnostics](compiler-diagnostics.md) for the current code
 catalog.
 
+The first span-rich diagnostic batch covers AST-owned authoring failures such
+as removed API calls and invalid `computed()` or `effect()` callbacks. Some
+string-parsed and generated-template failures still report module-level
+diagnostics until those paths move onto span-aware analysis.
+
 Transforms return a native source-map object from Rust as `map?`. The current
-map is emitted by the native transform workflow; broader span coverage for
-every rejection path remains future hardening work.
+map is emitted by the native transform workflow and includes the original source
+content. Its mappings are intentionally coarse line mappings today; node-level
+source-map segments remain future hardening work.
 
 Future work should add span-rich diagnostics and fixture coverage for every
-supported rejection path.
+supported rejection path, then replace coarse generated-line mappings with
+node-level source-map segments.
 
 ## Conformance Fixtures
 
