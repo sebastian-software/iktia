@@ -25,6 +25,7 @@ than chronological trivia.
 * [ADR 0006: Signals And Effects Model](0006-signals-and-effects-model.md)
 * [ADR 0007: Remix v3 Web Composition Inspiration](0007-remix-v3-web-composition-inspiration.md)
 * [ADR 0009: OXC AST Analysis Before API Expansion](0009-oxc-ast-analysis-before-api-expansion.md)
+* [ADR 0010: Declarative Shadow DOM Output And Hydration](0010-declarative-shadow-dom-output-and-hydration.md)
 
 ### P2: Conventions And Implementation Guidance
 
@@ -49,4 +50,3 @@ Each ADR uses this structure:
 * Do not add ADRs for routine implementation details unless they create a
   durable constraint.
 * Keep decisions in English and link each ADR to the relevant milestone.
-

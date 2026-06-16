@@ -19,15 +19,42 @@ should be implemented in layers:
    root instead of always calling `attachShadow()`.
 2. Add a Rust-owned static serializer that can emit
    `<template shadowrootmode="open">` for the supported template subset.
-3. Add deterministic hydration markers so generated JavaScript can bind to
-   pre-parsed nodes instead of recreating them.
-4. Add Vite/build integration for prerendering demo and documentation pages.
-5. Expand toward richer static evaluation only after the hydration contract is
+3. Add a narrow initial-value evaluator for prop defaults, signal/state
+   initializers, literal arrays/objects, and simple template strings over those
+   values.
+4. Add deterministic DSD-only hydration markers so generated JavaScript can
+   bind to pre-parsed nodes instead of recreating them.
+5. Add Vite/build integration for prerendering demo and documentation pages.
+6. Expand toward richer static evaluation only after the hydration contract is
    proven.
 
 Declarative Shadow DOM should not become a separate authoring model. The
 preferred authoring surface should remain typed `.wc.tsx`; DSD is an additional
-HTML output mode for `shadow: true` components.
+HTML output mode for `shadow: true` components in the explicit prerender path.
+Normal client builds keep the imperative Custom Element path.
+
+## Locked Decisions
+
+These decisions are fixed for the first DSD implementation pass:
+
+* DSD is generated only by the explicit prerender/static-HTML path.
+* In that prerender path, DSD is enabled by default for `shadow: true`
+  components.
+* DSD is not a new authoring API. Do not add `ComponentOptions.dsd` or a
+  general render-mode flag for v1.
+* Prerender include/exclude filters are the v1 opt-out mechanism.
+* Hydration mismatches throw clear diagnostics in development builds.
+* Hydration mismatches fall back to imperative remounting in production builds.
+* v1 static evaluation includes prop defaults, signal/state initializers,
+  literal arrays/objects, and simple template strings over those values.
+* v1 does not execute arbitrary JavaScript or TypeScript.
+* Visible `data-lean-*` hydration markers are emitted only in DSD HTML.
+* v1 emits only `shadowrootmode="open"`.
+* `closed` roots, `shadowrootserializable`, and DSD polyfills are deferred.
+* Unsupported browsers use the existing imperative JavaScript fallback.
+* Form-heavy primitives should slot native light-DOM controls until
+  form-associated Custom Elements are implemented.
+* The first DSD demo set should cover both Counter and Toggle.
 
 ## Platform Snapshot
 
@@ -194,8 +221,8 @@ Recommended Rust-core additions:
   JavaScript in Rust.
 
 The Rust core should not evaluate arbitrary TypeScript expressions. Initial DSD
-support should serialize the static DOM shell plus safe literal values and then
-let client hydration reconcile dynamic expressions.
+support should serialize the static DOM shell plus supported initial values and
+then let client hydration reconcile unsupported dynamic expressions.
 
 ## Static Evaluation Boundary
 
@@ -213,8 +240,11 @@ contract.
 Recommended boundary:
 
 * Serialize static elements, static attributes, text, slots, and styles first.
-* Serialize prop defaults, state initializers, and computed values only when
-  they match a deliberately small literal expression grammar.
+* Evaluate prop defaults and `signal()` / `state()` initializers when they are
+  primitive literals, literal arrays, literal objects, or simple template
+  strings over other supported initial values.
+* Do not evaluate function calls, arbitrary identifiers, computed callbacks,
+  effects, event handlers, control-flow callbacks, imports, or browser APIs.
 * Mark dynamic text and dynamic attributes with hydration IDs.
 * Let the client hydrator run the existing binding logic immediately after
   upgrade.
@@ -242,10 +272,12 @@ this.#button0 = this.#root.querySelector("[data-lean-node='0']")
 this.#text0 = this.#root.querySelector("[data-lean-text='0']")
 ```
 
-If required markers are missing, the component should fall back to imperative
-mount or throw a development diagnostic. The production strategy can be decided
-later, but the MVP should prefer clear diagnostics for mismatched compiler
-versions.
+If required markers are missing, the component should throw a development
+diagnostic. In production it should fall back to imperative remounting so
+published pages do not fail hard because of a stale prerender artifact.
+
+Markers are part of DSD HTML only. Normal imperative client rendering should
+not add `data-lean-*` attributes merely for debugging symmetry.
 
 ## Vite And Build Integration
 
@@ -263,13 +295,16 @@ Possible integration layers:
 
 2. A Vite plugin manifest that records every compiled component's tag name,
    import path, supported SSR capability, and required client module.
-3. An example prerender command that emits HTML for known demo components.
-4. Later integration with static site generators or server frameworks through
+3. Prerender include/exclude filters for component-level opt-out without
+   changing `ComponentOptions`.
+4. An example prerender command that emits HTML for known demo components.
+5. Later integration with static site generators or server frameworks through
    the low-level Node API rather than framework-specific adapters.
 
-The first public demo should be static and boring: a counter or toggle page
-whose shadow DOM structure and styles are visible before JavaScript upgrades
-the element.
+The first public DSD demo should cover both Counter and Toggle. Counter proves
+initial-value serialization, dynamic text/attribute hydration, and click
+listeners. Toggle proves primitive contracts, slots, styles, and control-flow
+containers.
 
 ## Fallback Strategy
 
@@ -336,6 +371,7 @@ Acceptance criteria:
 * The platform support and constraints are documented.
 * The plan explains why `attachShadow()` must be changed before DSD output.
 * The roadmap links DSD ahead of broader form work.
+* The locked DSD decisions are captured in a weighted P1 ADR.
 
 ### D1: Declarative Root Adoption
 
@@ -366,7 +402,12 @@ Acceptance criteria:
 
 * Static elements, attributes, text, slots, and inline styles serialize to
   `<template shadowrootmode="open">`.
-* The serializer rejects unsupported dynamic structures with clear diagnostics.
+* Prop defaults and signal/state initializers serialize when they match the v1
+  initial-value evaluator.
+* Unsupported dynamic expressions are marked for hydration rather than executed
+  during prerender.
+* Unsupported dynamic structures that cannot be hydrated fail with clear
+  diagnostics.
 * `shadow: false` components are not serialized as DSD.
 
 ### D3: Hydration Markers And Binding
@@ -384,6 +425,7 @@ Acceptance criteria:
 * Dynamic text and attributes update after upgrade.
 * Event listeners attach to pre-rendered nodes.
 * Missing markers produce deterministic diagnostics in development builds.
+* Missing markers trigger production remount fallback.
 * The fallback imperative mount path remains covered.
 
 ### D4: Vite Prerender Integration
@@ -400,6 +442,7 @@ Acceptance criteria:
 
 * A Node wrapper can request DSD HTML for a compiled component.
 * The Vite plugin can emit or expose component render metadata.
+* Prerender include/exclude filters can opt components out of DSD output.
 * The demo app can build a static HTML page containing DSD.
 
 ### D5: Demo And Documentation
@@ -414,23 +457,22 @@ Planned commits:
 
 Acceptance criteria:
 
-* The demo renders useful styled component DOM before custom element upgrade.
-* Playwright verifies the DSD root exists before upgrade or with delayed JS.
+* Counter renders useful styled component DOM before custom element upgrade.
+* Toggle renders useful styled component DOM before custom element upgrade.
+* Playwright verifies DSD roots exist before upgrade or with delayed JS.
 * Documentation explains browser support, fallback behavior, and limitations.
 
-## Open Decisions
+## Deferred Decisions
 
-* Whether DSD should be enabled by default for every `shadow: true` component
-  when a prerender pipeline is used.
-* Whether hydration markers should be emitted only in DSD HTML or also in
-  imperative DOM for debugging symmetry.
-* Whether dynamic expression serialization starts with no evaluation or a small
-  literal evaluator.
-* Whether closed roots should be supported early or deferred.
-* Whether `shadowrootserializable` should be emitted to support future
-  `getHTML({ serializableShadowRoots: true })` workflows.
-* Whether form controls should be encouraged as slotted light-DOM children by
-  default until form-associated custom elements are implemented.
+These decisions are intentionally deferred beyond DSD v1:
+
+* Supporting `shadowrootmode="closed"`.
+* Emitting `shadowrootserializable`.
+* Shipping or recommending a core DSD polyfill.
+* Adding a public component-level DSD option.
+* Expanding the evaluator beyond supported initial values.
+* Moving form-heavy primitives from slotted native controls to
+  form-associated Custom Elements.
 
 ## Risks
 

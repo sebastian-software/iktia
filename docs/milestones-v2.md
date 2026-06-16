@@ -444,11 +444,13 @@ V2 is complete when:
 The next planning layer should evaluate form and lifecycle ideas inspired by
 React 19 and React 19.2 without adopting React as a runtime. The current review
 is documented in [docs/react-19-adaptation.md](react-19-adaptation.md).
-Declarative Shadow DOM should be evaluated ahead of that broader form work
+Declarative Shadow DOM should be implemented ahead of that broader form work
 because it affects the generated Shadow DOM lifecycle, hydration strategy, demo
-publishing, and future form-associated custom element output. The DSD plan is
-documented in
-[docs/declarative-shadow-dom-plan.md](declarative-shadow-dom-plan.md).
+publishing, and future form-associated custom element output. The finalized DSD
+plan is documented in
+[docs/declarative-shadow-dom-plan.md](declarative-shadow-dom-plan.md), with the
+accepted architecture decision in
+[ADR 0010](adrs/0010-declarative-shadow-dom-output-and-hydration.md).
 
 Candidate follow-up milestones:
 
