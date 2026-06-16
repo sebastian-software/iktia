@@ -1,3 +1,5 @@
+import { resolve } from "node:path"
+
 import { defineConfig } from "vite"
 import { leanWebComponents } from "lean-wc/vite"
 
@@ -12,5 +14,13 @@ function demoBasePath(): string {
 
 export default defineConfig({
   base: demoBasePath(),
-  plugins: [leanWebComponents()],
+  build: {
+    rollupOptions: {
+      input: {
+        dsd: resolve(__dirname, "dsd.html"),
+        main: resolve(__dirname, "index.html"),
+      },
+    },
+  },
+  plugins: [leanWebComponents({ prerender: true })],
 })

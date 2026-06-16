@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "pnpm -w build:native && vite build",
-    "test": "pnpm -w build:native && playwright test",
+    "build": "pnpm -w build:native && pnpm prepare:dsd && vite build",
+    "prepare:dsd": "node scripts/build-dsd-html.mjs",
+    "test": "pnpm -w build:native && pnpm prepare:dsd && playwright test",
     "type-check": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
@@ -17,4 +18,3 @@
     "vite": "^8.0.16"
   }
 }
-

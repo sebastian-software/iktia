@@ -6,6 +6,11 @@ export type CounterProps = {
 
 export const options = {
   shadow: true,
+  styles: [
+    ":host { display: inline-block; font-family: system-ui, sans-serif; }",
+    "button { display: inline-flex; align-items: center; border: 1px solid #2563eb; border-radius: 0.375rem; padding: 0.5rem 0.75rem; background: #eff6ff; color: #172554; font: inherit; }",
+    "button:hover { background: #dbeafe; }",
+  ],
 } satisfies ComponentOptions
 
 export function Counter({ label = "Count" }: CounterProps = {}) {
@@ -21,12 +26,13 @@ export function Counter({ label = "Count" }: CounterProps = {}) {
     <button
       part="button"
       data-count={count()}
+      aria-label={displayLabel()}
       onClick={() => {
         count.set(count() + 1)
         change.emit(count())
       }}
     >
-      {displayLabel()}
+      {`${label}: ${count()}`}
     </button>
   )
 }

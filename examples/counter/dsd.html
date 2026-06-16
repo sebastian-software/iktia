@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="lean-wc Declarative Shadow DOM demo with delayed custom element upgrade."
+    />
+    <title>lean-wc Declarative Shadow DOM demo</title>
+    <link rel="stylesheet" href="/src/demo.css" />
+  </head>
+  <body data-demo-mode="dsd">
+    <header class="site-header">
+      <p class="eyebrow">lean-wc DSD demo</p>
+      <h1>Declarative Shadow DOM before JavaScript upgrade.</h1>
+      <p class="intro">
+        This page is generated from the same <code>.wc.tsx</code> sources as the
+        client demo. The browser parses the shadow roots, scoped styles, slots,
+        and supported initial values before the custom elements are defined.
+      </p>
+    </header>
+
+    <main class="demo-layout">
+      <section class="demo-case" id="dsd-counter-case" aria-labelledby="dsd-counter-title">
+        <div class="case-copy">
+          <p class="case-kicker">DSD use case 01</p>
+          <h2 id="dsd-counter-title">Prerendered counter</h2>
+          <p>
+            Counter proves static initial values, hydration markers, scoped
+            styles, and click hydration after delayed JavaScript upgrade.
+          </p>
+        </div>
+        <div class="case-surface">
+          <x-counter label="Count"><template shadowrootmode="open"><style>:host { display: inline-block; font-family: system-ui, sans-serif; }</style><style>button { display: inline-flex; align-items: center; border: 1px solid #2563eb; border-radius: 0.375rem; padding: 0.5rem 0.75rem; background: #eff6ff; color: #172554; font: inherit; }</style><style>button:hover { background: #dbeafe; }</style><button data-lean-node="node0" data-lean-root="" part="button" data-count="0"><span style="display: contents" data-lean-text="text0">Count: 0</span></button></template></x-counter>
+          <output id="counter-event">Last counter event: none</output>
+        </div>
+      </section>
+
+      <section class="demo-case" id="dsd-toggle-case" aria-labelledby="dsd-toggle-title">
+        <div class="case-copy">
+          <p class="case-kicker">DSD use case 02</p>
+          <h2 id="dsd-toggle-title">Prerendered primitive toggle</h2>
+          <p>
+            Toggle proves primitive contracts, slots, Shadow DOM styles,
+            control-flow containers, and post-upgrade event wiring.
+          </p>
+        </div>
+        <div class="case-surface">
+          <x-toggle label="Power"><template shadowrootmode="open"><style>:host { display: inline-block; font-family: system-ui, sans-serif; }</style><style>button { display: inline-flex; align-items: center; gap: 0.5rem; border: 1px solid #888; border-radius: 0.375rem; padding: 0.5rem 0.75rem; background: white; color: #111; }</style><style>button[data-state='on'] { border-color: #0f766e; background: #ecfdf5; }</style><style>[part~='indicator'] { font-size: 0.75rem; color: #475569; }</style><button data-lean-node="node0" data-lean-root="" part="root control" data-state="off" aria-pressed="false"><span data-lean-node="node1" part="label"><span style="display: contents" data-lean-text="text0">Power</span></span><span style="display: contents" data-lean-control="show" data-lean-node="node2"><span style="display: contents" data-lean-node="node2Content" hidden><span data-lean-node="node3" part="indicator"><span style="display: contents" data-lean-text="text1"></span></span></span><span style="display: contents" data-lean-node="node2Fallback"><span data-lean-node="node4" part="indicator"><span style="display: contents" data-lean-text="text2">Off</span></span></span></span><span style="display: contents" data-lean-control="for" data-lean-node="node5"></span><slot data-lean-node="node6"></slot></button></template>manual slot content</x-toggle>
+          <output id="toggle-event">Last toggle event: none</output>
+        </div>
+      </section>
+    </main>
+
+    <script type="module">
+      const params = new URLSearchParams(window.location.search)
+      window.__leanWcUpgrade = () => import("/src/main.ts")
+      if (!params.has("delayUpgrade")) {
+        window.__leanWcUpgrade()
+      }
+    </script>
+  </body>
+</html>
