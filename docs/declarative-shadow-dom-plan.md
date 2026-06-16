@@ -8,7 +8,11 @@ as early as possible: parsed markup, scoped styles, slots, and static structure
 should be available before the custom element JavaScript has downloaded,
 executed, and upgraded the element.
 
-This is planning material. It does not change the compiler implementation yet.
+Implementation status: the first DSD vertical slice is implemented for explicit
+prerender/static-HTML output. The normal client transform remains imperative.
+The implemented slice covers declarative root adoption, Rust serialization,
+DSD-only hydration markers, typed Node/Vite access, Counter/Toggle demos, and
+browser tests for delayed upgrade and development mismatch diagnostics.
 
 ## Executive Recommendation
 

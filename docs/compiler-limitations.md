@@ -88,6 +88,29 @@ The current MVP is designed for inline string expressions. CSS module imports,
 Vanilla Extract integration, constructable stylesheets, CSS asset bundling, and
 source-map-aware CSS diagnostics are later milestones.
 
+## Declarative Shadow DOM Boundary
+
+Declarative Shadow DOM is generated only through the explicit prerender API.
+Normal client builds keep the imperative Custom Element path and do not add a
+public `ComponentOptions.dsd` flag.
+
+The DSD serializer supports:
+
+* `shadow: true` components with `shadowrootmode="open"`.
+* Static elements, static attributes, text, slots, and inline style strings.
+* Prop defaults and JSON-provided prerender props.
+* `signal()` / `state()` initializers when they are supported literals.
+* Literal arrays and objects for initial values.
+* Simple template strings, identifier reads, accessor reads, boolean negation,
+  and simple boolean conditionals over supported values.
+* Visible `data-lean-*` markers in DSD HTML only.
+
+The DSD serializer does not execute arbitrary JavaScript or TypeScript. Computed
+callbacks, effects, event handlers, imports, browser APIs, and unsupported
+dynamic expressions are left for client hydration. Development hydration
+mismatches throw a `lean-wc hydration mismatch` diagnostic. Production builds
+fall back to an imperative remount.
+
 ## Unsupported Patterns
 
 The compiler should reject or fail fast on patterns outside the MVP instead of
@@ -111,6 +134,8 @@ Currently unsupported:
 * Return values not wrapped in parentheses.
 * Event option code generation from `event(name, options)`.
 * Source maps.
+* `closed` declarative shadow roots and `shadowrootserializable`.
+* A core Declarative Shadow DOM polyfill.
 
 ## Native Binding Boundary
 

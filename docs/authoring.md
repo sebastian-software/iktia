@@ -103,6 +103,41 @@ leanWebComponents({
 })
 ```
 
+Declarative Shadow DOM is an explicit prerender/static-HTML path, not a new
+component authoring option. Enable the optional Vite manifest only when a build
+step needs DSD metadata.
+
+```ts
+leanWebComponents({
+  prerender: {
+    include: /\.wc\.tsx$/,
+    exclude: /node_modules/,
+    manifestFile: "lean-wc-manifest.json",
+  },
+})
+```
+
+For direct prerendering, call the Node wrapper with source text and optional
+initial props. The Rust core serializes `shadow: true` components as host HTML
+with `<template shadowrootmode="open">`.
+
+```ts
+import { renderDeclarativeShadowDom } from "@lean-wc/core-node"
+
+const rendered = renderDeclarativeShadowDom({
+  filename: "counter.wc.tsx",
+  props: { label: "Count" },
+  source,
+})
+
+console.log(rendered.html)
+```
+
+The generated client module reuses an existing declarative shadow root before
+falling back to `attachShadow()`. Hydration markers are emitted only in DSD
+HTML. Development builds throw clear mismatch diagnostics; production builds
+remount imperatively if the prerendered structure is stale.
+
 ## Function Components
 
 Exported PascalCase functions are the preferred component declaration form. The
@@ -162,6 +197,8 @@ export const options = {
   `false`, the module exports a generated `defineXName()` function instead.
 * `styles`: string expressions injected into a generated `<style>` element at
   the start of the shadow root. The MVP supports simple inline expressions.
+  DSD prerender serializes supported style strings into the declarative shadow
+  template.
 
 ## Props
 

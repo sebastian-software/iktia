@@ -54,9 +54,11 @@ release. The current implementation proves the vertical slice:
 * explicit `<Show>` and `<For>` compile-time control flow
 * Rust/OXC TSX parse validation and compiler analysis
 * native Custom Element code generation
+* Declarative Shadow DOM prerender output and hydration for explicit static
+  HTML paths
 * typed N-API boundary and Node wrapper
 * Vite transform plugin
-* counter example with Playwright browser smoke test
+* counter/toggle examples with Playwright browser smoke tests
 * Shadow DOM style injection and default/named slots
 
 See [docs/compiler-limitations.md](docs/compiler-limitations.md) for the current
@@ -143,7 +145,8 @@ pnpm --filter @lean-wc/example-counter test
 ```
 
 The demo site is designed as a small public proof surface. It currently covers
-reactive state, primitive contracts, and PascalCase component composition, and
+reactive state, primitive contracts, PascalCase component composition, and a
+generated Declarative Shadow DOM page with delayed custom-element upgrade. It
 is published through GitHub Pages from the `main` branch. See
 [docs/demos.md](docs/demos.md) for the demo matrix, local commands, and Pages
 workflow details.
@@ -238,6 +241,14 @@ The TypeScript package is intentionally thin. It provides types, authoring
 stubs, runtime helpers, and Vite integration. The Rust crates own parsing,
 analysis, and output decisions.
 
+The normal Vite transform still emits imperative Custom Element modules. The
+separate `renderDeclarativeShadowDom()` path prerenders compiler-known
+`shadow: true` components as `<template shadowrootmode="open">` host HTML. The
+generated client class adopts an existing declarative shadow root before any
+`attachShadow()` fallback, binds `data-lean-*` hydration markers, throws a
+clear development mismatch diagnostic, and remounts imperatively in production
+when a stale prerender artifact cannot be hydrated.
+
 ## Landscape
 
 This section is a product-positioning snapshot from June 2026. It is meant to
@@ -304,6 +315,7 @@ Unsupported today:
 * imported CSS module object access
 * source maps
 * production native package publishing
+* arbitrary JavaScript execution during Declarative Shadow DOM prerendering
 
 The compiler should fail early on unsupported syntax rather than quietly add a
 framework runtime.

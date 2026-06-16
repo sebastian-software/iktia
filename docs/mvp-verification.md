@@ -47,6 +47,12 @@ Rust core:
 * Unsupported JSX `.map()` and conditional expression children produce
   deterministic diagnostics pointing to `<For>` and `<Show>`.
 * Shadow DOM rendering supports style injection and slots.
+* Generated classes reuse existing declarative shadow roots before any
+  `attachShadow()` fallback.
+* DSD prerender emits `<template shadowrootmode="open">`, supported initial
+  values, scoped styles, slots, and DSD-only `data-lean-*` hydration markers.
+* DSD hydration binds existing nodes, installs event listeners, reports
+  development mismatches, and preserves the imperative remount path.
 * PascalCase child component JSX rewrites to inferred kebab-case Custom Element
   tags.
 * Dynamic `aria-*` values preserve `false` as `"false"`.
@@ -57,7 +63,9 @@ TypeScript packages:
   DOM event helpers, host helpers, events, component options, and JSX.
 * Authoring runtime stubs throw when used without the compiler.
 * The Node wrapper exposes a typed native boundary.
-* The Vite plugin filters `.wc.tsx` modules and returns transformed code.
+* The Node wrapper exposes a typed Declarative Shadow DOM prerender boundary.
+* The Vite plugin filters `.wc.tsx` modules, returns transformed code, and can
+  emit optional DSD component metadata when prerendering is enabled.
 
 Example app:
 
@@ -68,6 +76,10 @@ Example app:
 * The toggle fixture exposes primitive `part`, `data-state`, and `aria-pressed`
   contracts.
 * The `toggle-change` event carries a boolean detail payload to the host page.
+* The generated `dsd.html` page renders Counter and Toggle shadow roots before
+  custom-element upgrade.
+* Delayed-upgrade browser tests verify DSD content is not cleared and becomes
+  interactive after hydration.
 
 ## Commit Audit
 
