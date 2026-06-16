@@ -12,7 +12,7 @@
       "@iktia/core/jsx-dev-runtime": ["src/jsx-dev-runtime.ts"]
     },
     "rootDir": "src",
-    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+    "tsBuildInfoFile": ".tsbuildinfo/tsconfig.tsbuildinfo"
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

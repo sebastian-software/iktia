@@ -4,23 +4,29 @@
   "description": "Command line tools for compiling and prerendering Iktia components.",
   "license": "Apache-2.0",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sebastian-software/iktia.git",
+    "directory": "packages/cli"
+  },
+  "bugs": "https://github.com/sebastian-software/iktia/issues",
   "bin": {
     "iktia": "./dist/cli.mjs"
   },
   "exports": {
     ".": {
-      "types": "./src/cli.ts",
-      "import": "./src/cli.ts",
+      "types": "./dist/cli.d.mts",
+      "import": "./dist/cli.mjs",
       "require": "./dist/cli.cjs"
     }
   },
   "main": "./dist/cli.cjs",
   "module": "./dist/cli.mjs",
-  "types": "./src/cli.ts",
+  "types": "./dist/cli.d.mts",
   "sideEffects": false,
   "files": ["dist/"],
   "scripts": {
-    "build": "unbuild",
+    "build": "tsdown",
     "check-types": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run --globals src/*.test.ts"
   },
@@ -36,7 +42,7 @@
   "devDependencies": {
     "@types/node": "^25.0.0",
     "typescript": "^6.0.3",
-    "unbuild": "^3.6.1",
+    "tsdown": "0.22.3",
     "vitest": "^4.1.6"
   }
 }

@@ -3,6 +3,8 @@ node_modules/
 target/
 dist/
 build/
+.tsdown-types/
+.tsbuildinfo/
 packages/core-node/native/*.node
 packages/compiler/native/*.node
 packages/compiler-*/iktia-node.node

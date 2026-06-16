@@ -5,7 +5,7 @@
     "composite": true,
     "ignoreDeprecations": "6.0",
     "rootDir": "src",
-    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+    "tsBuildInfoFile": ".tsbuildinfo/tsconfig.tsbuildinfo"
   },
   "include": ["src/**/*.ts"]
 }

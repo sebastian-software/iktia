@@ -4,30 +4,36 @@
   "description": "Authoring API and JSX types for Iktia native interface elements.",
   "license": "Apache-2.0",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sebastian-software/iktia.git",
+    "directory": "packages/core"
+  },
+  "bugs": "https://github.com/sebastian-software/iktia/issues",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "import": "./src/index.ts",
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     },
     "./jsx-runtime": {
-      "types": "./src/jsx-runtime.ts",
-      "import": "./src/jsx-runtime.ts",
+      "types": "./dist/jsx-runtime.d.mts",
+      "import": "./dist/jsx-runtime.mjs",
       "require": "./dist/jsx-runtime.cjs"
     },
     "./jsx-dev-runtime": {
-      "types": "./src/jsx-dev-runtime.ts",
-      "import": "./src/jsx-dev-runtime.ts",
+      "types": "./dist/jsx-dev-runtime.d.mts",
+      "import": "./dist/jsx-dev-runtime.mjs",
       "require": "./dist/jsx-dev-runtime.cjs"
     }
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
-  "types": "./src/index.ts",
+  "types": "./dist/index.d.mts",
   "sideEffects": false,
   "files": ["dist/"],
   "scripts": {
-    "build": "unbuild",
+    "build": "tsdown",
     "check-types": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run --globals src/*.test.ts"
   },
@@ -40,7 +46,7 @@
   "devDependencies": {
     "@types/node": "^25.0.0",
     "typescript": "^6.0.3",
-    "unbuild": "^3.6.1",
+    "tsdown": "0.22.3",
     "vitest": "^4.1.6"
   }
 }

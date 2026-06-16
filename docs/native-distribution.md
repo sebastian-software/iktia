@@ -76,3 +76,9 @@ The generated file is committed at
 `iktia-core` and `iktia-node` are internal Rust crates for v0.1. They are not
 published to crates.io. npm install source-build fallback is intentionally not
 supported.
+
+## npm Publishing
+
+Use `docs/npm-publishing.md` for the first publish and Trusted Publishing
+bootstrap runbook. The complete native matrix should be published from GitHub
+Actions so every package is built on its matching hosted runner.

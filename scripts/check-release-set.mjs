@@ -17,6 +17,8 @@ const publicPackages = [
   "packages/compiler-win32-x64-msvc",
 ]
 
+const jsPackages = ["packages/core", "packages/runtime", "packages/compiler", "packages/vite", "packages/cli"]
+
 const nativeTargets = [
   {
     cpu: "arm64",
@@ -84,6 +86,25 @@ for (const packagePath of publicPackages) {
   check(packageJson?.license === "Apache-2.0", `${packagePath} must use Apache-2.0`)
   check(packageJson?.engines?.node === ">=22.0.0", `${packagePath} must require Node 22+`)
   check(packageJson?.publishConfig?.access === "public", `${packagePath} must publish publicly`)
+  check(
+    packageJson?.repository?.url === "git+https://github.com/sebastian-software/iktia.git",
+    `${packagePath} repository must point at the GitHub repository`
+  )
+  check(packageJson?.repository?.directory === packagePath, `${packagePath} repository directory must match`)
+  check(packageJson?.bugs === "https://github.com/sebastian-software/iktia/issues", `${packagePath} bugs URL must match`)
+}
+
+for (const packagePath of jsPackages) {
+  const packageJson = packageJsonByPath.get(packagePath)
+  check(packageJson?.scripts?.build === "tsdown", `${packagePath} must build with tsdown`)
+  check(packageJson?.files?.includes("dist/"), `${packagePath} must publish dist files`)
+  check(
+    typeof packageJson?.types === "string" &&
+      packageJson.types.startsWith("./dist/") &&
+      packageJson.types.endsWith(".d.mts"),
+    `${packagePath} package-level types must point at dist .d.mts`
+  )
+  checkExportTypes(packageJson?.exports, packagePath)
 }
 
 const compilerPackage = packageJsonByPath.get("packages/compiler")
@@ -119,6 +140,9 @@ check(
 )
 
 const releaseWorkflow = readText(".github/workflows/release.yml")
+check(releaseWorkflow.includes("node-version: 22.18.0"), "release workflow must use Node 22.18.0")
+check(releaseWorkflow.includes("package-manager-cache: false"), "release workflow must disable package-manager cache")
+check(releaseWorkflow.includes("id-token: write"), "release workflow must allow npm OIDC")
 for (const target of nativeTargets) {
   check(
     releaseWorkflow.includes(target.name) && releaseWorkflow.includes(target.path),
@@ -154,4 +178,24 @@ function check(condition, message) {
 
 function arrayEquals(left, right) {
   return left.length === right.length && left.every((value, index) => value === right[index])
+}
+
+function checkExportTypes(exports, packagePath) {
+  if (!exports || typeof exports !== "object") {
+    errors.push(`${packagePath} must define exports`)
+    return
+  }
+
+  for (const [exportName, exportValue] of Object.entries(exports)) {
+    if (!exportValue || typeof exportValue !== "object" || Array.isArray(exportValue)) {
+      errors.push(`${packagePath} export ${exportName} must be an object`)
+      continue
+    }
+
+    const types = exportValue.types
+    check(
+      typeof types === "string" && types.startsWith("./dist/") && types.endsWith(".d.mts"),
+      `${packagePath} export ${exportName} types must point at dist .d.mts`
+    )
+  }
 }
