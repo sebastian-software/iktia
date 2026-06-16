@@ -378,6 +378,8 @@ Record the project's design ideals and major decisions as English ADRs sorted
 by architectural weight. This makes the reasoning behind the project durable
 and reviewable before implementation pressure blurs tradeoffs.
 
+ADR index: [docs/adrs/README.md](adrs/README.md)
+
 ### Scope
 
 * Add `docs/adrs/README.md` as the weighted decision index.
