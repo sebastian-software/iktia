@@ -10,6 +10,7 @@
   },
   "scripts": {
     "build": "pnpm -r --filter './packages/**' --if-present build",
+    "build:examples": "pnpm -r --filter './examples/**' --if-present build",
     "build:native": "cargo build -p lean-wc-node && node scripts/copy-native-binding.mjs",
     "check": "pnpm check-types && pnpm check:rust",
     "check-types": "pnpm -r --filter './packages/**' --if-present check-types",
@@ -17,6 +18,7 @@
     "lint": "pnpm lint:rust",
     "lint:rust": "cargo clippy --all-targets --all-features -- -D warnings",
     "test": "pnpm -r --filter './packages/**' --if-present test && pnpm test:rust",
+    "test:examples": "pnpm -r --filter './examples/**' --if-present test",
     "test:rust": "cargo test --workspace"
   },
   "devDependencies": {

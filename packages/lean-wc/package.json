@@ -6,34 +6,34 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
       "require": "./dist/index.cjs"
     },
     "./jsx-runtime": {
-      "types": "./dist/jsx-runtime.d.ts",
-      "import": "./dist/jsx-runtime.mjs",
+      "types": "./src/jsx-runtime.ts",
+      "import": "./src/jsx-runtime.ts",
       "require": "./dist/jsx-runtime.cjs"
     },
     "./jsx-dev-runtime": {
-      "types": "./dist/jsx-dev-runtime.d.ts",
-      "import": "./dist/jsx-dev-runtime.mjs",
+      "types": "./src/jsx-dev-runtime.ts",
+      "import": "./src/jsx-dev-runtime.ts",
       "require": "./dist/jsx-dev-runtime.cjs"
     },
     "./runtime": {
-      "types": "./dist/runtime.d.ts",
-      "import": "./dist/runtime.mjs",
+      "types": "./src/runtime.ts",
+      "import": "./src/runtime.ts",
       "require": "./dist/runtime.cjs"
     },
     "./vite": {
-      "types": "./dist/vite.d.ts",
-      "import": "./dist/vite.mjs",
+      "types": "./src/vite.ts",
+      "import": "./src/vite.ts",
       "require": "./dist/vite.cjs"
     }
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "types": "./src/index.ts",
   "sideEffects": false,
   "files": ["dist/"],
   "scripts": {

@@ -1,0 +1,20 @@
+{
+  "name": "@lean-wc/example-counter",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -w build:native && vite build",
+    "test": "pnpm -w build:native && playwright test",
+    "type-check": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "lean-wc": "workspace:^"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16"
+  }
+}
+
