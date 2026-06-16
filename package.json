@@ -10,6 +10,7 @@
   },
   "scripts": {
     "build": "pnpm -r --filter './packages/**' --if-present build",
+    "build:native": "cargo build -p lean-wc-node && node scripts/copy-native-binding.mjs",
     "check": "pnpm check-types && pnpm check:rust",
     "check-types": "pnpm -r --filter './packages/**' --if-present check-types",
     "check:rust": "cargo check --workspace",

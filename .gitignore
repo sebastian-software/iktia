@@ -1,6 +1,6 @@
 node_modules/
 target/
 dist/
+packages/core-node/native/*.node
 *.log
 .DS_Store
-

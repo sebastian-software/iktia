@@ -15,7 +15,7 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "sideEffects": false,
-  "files": ["dist/"],
+  "files": ["dist/", "native/"],
   "scripts": {
     "build": "unbuild",
     "check-types": "tsc --noEmit -p tsconfig.json",
@@ -31,4 +31,3 @@
     "vitest": "^4.1.6"
   }
 }
-
