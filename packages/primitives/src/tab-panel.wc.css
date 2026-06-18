@@ -1,0 +1,16 @@
+:host {
+  display: block;
+  font: inherit;
+}
+
+:host([hidden]) {
+  display: none;
+}
+
+[part~="root"] {
+  border: 1px solid var(--iktia-tabs-panel-border, #d6ded9);
+  border-radius: var(--iktia-tabs-panel-radius, 0.375rem);
+  padding: var(--iktia-tabs-panel-padding, 0.75rem);
+  background: var(--iktia-tabs-panel-bg, #ffffff);
+  color: var(--iktia-tabs-fg, #17201b);
+}

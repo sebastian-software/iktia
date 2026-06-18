@@ -256,14 +256,19 @@ dispatch native CustomEvents.</code></pre>
               <iktia-button variant="ghost" label="Preview"></iktia-button>
             </iktia-button-group>
 
-            <iktia-tabs
-              first-label="Contract"
-              second-label="Behavior"
-              third-label="Forms"
-            >
-              <span slot="first">Parts, slots, data-state, and CSS variables.</span>
-              <span slot="second">Behavior stays inside Iktia-authored kernels or native controls.</span>
-              <span slot="third">Checkbox and toggle submit through ElementInternals.</span>
+            <iktia-tabs value="contract">
+              <iktia-tab value="contract" label="Contract"></iktia-tab>
+              <iktia-tab value="behavior" label="Behavior"></iktia-tab>
+              <iktia-tab value="forms" label="Forms"></iktia-tab>
+              <iktia-tab-panel value="contract">
+                Parts, slots, data-state, and CSS variables.
+              </iktia-tab-panel>
+              <iktia-tab-panel value="behavior">
+                Behavior stays inside Iktia-authored kernels or native controls.
+              </iktia-tab-panel>
+              <iktia-tab-panel value="forms">
+                Checkbox and toggle submit through ElementInternals.
+              </iktia-tab-panel>
             </iktia-tabs>
 
             <iktia-dropdown label="Package notes">

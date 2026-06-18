@@ -43,6 +43,14 @@
       "types": "./dist/radio-group.d.mts",
       "import": "./dist/radio-group.mjs"
     },
+    "./tab": {
+      "types": "./dist/tab.d.mts",
+      "import": "./dist/tab.mjs"
+    },
+    "./tab-panel": {
+      "types": "./dist/tab-panel.d.mts",
+      "import": "./dist/tab-panel.mjs"
+    },
     "./tabs": {
       "types": "./dist/tabs.d.mts",
       "import": "./dist/tabs.mjs"

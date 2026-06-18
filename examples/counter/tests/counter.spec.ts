@@ -150,8 +150,10 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   const toggleGroup = section.locator("iktia-toggle-group")
   const toggleItems = toggleGroup.locator("iktia-toggle-item")
   const tabs = section.locator("iktia-tabs")
-  const firstPanel = tabs.locator("[part~='panel'][data-value='first']")
-  const secondPanel = tabs.locator("[part~='panel'][data-value='second']")
+  const tabItems = tabs.locator("iktia-tab")
+  const tabPanels = tabs.locator("iktia-tab-panel")
+  const contractPanel = tabPanels.filter({ hasText: "Parts, slots" })
+  const behaviorPanel = tabPanels.filter({ hasText: "Behavior stays" })
   const dropdown = section.locator("iktia-dropdown")
   const form = section.locator("#primitive-form")
 
@@ -178,9 +180,12 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(toggleItems.nth(0)).toHaveAttribute("role", "button")
   await expect(toggleItems.nth(0)).toHaveAttribute("aria-pressed", "true")
   await expect(toggleItems.nth(2)).toHaveAttribute("aria-disabled", "true")
-  await expect(tabs.locator("[role='tab']")).toHaveCount(3)
-  await expect(firstPanel).toBeVisible()
-  await expect(secondPanel).toBeHidden()
+  await expect(tabItems).toHaveCount(3)
+  await expect(tabItems.nth(0)).toHaveAttribute("role", "tab")
+  await expect(tabItems.nth(0)).toHaveAttribute("data-state", "selected")
+  await expect(tabPanels).toHaveCount(3)
+  await expect(contractPanel).toBeVisible()
+  await expect(behaviorPanel).toBeHidden()
 
   await primaryButton.locator("button").click()
   await expect(page.locator("#primitive-event")).toContainText(
@@ -237,27 +242,59 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
     "channels:web"
   )
 
-  await tabs.locator("[role='tab']").nth(1).click()
-  await expect(firstPanel).toBeHidden()
-  await expect(secondPanel).toBeVisible()
-  await expect(tabs.locator("[role='tab']").nth(1)).toHaveAttribute(
+  await tabItems.nth(1).click()
+  await expect(contractPanel).toBeHidden()
+  await expect(behaviorPanel).toBeVisible()
+  await expect(tabItems.nth(1)).toHaveAttribute(
     "data-state",
     "selected"
   )
-  await expect(page.locator("#primitive-event")).toContainText('"value":"second"')
+  await expect(page.locator("#primitive-event")).toContainText(
+    '"value":"behavior"'
+  )
 
-  await tabs.locator("[role='tab']").nth(1).press("ArrowRight")
-  await expect(tabs.locator("[role='tab']").nth(2)).toHaveAttribute(
+  await tabItems.nth(1).press("ArrowRight")
+  await expect(tabItems.nth(2)).toHaveAttribute(
     "data-state",
     "selected"
   )
-  await expect(tabs.locator("[role='tab']").nth(2)).toBeFocused()
-  await tabs.locator("[role='tab']").nth(2).press("Home")
-  await expect(tabs.locator("[role='tab']").nth(0)).toHaveAttribute(
+  await expect(tabItems.nth(2)).toBeFocused()
+  await tabItems.nth(2).press("Home")
+  await expect(tabItems.nth(0)).toHaveAttribute(
     "data-state",
     "selected"
   )
-  await expect(tabs.locator("[role='tab']").nth(0)).toBeFocused()
+  await expect(tabItems.nth(0)).toBeFocused()
+
+  await tabs.evaluate((element) => {
+    const disabledTab = document.createElement("iktia-tab")
+    disabledTab.setAttribute("value", "audit")
+    disabledTab.setAttribute("label", "Audit")
+    disabledTab.setAttribute("disabled", "")
+    const disabledPanel = document.createElement("iktia-tab-panel")
+    disabledPanel.setAttribute("value", "audit")
+    disabledPanel.textContent = "Disabled audit panel."
+    element.append(disabledTab, disabledPanel)
+  })
+  await expect(tabItems).toHaveCount(4)
+  await expect(tabItems.nth(3)).toHaveAttribute("aria-disabled", "true")
+  await tabItems.nth(0).press("End")
+  await expect(tabItems.nth(2)).toHaveAttribute("data-state", "selected")
+  await expect(tabItems.nth(2)).toBeFocused()
+
+  await tabs.evaluate((element) => {
+    const tab = document.createElement("iktia-tab")
+    tab.setAttribute("value", "metrics")
+    tab.setAttribute("label", "Metrics")
+    const panel = document.createElement("iktia-tab-panel")
+    panel.setAttribute("value", "metrics")
+    panel.textContent = "Runtime metrics panel."
+    element.append(tab, panel)
+  })
+  await expect(tabItems).toHaveCount(5)
+  await tabItems.nth(4).click()
+  await expect(tabItems.nth(4)).toHaveAttribute("data-state", "selected")
+  await expect(tabPanels.filter({ hasText: "Runtime metrics" })).toBeVisible()
 
   await dropdown.locator("button").click()
   await expect(dropdown.locator("[part~='panel']")).toBeVisible()

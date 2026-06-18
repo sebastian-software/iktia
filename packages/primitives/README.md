@@ -25,7 +25,7 @@ import "@iktia/primitives/toggle"
 | `<iktia-dropdown>` | Button-triggered dropdown/disclosure primitive. | Experimental |
 | `<iktia-field>` | Field composition shell for labels, controls, hints, and errors. | Experimental |
 | `<iktia-radio-group>` / `<iktia-radio>` | Zag-backed radio collection with roving focus and native `FormData` behavior. | Experimental form-associated MVP |
-| `<iktia-tabs>` | Platform-style tab set for three slotted panels. | Experimental |
+| `<iktia-tabs>` / `<iktia-tab>` / `<iktia-tab-panel>` | Zag-backed tab collection with subcomponent tabs, panels, roving focus, and a legacy three-panel fallback. | Experimental |
 | `<iktia-toggle>` | Pressed/on-off button primitive with native `FormData` behavior. | Experimental form-associated MVP |
 | `<iktia-toggle-group>` / `<iktia-toggle-item>` | Zag-backed single or multiple toggle collection with roving focus and native `FormData` behavior. | Experimental form-associated MVP |
 

@@ -15,6 +15,11 @@
   border-bottom: 1px solid var(--iktia-tabs-border, #d6ded9);
 }
 
+[part~="root"][data-mode="custom"] [part~="legacy"],
+[part~="root"][data-mode="legacy"] [part~="custom"] {
+  display: none;
+}
+
 [part~="tab"] {
   border: 0;
   border-bottom: 3px solid transparent;

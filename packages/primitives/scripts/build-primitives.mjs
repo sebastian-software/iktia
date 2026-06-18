@@ -16,6 +16,8 @@ const components = [
   "field",
   "radio",
   "radio-group",
+  "tab",
+  "tab-panel",
   "tabs",
   "toggle",
   "toggle-group",
