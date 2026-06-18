@@ -174,6 +174,9 @@ importers:
       '@zag-js/select':
         specifier: 1.41.2
         version: 1.41.2
+      '@zag-js/slider':
+        specifier: 1.41.2
+        version: 1.41.2
       '@zag-js/switch':
         specifier: 1.41.2
         version: 1.41.2
@@ -1643,6 +1646,9 @@ packages:
 
   '@zag-js/select@1.41.2':
     resolution: {integrity: sha512-3wGaKABILexoNBJ1bJiHqLLTctR/VMZaNA4cyKiqZeBEWtAkdMhgyY2xKobrP6KtUTqAeUFNVSTu4yCDrAQnUw==}
+
+  '@zag-js/slider@1.41.2':
+    resolution: {integrity: sha512-mKK2BwoDbIGxAdkdKkPZJA1SHtEQt3lS9hJ6WghefYU2vyd0BXoIKvcDV3xJOzly5LXYhH5cJITn6JtGK8353A==}
 
   '@zag-js/switch@1.41.2':
     resolution: {integrity: sha512-qHbQK95UUHN0tj+bf9LLphLcMo/uTg2Pvs0c1Gs03Zh4g3NtHf0uYIhMZKYlCH0hNVlKrmdzLKWgeoDxv9gySw==}
@@ -4330,6 +4336,14 @@ snapshots:
       '@zag-js/dom-query': 1.41.2
       '@zag-js/focus-visible': 1.41.2
       '@zag-js/popper': 1.41.2
+      '@zag-js/types': 1.41.2
+      '@zag-js/utils': 1.41.2
+
+  '@zag-js/slider@1.41.2':
+    dependencies:
+      '@zag-js/anatomy': 1.41.2
+      '@zag-js/core': 1.41.2
+      '@zag-js/dom-query': 1.41.2
       '@zag-js/types': 1.41.2
       '@zag-js/utils': 1.41.2
 

@@ -42,6 +42,7 @@ describe("@iktia/primitives build output", () => {
     expect(index).toContain("export * from \"./segmented-item.mjs\"")
     expect(index).toContain("export * from \"./select.mjs\"")
     expect(index).toContain("export * from \"./select-item.mjs\"")
+    expect(index).toContain("export * from \"./slider.mjs\"")
     expect(index).toContain("export * from \"./switch.mjs\"")
     expect(index).toContain("export * from \"./tab.mjs\"")
     expect(index).toContain("export * from \"./tab-panel.mjs\"")
@@ -77,6 +78,7 @@ describe("@iktia/primitives build output", () => {
     const scope = readFileSync(join(distRoot, "internal", "zag", "scope.js"), "utf8")
     const segmentedControl = readFileSync(join(distRoot, "internal", "zag", "segmented-control.js"), "utf8")
     const select = readFileSync(join(distRoot, "internal", "zag", "select.js"), "utf8")
+    const slider = readFileSync(join(distRoot, "internal", "zag", "slider.js"), "utf8")
     const switchAdapter = readFileSync(join(distRoot, "internal", "zag", "switch.js"), "utf8")
     const tabs = readFileSync(join(distRoot, "internal", "zag", "tabs.js"), "utf8")
     const tooltip = readFileSync(join(distRoot, "internal", "zag", "tooltip.js"), "utf8")
@@ -106,6 +108,7 @@ describe("@iktia/primitives build output", () => {
     expect(segmentedControl).toContain("createIktiaZagToggleGroupService")
     expect(select).toContain("@zag-js/select")
     expect(select).toContain("syncIktiaSelectItems")
+    expect(slider).toContain("@zag-js/slider")
     expect(switchAdapter).toContain("@zag-js/switch")
     expect(tabs).toContain("@zag-js/tabs")
     expect(tabs).toContain("syncIktiaTabsItems")
@@ -244,6 +247,17 @@ describe("@iktia/primitives build output", () => {
     expect(numberInput).not.toContain("type IktiaZagNumberInputService")
   })
 
+  it("backs slider with the private Zag adapter", () => {
+    const slider = readFileSync(join(distRoot, "slider.mjs"), "utf8")
+
+    expect(slider).toContain("from \"./internal/zag/slider.js\"")
+    expect(slider).toContain("createIktiaZagSliderService")
+    expect(slider).toContain("#applySpreadAttributes")
+    expect(slider).toContain("static formAssociated = true;")
+    expect(slider).not.toContain("@iktia/core")
+    expect(slider).not.toContain("type IktiaZagSliderService")
+  })
+
   it("backs dialog with the private Zag adapter", () => {
     const dialog = readFileSync(join(distRoot, "dialog.mjs"), "utf8")
 
@@ -325,11 +339,12 @@ describe("@iktia/primitives build output", () => {
     const radioGroup = readFileSync(join(distRoot, "radio-group.mjs"), "utf8")
     const segmentedControl = readFileSync(join(distRoot, "segmented-control.mjs"), "utf8")
     const select = readFileSync(join(distRoot, "select.mjs"), "utf8")
+    const slider = readFileSync(join(distRoot, "slider.mjs"), "utf8")
     const switchComponent = readFileSync(join(distRoot, "switch.mjs"), "utf8")
     const toggle = readFileSync(join(distRoot, "toggle.mjs"), "utf8")
     const toggleGroup = readFileSync(join(distRoot, "toggle-group.mjs"), "utf8")
 
-    for (const source of [checkbox, combobox, listbox, numberInput, radioGroup, segmentedControl, select, switchComponent, toggle, toggleGroup]) {
+    for (const source of [checkbox, combobox, listbox, numberInput, radioGroup, segmentedControl, select, slider, switchComponent, toggle, toggleGroup]) {
       expect(source).toContain("static formAssociated = true")
       expect(source).toContain("this.#internals = this.attachInternals()")
       expect(source).toContain("this.#internals.setFormValue")

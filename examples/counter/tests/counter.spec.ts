@@ -169,6 +169,9 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   const numberInputField = numberInput.locator("[part~='input']")
   const numberInputDecrement = numberInput.locator("[part~='decrement']")
   const numberInputIncrement = numberInput.locator("[part~='increment']")
+  const slider = section.locator("iktia-slider")
+  const sliderControl = slider.locator("[part~='control']")
+  const sliderThumb = slider.locator("[part~='thumb']")
   const menu = section.locator("iktia-menu")
   const menuTrigger = menu.locator("button")
   const menuContent = menu.locator("[part~='content']")
@@ -265,6 +268,10 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(numberInputField).toHaveValue("2")
   await expect(numberInputField).toHaveAttribute("aria-valuemin", "1")
   await expect(numberInputField).toHaveAttribute("aria-valuemax", "5")
+  await expect(sliderThumb).toHaveAttribute("role", "slider")
+  await expect(sliderThumb).toHaveAttribute("aria-valuemin", "0")
+  await expect(sliderThumb).toHaveAttribute("aria-valuemax", "100")
+  await expect(sliderThumb).toHaveAttribute("aria-valuenow", "40")
   await expect(menuTrigger).toHaveAttribute("aria-haspopup", "menu")
   await expect(menuTrigger).toHaveAttribute("data-state", "closed")
   await expect(menuItems).toHaveCount(3)
@@ -407,13 +414,30 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await numberInputDecrement.click()
   await expect(numberInputField).toHaveValue("3")
 
+  await sliderThumb.evaluate((element) => {
+    element.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+        key: "ArrowRight",
+      })
+    )
+  })
+  await expect(sliderThumb).toHaveAttribute("aria-valuenow", "50")
+  await expect(page.locator("#primitive-event")).toContainText('"value":50')
+  const sliderBox = await sliderControl.boundingBox()
+  if (sliderBox == null) throw new Error("Slider control box missing")
+  await page.mouse.click(sliderBox.x + sliderBox.width * 0.8, sliderBox.y + sliderBox.height / 2)
+  await expect(sliderThumb).toHaveAttribute("aria-valuenow", "80")
+
   await form.locator("button[type='submit']").click()
   await expect(page.locator("body")).toHaveAttribute(
     "data-last-primitive-form",
-    "docs:reviewed, preview:enabled, notify:enabled, audience:stable, channels:docs, cadence:monthly, region:apac, lane:audit, owner:docs, approvals:3"
+    "docs:reviewed, preview:enabled, notify:enabled, audience:stable, channels:docs, cadence:monthly, region:apac, lane:audit, owner:docs, approvals:3, confidence:80"
   )
   await expect(page.locator("#primitive-form-event")).toHaveText(
-    "Last primitive form data: docs:reviewed, preview:enabled, notify:enabled, audience:stable, channels:docs, cadence:monthly, region:apac, lane:audit, owner:docs, approvals:3"
+    "Last primitive form data: docs:reviewed, preview:enabled, notify:enabled, audience:stable, channels:docs, cadence:monthly, region:apac, lane:audit, owner:docs, approvals:3, confidence:80"
   )
 
   await form.locator("button[type='reset']").click()
@@ -430,9 +454,10 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(comboboxItems.nth(0)).toHaveAttribute("data-state", "checked")
   await expect(comboboxInput).toHaveValue("Operations")
   await expect(numberInputField).toHaveValue("2")
+  await expect(sliderThumb).toHaveAttribute("aria-valuenow", "40")
   await expect(page.locator("body")).toHaveAttribute(
     "data-last-primitive-form",
-    "notify:enabled, channels:web, cadence:weekly, region:eu, lane:review, owner:ops, approvals:2"
+    "notify:enabled, channels:web, cadence:weekly, region:eu, lane:review, owner:ops, approvals:2, confidence:40"
   )
 
   await combobox.evaluate((element) => {
@@ -779,6 +804,7 @@ test("form-associated primitive controls receive disabled fieldset state", async
           <iktia-combobox-item value="yes" label="Yes"></iktia-combobox-item>
         </iktia-combobox>
         <iktia-number-input name="blocked-number" label="Blocked number" value="2"></iktia-number-input>
+        <iktia-slider name="blocked-slider" label="Blocked slider" value="40"></iktia-slider>
       </fieldset>
     `
     document.body.append(form)
@@ -798,6 +824,7 @@ test("form-associated primitive controls receive disabled fieldset state", async
   const comboboxItem = page.locator("form fieldset iktia-combobox-item")
   const numberInput = page.locator("form fieldset iktia-number-input input")
   const numberIncrement = page.locator("form fieldset iktia-number-input [part~='increment']")
+  const sliderThumb = page.locator("form fieldset iktia-slider [part~='thumb']")
 
   await expect(checkboxButton).toBeDisabled()
   await expect(toggleButton).toBeDisabled()
@@ -807,6 +834,7 @@ test("form-associated primitive controls receive disabled fieldset state", async
   await expect(comboboxButton).toBeDisabled()
   await expect(numberInput).toBeDisabled()
   await expect(numberIncrement).toBeDisabled()
+  await expect(sliderThumb).toHaveAttribute("aria-disabled", "true")
   await expect(radio).toHaveAttribute("aria-disabled", "true")
   await expect(toggleItem).toHaveAttribute("aria-disabled", "true")
   await expect(segmentedItem).toHaveAttribute("aria-disabled", "true")
