@@ -1,0 +1,38 @@
+:host {
+  display: block;
+  font: inherit;
+}
+
+[part~="root"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--iktia-listbox-item-gap, 0.75rem);
+  min-height: var(--iktia-listbox-item-min-height, 2rem);
+  border-radius: var(--iktia-listbox-item-radius, 0.25rem);
+  padding: var(--iktia-listbox-item-padding, 0.4rem 0.55rem);
+  color: var(--iktia-listbox-item-fg, #17201b);
+  font: inherit;
+  cursor: pointer;
+}
+
+:host([data-highlighted]) [part~="root"],
+:host([data-focused]) [part~="root"],
+:host([data-state="checked"]) [part~="root"] {
+  background: var(--iktia-listbox-item-active-bg, #e2f3ea);
+  color: var(--iktia-listbox-item-active-fg, #0f3f35);
+}
+
+:host([data-disabled]) [part~="root"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+[part~="indicator"] {
+  visibility: hidden;
+  color: currentColor;
+}
+
+:host([data-state="checked"]) [part~="indicator"] {
+  visibility: visible;
+}

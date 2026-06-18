@@ -35,6 +35,14 @@
       "types": "./dist/field.d.mts",
       "import": "./dist/field.mjs"
     },
+    "./listbox": {
+      "types": "./dist/listbox.d.mts",
+      "import": "./dist/listbox.mjs"
+    },
+    "./listbox-item": {
+      "types": "./dist/listbox-item.d.mts",
+      "import": "./dist/listbox-item.mjs"
+    },
     "./radio": {
       "types": "./dist/radio.d.mts",
       "import": "./dist/radio.mjs"
@@ -100,6 +108,7 @@
   "dependencies": {
     "@iktia/core": "workspace:^",
     "@zag-js/checkbox": "1.41.2",
+    "@zag-js/listbox": "1.41.2",
     "@zag-js/radio-group": "1.41.2",
     "@zag-js/select": "1.41.2",
     "@zag-js/tabs": "1.41.2",

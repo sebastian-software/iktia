@@ -155,6 +155,9 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   const selectTrigger = select.locator("button")
   const selectItems = select.locator("iktia-select-item")
   const selectContent = select.locator("[part~='content']")
+  const listbox = section.locator("iktia-listbox")
+  const listboxContent = listbox.locator("[role='listbox']")
+  const listboxItems = listbox.locator("iktia-listbox-item")
   const tabs = section.locator("iktia-tabs")
   const tabItems = tabs.locator("iktia-tab")
   const tabPanels = tabs.locator("iktia-tab-panel")
@@ -202,6 +205,11 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(selectItems.nth(1)).toHaveAttribute("data-state", "checked")
   await expect(selectItems.nth(3)).toHaveAttribute("aria-disabled", "true")
   await expect(selectContent).toBeHidden()
+  await expect(listboxContent).toHaveAttribute("data-state", "review")
+  await expect(listboxItems).toHaveCount(4)
+  await expect(listboxItems.nth(1)).toHaveAttribute("role", "option")
+  await expect(listboxItems.nth(1)).toHaveAttribute("data-state", "checked")
+  await expect(listboxItems.nth(2)).toHaveAttribute("aria-disabled", "true")
   await expect(tabItems).toHaveCount(3)
   await expect(tabItems.nth(0)).toHaveAttribute("role", "tab")
   await expect(tabItems.nth(0)).toHaveAttribute("data-state", "selected")
@@ -267,13 +275,20 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(page.locator("#primitive-event")).toContainText('"value":"apac"')
   await expect(selectTrigger).toBeFocused()
 
+  await listboxContent.focus()
+  await listboxContent.press("End")
+  await expect(listboxItems.nth(3)).toHaveAttribute("data-highlighted", "")
+  await listboxContent.press("Enter")
+  await expect(listboxItems.nth(3)).toHaveAttribute("data-state", "checked")
+  await expect(page.locator("#primitive-event")).toContainText('"value":["audit"]')
+
   await form.locator("button[type='submit']").click()
   await expect(page.locator("body")).toHaveAttribute(
     "data-last-primitive-form",
-    "docs:reviewed, preview:enabled, audience:stable, channels:docs, cadence:monthly, region:apac"
+    "docs:reviewed, preview:enabled, audience:stable, channels:docs, cadence:monthly, region:apac, lane:audit"
   )
   await expect(page.locator("#primitive-form-event")).toHaveText(
-    "Last primitive form data: docs:reviewed, preview:enabled, audience:stable, channels:docs, cadence:monthly, region:apac"
+    "Last primitive form data: docs:reviewed, preview:enabled, audience:stable, channels:docs, cadence:monthly, region:apac, lane:audit"
   )
 
   await form.locator("button[type='reset']").click()
@@ -285,9 +300,10 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(segments.nth(1)).toHaveAttribute("data-state", "selected")
   await expect(selectItems.nth(1)).toHaveAttribute("data-state", "checked")
   await expect(selectTrigger.locator("[part~='value']")).toHaveText("Europe")
+  await expect(listboxItems.nth(1)).toHaveAttribute("data-state", "checked")
   await expect(page.locator("body")).toHaveAttribute(
     "data-last-primitive-form",
-    "channels:web, cadence:weekly, region:eu"
+    "channels:web, cadence:weekly, region:eu, lane:review"
   )
 
   await select.evaluate((element) => {
@@ -302,6 +318,17 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(selectItems.nth(4)).toHaveAttribute("data-state", "checked")
   await expect(selectTrigger.locator("[part~='value']")).toHaveText("LATAM")
   await expect(page.locator("#primitive-event")).toContainText('"value":"latam"')
+
+  await listbox.evaluate((element) => {
+    const item = document.createElement("iktia-listbox-item")
+    item.setAttribute("value", "hotfix")
+    item.setAttribute("label", "Hotfix")
+    element.append(item)
+  })
+  await expect(listboxItems).toHaveCount(5)
+  await listboxItems.nth(4).click()
+  await expect(listboxItems.nth(4)).toHaveAttribute("data-state", "checked")
+  await expect(page.locator("#primitive-event")).toContainText('"value":["hotfix"]')
 
   await segmentedControl.evaluate((element) => {
     const item = document.createElement("iktia-segmented-item")
@@ -405,6 +432,9 @@ test("form-associated primitive controls receive disabled fieldset state", async
         <iktia-select name="blocked-select" label="Blocked select">
           <iktia-select-item value="yes" label="Yes"></iktia-select-item>
         </iktia-select>
+        <iktia-listbox name="blocked-listbox" label="Blocked listbox">
+          <iktia-listbox-item value="yes" label="Yes"></iktia-listbox-item>
+        </iktia-listbox>
       </fieldset>
     `
     document.body.append(form)
@@ -417,6 +447,7 @@ test("form-associated primitive controls receive disabled fieldset state", async
   const segmentedItem = page.locator("form fieldset iktia-segmented-item")
   const selectButton = page.locator("form fieldset iktia-select button")
   const selectItem = page.locator("form fieldset iktia-select-item")
+  const listboxItem = page.locator("form fieldset iktia-listbox-item")
 
   await expect(checkboxButton).toBeDisabled()
   await expect(toggleButton).toBeDisabled()
@@ -425,6 +456,7 @@ test("form-associated primitive controls receive disabled fieldset state", async
   await expect(toggleItem).toHaveAttribute("aria-disabled", "true")
   await expect(segmentedItem).toHaveAttribute("aria-disabled", "true")
   await expect(selectItem).toHaveAttribute("aria-disabled", "true")
+  await expect(listboxItem).toHaveAttribute("aria-disabled", "true")
   await checkboxButton.evaluate((button) =>
     button.dispatchEvent(new MouseEvent("click", { bubbles: true }))
   )
@@ -443,12 +475,16 @@ test("form-associated primitive controls receive disabled fieldset state", async
   await selectItem.evaluate((item) =>
     item.dispatchEvent(new MouseEvent("click", { bubbles: true }))
   )
+  await listboxItem.evaluate((item) =>
+    item.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+  )
   await expect(checkboxButton).toHaveAttribute("data-state", "unchecked")
   await expect(toggleButton).toHaveAttribute("data-state", "off")
   await expect(radio).toHaveAttribute("data-state", "unchecked")
   await expect(toggleItem).toHaveAttribute("data-state", "off")
   await expect(segmentedItem).toHaveAttribute("data-state", "unselected")
   await expect(selectItem).toHaveAttribute("data-state", "unchecked")
+  await expect(listboxItem).toHaveAttribute("data-state", "unchecked")
 })
 
 test("declarative shadow dom renders useful DOM before upgrade and hydrates after upgrade", async ({

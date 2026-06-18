@@ -24,6 +24,7 @@ import "@iktia/primitives/toggle"
 | `<iktia-checkbox>` | ARIA checkbox primitive with checked, indeterminate, and native `FormData` behavior. | Experimental form-associated MVP |
 | `<iktia-dropdown>` | Button-triggered dropdown/disclosure primitive. | Experimental |
 | `<iktia-field>` | Field composition shell for labels, controls, hints, and errors. | Experimental |
+| `<iktia-listbox>` / `<iktia-listbox-item>` | Zag-backed listbox with selection, typeahead, disabled items, and native `FormData` behavior. | Experimental form-associated MVP |
 | `<iktia-radio-group>` / `<iktia-radio>` | Zag-backed radio collection with roving focus and native `FormData` behavior. | Experimental form-associated MVP |
 | `<iktia-segmented-control>` / `<iktia-segmented-item>` | Zag-backed single-selection segmented control with roving focus and native `FormData` behavior. | Experimental form-associated MVP |
 | `<iktia-select>` / `<iktia-select-item>` | Zag-backed single-selection listbox popup with typeahead, open state, and native `FormData` behavior. | Experimental form-associated MVP |
@@ -41,11 +42,12 @@ The primitives expose platform-readable contracts:
 * Native ARIA attributes where the current `.wc.tsx` compiler surface supports them.
 * Iktia-prefixed `CustomEvent`s such as `iktia-change` and `iktia-press`.
 
-Checkbox, radio group, segmented control, select, toggle, and toggle group use
-the compiler-owned `formControl()` spike to generate Form-Associated Custom
-Element output. They support `name`, `value`, submit, reset, disabled fieldset
-propagation, and `FormData` in the current MVP, but remain experimental until
-label association, validation, and broader cross-browser coverage are complete.
+Checkbox, listbox, radio group, segmented control, select, toggle, and toggle
+group use the compiler-owned `formControl()` spike to generate Form-Associated
+Custom Element output. They support `name`, `value`, submit, reset, disabled
+fieldset propagation, and `FormData` in the current MVP, but remain experimental
+until label association, validation, and broader cross-browser coverage are
+complete.
 
 Shared behavior lives in private package modules under `src/internal`. Simple
 kernels remain under `src/internal/behavior`; Zag-backed adapters live under

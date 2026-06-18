@@ -265,6 +265,16 @@ dispatch native CustomEvents.</code></pre>
                 <iktia-select-item value="apac" label="APAC"></iktia-select-item>
                 <iktia-select-item value="hold" label="On hold" disabled></iktia-select-item>
               </iktia-select>
+              <iktia-listbox
+                name="lane"
+                label="Release lane"
+                value="review"
+              >
+                <iktia-listbox-item value="dev" label="Development"></iktia-listbox-item>
+                <iktia-listbox-item value="review" label="Review"></iktia-listbox-item>
+                <iktia-listbox-item value="frozen" label="Frozen" disabled></iktia-listbox-item>
+                <iktia-listbox-item value="audit" label="Audit"></iktia-listbox-item>
+              </iktia-listbox>
               <div class="primitive-row">
                 <button type="submit" class="native-action">Read FormData</button>
                 <button type="reset" class="native-action secondary">Reset</button>
