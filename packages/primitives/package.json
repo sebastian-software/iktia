@@ -139,6 +139,10 @@
       "types": "./dist/tabs.d.mts",
       "import": "./dist/tabs.mjs"
     },
+    "./tags-input": {
+      "types": "./dist/tags-input.d.mts",
+      "import": "./dist/tags-input.mjs"
+    },
     "./tooltip": {
       "types": "./dist/tooltip.d.mts",
       "import": "./dist/tooltip.mjs"
@@ -187,6 +191,7 @@
     "@zag-js/slider": "1.41.2",
     "@zag-js/switch": "1.41.2",
     "@zag-js/tabs": "1.41.2",
+    "@zag-js/tags-input": "1.41.2",
     "@zag-js/toggle": "1.41.2",
     "@zag-js/toggle-group": "1.41.2",
     "@zag-js/tooltip": "1.41.2"

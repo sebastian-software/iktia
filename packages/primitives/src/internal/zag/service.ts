@@ -2,6 +2,8 @@ type Dict = Record<string, any>
 
 type ZagBindableParams<Value> = {
   defaultValue?: Value
+  hash?: (value: Value) => string
+  isEqual?: (value: Value | undefined, previous: Value | undefined) => boolean
   sync?: boolean
   value?: Value
   onChange?: (value: Value, previous: Value | undefined) => void
@@ -67,6 +69,8 @@ function resolveList(value: ZagActionList | ZagEffectList | undefined, params: (
 
 function createBindable<Value>({
   defaultValue,
+  hash,
+  isEqual,
   onChange,
   value,
 }: ZagBindableParams<Value>) {
@@ -78,7 +82,8 @@ function createBindable<Value>({
     set(next: Value | ((previous: Value | undefined) => Value)) {
       const previous = current
       current = typeof next === "function" ? (next as (previous: Value | undefined) => Value)(current) : next
-      if (!Object.is(current, previous)) {
+      const equal = isEqual?.(current, previous) ?? Object.is(current, previous)
+      if (!equal) {
         onChange?.(current as Value, previous)
       }
     },
@@ -86,7 +91,7 @@ function createBindable<Value>({
       onChange?.(next, previous)
     },
     hash(next: Value) {
-      return JSON.stringify(next)
+      return hash?.(next) ?? JSON.stringify(next)
     },
   }
 }

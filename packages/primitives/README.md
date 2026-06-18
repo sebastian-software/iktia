@@ -41,6 +41,7 @@ import "@iktia/primitives/toggle"
 | `<iktia-slider>` | Zag-backed single-value slider with pointer/keyboard behavior and native `FormData` behavior. | Experimental form-associated MVP |
 | `<iktia-switch>` | Zag-backed on/off switch with native `FormData` behavior. | Experimental form-associated MVP |
 | `<iktia-tabs>` / `<iktia-tab>` / `<iktia-tab-panel>` | Zag-backed tab collection with subcomponent tabs, panels, roving focus, and a legacy three-panel fallback. | Experimental |
+| `<iktia-tags-input>` | Zag-backed token input with delimiter entry, paste handling, delete controls, and native `FormData` behavior. | Experimental form-associated MVP |
 | `<iktia-tooltip>` | Zag-backed hover/focus tooltip with positioned content, Escape close, and open events. | Experimental overlay MVP |
 | `<iktia-toggle>` | Pressed/on-off button primitive with native `FormData` behavior. | Experimental form-associated MVP |
 | `<iktia-toggle-group>` / `<iktia-toggle-item>` | Zag-backed single or multiple toggle collection with roving focus and native `FormData` behavior. | Experimental form-associated MVP |
@@ -57,7 +58,7 @@ The primitives expose platform-readable contracts:
   `iktia-press`.
 
 Checkbox, combobox, listbox, number input, pin input, radio group, segmented control,
-slider, select, switch, toggle, and toggle group use the compiler-owned `formControl()` spike to generate
+slider, select, switch, tags input, toggle, and toggle group use the compiler-owned `formControl()` spike to generate
 Form-Associated Custom Element output. They support `name`, `value`, submit,
 reset, disabled fieldset propagation, and `FormData` in the current MVP, but
 remain experimental until label association, validation, and broader

@@ -1,0 +1,114 @@
+:host {
+  display: block;
+  font: inherit;
+}
+
+[part~="root"] {
+  display: grid;
+  gap: var(--iktia-tags-input-gap, 0.45rem);
+  color: var(--iktia-tags-input-fg, #17201b);
+}
+
+[part~="label"] {
+  color: var(--iktia-tags-input-label-fg, #283c35);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+[part~="control"] {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--iktia-tags-input-control-gap, 0.35rem);
+  min-height: var(--iktia-tags-input-min-height, 2.5rem);
+  width: min(var(--iktia-tags-input-width, 24rem), 100%);
+  border: 1px solid var(--iktia-tags-input-border, #65736d);
+  border-radius: var(--iktia-tags-input-radius, 0.45rem);
+  background: var(--iktia-tags-input-bg, #ffffff);
+  padding: 0.3rem;
+}
+
+[part~="control"]:focus-within {
+  border-color: var(--iktia-focus-ring, #0f766e);
+  outline: 2px solid var(--iktia-focus-ring, #0f766e);
+  outline-offset: 2px;
+}
+
+[part~="item"] {
+  display: contents;
+}
+
+[part~="item-preview"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 1.65rem;
+  border: 1px solid var(--iktia-tags-input-item-border, #9fb3aa);
+  border-radius: 999px;
+  background: var(--iktia-tags-input-item-bg, #eef7f4);
+  color: var(--iktia-tags-input-item-fg, #17201b);
+  padding: 0.15rem 0.25rem 0.15rem 0.55rem;
+}
+
+[part~="item-preview"][data-highlighted] {
+  border-color: var(--iktia-focus-ring, #0f766e);
+  background: var(--iktia-tags-input-item-highlight-bg, #d6f4ec);
+}
+
+[part~="item-text"] {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+[part~="item-delete"],
+[part~="clear"] {
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  line-height: 1;
+}
+
+[part~="item-delete"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+}
+
+[part~="item-delete"]:hover,
+[part~="clear"]:hover {
+  background: rgb(15 23 42 / 0.08);
+}
+
+[part~="input"],
+[part~="item-input"] {
+  min-width: 7rem;
+  flex: 1 1 7rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  outline: 0;
+}
+
+[part~="item-input"][hidden],
+[part~="clear"][hidden] {
+  display: none;
+}
+
+[part~="clear"] {
+  color: var(--iktia-tags-input-clear-fg, #3f4d47);
+  font-size: 0.85rem;
+  padding: 0.25rem 0.45rem;
+}
+
+[part~="root"][data-disabled] {
+  opacity: 0.55;
+}
+
+[part~="root"][data-disabled] [part~="control"] {
+  cursor: not-allowed;
+}

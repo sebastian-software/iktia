@@ -186,6 +186,9 @@ importers:
       '@zag-js/tabs':
         specifier: 1.41.2
         version: 1.41.2
+      '@zag-js/tags-input':
+        specifier: 1.41.2
+        version: 1.41.2
       '@zag-js/toggle':
         specifier: 1.41.2
         version: 1.41.2
@@ -1584,6 +1587,9 @@ packages:
   '@zag-js/aria-hidden@1.41.2':
     resolution: {integrity: sha512-qEcYmwlQr3qjA0T/IZ5a/o7fRUxfQ14tXjAFhR3GXCtxBKaqS+wnq/LN09Xw4bin3QWTINU+Z0oXFs9spWtNwA==}
 
+  '@zag-js/auto-resize@1.41.2':
+    resolution: {integrity: sha512-CYq+JQ1TTkEiK7OcNcMTS0f4wFvtmManvUltije5o50gDQ7vFYA81oQh4A9pAB1keUi9Zv06CNefFARaTcne5w==}
+
   '@zag-js/checkbox@1.41.2':
     resolution: {integrity: sha512-aQ5dZWHUHRIw4cbLtzrR+dc8M0N6wSiiCml/zbU3ciHOTBXSrs2rKnp/L99xhi97Lj2uCEhpIZ704Ou/MjGuCg==}
 
@@ -1661,6 +1667,9 @@ packages:
 
   '@zag-js/tabs@1.41.2':
     resolution: {integrity: sha512-7YVj2mCcxRbn1wMXP9anaTOVf+J0fa5uaPScr8e4+e2xc+/1WKzqN6V8IDeKS5wV/xzi1r3Ny307sX7Xz4ZJVQ==}
+
+  '@zag-js/tags-input@1.41.2':
+    resolution: {integrity: sha512-aIPEndSO+9LHxyoXLUr0Uttxw2cYMyDuii5w50wn/N7lFJD49U3Sj+6XaB/oJSbDAwn10WrsRDtb7Gs2kmU+Qw==}
 
   '@zag-js/toggle-group@1.41.2':
     resolution: {integrity: sha512-C6wn3A89h24hTs0BN9ryEuKatfR493u7QqxS06TeK9oI/KZBvm5Rwm8FPHSUJvsUTkAkow4PsXC0Ra19duzEdQ==}
@@ -4182,6 +4191,10 @@ snapshots:
     dependencies:
       '@zag-js/dom-query': 1.41.2
 
+  '@zag-js/auto-resize@1.41.2':
+    dependencies:
+      '@zag-js/dom-query': 1.41.2
+
   '@zag-js/checkbox@1.41.2':
     dependencies:
       '@zag-js/anatomy': 1.41.2
@@ -4375,6 +4388,17 @@ snapshots:
       '@zag-js/anatomy': 1.41.2
       '@zag-js/core': 1.41.2
       '@zag-js/dom-query': 1.41.2
+      '@zag-js/types': 1.41.2
+      '@zag-js/utils': 1.41.2
+
+  '@zag-js/tags-input@1.41.2':
+    dependencies:
+      '@zag-js/anatomy': 1.41.2
+      '@zag-js/auto-resize': 1.41.2
+      '@zag-js/core': 1.41.2
+      '@zag-js/dom-query': 1.41.2
+      '@zag-js/interact-outside': 1.41.2
+      '@zag-js/live-region': 1.41.2
       '@zag-js/types': 1.41.2
       '@zag-js/utils': 1.41.2
 

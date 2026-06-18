@@ -172,6 +172,11 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   const pinInput = section.locator("iktia-pin-input")
   const pinInputRoot = pinInput.locator("[part~='root']")
   const pinInputFields = pinInput.locator("[part~='input']")
+  const tagsInput = section.locator("iktia-tags-input")
+  const tagsInputRoot = tagsInput.locator("[part~='root']")
+  const tagsInputField = tagsInput.locator("[part~='input']")
+  const tagItems = tagsInput.locator("[part~='item-preview']")
+  const tagDeleteTriggers = tagsInput.locator("[part~='item-delete']")
   const slider = section.locator("iktia-slider")
   const sliderControl = slider.locator("[part~='control']")
   const sliderThumb = slider.locator("[part~='thumb']")
@@ -278,6 +283,12 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(pinInputFields.nth(2)).toHaveValue("3")
   await expect(pinInputFields.nth(3)).toHaveValue("")
   await expect(pinInputFields.nth(0)).toHaveAttribute("autocomplete", "one-time-code")
+  await expect(tagsInputRoot).toHaveAttribute("data-state", "filled")
+  await expect(tagsInputRoot).toHaveAttribute("data-value", "docs,preview")
+  await expect(tagItems).toHaveCount(2)
+  await expect(tagItems.nth(0)).toContainText("docs")
+  await expect(tagItems.nth(1)).toContainText("preview")
+  await expect(tagsInputField).toHaveAttribute("autocomplete", "off")
   await expect(sliderThumb).toHaveAttribute("role", "slider")
   await expect(sliderThumb).toHaveAttribute("aria-valuemin", "0")
   await expect(sliderThumb).toHaveAttribute("aria-valuemax", "100")
@@ -428,6 +439,17 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(pinInputRoot).toHaveAttribute("data-state", "complete")
   await expect(page.locator("#primitive-event")).toContainText('"value":"1234"')
 
+  await tagsInputField.fill("qa")
+  await tagsInputField.press("Enter")
+  await expect(tagsInputRoot).toHaveAttribute("data-value", "docs,preview,qa")
+  await expect(tagItems).toHaveCount(3)
+  await expect(page.locator("#primitive-event")).toContainText(
+    '"valueAsString":"docs,preview,qa"'
+  )
+  await tagDeleteTriggers.nth(1).click()
+  await expect(tagsInputRoot).toHaveAttribute("data-value", "docs,qa")
+  await expect(tagItems).toHaveCount(2)
+
   await sliderThumb.evaluate((element) => {
     element.dispatchEvent(
       new KeyboardEvent("keydown", {
@@ -448,10 +470,10 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await form.locator("button[type='submit']").click()
   await expect(page.locator("body")).toHaveAttribute(
     "data-last-primitive-form",
-    "docs:reviewed, preview:enabled, notify:enabled, audience:stable, channels:docs, cadence:monthly, region:apac, lane:audit, owner:docs, approvals:3, release-code:1234, confidence:80"
+    "docs:reviewed, preview:enabled, notify:enabled, audience:stable, channels:docs, cadence:monthly, region:apac, lane:audit, owner:docs, approvals:3, release-code:1234, release-tags:docs,qa, confidence:80"
   )
   await expect(page.locator("#primitive-form-event")).toHaveText(
-    "Last primitive form data: docs:reviewed, preview:enabled, notify:enabled, audience:stable, channels:docs, cadence:monthly, region:apac, lane:audit, owner:docs, approvals:3, release-code:1234, confidence:80"
+    "Last primitive form data: docs:reviewed, preview:enabled, notify:enabled, audience:stable, channels:docs, cadence:monthly, region:apac, lane:audit, owner:docs, approvals:3, release-code:1234, release-tags:docs,qa, confidence:80"
   )
 
   await form.locator("button[type='reset']").click()
@@ -473,10 +495,12 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(pinInputFields.nth(1)).toHaveValue("2")
   await expect(pinInputFields.nth(2)).toHaveValue("3")
   await expect(pinInputFields.nth(3)).toHaveValue("")
+  await expect(tagsInputRoot).toHaveAttribute("data-value", "docs,preview")
+  await expect(tagItems).toHaveCount(2)
   await expect(sliderThumb).toHaveAttribute("aria-valuenow", "40")
   await expect(page.locator("body")).toHaveAttribute(
     "data-last-primitive-form",
-    "notify:enabled, channels:web, cadence:weekly, region:eu, lane:review, owner:ops, approvals:2, release-code:123, confidence:40"
+    "notify:enabled, channels:web, cadence:weekly, region:eu, lane:review, owner:ops, approvals:2, release-code:123, release-tags:docs,preview, confidence:40"
   )
 
   await combobox.evaluate((element) => {
@@ -824,6 +848,7 @@ test("form-associated primitive controls receive disabled fieldset state", async
         </iktia-combobox>
         <iktia-number-input name="blocked-number" label="Blocked number" value="2"></iktia-number-input>
         <iktia-pin-input name="blocked-pin" label="Blocked pin" value="12"></iktia-pin-input>
+        <iktia-tags-input name="blocked-tags" label="Blocked tags" value="docs,preview"></iktia-tags-input>
         <iktia-slider name="blocked-slider" label="Blocked slider" value="40"></iktia-slider>
       </fieldset>
     `
@@ -845,6 +870,7 @@ test("form-associated primitive controls receive disabled fieldset state", async
   const numberInput = page.locator("form fieldset iktia-number-input input")
   const numberIncrement = page.locator("form fieldset iktia-number-input [part~='increment']")
   const pinInputField = page.locator("form fieldset iktia-pin-input [part~='input']").first()
+  const tagsInputField = page.locator("form fieldset iktia-tags-input [part~='input']")
   const sliderThumb = page.locator("form fieldset iktia-slider [part~='thumb']")
 
   await expect(checkboxButton).toBeDisabled()
@@ -856,6 +882,7 @@ test("form-associated primitive controls receive disabled fieldset state", async
   await expect(numberInput).toBeDisabled()
   await expect(numberIncrement).toBeDisabled()
   await expect(pinInputField).toBeDisabled()
+  await expect(tagsInputField).toBeDisabled()
   await expect(sliderThumb).toHaveAttribute("aria-disabled", "true")
   await expect(radio).toHaveAttribute("aria-disabled", "true")
   await expect(toggleItem).toHaveAttribute("aria-disabled", "true")
