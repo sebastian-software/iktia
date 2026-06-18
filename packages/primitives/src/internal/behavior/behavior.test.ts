@@ -47,10 +47,15 @@ describe("primitive behavior kernels", () => {
 
   it("proves the Zag tabs connect API needs a Custom Element service adapter", () => {
     const originalRequestAnimationFrame = globalThis.requestAnimationFrame
+    const originalCss = globalThis.CSS
     globalThis.requestAnimationFrame = ((callback: FrameRequestCallback) => {
       callback(0)
       return 0
     }) as typeof requestAnimationFrame
+    globalThis.CSS = {
+      ...globalThis.CSS,
+      escape: (value: string) => value,
+    } as typeof CSS
 
     const probe = createZagTabsProbe({
       value: "first",
@@ -78,6 +83,27 @@ describe("primitive behavior kernels", () => {
     expect(probe.sentEvents()).toContain("TAB_CLICK")
     expect(probe.value()).toBe("third")
 
+    const keyboardProbe = createZagTabsProbe({
+      composite: false,
+      value: "first",
+      values: ["first", "second", "third"],
+    })
+    keyboardProbe.api().selectNext("first")
+
+    expect(keyboardProbe.sentEvents()).toContain("ARROW_NEXT")
+    expect(keyboardProbe.value()).toBe("second")
+
+    const focusProbe = createZagTabsProbe({
+      composite: true,
+      value: "first",
+      values: ["first", "second", "third"],
+    })
+    focusProbe.api().selectNext("first")
+
+    expect(focusProbe.sentEvents()).toContain("ARROW_NEXT")
+    expect(focusProbe.focusedElement()).toBe("second")
+
     globalThis.requestAnimationFrame = originalRequestAnimationFrame
+    globalThis.CSS = originalCss
   })
 })

@@ -581,6 +581,22 @@ still not enough to adopt Zag for keyboard focus movement because the machine's
 arrow-key actions depend on real DOM trigger discovery and scheduled focus
 effects.
 
+The follow-up DOM/focus spike added a fake Shadow-DOM-style scope with
+`getById()`, list `querySelectorAll()`, trigger `id`, trigger `dataset.value`,
+and `focus()` support. With that scope, the same generic service runner can
+drive `@zag-js/tabs` through `connect().selectNext("first")` and prove both
+paths:
+
+* `composite: false` updates selected value through Zag's own ARROW_NEXT
+  transition and `selectFocusedTab` action.
+* `composite: true` discovers the next trigger through Zag's DOM helpers and
+  calls the trigger's `focus()` method through the supplied scope.
+
+This reduces the unknown area. The remaining adoption work is no longer "can a
+service layer exist?", but "can a production Custom Element scope wire real
+Shadow DOM focus events, scheduled effects, cleanup, indicator measurement, and
+browser timing without becoming a second component runtime?"
+
 Decision after the package and service spikes: keep Zag dev-only as evidence for
 this spike, do not make it a runtime dependency for the current primitives, and
 do not wire the current `<iktia-tabs>` implementation to Zag yet. Re-evaluate
