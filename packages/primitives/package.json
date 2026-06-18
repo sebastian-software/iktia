@@ -51,6 +51,10 @@
       "types": "./dist/context-menu.d.mts",
       "import": "./dist/context-menu.mjs"
     },
+    "./dialog": {
+      "types": "./dist/dialog.d.mts",
+      "import": "./dist/dialog.mjs"
+    },
     "./dropdown": {
       "types": "./dist/dropdown.d.mts",
       "import": "./dist/dropdown.mjs"
@@ -155,6 +159,7 @@
     "@zag-js/checkbox": "1.41.2",
     "@zag-js/collapsible": "1.41.2",
     "@zag-js/combobox": "1.41.2",
+    "@zag-js/dialog": "1.41.2",
     "@zag-js/hover-card": "1.41.2",
     "@zag-js/listbox": "1.41.2",
     "@zag-js/menu": "1.41.2",

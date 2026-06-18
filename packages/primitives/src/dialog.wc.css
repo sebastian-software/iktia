@@ -1,0 +1,100 @@
+:host {
+  display: inline-block;
+  font: inherit;
+}
+
+[part~="root"] {
+  display: inline-block;
+  color: var(--iktia-dialog-fg, #17201b);
+}
+
+[part~="trigger"],
+[part~="close"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.25rem;
+  border: 1px solid var(--iktia-dialog-trigger-border, #65736d);
+  border-radius: var(--iktia-dialog-radius, 0.375rem);
+  padding: 0.45rem 0.75rem;
+  background: var(--iktia-dialog-trigger-bg, #ffffff);
+  color: var(--iktia-dialog-trigger-fg, #17201b);
+  font: inherit;
+  cursor: pointer;
+}
+
+[part~="trigger"]:hover,
+[part~="close"]:hover {
+  background: var(--iktia-dialog-trigger-bg-hover, #f1f5f3);
+}
+
+[part~="trigger"]:focus-visible,
+[part~="close"]:focus-visible {
+  outline: 2px solid var(--iktia-focus-ring, #0f766e);
+  outline-offset: 2px;
+}
+
+[part~="backdrop"] {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: var(--iktia-dialog-backdrop-bg, rgb(15 23 42 / 0.36));
+}
+
+[part~="backdrop"][hidden] {
+  display: none;
+}
+
+[part~="positioner"] {
+  position: fixed;
+  inset: 0;
+  z-index: 51;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+[part~="content"] {
+  display: grid;
+  gap: 0.75rem;
+  width: min(var(--iktia-dialog-width, 28rem), calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
+  border: 1px solid var(--iktia-dialog-border, #65736d);
+  border-radius: var(--iktia-dialog-radius, 0.375rem);
+  padding: var(--iktia-dialog-padding, 1rem);
+  background: var(--iktia-dialog-bg, #ffffff);
+  color: var(--iktia-dialog-fg, #17201b);
+  box-shadow: var(--iktia-dialog-shadow, 0 24px 60px rgb(15 23 42 / 0.24));
+}
+
+[part~="content"][hidden] {
+  display: none;
+}
+
+[part~="content"]:focus {
+  outline: 0;
+}
+
+[part~="header"] {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+[part~="title"] {
+  margin: 0;
+  color: var(--iktia-dialog-title-fg, #0f3f35);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+[part~="description"] {
+  color: var(--iktia-dialog-description-fg, #3f4d47);
+}
+
+[part~="close"] {
+  min-height: 1.875rem;
+  padding: 0.25rem 0.5rem;
+}

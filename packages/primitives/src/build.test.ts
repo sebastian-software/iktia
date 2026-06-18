@@ -26,6 +26,7 @@ describe("@iktia/primitives build output", () => {
     expect(index).toContain("export * from \"./combobox.mjs\"")
     expect(index).toContain("export * from \"./combobox-item.mjs\"")
     expect(index).toContain("export * from \"./context-menu.mjs\"")
+    expect(index).toContain("export * from \"./dialog.mjs\"")
     expect(index).toContain("export * from \"./dropdown.mjs\"")
     expect(index).toContain("export * from \"./field.mjs\"")
     expect(index).toContain("export * from \"./hover-card.mjs\"")
@@ -62,6 +63,7 @@ describe("@iktia/primitives build output", () => {
     const checkbox = readFileSync(join(distRoot, "internal", "zag", "checkbox.js"), "utf8")
     const collapsible = readFileSync(join(distRoot, "internal", "zag", "collapsible.js"), "utf8")
     const combobox = readFileSync(join(distRoot, "internal", "zag", "combobox.js"), "utf8")
+    const dialog = readFileSync(join(distRoot, "internal", "zag", "dialog.js"), "utf8")
     const hoverCard = readFileSync(join(distRoot, "internal", "zag", "hover-card.js"), "utf8")
     const listbox = readFileSync(join(distRoot, "internal", "zag", "listbox.js"), "utf8")
     const menu = readFileSync(join(distRoot, "internal", "zag", "menu.js"), "utf8")
@@ -83,6 +85,7 @@ describe("@iktia/primitives build output", () => {
     expect(collapsible).toContain("@zag-js/collapsible")
     expect(combobox).toContain("@zag-js/combobox")
     expect(combobox).toContain("syncIktiaComboboxItems")
+    expect(dialog).toContain("@zag-js/dialog")
     expect(hoverCard).toContain("@zag-js/hover-card")
     expect(listbox).toContain("@zag-js/listbox")
     expect(listbox).toContain("syncIktiaListboxItems")
@@ -222,6 +225,16 @@ describe("@iktia/primitives build output", () => {
     expect(contextMenu).toContain("#applySpreadAttributes")
     expect(contextMenu).not.toContain("@iktia/core")
     expect(contextMenu).not.toContain("type IktiaZagMenuService")
+  })
+
+  it("backs dialog with the private Zag adapter", () => {
+    const dialog = readFileSync(join(distRoot, "dialog.mjs"), "utf8")
+
+    expect(dialog).toContain("from \"./internal/zag/dialog.js\"")
+    expect(dialog).toContain("createIktiaZagDialogService")
+    expect(dialog).toContain("#applySpreadAttributes")
+    expect(dialog).not.toContain("@iktia/core")
+    expect(dialog).not.toContain("type IktiaZagDialogService")
   })
 
   it("backs collapsible with the private Zag adapter", () => {
