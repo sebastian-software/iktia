@@ -1,0 +1,30 @@
+:host {
+  display: block;
+  font: inherit;
+}
+
+[part~="root"] {
+  display: grid;
+  gap: var(--iktia-toggle-group-gap, 0.55rem);
+  color: var(--iktia-toggle-group-fg, #17201b);
+}
+
+[part~="label"] {
+  color: var(--iktia-toggle-group-label-fg, #17201b);
+  font-weight: 800;
+}
+
+[part~="items"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--iktia-toggle-group-item-gap, 0.45rem);
+}
+
+[part~="root"][data-orientation="horizontal"] [part~="items"] {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+[part~="root"][data-disabled] {
+  opacity: 0.72;
+}

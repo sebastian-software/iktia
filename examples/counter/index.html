@@ -234,6 +234,16 @@ dispatch native CustomEvents.</code></pre>
                 <iktia-radio value="beta" label="Beta"></iktia-radio>
                 <iktia-radio value="canary" label="Canary" disabled></iktia-radio>
               </iktia-radio-group>
+              <iktia-toggle-group
+                name="channels"
+                label="Release channels"
+                value="web"
+                multiple
+              >
+                <iktia-toggle-item value="web" label="Web"></iktia-toggle-item>
+                <iktia-toggle-item value="docs" label="Docs"></iktia-toggle-item>
+                <iktia-toggle-item value="cli" label="CLI" disabled></iktia-toggle-item>
+              </iktia-toggle-group>
               <div class="primitive-row">
                 <button type="submit" class="native-action">Read FormData</button>
                 <button type="reset" class="native-action secondary">Reset</button>

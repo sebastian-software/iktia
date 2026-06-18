@@ -50,7 +50,7 @@ export type EventEmitter<Detail> = {
 }
 
 export type FormControlOptions = {
-  value(): FormDataEntryValue | null
+  value(): FormDataEntryValue | FormData | null
   reset?(): void
   disabled?: boolean
 }

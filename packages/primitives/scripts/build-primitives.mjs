@@ -18,6 +18,8 @@ const components = [
   "radio-group",
   "tabs",
   "toggle",
+  "toggle-group",
+  "toggle-item",
 ]
 const behaviorFiles = ["checkbox", "disclosure", "tabs", "toggle"]
 const zagFiles = [
@@ -28,6 +30,7 @@ const zagFiles = [
   "service",
   "tabs",
   "toggle",
+  "toggle-group",
 ]
 
 await rm(distRoot, { force: true, recursive: true })

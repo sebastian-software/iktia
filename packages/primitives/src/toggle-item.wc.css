@@ -1,0 +1,46 @@
+:host {
+  display: inline-block;
+  font: inherit;
+}
+
+[part~="root"] {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iktia-toggle-item-gap, 0.45rem);
+  min-height: var(--iktia-toggle-item-min-height, 2.1rem);
+  border: 1px solid var(--iktia-toggle-item-border, #65736d);
+  border-radius: var(--iktia-toggle-item-radius, 0.375rem);
+  padding: var(--iktia-toggle-item-padding, 0.4rem 0.65rem);
+  background: var(--iktia-toggle-item-bg, #ffffff);
+  color: var(--iktia-toggle-item-fg, #17201b);
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+:host([data-state="on"]) [part~="root"] {
+  border-color: var(--iktia-toggle-item-on-border, #0f766e);
+  background: var(--iktia-toggle-item-on-bg, #e2f3ea);
+  color: var(--iktia-toggle-item-on-fg, #0f3f35);
+}
+
+:host([data-disabled]) [part~="root"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+:host(:focus-visible) {
+  outline: 2px solid var(--iktia-focus-ring, #0f766e);
+  outline-offset: 3px;
+}
+
+[part~="indicator"] {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: transparent;
+}
+
+:host([data-state="on"]) [part~="indicator"] {
+  background: currentColor;
+}

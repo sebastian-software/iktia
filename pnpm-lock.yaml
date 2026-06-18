@@ -150,6 +150,9 @@ importers:
       '@zag-js/toggle':
         specifier: 1.41.2
         version: 1.41.2
+      '@zag-js/toggle-group':
+        specifier: 1.41.2
+        version: 1.41.2
     devDependencies:
       '@iktia/compiler':
         specifier: workspace:^
@@ -1535,6 +1538,9 @@ packages:
 
   '@zag-js/tabs@1.41.2':
     resolution: {integrity: sha512-7YVj2mCcxRbn1wMXP9anaTOVf+J0fa5uaPScr8e4+e2xc+/1WKzqN6V8IDeKS5wV/xzi1r3Ny307sX7Xz4ZJVQ==}
+
+  '@zag-js/toggle-group@1.41.2':
+    resolution: {integrity: sha512-C6wn3A89h24hTs0BN9ryEuKatfR493u7QqxS06TeK9oI/KZBvm5Rwm8FPHSUJvsUTkAkow4PsXC0Ra19duzEdQ==}
 
   '@zag-js/toggle@1.41.2':
     resolution: {integrity: sha512-EFB9pb3pEtwXt7RSivVLWXV64dKUF8gsn75tt8TbYBgfy+zW85MsRLu8U48TXZN5teQWAKKNujr9bxQsW/CWvQ==}
@@ -4051,6 +4057,14 @@ snapshots:
       '@zag-js/utils': 1.41.2
 
   '@zag-js/tabs@1.41.2':
+    dependencies:
+      '@zag-js/anatomy': 1.41.2
+      '@zag-js/core': 1.41.2
+      '@zag-js/dom-query': 1.41.2
+      '@zag-js/types': 1.41.2
+      '@zag-js/utils': 1.41.2
+
+  '@zag-js/toggle-group@1.41.2':
     dependencies:
       '@zag-js/anatomy': 1.41.2
       '@zag-js/core': 1.41.2

@@ -147,6 +147,8 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   const primaryButton = section.locator("iktia-button[variant='primary']")
   const radioGroup = section.locator("iktia-radio-group")
   const radios = radioGroup.locator("iktia-radio")
+  const toggleGroup = section.locator("iktia-toggle-group")
+  const toggleItems = toggleGroup.locator("iktia-toggle-item")
   const tabs = section.locator("iktia-tabs")
   const firstPanel = tabs.locator("[part~='panel'][data-value='first']")
   const secondPanel = tabs.locator("[part~='panel'][data-value='second']")
@@ -168,6 +170,14 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(radios.nth(0)).toHaveAttribute("role", "radio")
   await expect(radios.nth(0)).toHaveAttribute("data-state", "unchecked")
   await expect(radios.nth(2)).toHaveAttribute("aria-disabled", "true")
+  await expect(toggleGroup.locator("[role='group']")).toHaveAttribute(
+    "data-state",
+    "web"
+  )
+  await expect(toggleItems).toHaveCount(3)
+  await expect(toggleItems.nth(0)).toHaveAttribute("role", "button")
+  await expect(toggleItems.nth(0)).toHaveAttribute("aria-pressed", "true")
+  await expect(toggleItems.nth(2)).toHaveAttribute("aria-disabled", "true")
   await expect(tabs.locator("[role='tab']")).toHaveCount(3)
   await expect(firstPanel).toBeVisible()
   await expect(secondPanel).toBeHidden()
@@ -193,22 +203,38 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(radios.nth(0)).toHaveAttribute("data-state", "checked")
   await expect(radios.nth(0)).toBeFocused()
 
+  await toggleItems.nth(1).click()
+  await expect(toggleItems.nth(1)).toHaveAttribute("data-state", "on")
+  await expect(page.locator("#primitive-event")).toContainText(
+    '"value":["web","docs"]'
+  )
+  await expect(toggleItems.nth(1)).toBeFocused()
+  await toggleItems.nth(1).press("ArrowLeft")
+  await expect(toggleItems.nth(0)).toBeFocused()
+  await toggleItems.nth(0).press("Space")
+  await expect(toggleItems.nth(0)).toHaveAttribute("data-state", "off")
+  await expect(page.locator("#primitive-event")).toContainText(
+    '"value":["docs"]'
+  )
+
   await form.locator("button[type='submit']").click()
   await expect(page.locator("body")).toHaveAttribute(
     "data-last-primitive-form",
-    "docs:reviewed, preview:enabled, audience:stable"
+    "docs:reviewed, preview:enabled, audience:stable, channels:docs"
   )
   await expect(page.locator("#primitive-form-event")).toHaveText(
-    "Last primitive form data: docs:reviewed, preview:enabled, audience:stable"
+    "Last primitive form data: docs:reviewed, preview:enabled, audience:stable, channels:docs"
   )
 
   await form.locator("button[type='reset']").click()
   await expect(checkboxButton).toHaveAttribute("data-state", "unchecked")
   await expect(toggleButton).toHaveAttribute("data-state", "off")
   await expect(radios.nth(0)).toHaveAttribute("data-state", "unchecked")
+  await expect(toggleItems.nth(0)).toHaveAttribute("data-state", "on")
+  await expect(toggleItems.nth(1)).toHaveAttribute("data-state", "off")
   await expect(page.locator("body")).toHaveAttribute(
     "data-last-primitive-form",
-    "none"
+    "channels:web"
   )
 
   await tabs.locator("[role='tab']").nth(1).click()
@@ -261,6 +287,9 @@ test("form-associated primitive controls receive disabled fieldset state", async
         <iktia-radio-group name="blocked-radio" label="Blocked radio">
           <iktia-radio value="yes" label="Yes"></iktia-radio>
         </iktia-radio-group>
+        <iktia-toggle-group name="blocked-toggle-group" label="Blocked toggles" multiple>
+          <iktia-toggle-item value="yes" label="Yes"></iktia-toggle-item>
+        </iktia-toggle-group>
       </fieldset>
     `
     document.body.append(form)
@@ -269,10 +298,12 @@ test("form-associated primitive controls receive disabled fieldset state", async
   const checkboxButton = page.locator("form fieldset iktia-checkbox button")
   const radio = page.locator("form fieldset iktia-radio")
   const toggleButton = page.locator("form fieldset iktia-toggle button")
+  const toggleItem = page.locator("form fieldset iktia-toggle-item")
 
   await expect(checkboxButton).toBeDisabled()
   await expect(toggleButton).toBeDisabled()
   await expect(radio).toHaveAttribute("aria-disabled", "true")
+  await expect(toggleItem).toHaveAttribute("aria-disabled", "true")
   await checkboxButton.evaluate((button) =>
     button.dispatchEvent(new MouseEvent("click", { bubbles: true }))
   )
@@ -282,9 +313,13 @@ test("form-associated primitive controls receive disabled fieldset state", async
   await radio.evaluate((item) =>
     item.dispatchEvent(new MouseEvent("click", { bubbles: true }))
   )
+  await toggleItem.evaluate((item) =>
+    item.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+  )
   await expect(checkboxButton).toHaveAttribute("data-state", "unchecked")
   await expect(toggleButton).toHaveAttribute("data-state", "off")
   await expect(radio).toHaveAttribute("data-state", "unchecked")
+  await expect(toggleItem).toHaveAttribute("data-state", "off")
 })
 
 test("declarative shadow dom renders useful DOM before upgrade and hydrates after upgrade", async ({

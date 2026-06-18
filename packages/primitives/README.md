@@ -27,6 +27,7 @@ import "@iktia/primitives/toggle"
 | `<iktia-radio-group>` / `<iktia-radio>` | Zag-backed radio collection with roving focus and native `FormData` behavior. | Experimental form-associated MVP |
 | `<iktia-tabs>` | Platform-style tab set for three slotted panels. | Experimental |
 | `<iktia-toggle>` | Pressed/on-off button primitive with native `FormData` behavior. | Experimental form-associated MVP |
+| `<iktia-toggle-group>` / `<iktia-toggle-item>` | Zag-backed single or multiple toggle collection with roving focus and native `FormData` behavior. | Experimental form-associated MVP |
 
 ## Contracts
 
@@ -38,11 +39,11 @@ The primitives expose platform-readable contracts:
 * Native ARIA attributes where the current `.wc.tsx` compiler surface supports them.
 * Iktia-prefixed `CustomEvent`s such as `iktia-change` and `iktia-press`.
 
-Checkbox, radio group, and toggle use the compiler-owned `formControl()` spike
-to generate Form-Associated Custom Element output. They support `name`,
-`value`, submit, reset, disabled fieldset propagation, and `FormData` in the
-current MVP, but remain experimental until label association, validation, and
-broader cross-browser coverage are complete.
+Checkbox, radio group, toggle, and toggle group use the compiler-owned
+`formControl()` spike to generate Form-Associated Custom Element output. They
+support `name`, `value`, submit, reset, disabled fieldset propagation, and
+`FormData` in the current MVP, but remain experimental until label association,
+validation, and broader cross-browser coverage are complete.
 
 Shared behavior lives in private package modules under `src/internal`. Simple
 kernels remain under `src/internal/behavior`; Zag-backed adapters live under
