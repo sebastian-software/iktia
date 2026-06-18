@@ -46,17 +46,17 @@ describe("primitive behavior kernels", () => {
   })
 
   it("proves the Zag tabs connect API needs a Custom Element service adapter", () => {
+    const originalRequestAnimationFrame = globalThis.requestAnimationFrame
+    globalThis.requestAnimationFrame = ((callback: FrameRequestCallback) => {
+      callback(0)
+      return 0
+    }) as typeof requestAnimationFrame
+
     const probe = createZagTabsProbe({
       value: "first",
       values: ["first", "second", "third"],
     })
-    probe.api().selectNext("first")
-
-    expect(probe.sentEvents()).toContain("TAB_FOCUS")
-    expect(probe.sentEvents()).toContain("ARROW_NEXT")
-    expect(probe.value()).toBe("second")
-
-    const triggerProps = probe.api().getTriggerProps({ value: "third" }) as {
+    const triggerProps = probe.api().getTriggerProps({ value: "second" }) as {
       onClick(event: { currentTarget: unknown; defaultPrevented: boolean }): void
     }
     triggerProps.onClick({
@@ -65,6 +65,19 @@ describe("primitive behavior kernels", () => {
     })
 
     expect(probe.sentEvents()).toContain("TAB_CLICK")
+    expect(probe.value()).toBe("second")
+
+    const nextTriggerProps = probe.api().getTriggerProps({ value: "third" }) as {
+      onClick(event: { currentTarget: unknown; defaultPrevented: boolean }): void
+    }
+    nextTriggerProps.onClick({
+      currentTarget: { matches: () => false },
+      defaultPrevented: false,
+    })
+
+    expect(probe.sentEvents()).toContain("TAB_CLICK")
     expect(probe.value()).toBe("third")
+
+    globalThis.requestAnimationFrame = originalRequestAnimationFrame
   })
 })

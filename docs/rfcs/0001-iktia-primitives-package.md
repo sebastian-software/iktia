@@ -572,9 +572,20 @@ Findings:
   be revisited for harder widgets where the state-machine value is large enough
   to justify a maintained adapter.
 
-Decision after the package spike: keep Zag dev-only as evidence for this spike,
-do not make it a runtime dependency for the current primitives, and do not wire
-the current `<iktia-tabs>` implementation to Zag yet.
+The next spike added a small generic `createZagService(machine, props, scope)`
+runner that executes the real Zag machine transitions for click/value changes.
+This makes the adapter shape concrete: a reusable Custom Element service layer
+is plausible, but it must own bindable context, refs, guards, actions, event
+dispatch, Shadow DOM scope, DOM effects, and cleanup. The initial runner is
+still not enough to adopt Zag for keyboard focus movement because the machine's
+arrow-key actions depend on real DOM trigger discovery and scheduled focus
+effects.
+
+Decision after the package and service spikes: keep Zag dev-only as evidence for
+this spike, do not make it a runtime dependency for the current primitives, and
+do not wire the current `<iktia-tabs>` implementation to Zag yet. Re-evaluate
+when a harder primitive such as radio group, menu, select, or combobox can
+amortize the service layer.
 
 Primitive-specific recommendations:
 
