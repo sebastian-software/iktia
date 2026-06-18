@@ -158,6 +158,11 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   const listbox = section.locator("iktia-listbox")
   const listboxContent = listbox.locator("[role='listbox']")
   const listboxItems = listbox.locator("iktia-listbox-item")
+  const combobox = section.locator("iktia-combobox")
+  const comboboxInput = combobox.locator("input")
+  const comboboxTrigger = combobox.locator("button")
+  const comboboxContent = combobox.locator("[part~='content']")
+  const comboboxItems = combobox.locator("iktia-combobox-item")
   const tabs = section.locator("iktia-tabs")
   const tabItems = tabs.locator("iktia-tab")
   const tabPanels = tabs.locator("iktia-tab-panel")
@@ -210,6 +215,14 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(listboxItems.nth(1)).toHaveAttribute("role", "option")
   await expect(listboxItems.nth(1)).toHaveAttribute("data-state", "checked")
   await expect(listboxItems.nth(2)).toHaveAttribute("aria-disabled", "true")
+  await expect(comboboxInput).toHaveAttribute("role", "combobox")
+  await expect(comboboxInput).toHaveValue("Operations")
+  await expect(comboboxTrigger).toHaveAttribute("data-state", "closed")
+  await expect(comboboxItems).toHaveCount(4)
+  await expect(comboboxItems.nth(0)).toHaveAttribute("role", "option")
+  await expect(comboboxItems.nth(0)).toHaveAttribute("data-state", "checked")
+  await expect(comboboxItems.nth(3)).toHaveAttribute("aria-disabled", "true")
+  await expect(comboboxContent).toBeHidden()
   await expect(tabItems).toHaveCount(3)
   await expect(tabItems.nth(0)).toHaveAttribute("role", "tab")
   await expect(tabItems.nth(0)).toHaveAttribute("data-state", "selected")
@@ -282,13 +295,21 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(listboxItems.nth(3)).toHaveAttribute("data-state", "checked")
   await expect(page.locator("#primitive-event")).toContainText('"value":["audit"]')
 
+  await comboboxTrigger.click()
+  await expect(comboboxContent).toBeVisible()
+  await expect(page.locator("#primitive-event")).toContainText('"open":true')
+  await comboboxItems.nth(1).click()
+  await expect(comboboxContent).toBeHidden()
+  await expect(comboboxItems.nth(1)).toHaveAttribute("data-state", "checked")
+  await expect(comboboxInput).toHaveValue("Docs team")
+
   await form.locator("button[type='submit']").click()
   await expect(page.locator("body")).toHaveAttribute(
     "data-last-primitive-form",
-    "docs:reviewed, preview:enabled, audience:stable, channels:docs, cadence:monthly, region:apac, lane:audit"
+    "docs:reviewed, preview:enabled, audience:stable, channels:docs, cadence:monthly, region:apac, lane:audit, owner:docs"
   )
   await expect(page.locator("#primitive-form-event")).toHaveText(
-    "Last primitive form data: docs:reviewed, preview:enabled, audience:stable, channels:docs, cadence:monthly, region:apac, lane:audit"
+    "Last primitive form data: docs:reviewed, preview:enabled, audience:stable, channels:docs, cadence:monthly, region:apac, lane:audit, owner:docs"
   )
 
   await form.locator("button[type='reset']").click()
@@ -301,10 +322,24 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(selectItems.nth(1)).toHaveAttribute("data-state", "checked")
   await expect(selectTrigger.locator("[part~='value']")).toHaveText("Europe")
   await expect(listboxItems.nth(1)).toHaveAttribute("data-state", "checked")
+  await expect(comboboxItems.nth(0)).toHaveAttribute("data-state", "checked")
+  await expect(comboboxInput).toHaveValue("Operations")
   await expect(page.locator("body")).toHaveAttribute(
     "data-last-primitive-form",
-    "channels:web, cadence:weekly, region:eu, lane:review"
+    "channels:web, cadence:weekly, region:eu, lane:review, owner:ops"
   )
+
+  await combobox.evaluate((element) => {
+    const item = document.createElement("iktia-combobox-item")
+    item.setAttribute("value", "support")
+    item.setAttribute("label", "Support")
+    element.append(item)
+  })
+  await expect(comboboxItems).toHaveCount(5)
+  await comboboxTrigger.click()
+  await comboboxItems.nth(4).click()
+  await expect(comboboxItems.nth(4)).toHaveAttribute("data-state", "checked")
+  await expect(comboboxInput).toHaveValue("Support")
 
   await select.evaluate((element) => {
     const item = document.createElement("iktia-select-item")
@@ -435,6 +470,9 @@ test("form-associated primitive controls receive disabled fieldset state", async
         <iktia-listbox name="blocked-listbox" label="Blocked listbox">
           <iktia-listbox-item value="yes" label="Yes"></iktia-listbox-item>
         </iktia-listbox>
+        <iktia-combobox name="blocked-combobox" label="Blocked combobox">
+          <iktia-combobox-item value="yes" label="Yes"></iktia-combobox-item>
+        </iktia-combobox>
       </fieldset>
     `
     document.body.append(form)
@@ -448,15 +486,21 @@ test("form-associated primitive controls receive disabled fieldset state", async
   const selectButton = page.locator("form fieldset iktia-select button")
   const selectItem = page.locator("form fieldset iktia-select-item")
   const listboxItem = page.locator("form fieldset iktia-listbox-item")
+  const comboboxInput = page.locator("form fieldset iktia-combobox input")
+  const comboboxButton = page.locator("form fieldset iktia-combobox button")
+  const comboboxItem = page.locator("form fieldset iktia-combobox-item")
 
   await expect(checkboxButton).toBeDisabled()
   await expect(toggleButton).toBeDisabled()
   await expect(selectButton).toBeDisabled()
+  await expect(comboboxInput).toBeDisabled()
+  await expect(comboboxButton).toBeDisabled()
   await expect(radio).toHaveAttribute("aria-disabled", "true")
   await expect(toggleItem).toHaveAttribute("aria-disabled", "true")
   await expect(segmentedItem).toHaveAttribute("aria-disabled", "true")
   await expect(selectItem).toHaveAttribute("aria-disabled", "true")
   await expect(listboxItem).toHaveAttribute("aria-disabled", "true")
+  await expect(comboboxItem).toHaveAttribute("aria-disabled", "true")
   await checkboxButton.evaluate((button) =>
     button.dispatchEvent(new MouseEvent("click", { bubbles: true }))
   )
@@ -478,6 +522,9 @@ test("form-associated primitive controls receive disabled fieldset state", async
   await listboxItem.evaluate((item) =>
     item.dispatchEvent(new MouseEvent("click", { bubbles: true }))
   )
+  await comboboxItem.evaluate((item) =>
+    item.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+  )
   await expect(checkboxButton).toHaveAttribute("data-state", "unchecked")
   await expect(toggleButton).toHaveAttribute("data-state", "off")
   await expect(radio).toHaveAttribute("data-state", "unchecked")
@@ -485,6 +532,7 @@ test("form-associated primitive controls receive disabled fieldset state", async
   await expect(segmentedItem).toHaveAttribute("data-state", "unselected")
   await expect(selectItem).toHaveAttribute("data-state", "unchecked")
   await expect(listboxItem).toHaveAttribute("data-state", "unchecked")
+  await expect(comboboxItem).toHaveAttribute("data-state", "unchecked")
 })
 
 test("declarative shadow dom renders useful DOM before upgrade and hydrates after upgrade", async ({

@@ -27,6 +27,14 @@
       "types": "./dist/checkbox.d.mts",
       "import": "./dist/checkbox.mjs"
     },
+    "./combobox": {
+      "types": "./dist/combobox.d.mts",
+      "import": "./dist/combobox.mjs"
+    },
+    "./combobox-item": {
+      "types": "./dist/combobox-item.d.mts",
+      "import": "./dist/combobox-item.mjs"
+    },
     "./dropdown": {
       "types": "./dist/dropdown.d.mts",
       "import": "./dist/dropdown.mjs"
@@ -108,6 +116,7 @@
   "dependencies": {
     "@iktia/core": "workspace:^",
     "@zag-js/checkbox": "1.41.2",
+    "@zag-js/combobox": "1.41.2",
     "@zag-js/listbox": "1.41.2",
     "@zag-js/radio-group": "1.41.2",
     "@zag-js/select": "1.41.2",

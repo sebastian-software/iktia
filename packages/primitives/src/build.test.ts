@@ -20,6 +20,8 @@ describe("@iktia/primitives build output", () => {
     expect(index).toContain("export * from \"./button.mjs\"")
     expect(index).toContain("export * from \"./button-group.mjs\"")
     expect(index).toContain("export * from \"./checkbox.mjs\"")
+    expect(index).toContain("export * from \"./combobox.mjs\"")
+    expect(index).toContain("export * from \"./combobox-item.mjs\"")
     expect(index).toContain("export * from \"./dropdown.mjs\"")
     expect(index).toContain("export * from \"./field.mjs\"")
     expect(index).toContain("export * from \"./listbox.mjs\"")
@@ -48,6 +50,7 @@ describe("@iktia/primitives build output", () => {
   it("builds private Zag adapter helpers without adding public exports", () => {
     const index = readFileSync(join(distRoot, "index.mjs"), "utf8")
     const checkbox = readFileSync(join(distRoot, "internal", "zag", "checkbox.js"), "utf8")
+    const combobox = readFileSync(join(distRoot, "internal", "zag", "combobox.js"), "utf8")
     const listbox = readFileSync(join(distRoot, "internal", "zag", "listbox.js"), "utf8")
     const radioGroup = readFileSync(join(distRoot, "internal", "zag", "radio-group.js"), "utf8")
     const service = readFileSync(join(distRoot, "internal", "zag", "service.js"), "utf8")
@@ -60,6 +63,8 @@ describe("@iktia/primitives build output", () => {
     const toggleGroup = readFileSync(join(distRoot, "internal", "zag", "toggle-group.js"), "utf8")
 
     expect(checkbox).toContain("@zag-js/checkbox")
+    expect(combobox).toContain("@zag-js/combobox")
+    expect(combobox).toContain("syncIktiaComboboxItems")
     expect(listbox).toContain("@zag-js/listbox")
     expect(listbox).toContain("syncIktiaListboxItems")
     expect(radioGroup).toContain("@zag-js/radio-group")
@@ -152,6 +157,17 @@ describe("@iktia/primitives build output", () => {
     expect(listbox).not.toContain("type IktiaZagListboxService")
   })
 
+  it("backs combobox with the private Zag adapter", () => {
+    const combobox = readFileSync(join(distRoot, "combobox.mjs"), "utf8")
+
+    expect(combobox).toContain("from \"./internal/zag/combobox.js\"")
+    expect(combobox).toContain("createIktiaZagComboboxService")
+    expect(combobox).toContain("syncIktiaComboboxItems")
+    expect(combobox).toContain("#applySpreadAttributes")
+    expect(combobox).not.toContain("@iktia/core")
+    expect(combobox).not.toContain("type IktiaZagComboboxService")
+  })
+
   it("backs toggle group with the private Zag adapter", () => {
     const toggleGroup = readFileSync(join(distRoot, "toggle-group.mjs"), "utf8")
 
@@ -166,6 +182,7 @@ describe("@iktia/primitives build output", () => {
 
   it("emits form-associated custom control output", () => {
     const checkbox = readFileSync(join(distRoot, "checkbox.mjs"), "utf8")
+    const combobox = readFileSync(join(distRoot, "combobox.mjs"), "utf8")
     const listbox = readFileSync(join(distRoot, "listbox.mjs"), "utf8")
     const radioGroup = readFileSync(join(distRoot, "radio-group.mjs"), "utf8")
     const segmentedControl = readFileSync(join(distRoot, "segmented-control.mjs"), "utf8")
@@ -173,7 +190,7 @@ describe("@iktia/primitives build output", () => {
     const toggle = readFileSync(join(distRoot, "toggle.mjs"), "utf8")
     const toggleGroup = readFileSync(join(distRoot, "toggle-group.mjs"), "utf8")
 
-    for (const source of [checkbox, listbox, radioGroup, segmentedControl, select, toggle, toggleGroup]) {
+    for (const source of [checkbox, combobox, listbox, radioGroup, segmentedControl, select, toggle, toggleGroup]) {
       expect(source).toContain("static formAssociated = true")
       expect(source).toContain("this.#internals = this.attachInternals()")
       expect(source).toContain("this.#internals.setFormValue")

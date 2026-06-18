@@ -12,6 +12,8 @@ const components = [
   "button",
   "button-group",
   "checkbox",
+  "combobox",
+  "combobox-item",
   "dropdown",
   "field",
   "listbox",
@@ -32,6 +34,7 @@ const components = [
 const behaviorFiles = ["checkbox", "disclosure", "tabs", "toggle"]
 const zagFiles = [
   "checkbox",
+  "combobox",
   "listbox",
   "props",
   "radio-group",

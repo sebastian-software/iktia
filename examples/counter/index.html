@@ -275,6 +275,17 @@ dispatch native CustomEvents.</code></pre>
                 <iktia-listbox-item value="frozen" label="Frozen" disabled></iktia-listbox-item>
                 <iktia-listbox-item value="audit" label="Audit"></iktia-listbox-item>
               </iktia-listbox>
+              <iktia-combobox
+                name="owner"
+                label="Release owner"
+                value="ops"
+                placeholder="Search owner"
+              >
+                <iktia-combobox-item value="ops" label="Operations"></iktia-combobox-item>
+                <iktia-combobox-item value="docs" label="Docs team"></iktia-combobox-item>
+                <iktia-combobox-item value="qa" label="QA"></iktia-combobox-item>
+                <iktia-combobox-item value="blocked" label="Blocked" disabled></iktia-combobox-item>
+              </iktia-combobox>
               <div class="primitive-row">
                 <button type="submit" class="native-action">Read FormData</button>
                 <button type="reset" class="native-action secondary">Reset</button>

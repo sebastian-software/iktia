@@ -22,6 +22,7 @@ import "@iktia/primitives/toggle"
 | `<iktia-button>` | Shadow-DOM action button with slots, variants, parts, and `iktia-press`. | Experimental |
 | `<iktia-button-group>` | Oriented grouping for action controls. | Experimental |
 | `<iktia-checkbox>` | ARIA checkbox primitive with checked, indeterminate, and native `FormData` behavior. | Experimental form-associated MVP |
+| `<iktia-combobox>` / `<iktia-combobox-item>` | Zag-backed autocomplete combobox with input, popup items, and native `FormData` behavior. | Experimental form-associated MVP |
 | `<iktia-dropdown>` | Button-triggered dropdown/disclosure primitive. | Experimental |
 | `<iktia-field>` | Field composition shell for labels, controls, hints, and errors. | Experimental |
 | `<iktia-listbox>` / `<iktia-listbox-item>` | Zag-backed listbox with selection, typeahead, disabled items, and native `FormData` behavior. | Experimental form-associated MVP |
@@ -42,12 +43,12 @@ The primitives expose platform-readable contracts:
 * Native ARIA attributes where the current `.wc.tsx` compiler surface supports them.
 * Iktia-prefixed `CustomEvent`s such as `iktia-change` and `iktia-press`.
 
-Checkbox, listbox, radio group, segmented control, select, toggle, and toggle
-group use the compiler-owned `formControl()` spike to generate Form-Associated
-Custom Element output. They support `name`, `value`, submit, reset, disabled
-fieldset propagation, and `FormData` in the current MVP, but remain experimental
-until label association, validation, and broader cross-browser coverage are
-complete.
+Checkbox, combobox, listbox, radio group, segmented control, select, toggle, and
+toggle group use the compiler-owned `formControl()` spike to generate
+Form-Associated Custom Element output. They support `name`, `value`, submit,
+reset, disabled fieldset propagation, and `FormData` in the current MVP, but
+remain experimental until label association, validation, and broader
+cross-browser coverage are complete.
 
 Shared behavior lives in private package modules under `src/internal`. Simple
 kernels remain under `src/internal/behavior`; Zag-backed adapters live under

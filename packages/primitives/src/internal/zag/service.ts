@@ -20,6 +20,8 @@ type ZagMachineState = {
   entry?: ZagActionList
   exit?: ZagActionList
   effects?: ZagEffectList
+  initial?: string
+  states?: Record<string, ZagMachineState>
   tags?: string[]
   on?: Record<string, ZagMachineTransition | ZagMachineTransition[]>
 }
@@ -93,6 +95,11 @@ function matchesState(current: string, value: string) {
   return current === value || current.startsWith(`${value}.`)
 }
 
+function statePathNames(stateName: string) {
+  const segments = stateName.split(".")
+  return segments.map((_, index) => segments.slice(0, index + 1).join("."))
+}
+
 export function createZagService({
   machine,
   props: inputProps = {},
@@ -156,10 +163,53 @@ export function createZagService({
       refsEntries[key] = next
     },
   }
-  let currentState = machine.initialState({ prop })
+  function getStateNode(stateName: string): ZagMachineState | undefined {
+    const segments = stateName.split(".")
+    const rootName = segments[0]
+    if (rootName == null) return undefined
+    let node = machine.states[rootName]
+    for (const segment of segments.slice(1)) {
+      node = node?.states?.[segment]
+    }
+    return node
+  }
+
+  function resolveInitialState(stateName: string) {
+    let resolved = stateName
+    let node = getStateNode(resolved)
+    while (node?.initial) {
+      resolved = `${resolved}.${node.initial}`
+      node = getStateNode(resolved)
+    }
+    return resolved
+  }
+
+  function activeStateNodes(stateName: string) {
+    return statePathNames(stateName)
+      .map((name) => [name, getStateNode(name)] as const)
+      .filter((entry): entry is readonly [string, ZagMachineState] => entry[1] != null)
+  }
+
+  function resolveTarget(target: string, sourceState: string) {
+    if (target.includes(".")) return resolveInitialState(target)
+
+    const sourceSegments = sourceState.split(".")
+    for (let index = sourceSegments.length - 1; index >= 0; index -= 1) {
+      const parent = sourceSegments.slice(0, index).join(".")
+      const parentNode = parent ? getStateNode(parent) : undefined
+      if (parentNode?.states?.[target]) {
+        return resolveInitialState(`${parent}.${target}`)
+      }
+    }
+
+    return resolveInitialState(target)
+  }
+
+  let currentState = resolveInitialState(machine.initialState({ prop }))
   const state = {
     get: () => currentState,
-    hasTag: (tag: string) => machine.states[currentState]?.tags?.includes(tag) ?? false,
+    hasTag: (tag: string) =>
+      activeStateNodes(currentState).some(([, node]) => node.tags?.includes(tag)),
     hash: () => currentState,
     initial: currentState,
     invoke: () => undefined,
@@ -241,10 +291,13 @@ export function createZagService({
   }
 
   function startStateEffects(stateName: string) {
-    for (const effectName of resolveList(machine.states[stateName]?.effects, params)) {
-      if (stateEffectCleanups.has(effectName)) continue
-      const cleanup = machine.implementations?.effects?.[effectName]?.(params())
-      if (typeof cleanup === "function") stateEffectCleanups.set(effectName, cleanup)
+    for (const [activeName, node] of activeStateNodes(stateName)) {
+      for (const effectName of resolveList(node.effects, params)) {
+        const key = `${activeName}:${effectName}`
+        if (stateEffectCleanups.has(key)) continue
+        const cleanup = machine.implementations?.effects?.[effectName]?.(params())
+        if (typeof cleanup === "function") stateEffectCleanups.set(key, cleanup)
+      }
     }
   }
 
@@ -269,8 +322,21 @@ export function createZagService({
   }
 
   function findTransition(eventType: string) {
-    const stateTransition = machine.states[currentState]?.on?.[eventType]
-    return chooseTransition(stateTransition ?? machine.on?.[eventType])
+    for (const [, node] of activeStateNodes(currentState).reverse()) {
+      const stateTransition = chooseTransition(node.on?.[eventType])
+      if (stateTransition) return stateTransition
+    }
+    return chooseTransition(machine.on?.[eventType])
+  }
+
+  function runStateEntry(stateName: string) {
+    for (const [, node] of activeStateNodes(stateName)) runActionList(node.entry)
+  }
+
+  function runStateExit(stateName: string) {
+    for (const [, node] of activeStateNodes(stateName).reverse()) {
+      runActionList(node.exit)
+    }
   }
 
   function send(event: ZagEvent) {
@@ -279,11 +345,14 @@ export function createZagService({
     currentEvent = event
     const selectedTransition = findTransition(event.type)
     if (!selectedTransition) return
-    if (selectedTransition.target && selectedTransition.target !== currentState) {
-      runActionList(machine.states[currentState]?.exit)
+    const targetState = selectedTransition.target
+      ? resolveTarget(selectedTransition.target, currentState)
+      : undefined
+    if (targetState && targetState !== currentState) {
+      runStateExit(currentState)
       stopStateEffects()
-      currentState = selectedTransition.target
-      runActionList(machine.states[currentState]?.entry)
+      currentState = targetState
+      runStateEntry(currentState)
       startStateEffects(currentState)
     }
     runActions(selectedTransition.actions)
@@ -291,7 +360,7 @@ export function createZagService({
   }
 
   runActionList(machine.entry)
-  runActionList(machine.states[currentState]?.entry)
+  runStateEntry(currentState)
   startRootEffects()
   startStateEffects(currentState)
   machine.watch?.(params())
@@ -312,7 +381,7 @@ export function createZagService({
     stop: () => {
       if (!started) return
       started = false
-      runActionList(machine.states[currentState]?.exit)
+      runStateExit(currentState)
       runActionList(machine.exit)
       stopStateEffects()
       stopRootEffects()
