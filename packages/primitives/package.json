@@ -27,6 +27,10 @@
       "types": "./dist/checkbox.d.mts",
       "import": "./dist/checkbox.mjs"
     },
+    "./collapsible": {
+      "types": "./dist/collapsible.d.mts",
+      "import": "./dist/collapsible.mjs"
+    },
     "./combobox": {
       "types": "./dist/combobox.d.mts",
       "import": "./dist/combobox.mjs"
@@ -124,6 +128,7 @@
   "dependencies": {
     "@iktia/core": "workspace:^",
     "@zag-js/checkbox": "1.41.2",
+    "@zag-js/collapsible": "1.41.2",
     "@zag-js/combobox": "1.41.2",
     "@zag-js/listbox": "1.41.2",
     "@zag-js/menu": "1.41.2",

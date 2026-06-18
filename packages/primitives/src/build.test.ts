@@ -20,6 +20,7 @@ describe("@iktia/primitives build output", () => {
     expect(index).toContain("export * from \"./button.mjs\"")
     expect(index).toContain("export * from \"./button-group.mjs\"")
     expect(index).toContain("export * from \"./checkbox.mjs\"")
+    expect(index).toContain("export * from \"./collapsible.mjs\"")
     expect(index).toContain("export * from \"./combobox.mjs\"")
     expect(index).toContain("export * from \"./combobox-item.mjs\"")
     expect(index).toContain("export * from \"./dropdown.mjs\"")
@@ -52,6 +53,7 @@ describe("@iktia/primitives build output", () => {
   it("builds private Zag adapter helpers without adding public exports", () => {
     const index = readFileSync(join(distRoot, "index.mjs"), "utf8")
     const checkbox = readFileSync(join(distRoot, "internal", "zag", "checkbox.js"), "utf8")
+    const collapsible = readFileSync(join(distRoot, "internal", "zag", "collapsible.js"), "utf8")
     const combobox = readFileSync(join(distRoot, "internal", "zag", "combobox.js"), "utf8")
     const listbox = readFileSync(join(distRoot, "internal", "zag", "listbox.js"), "utf8")
     const menu = readFileSync(join(distRoot, "internal", "zag", "menu.js"), "utf8")
@@ -66,6 +68,7 @@ describe("@iktia/primitives build output", () => {
     const toggleGroup = readFileSync(join(distRoot, "internal", "zag", "toggle-group.js"), "utf8")
 
     expect(checkbox).toContain("@zag-js/checkbox")
+    expect(collapsible).toContain("@zag-js/collapsible")
     expect(combobox).toContain("@zag-js/combobox")
     expect(combobox).toContain("syncIktiaComboboxItems")
     expect(listbox).toContain("@zag-js/listbox")
@@ -182,6 +185,16 @@ describe("@iktia/primitives build output", () => {
     expect(menu).toContain("#applySpreadAttributes")
     expect(menu).not.toContain("@iktia/core")
     expect(menu).not.toContain("type IktiaZagMenuService")
+  })
+
+  it("backs collapsible with the private Zag adapter", () => {
+    const collapsible = readFileSync(join(distRoot, "collapsible.mjs"), "utf8")
+
+    expect(collapsible).toContain("from \"./internal/zag/collapsible.js\"")
+    expect(collapsible).toContain("createIktiaZagCollapsibleService")
+    expect(collapsible).toContain("#applySpreadAttributes")
+    expect(collapsible).not.toContain("@iktia/core")
+    expect(collapsible).not.toContain("type IktiaZagCollapsibleService")
   })
 
   it("backs toggle group with the private Zag adapter", () => {

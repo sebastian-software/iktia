@@ -12,6 +12,7 @@ const components = [
   "button",
   "button-group",
   "checkbox",
+  "collapsible",
   "combobox",
   "combobox-item",
   "dropdown",
@@ -36,6 +37,7 @@ const components = [
 const behaviorFiles = ["checkbox", "disclosure", "tabs", "toggle"]
 const zagFiles = [
   "checkbox",
+  "collapsible",
   "combobox",
   "listbox",
   "menu",
