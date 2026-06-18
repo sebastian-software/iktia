@@ -180,6 +180,9 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   const tooltip = section.locator("iktia-tooltip")
   const tooltipTrigger = tooltip.locator("[part~='trigger']")
   const tooltipContent = tooltip.locator("[part~='content']")
+  const hoverCard = section.locator("iktia-hover-card")
+  const hoverCardTrigger = hoverCard.locator("[part~='trigger']")
+  const hoverCardContent = hoverCard.locator("[part~='content']")
   const tabs = section.locator("iktia-tabs")
   const tabItems = tabs.locator("iktia-tab")
   const tabPanels = tabs.locator("iktia-tab-panel")
@@ -270,6 +273,9 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(tooltipTrigger).toHaveAttribute("data-state", "closed")
   await expect(tooltipContent).toHaveAttribute("role", "tooltip")
   await expect(tooltipContent).toBeHidden()
+  await expect(hoverCardTrigger).toHaveAttribute("data-state", "closed")
+  await expect(hoverCardContent).toHaveAttribute("data-scope", "hover-card")
+  await expect(hoverCardContent).toBeHidden()
   await expect(tabItems).toHaveCount(3)
   await expect(tabItems.nth(0)).toHaveAttribute("role", "tab")
   await expect(tabItems.nth(0)).toHaveAttribute("data-state", "selected")
@@ -616,6 +622,34 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
     }))
   })
   await expect(tooltipContent).toBeHidden()
+
+  await hoverCardTrigger.evaluate((trigger) => {
+    trigger.dispatchEvent(new PointerEvent("pointermove", {
+      bubbles: true,
+      pointerType: "mouse",
+    }))
+  })
+  await expect(hoverCardTrigger).toHaveAttribute("data-state", "open")
+  await expect(hoverCardContent).toBeVisible()
+  await expect(page.locator("#primitive-event")).toContainText('"open":true')
+  await page.keyboard.press("Escape")
+  await expect(hoverCardContent).toBeHidden()
+  await expect(page.locator("#primitive-event")).toContainText('"open":false')
+
+  await hoverCardTrigger.evaluate((trigger) => {
+    trigger.dispatchEvent(new PointerEvent("pointermove", {
+      bubbles: true,
+      pointerType: "mouse",
+    }))
+  })
+  await expect(hoverCardContent).toBeVisible()
+  await hoverCardContent.evaluate((content) => {
+    content.dispatchEvent(new PointerEvent("pointerleave", {
+      bubbles: true,
+      pointerType: "mouse",
+    }))
+  })
+  await expect(hoverCardContent).toBeHidden()
 })
 
 test("form-associated primitive controls receive disabled fieldset state", async ({

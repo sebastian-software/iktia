@@ -55,6 +55,10 @@
       "types": "./dist/field.d.mts",
       "import": "./dist/field.mjs"
     },
+    "./hover-card": {
+      "types": "./dist/hover-card.d.mts",
+      "import": "./dist/hover-card.mjs"
+    },
     "./listbox": {
       "types": "./dist/listbox.d.mts",
       "import": "./dist/listbox.mjs"
@@ -147,6 +151,7 @@
     "@zag-js/checkbox": "1.41.2",
     "@zag-js/collapsible": "1.41.2",
     "@zag-js/combobox": "1.41.2",
+    "@zag-js/hover-card": "1.41.2",
     "@zag-js/listbox": "1.41.2",
     "@zag-js/menu": "1.41.2",
     "@zag-js/popover": "1.41.2",

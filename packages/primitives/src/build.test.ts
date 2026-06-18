@@ -27,6 +27,7 @@ describe("@iktia/primitives build output", () => {
     expect(index).toContain("export * from \"./combobox-item.mjs\"")
     expect(index).toContain("export * from \"./dropdown.mjs\"")
     expect(index).toContain("export * from \"./field.mjs\"")
+    expect(index).toContain("export * from \"./hover-card.mjs\"")
     expect(index).toContain("export * from \"./listbox.mjs\"")
     expect(index).toContain("export * from \"./listbox-item.mjs\"")
     expect(index).toContain("export * from \"./menu.mjs\"")
@@ -60,6 +61,7 @@ describe("@iktia/primitives build output", () => {
     const checkbox = readFileSync(join(distRoot, "internal", "zag", "checkbox.js"), "utf8")
     const collapsible = readFileSync(join(distRoot, "internal", "zag", "collapsible.js"), "utf8")
     const combobox = readFileSync(join(distRoot, "internal", "zag", "combobox.js"), "utf8")
+    const hoverCard = readFileSync(join(distRoot, "internal", "zag", "hover-card.js"), "utf8")
     const listbox = readFileSync(join(distRoot, "internal", "zag", "listbox.js"), "utf8")
     const menu = readFileSync(join(distRoot, "internal", "zag", "menu.js"), "utf8")
     const popover = readFileSync(join(distRoot, "internal", "zag", "popover.js"), "utf8")
@@ -80,6 +82,7 @@ describe("@iktia/primitives build output", () => {
     expect(collapsible).toContain("@zag-js/collapsible")
     expect(combobox).toContain("@zag-js/combobox")
     expect(combobox).toContain("syncIktiaComboboxItems")
+    expect(hoverCard).toContain("@zag-js/hover-card")
     expect(listbox).toContain("@zag-js/listbox")
     expect(listbox).toContain("syncIktiaListboxItems")
     expect(menu).toContain("@zag-js/menu")
@@ -237,6 +240,16 @@ describe("@iktia/primitives build output", () => {
     expect(tooltip).toContain("#applySpreadAttributes")
     expect(tooltip).not.toContain("@iktia/core")
     expect(tooltip).not.toContain("type IktiaZagTooltipService")
+  })
+
+  it("backs hover card with the private Zag adapter", () => {
+    const hoverCard = readFileSync(join(distRoot, "hover-card.mjs"), "utf8")
+
+    expect(hoverCard).toContain("from \"./internal/zag/hover-card.js\"")
+    expect(hoverCard).toContain("createIktiaZagHoverCardService")
+    expect(hoverCard).toContain("#applySpreadAttributes")
+    expect(hoverCard).not.toContain("@iktia/core")
+    expect(hoverCard).not.toContain("type IktiaZagHoverCardService")
   })
 
   it("backs toggle group with the private Zag adapter", () => {
