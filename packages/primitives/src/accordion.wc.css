@@ -1,0 +1,25 @@
+:host {
+  display: block;
+  font: inherit;
+}
+
+[part~="root"] {
+  display: grid;
+  gap: 0.5rem;
+  color: var(--iktia-accordion-fg, #17201b);
+}
+
+[part~="label"] {
+  font-weight: 700;
+}
+
+[part~="items"] {
+  display: grid;
+  border: 1px solid var(--iktia-accordion-border, #65736d);
+  border-radius: var(--iktia-accordion-radius, 0.375rem);
+  overflow: hidden;
+}
+
+[part~="root"][data-disabled] {
+  opacity: 0.65;
+}

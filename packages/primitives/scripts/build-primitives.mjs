@@ -9,6 +9,8 @@ const sourceRoot = join(packageRoot, "src")
 const distRoot = join(packageRoot, "dist")
 
 const components = [
+  "accordion",
+  "accordion-item",
   "button",
   "button-group",
   "checkbox",
@@ -37,6 +39,7 @@ const components = [
 ]
 const behaviorFiles = ["checkbox", "disclosure", "tabs", "toggle"]
 const zagFiles = [
+  "accordion",
   "checkbox",
   "collapsible",
   "combobox",

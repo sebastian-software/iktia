@@ -17,6 +17,8 @@ describe("@iktia/primitives build output", () => {
   it("exports every first-version primitive from the package entry", () => {
     const index = readFileSync(join(distRoot, "index.mjs"), "utf8")
 
+    expect(index).toContain("export * from \"./accordion.mjs\"")
+    expect(index).toContain("export * from \"./accordion-item.mjs\"")
     expect(index).toContain("export * from \"./button.mjs\"")
     expect(index).toContain("export * from \"./button-group.mjs\"")
     expect(index).toContain("export * from \"./checkbox.mjs\"")
@@ -53,6 +55,7 @@ describe("@iktia/primitives build output", () => {
 
   it("builds private Zag adapter helpers without adding public exports", () => {
     const index = readFileSync(join(distRoot, "index.mjs"), "utf8")
+    const accordion = readFileSync(join(distRoot, "internal", "zag", "accordion.js"), "utf8")
     const checkbox = readFileSync(join(distRoot, "internal", "zag", "checkbox.js"), "utf8")
     const collapsible = readFileSync(join(distRoot, "internal", "zag", "collapsible.js"), "utf8")
     const combobox = readFileSync(join(distRoot, "internal", "zag", "combobox.js"), "utf8")
@@ -69,6 +72,8 @@ describe("@iktia/primitives build output", () => {
     const toggle = readFileSync(join(distRoot, "internal", "zag", "toggle.js"), "utf8")
     const toggleGroup = readFileSync(join(distRoot, "internal", "zag", "toggle-group.js"), "utf8")
 
+    expect(accordion).toContain("@zag-js/accordion")
+    expect(accordion).toContain("syncIktiaAccordionItems")
     expect(checkbox).toContain("@zag-js/checkbox")
     expect(collapsible).toContain("@zag-js/collapsible")
     expect(combobox).toContain("@zag-js/combobox")
@@ -110,6 +115,17 @@ describe("@iktia/primitives build output", () => {
     expect(toggle).toContain("#applySpreadAttributes")
     expect(toggle).not.toContain("from \"./internal/behavior/toggle.js\"")
     expect(toggle).not.toContain("type IktiaZagToggleService")
+  })
+
+  it("backs accordion with the private Zag adapter", () => {
+    const accordion = readFileSync(join(distRoot, "accordion.mjs"), "utf8")
+
+    expect(accordion).toContain("from \"./internal/zag/accordion.js\"")
+    expect(accordion).toContain("createIktiaZagAccordionService")
+    expect(accordion).toContain("syncIktiaAccordionItems")
+    expect(accordion).toContain("#applySpreadAttributes")
+    expect(accordion).not.toContain("@iktia/core")
+    expect(accordion).not.toContain("type IktiaZagAccordionService")
   })
 
   it("backs tabs with the private Zag adapter", () => {

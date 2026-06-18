@@ -19,6 +19,7 @@ import "@iktia/primitives/toggle"
 
 | Element | Purpose | Status |
 | --- | --- | --- |
+| `<iktia-accordion>` / `<iktia-accordion-item>` | Zag-backed accordion collection with roving trigger focus, disabled items, and open state events. | Experimental disclosure MVP |
 | `<iktia-button>` | Shadow-DOM action button with slots, variants, parts, and `iktia-press`. | Experimental |
 | `<iktia-button-group>` | Oriented grouping for action controls. | Experimental |
 | `<iktia-checkbox>` | ARIA checkbox primitive with checked, indeterminate, and native `FormData` behavior. | Experimental form-associated MVP |

@@ -170,6 +170,9 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   const collapsible = section.locator("iktia-collapsible")
   const collapsibleTrigger = collapsible.locator("button")
   const collapsibleContent = collapsible.locator("[part~='content']")
+  const accordion = section.locator("iktia-accordion")
+  const accordionRoot = accordion.locator("section[part~='root']")
+  const accordionItems = accordion.locator("iktia-accordion-item")
   const popover = section.locator("iktia-popover")
   const popoverTrigger = popover.locator("[part~='trigger']")
   const popoverContent = popover.locator("[part~='content']")
@@ -243,6 +246,20 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(collapsibleTrigger).toHaveAttribute("aria-expanded", "false")
   await expect(collapsibleTrigger).toHaveAttribute("data-state", "closed")
   await expect(collapsibleContent).toBeHidden()
+  await expect(accordionRoot).toHaveAttribute(
+    "data-state",
+    "quality"
+  )
+  await expect(accordionItems).toHaveCount(3)
+  await expect(accordionItems.nth(0)).toHaveAttribute("data-state", "open")
+  await expect(accordionItems.nth(0).locator("[part~='trigger']")).toHaveAttribute(
+    "aria-expanded",
+    "true"
+  )
+  await expect(accordionItems.nth(0).locator("[part~='content']")).toBeVisible()
+  await expect(accordionItems.nth(1).locator("[part~='content']")).toBeHidden()
+  await expect(accordionItems.nth(2)).toHaveAttribute("aria-disabled", "true")
+  await expect(accordionItems.nth(2).locator("[part~='trigger']")).toBeDisabled()
   await expect(popoverTrigger).toHaveAttribute("aria-haspopup", "dialog")
   await expect(popoverTrigger).toHaveAttribute("aria-expanded", "false")
   await expect(popoverTrigger).toHaveAttribute("data-state", "closed")
@@ -520,6 +537,28 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   const disabledCollapsible = section.locator("iktia-collapsible").nth(1)
   await expect(disabledCollapsible.locator("button")).toBeDisabled()
   await expect(disabledCollapsible.locator("[part~='content']")).toBeHidden()
+
+  await accordionItems.nth(1).locator("[part~='trigger']").click()
+  await expect(accordionItems.nth(0)).toHaveAttribute("data-state", "closed")
+  await expect(accordionItems.nth(1)).toHaveAttribute("data-state", "open")
+  await expect(accordionItems.nth(1).locator("[part~='content']")).toBeVisible()
+  await expect(page.locator("#primitive-event")).toContainText(
+    '"value":["handoff"]'
+  )
+  await accordionItems.nth(1).locator("[part~='trigger']").press("ArrowUp")
+  await expect(accordionItems.nth(0).locator("[part~='trigger']")).toBeFocused()
+
+  await accordion.evaluate((element) => {
+    const item = document.createElement("iktia-accordion-item")
+    item.setAttribute("value", "audit")
+    item.setAttribute("label", "Audit notes")
+    item.textContent = "Audit notes can be expanded after dynamic sync."
+    element.append(item)
+  })
+  await expect(accordionItems).toHaveCount(4)
+  await accordionItems.nth(3).locator("[part~='trigger']").click()
+  await expect(accordionItems.nth(3)).toHaveAttribute("data-state", "open")
+  await expect(page.locator("#primitive-event")).toContainText('"value":["audit"]')
 
   await popoverTrigger.click()
   await expect(popoverTrigger).toHaveAttribute("aria-expanded", "true")

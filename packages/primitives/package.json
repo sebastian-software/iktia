@@ -15,6 +15,14 @@
       "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs"
     },
+    "./accordion": {
+      "types": "./dist/accordion.d.mts",
+      "import": "./dist/accordion.mjs"
+    },
+    "./accordion-item": {
+      "types": "./dist/accordion-item.d.mts",
+      "import": "./dist/accordion-item.mjs"
+    },
     "./button": {
       "types": "./dist/button.d.mts",
       "import": "./dist/button.mjs"
@@ -131,6 +139,7 @@
   },
   "dependencies": {
     "@iktia/core": "workspace:^",
+    "@zag-js/accordion": "1.41.2",
     "@zag-js/checkbox": "1.41.2",
     "@zag-js/collapsible": "1.41.2",
     "@zag-js/combobox": "1.41.2",

@@ -328,6 +328,18 @@ dispatch native CustomEvents.</code></pre>
               keeping the Iktia Custom Element contract.
             </iktia-collapsible>
 
+            <iktia-accordion label="Release checklist details" value="quality">
+              <iktia-accordion-item value="quality" label="Quality gates">
+                Browser, docs, and package-release checks must be green.
+              </iktia-accordion-item>
+              <iktia-accordion-item value="handoff" label="Handoff">
+                Commit focused slices before moving to the next primitive.
+              </iktia-accordion-item>
+              <iktia-accordion-item value="blocked" label="Blocked" disabled>
+                Disabled accordion items remain focus-safe.
+              </iktia-accordion-item>
+            </iktia-accordion>
+
             <iktia-popover label="Deployment hint" title="Before release">
               Confirm that package docs, browser tests, and release metadata are
               aligned before opening the release PR.
