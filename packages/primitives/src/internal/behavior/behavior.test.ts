@@ -7,7 +7,7 @@ import {
 } from "./disclosure.js"
 import { tabsValueForKey } from "./tabs.js"
 import { nextTogglePressed, toggleFormValue } from "./toggle.js"
-import { normalizeZagPropBag } from "../zag/props.js"
+import { normalizeZagInputPropBag, normalizeZagPropBag } from "../zag/props.js"
 import { createZagScope } from "../zag/scope.js"
 import { createZagService } from "../zag/service.js"
 import { createZagTabsProbe } from "../zag/tabs-probe.js"
@@ -131,6 +131,21 @@ describe("primitive behavior kernels", () => {
       id: "item",
       onClick: expect.any(Function),
       tabIndex: 0,
+    })
+  })
+
+  it("maps Zag input change handlers to native input events", () => {
+    const onChange = () => undefined
+
+    expect(
+      normalizeZagInputPropBag({
+        id: "pin-input",
+        onChange,
+        onInput: undefined,
+      })
+    ).toEqual({
+      id: "pin-input",
+      onInput: onChange,
     })
   })
 

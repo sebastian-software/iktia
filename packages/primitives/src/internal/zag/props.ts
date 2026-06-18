@@ -18,9 +18,20 @@ export function normalizeZagPropBag<T extends ZagPropBag>(props: T) {
   return normalized
 }
 
+export function normalizeZagInputPropBag<T extends ZagPropBag>(props: T) {
+  const normalized = normalizeZagPropBag(props)
+
+  if (normalized.onInput == null && typeof normalized.onChange === "function") {
+    normalized.onInput = normalized.onChange
+    delete normalized.onChange
+  }
+
+  return normalized
+}
+
 export const normalizeZagProps = {
   button: normalizeZagPropBag,
   element: normalizeZagPropBag,
-  input: normalizeZagPropBag,
+  input: normalizeZagInputPropBag,
   label: normalizeZagPropBag,
 }

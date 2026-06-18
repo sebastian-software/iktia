@@ -87,6 +87,10 @@
       "types": "./dist/number-input.d.mts",
       "import": "./dist/number-input.mjs"
     },
+    "./pin-input": {
+      "types": "./dist/pin-input.d.mts",
+      "import": "./dist/pin-input.mjs"
+    },
     "./popover": {
       "types": "./dist/popover.d.mts",
       "import": "./dist/popover.mjs"
@@ -176,6 +180,7 @@
     "@zag-js/listbox": "1.41.2",
     "@zag-js/menu": "1.41.2",
     "@zag-js/number-input": "1.41.2",
+    "@zag-js/pin-input": "1.41.2",
     "@zag-js/popover": "1.41.2",
     "@zag-js/radio-group": "1.41.2",
     "@zag-js/select": "1.41.2",

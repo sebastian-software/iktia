@@ -169,6 +169,9 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   const numberInputField = numberInput.locator("[part~='input']")
   const numberInputDecrement = numberInput.locator("[part~='decrement']")
   const numberInputIncrement = numberInput.locator("[part~='increment']")
+  const pinInput = section.locator("iktia-pin-input")
+  const pinInputRoot = pinInput.locator("[part~='root']")
+  const pinInputFields = pinInput.locator("[part~='input']")
   const slider = section.locator("iktia-slider")
   const sliderControl = slider.locator("[part~='control']")
   const sliderThumb = slider.locator("[part~='thumb']")
@@ -268,6 +271,13 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(numberInputField).toHaveValue("2")
   await expect(numberInputField).toHaveAttribute("aria-valuemin", "1")
   await expect(numberInputField).toHaveAttribute("aria-valuemax", "5")
+  await expect(pinInputRoot).toHaveAttribute("data-state", "incomplete")
+  await expect(pinInputFields).toHaveCount(4)
+  await expect(pinInputFields.nth(0)).toHaveValue("1")
+  await expect(pinInputFields.nth(1)).toHaveValue("2")
+  await expect(pinInputFields.nth(2)).toHaveValue("3")
+  await expect(pinInputFields.nth(3)).toHaveValue("")
+  await expect(pinInputFields.nth(0)).toHaveAttribute("autocomplete", "one-time-code")
   await expect(sliderThumb).toHaveAttribute("role", "slider")
   await expect(sliderThumb).toHaveAttribute("aria-valuemin", "0")
   await expect(sliderThumb).toHaveAttribute("aria-valuemax", "100")
@@ -414,6 +424,10 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await numberInputDecrement.click()
   await expect(numberInputField).toHaveValue("3")
 
+  await pinInputFields.nth(3).fill("4")
+  await expect(pinInputRoot).toHaveAttribute("data-state", "complete")
+  await expect(page.locator("#primitive-event")).toContainText('"value":"1234"')
+
   await sliderThumb.evaluate((element) => {
     element.dispatchEvent(
       new KeyboardEvent("keydown", {
@@ -434,10 +448,10 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await form.locator("button[type='submit']").click()
   await expect(page.locator("body")).toHaveAttribute(
     "data-last-primitive-form",
-    "docs:reviewed, preview:enabled, notify:enabled, audience:stable, channels:docs, cadence:monthly, region:apac, lane:audit, owner:docs, approvals:3, confidence:80"
+    "docs:reviewed, preview:enabled, notify:enabled, audience:stable, channels:docs, cadence:monthly, region:apac, lane:audit, owner:docs, approvals:3, release-code:1234, confidence:80"
   )
   await expect(page.locator("#primitive-form-event")).toHaveText(
-    "Last primitive form data: docs:reviewed, preview:enabled, notify:enabled, audience:stable, channels:docs, cadence:monthly, region:apac, lane:audit, owner:docs, approvals:3, confidence:80"
+    "Last primitive form data: docs:reviewed, preview:enabled, notify:enabled, audience:stable, channels:docs, cadence:monthly, region:apac, lane:audit, owner:docs, approvals:3, release-code:1234, confidence:80"
   )
 
   await form.locator("button[type='reset']").click()
@@ -454,10 +468,15 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(comboboxItems.nth(0)).toHaveAttribute("data-state", "checked")
   await expect(comboboxInput).toHaveValue("Operations")
   await expect(numberInputField).toHaveValue("2")
+  await expect(pinInputRoot).toHaveAttribute("data-state", "incomplete")
+  await expect(pinInputFields.nth(0)).toHaveValue("1")
+  await expect(pinInputFields.nth(1)).toHaveValue("2")
+  await expect(pinInputFields.nth(2)).toHaveValue("3")
+  await expect(pinInputFields.nth(3)).toHaveValue("")
   await expect(sliderThumb).toHaveAttribute("aria-valuenow", "40")
   await expect(page.locator("body")).toHaveAttribute(
     "data-last-primitive-form",
-    "notify:enabled, channels:web, cadence:weekly, region:eu, lane:review, owner:ops, approvals:2, confidence:40"
+    "notify:enabled, channels:web, cadence:weekly, region:eu, lane:review, owner:ops, approvals:2, release-code:123, confidence:40"
   )
 
   await combobox.evaluate((element) => {
@@ -804,6 +823,7 @@ test("form-associated primitive controls receive disabled fieldset state", async
           <iktia-combobox-item value="yes" label="Yes"></iktia-combobox-item>
         </iktia-combobox>
         <iktia-number-input name="blocked-number" label="Blocked number" value="2"></iktia-number-input>
+        <iktia-pin-input name="blocked-pin" label="Blocked pin" value="12"></iktia-pin-input>
         <iktia-slider name="blocked-slider" label="Blocked slider" value="40"></iktia-slider>
       </fieldset>
     `
@@ -824,6 +844,7 @@ test("form-associated primitive controls receive disabled fieldset state", async
   const comboboxItem = page.locator("form fieldset iktia-combobox-item")
   const numberInput = page.locator("form fieldset iktia-number-input input")
   const numberIncrement = page.locator("form fieldset iktia-number-input [part~='increment']")
+  const pinInputField = page.locator("form fieldset iktia-pin-input [part~='input']").first()
   const sliderThumb = page.locator("form fieldset iktia-slider [part~='thumb']")
 
   await expect(checkboxButton).toBeDisabled()
@@ -834,6 +855,7 @@ test("form-associated primitive controls receive disabled fieldset state", async
   await expect(comboboxButton).toBeDisabled()
   await expect(numberInput).toBeDisabled()
   await expect(numberIncrement).toBeDisabled()
+  await expect(pinInputField).toBeDisabled()
   await expect(sliderThumb).toHaveAttribute("aria-disabled", "true")
   await expect(radio).toHaveAttribute("aria-disabled", "true")
   await expect(toggleItem).toHaveAttribute("aria-disabled", "true")

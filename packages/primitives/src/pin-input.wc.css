@@ -1,0 +1,57 @@
+:host {
+  display: block;
+  font: inherit;
+}
+
+[part~="root"] {
+  display: grid;
+  gap: var(--iktia-pin-input-gap, 0.45rem);
+  width: max-content;
+  max-width: 100%;
+  color: var(--iktia-pin-input-fg, #17201b);
+}
+
+[part~="label"] {
+  color: var(--iktia-pin-input-label-fg, #283c35);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+[part~="control"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--iktia-pin-input-control-gap, 0.35rem);
+}
+
+[part~="input"] {
+  box-sizing: border-box;
+  width: var(--iktia-pin-input-size, 2.35rem);
+  height: var(--iktia-pin-input-size, 2.35rem);
+  border: 1px solid var(--iktia-pin-input-border, #9fb3aa);
+  border-radius: 0.45rem;
+  background: var(--iktia-pin-input-bg, #ffffff);
+  color: inherit;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+}
+
+[part~="input"]:focus-visible {
+  border-color: var(--iktia-focus-ring, #0f766e);
+  outline: 2px solid var(--iktia-focus-ring, #0f766e);
+  outline-offset: 2px;
+}
+
+[part~="input"][data-complete] {
+  border-color: var(--iktia-pin-input-complete-border, #0f766e);
+}
+
+[part~="root"][data-disabled] {
+  opacity: 0.55;
+}
+
+[part~="root"][data-disabled] [part~="input"] {
+  cursor: not-allowed;
+}

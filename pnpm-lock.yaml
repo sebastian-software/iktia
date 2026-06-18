@@ -165,6 +165,9 @@ importers:
       '@zag-js/number-input':
         specifier: 1.41.2
         version: 1.41.2
+      '@zag-js/pin-input':
+        specifier: 1.41.2
+        version: 1.41.2
       '@zag-js/popover':
         specifier: 1.41.2
         version: 1.41.2
@@ -1628,6 +1631,9 @@ packages:
 
   '@zag-js/number-input@1.41.2':
     resolution: {integrity: sha512-QoQWCiVHO+ciUbq8uL8Kxhtk4o3UpwzYpJkfsOfitzsZoYpPc7V/A6+n5yABV2SOwpqBODwNASZdxiEa60kfow==}
+
+  '@zag-js/pin-input@1.41.2':
+    resolution: {integrity: sha512-Wrn3YDbmWL3qvUIzN4QyLO7PzEhunX7z8DwBpmrK04p7HxR9pniTLVIPk27xk2MzyAPYcl4mwd9/Mc88tBxHsg==}
 
   '@zag-js/popover@1.41.2':
     resolution: {integrity: sha512-h/LlVMIERM+NWzYV0ZHURlJuaqkT8XxwyEV96XfVzjknDRFNoPSl5IttVYtoaPoUqC0p/Y4oTSiee4mUZKOLHw==}
@@ -4287,6 +4293,14 @@ snapshots:
   '@zag-js/number-input@1.41.2':
     dependencies:
       '@internationalized/number': 3.6.6
+      '@zag-js/anatomy': 1.41.2
+      '@zag-js/core': 1.41.2
+      '@zag-js/dom-query': 1.41.2
+      '@zag-js/types': 1.41.2
+      '@zag-js/utils': 1.41.2
+
+  '@zag-js/pin-input@1.41.2':
+    dependencies:
       '@zag-js/anatomy': 1.41.2
       '@zag-js/core': 1.41.2
       '@zag-js/dom-query': 1.41.2
