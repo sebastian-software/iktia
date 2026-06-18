@@ -107,6 +107,10 @@
       "types": "./dist/radio-group.d.mts",
       "import": "./dist/radio-group.mjs"
     },
+    "./rating-group": {
+      "types": "./dist/rating-group.d.mts",
+      "import": "./dist/rating-group.mjs"
+    },
     "./segmented-control": {
       "types": "./dist/segmented-control.d.mts",
       "import": "./dist/segmented-control.mjs"
@@ -192,6 +196,7 @@
     "@zag-js/pin-input": "1.41.2",
     "@zag-js/popover": "1.41.2",
     "@zag-js/radio-group": "1.41.2",
+    "@zag-js/rating-group": "1.41.2",
     "@zag-js/select": "1.41.2",
     "@zag-js/slider": "1.41.2",
     "@zag-js/switch": "1.41.2",

@@ -177,6 +177,9 @@ importers:
       '@zag-js/radio-group':
         specifier: 1.41.2
         version: 1.41.2
+      '@zag-js/rating-group':
+        specifier: 1.41.2
+        version: 1.41.2
       '@zag-js/select':
         specifier: 1.41.2
         version: 1.41.2
@@ -1661,6 +1664,9 @@ packages:
 
   '@zag-js/radio-group@1.41.2':
     resolution: {integrity: sha512-EZjos61jKHZlNw8ez80vG2T9gUwpooxcVpYOKS2hyhuEXn3wEoefS5v1WFbmpoA/8TUpUQnYxisAeNuQfEQCuQ==}
+
+  '@zag-js/rating-group@1.41.2':
+    resolution: {integrity: sha512-SbJP4HiK5XRy/oC3xRowjZOCThq1n/QA2Z/XAkvKLJArVQCYjrH3MoWwWvMVNfNC5+ZJluborR2AGF7tlVLzxA==}
 
   '@zag-js/rect-utils@1.41.2':
     resolution: {integrity: sha512-GWBTamaMLMG1p7Fe6V0dsXeTEmk+tqG3ciovzmjxURCJ3Yq2EkAMRhS0v5DG0oo+PyrPEIzEWukGBQkh/XRgYQ==}
@@ -4375,6 +4381,14 @@ snapshots:
       '@zag-js/core': 1.41.2
       '@zag-js/dom-query': 1.41.2
       '@zag-js/focus-visible': 1.41.2
+      '@zag-js/types': 1.41.2
+      '@zag-js/utils': 1.41.2
+
+  '@zag-js/rating-group@1.41.2':
+    dependencies:
+      '@zag-js/anatomy': 1.41.2
+      '@zag-js/core': 1.41.2
+      '@zag-js/dom-query': 1.41.2
       '@zag-js/types': 1.41.2
       '@zag-js/utils': 1.41.2
 

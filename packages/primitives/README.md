@@ -37,6 +37,7 @@ import "@iktia/primitives/toggle"
 | `<iktia-pin-input>` | Zag-backed multi-field code input with keyboard, paste, complete, invalid, and native `FormData` behavior. | Experimental form-associated MVP |
 | `<iktia-popover>` | Zag-backed positioned popover with Escape/outside dismiss, close trigger, and focus return. | Experimental overlay MVP |
 | `<iktia-radio-group>` / `<iktia-radio>` | Zag-backed radio collection with roving focus and native `FormData` behavior. | Experimental form-associated MVP |
+| `<iktia-rating-group>` | Zag-backed rating control with pointer/keyboard selection, hover events, and native `FormData` behavior. | Experimental form-associated MVP |
 | `<iktia-segmented-control>` / `<iktia-segmented-item>` | Zag-backed single-selection segmented control with roving focus and native `FormData` behavior. | Experimental form-associated MVP |
 | `<iktia-select>` / `<iktia-select-item>` | Zag-backed single-selection listbox popup with typeahead, open state, and native `FormData` behavior. | Experimental form-associated MVP |
 | `<iktia-slider>` | Zag-backed single-value slider with pointer/keyboard behavior and native `FormData` behavior. | Experimental form-associated MVP |
@@ -58,8 +59,8 @@ The primitives expose platform-readable contracts:
 * Iktia-prefixed `CustomEvent`s such as `iktia-change`, `iktia-select`, and
   `iktia-press`.
 
-Checkbox, combobox, file upload, listbox, number input, pin input, radio group, segmented control,
-slider, select, switch, tags input, toggle, and toggle group use the compiler-owned `formControl()` spike to generate
+Checkbox, combobox, file upload, listbox, number input, pin input, radio group,
+rating group, segmented control, slider, select, switch, tags input, toggle, and toggle group use the compiler-owned `formControl()` spike to generate
 Form-Associated Custom Element output. They support `name`, `value`, submit,
 reset, disabled fieldset propagation, and `FormData` in the current MVP, but
 remain experimental until label association, validation, and broader

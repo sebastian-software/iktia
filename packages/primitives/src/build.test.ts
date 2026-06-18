@@ -40,6 +40,7 @@ describe("@iktia/primitives build output", () => {
     expect(index).toContain("export * from \"./popover.mjs\"")
     expect(index).toContain("export * from \"./radio.mjs\"")
     expect(index).toContain("export * from \"./radio-group.mjs\"")
+    expect(index).toContain("export * from \"./rating-group.mjs\"")
     expect(index).toContain("export * from \"./segmented-control.mjs\"")
     expect(index).toContain("export * from \"./segmented-item.mjs\"")
     expect(index).toContain("export * from \"./select.mjs\"")
@@ -78,6 +79,7 @@ describe("@iktia/primitives build output", () => {
     const pinInput = readFileSync(join(distRoot, "internal", "zag", "pin-input.js"), "utf8")
     const popover = readFileSync(join(distRoot, "internal", "zag", "popover.js"), "utf8")
     const radioGroup = readFileSync(join(distRoot, "internal", "zag", "radio-group.js"), "utf8")
+    const ratingGroup = readFileSync(join(distRoot, "internal", "zag", "rating-group.js"), "utf8")
     const service = readFileSync(join(distRoot, "internal", "zag", "service.js"), "utf8")
     const props = readFileSync(join(distRoot, "internal", "zag", "props.js"), "utf8")
     const scope = readFileSync(join(distRoot, "internal", "zag", "scope.js"), "utf8")
@@ -109,6 +111,7 @@ describe("@iktia/primitives build output", () => {
     expect(popover).toContain("@zag-js/popover")
     expect(radioGroup).toContain("@zag-js/radio-group")
     expect(radioGroup).toContain("syncIktiaRadioGroupItems")
+    expect(ratingGroup).toContain("@zag-js/rating-group")
     expect(service).toContain("createZagService")
     expect(props).toContain("normalizeZagProps")
     expect(scope).toContain("createZagScope")
@@ -176,6 +179,17 @@ describe("@iktia/primitives build output", () => {
     expect(radioGroup).toContain("#applySpreadAttributes")
     expect(radioGroup).not.toContain("@iktia/core")
     expect(radioGroup).not.toContain("type IktiaZagRadioGroupService")
+  })
+
+  it("backs rating group with the private Zag adapter", () => {
+    const ratingGroup = readFileSync(join(distRoot, "rating-group.mjs"), "utf8")
+
+    expect(ratingGroup).toContain("from \"./internal/zag/rating-group.js\"")
+    expect(ratingGroup).toContain("createIktiaZagRatingGroupService")
+    expect(ratingGroup).toContain("#applySpreadAttributes")
+    expect(ratingGroup).toContain("static formAssociated = true;")
+    expect(ratingGroup).not.toContain("@iktia/core")
+    expect(ratingGroup).not.toContain("type IktiaZagRatingGroupService")
   })
 
   it("backs segmented control with the private Zag adapter", () => {
@@ -384,6 +398,7 @@ describe("@iktia/primitives build output", () => {
     const numberInput = readFileSync(join(distRoot, "number-input.mjs"), "utf8")
     const pinInput = readFileSync(join(distRoot, "pin-input.mjs"), "utf8")
     const radioGroup = readFileSync(join(distRoot, "radio-group.mjs"), "utf8")
+    const ratingGroup = readFileSync(join(distRoot, "rating-group.mjs"), "utf8")
     const segmentedControl = readFileSync(join(distRoot, "segmented-control.mjs"), "utf8")
     const select = readFileSync(join(distRoot, "select.mjs"), "utf8")
     const slider = readFileSync(join(distRoot, "slider.mjs"), "utf8")
@@ -392,7 +407,7 @@ describe("@iktia/primitives build output", () => {
     const toggle = readFileSync(join(distRoot, "toggle.mjs"), "utf8")
     const toggleGroup = readFileSync(join(distRoot, "toggle-group.mjs"), "utf8")
 
-    for (const source of [checkbox, combobox, fileUpload, listbox, numberInput, pinInput, radioGroup, segmentedControl, select, slider, switchComponent, tagsInput, toggle, toggleGroup]) {
+    for (const source of [checkbox, combobox, fileUpload, listbox, numberInput, pinInput, radioGroup, ratingGroup, segmentedControl, select, slider, switchComponent, tagsInput, toggle, toggleGroup]) {
       expect(source).toContain("static formAssociated = true")
       expect(source).toContain("this.#internals = this.attachInternals()")
       expect(source).toContain("this.#internals.setFormValue")
