@@ -23,6 +23,10 @@
       "types": "./dist/accordion-item.d.mts",
       "import": "./dist/accordion-item.mjs"
     },
+    "./avatar": {
+      "types": "./dist/avatar.d.mts",
+      "import": "./dist/avatar.mjs"
+    },
     "./button": {
       "types": "./dist/button.d.mts",
       "import": "./dist/button.mjs"
@@ -106,6 +110,10 @@
     "./popover": {
       "types": "./dist/popover.d.mts",
       "import": "./dist/popover.mjs"
+    },
+    "./progress": {
+      "types": "./dist/progress.d.mts",
+      "import": "./dist/progress.mjs"
     },
     "./radio": {
       "types": "./dist/radio.d.mts",
@@ -193,6 +201,7 @@
     "@iktia/core": "workspace:^",
     "@internationalized/date": "3.12.2",
     "@zag-js/accordion": "1.41.2",
+    "@zag-js/avatar": "1.41.2",
     "@zag-js/checkbox": "1.41.2",
     "@zag-js/collapsible": "1.41.2",
     "@zag-js/combobox": "1.41.2",
@@ -206,6 +215,7 @@
     "@zag-js/number-input": "1.41.2",
     "@zag-js/pin-input": "1.41.2",
     "@zag-js/popover": "1.41.2",
+    "@zag-js/progress": "1.41.2",
     "@zag-js/radio-group": "1.41.2",
     "@zag-js/rating-group": "1.41.2",
     "@zag-js/select": "1.41.2",
@@ -213,6 +223,7 @@
     "@zag-js/switch": "1.41.2",
     "@zag-js/tabs": "1.41.2",
     "@zag-js/tags-input": "1.41.2",
+    "@zag-js/toast": "1.41.2",
     "@zag-js/toggle": "1.41.2",
     "@zag-js/toggle-group": "1.41.2",
     "@zag-js/tooltip": "1.41.2"

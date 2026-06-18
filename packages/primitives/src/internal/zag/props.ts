@@ -31,7 +31,10 @@ export function normalizeZagInputPropBag<T extends ZagPropBag>(props: T) {
 
 export const normalizeZagProps = {
   button: normalizeZagPropBag,
+  circle: normalizeZagPropBag,
   element: normalizeZagPropBag,
+  img: normalizeZagPropBag,
   input: normalizeZagInputPropBag,
   label: normalizeZagPropBag,
+  svg: normalizeZagPropBag,
 }

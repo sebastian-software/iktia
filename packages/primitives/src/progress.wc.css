@@ -1,0 +1,68 @@
+:host {
+  display: block;
+  font: inherit;
+}
+
+[part~="root"] {
+  display: grid;
+  gap: var(--iktia-progress-gap, 0.4rem);
+  width: min(var(--iktia-progress-width, 22rem), 100%);
+  color: var(--iktia-progress-fg, #17201b);
+}
+
+[part~="root"][data-orientation="vertical"] {
+  width: max-content;
+}
+
+[part~="label"] {
+  color: var(--iktia-progress-label-fg, #283c35);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+[part~="track"] {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: var(--iktia-progress-thickness, 0.7rem);
+  border-radius: 999px;
+  background: var(--iktia-progress-track-bg, #e2e8f0);
+}
+
+[part~="track"][data-orientation="vertical"] {
+  width: var(--iktia-progress-thickness, 0.7rem);
+  height: var(--iktia-progress-height, 8rem);
+}
+
+[part~="range"] {
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--iktia-progress-range-bg, #0f766e);
+}
+
+[part~="range"][data-orientation="vertical"] {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+[part~="range"][data-state="indeterminate"] {
+  width: 45%;
+  animation: iktia-progress-indeterminate 1.2s ease-in-out infinite;
+}
+
+[part~="value"] {
+  color: var(--iktia-progress-value-fg, #3f4d47);
+  font-size: 0.82rem;
+}
+
+@keyframes iktia-progress-indeterminate {
+  0% {
+    transform: translateX(-110%);
+  }
+
+  100% {
+    transform: translateX(230%);
+  }
+}

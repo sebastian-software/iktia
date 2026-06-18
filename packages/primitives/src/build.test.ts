@@ -19,6 +19,7 @@ describe("@iktia/primitives build output", () => {
 
     expect(index).toContain("export * from \"./accordion.mjs\"")
     expect(index).toContain("export * from \"./accordion-item.mjs\"")
+    expect(index).toContain("export * from \"./avatar.mjs\"")
     expect(index).toContain("export * from \"./button.mjs\"")
     expect(index).toContain("export * from \"./button-group.mjs\"")
     expect(index).toContain("export * from \"./checkbox.mjs\"")
@@ -40,6 +41,7 @@ describe("@iktia/primitives build output", () => {
     expect(index).toContain("export * from \"./number-input.mjs\"")
     expect(index).toContain("export * from \"./pin-input.mjs\"")
     expect(index).toContain("export * from \"./popover.mjs\"")
+    expect(index).toContain("export * from \"./progress.mjs\"")
     expect(index).toContain("export * from \"./radio.mjs\"")
     expect(index).toContain("export * from \"./radio-group.mjs\"")
     expect(index).toContain("export * from \"./rating-group.mjs\"")
@@ -69,6 +71,7 @@ describe("@iktia/primitives build output", () => {
   it("builds private Zag adapter helpers without adding public exports", () => {
     const index = readFileSync(join(distRoot, "index.mjs"), "utf8")
     const accordion = readFileSync(join(distRoot, "internal", "zag", "accordion.js"), "utf8")
+    const avatar = readFileSync(join(distRoot, "internal", "zag", "avatar.js"), "utf8")
     const checkbox = readFileSync(join(distRoot, "internal", "zag", "checkbox.js"), "utf8")
     const collapsible = readFileSync(join(distRoot, "internal", "zag", "collapsible.js"), "utf8")
     const combobox = readFileSync(join(distRoot, "internal", "zag", "combobox.js"), "utf8")
@@ -82,6 +85,7 @@ describe("@iktia/primitives build output", () => {
     const numberInput = readFileSync(join(distRoot, "internal", "zag", "number-input.js"), "utf8")
     const pinInput = readFileSync(join(distRoot, "internal", "zag", "pin-input.js"), "utf8")
     const popover = readFileSync(join(distRoot, "internal", "zag", "popover.js"), "utf8")
+    const progress = readFileSync(join(distRoot, "internal", "zag", "progress.js"), "utf8")
     const radioGroup = readFileSync(join(distRoot, "internal", "zag", "radio-group.js"), "utf8")
     const ratingGroup = readFileSync(join(distRoot, "internal", "zag", "rating-group.js"), "utf8")
     const service = readFileSync(join(distRoot, "internal", "zag", "service.js"), "utf8")
@@ -99,6 +103,7 @@ describe("@iktia/primitives build output", () => {
 
     expect(accordion).toContain("@zag-js/accordion")
     expect(accordion).toContain("syncIktiaAccordionItems")
+    expect(avatar).toContain("@zag-js/avatar")
     expect(checkbox).toContain("@zag-js/checkbox")
     expect(collapsible).toContain("@zag-js/collapsible")
     expect(combobox).toContain("@zag-js/combobox")
@@ -117,6 +122,7 @@ describe("@iktia/primitives build output", () => {
     expect(numberInput).toContain("@zag-js/number-input")
     expect(pinInput).toContain("@zag-js/pin-input")
     expect(popover).toContain("@zag-js/popover")
+    expect(progress).toContain("@zag-js/progress")
     expect(radioGroup).toContain("@zag-js/radio-group")
     expect(radioGroup).toContain("syncIktiaRadioGroupItems")
     expect(ratingGroup).toContain("@zag-js/rating-group")
@@ -165,6 +171,16 @@ describe("@iktia/primitives build output", () => {
     expect(accordion).toContain("#applySpreadAttributes")
     expect(accordion).not.toContain("@iktia/core")
     expect(accordion).not.toContain("type IktiaZagAccordionService")
+  })
+
+  it("backs avatar with the private Zag adapter", () => {
+    const avatar = readFileSync(join(distRoot, "avatar.mjs"), "utf8")
+
+    expect(avatar).toContain("from \"./internal/zag/avatar.js\"")
+    expect(avatar).toContain("createIktiaZagAvatarService")
+    expect(avatar).toContain("#applySpreadAttributes")
+    expect(avatar).not.toContain("@iktia/core")
+    expect(avatar).not.toContain("type IktiaZagAvatarService")
   })
 
   it("backs tabs with the private Zag adapter", () => {
@@ -354,6 +370,16 @@ describe("@iktia/primitives build output", () => {
     expect(popover).toContain("#applySpreadAttributes")
     expect(popover).not.toContain("@iktia/core")
     expect(popover).not.toContain("type IktiaZagPopoverService")
+  })
+
+  it("backs progress with the private Zag adapter", () => {
+    const progress = readFileSync(join(distRoot, "progress.mjs"), "utf8")
+
+    expect(progress).toContain("from \"./internal/zag/progress.js\"")
+    expect(progress).toContain("createIktiaZagProgressService")
+    expect(progress).toContain("#applySpreadAttributes")
+    expect(progress).not.toContain("@iktia/core")
+    expect(progress).not.toContain("type IktiaZagProgressService")
   })
 
   it("backs tooltip with the private Zag adapter", () => {

@@ -11,6 +11,7 @@ const distRoot = join(packageRoot, "dist")
 const components = [
   "accordion",
   "accordion-item",
+  "avatar",
   "button",
   "button-group",
   "checkbox",
@@ -32,6 +33,7 @@ const components = [
   "number-input",
   "pin-input",
   "popover",
+  "progress",
   "radio",
   "radio-group",
   "rating-group",
@@ -53,6 +55,7 @@ const components = [
 const behaviorFiles = ["checkbox", "disclosure", "tabs", "toggle"]
 const zagFiles = [
   "accordion",
+  "avatar",
   "checkbox",
   "collapsible",
   "combobox",
@@ -66,6 +69,7 @@ const zagFiles = [
   "number-input",
   "pin-input",
   "popover",
+  "progress",
   "props",
   "radio-group",
   "rating-group",

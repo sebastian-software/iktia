@@ -20,6 +20,7 @@ import "@iktia/primitives/toggle"
 | Element | Purpose | Status |
 | --- | --- | --- |
 | `<iktia-accordion>` / `<iktia-accordion-item>` | Zag-backed accordion collection with roving trigger focus, disabled items, and open state events. | Experimental disclosure MVP |
+| `<iktia-avatar>` | Zag-backed avatar with image loading state, fallback content, status events, parts, and CSS custom properties. | Experimental feedback MVP |
 | `<iktia-button>` | Shadow-DOM action button with slots, variants, parts, and `iktia-press`. | Experimental |
 | `<iktia-button-group>` | Oriented grouping for action controls. | Experimental |
 | `<iktia-checkbox>` | ARIA checkbox primitive with checked, indeterminate, and native `FormData` behavior. | Experimental form-associated MVP |
@@ -38,6 +39,7 @@ import "@iktia/primitives/toggle"
 | `<iktia-number-input>` | Zag-backed numeric input with steppers, keyboard behavior, min/max clamping, and native `FormData` behavior. | Experimental form-associated MVP |
 | `<iktia-pin-input>` | Zag-backed multi-field code input with keyboard, paste, complete, invalid, and native `FormData` behavior. | Experimental form-associated MVP |
 | `<iktia-popover>` | Zag-backed positioned popover with Escape/outside dismiss, close trigger, and focus return. | Experimental overlay MVP |
+| `<iktia-progress>` | Zag-backed linear progress indicator with ARIA progressbar state and indeterminate mode. | Experimental feedback MVP |
 | `<iktia-radio-group>` / `<iktia-radio>` | Zag-backed radio collection with roving focus and native `FormData` behavior. | Experimental form-associated MVP |
 | `<iktia-rating-group>` | Zag-backed rating control with pointer/keyboard selection, hover events, and native `FormData` behavior. | Experimental form-associated MVP |
 | `<iktia-segmented-control>` / `<iktia-segmented-item>` | Zag-backed single-selection segmented control with roving focus and native `FormData` behavior. | Experimental form-associated MVP |
