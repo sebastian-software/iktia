@@ -111,6 +111,10 @@
       "types": "./dist/select-item.d.mts",
       "import": "./dist/select-item.mjs"
     },
+    "./switch": {
+      "types": "./dist/switch.d.mts",
+      "import": "./dist/switch.mjs"
+    },
     "./tab": {
       "types": "./dist/tab.d.mts",
       "import": "./dist/tab.mjs"
@@ -166,6 +170,7 @@
     "@zag-js/popover": "1.41.2",
     "@zag-js/radio-group": "1.41.2",
     "@zag-js/select": "1.41.2",
+    "@zag-js/switch": "1.41.2",
     "@zag-js/tabs": "1.41.2",
     "@zag-js/toggle": "1.41.2",
     "@zag-js/toggle-group": "1.41.2",

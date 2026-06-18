@@ -144,6 +144,8 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   const checkboxButton = checkbox.locator("button")
   const toggle = section.locator("iktia-toggle")
   const toggleButton = toggle.locator("button")
+  const switchControl = section.locator("iktia-switch")
+  const switchTrack = switchControl.locator("[part~='track']")
   const primaryButton = section.locator("iktia-button[variant='primary']")
   const radioGroup = section.locator("iktia-radio-group")
   const radios = radioGroup.locator("iktia-radio")
@@ -207,6 +209,9 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(checkboxButton).toHaveAttribute("role", "checkbox")
   await expect(checkboxButton).toHaveAttribute("data-state", "unchecked")
   await expect(toggleButton).toHaveAttribute("data-state", "off")
+  await expect(switchTrack).toHaveAttribute("role", "switch")
+  await expect(switchTrack).toHaveAttribute("data-state", "checked")
+  await expect(switchTrack).toHaveAttribute("aria-checked", "true")
   await expect(radioGroup.locator("[role='radiogroup']")).toHaveAttribute(
     "data-state",
     "none"
@@ -317,6 +322,15 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(toggleButton).toHaveAttribute("data-state", "on")
   await expect(page.locator("#primitive-event")).toContainText('"pressed":true')
 
+  await switchTrack.click()
+  await expect(switchTrack).toHaveAttribute("data-state", "unchecked")
+  await expect(switchTrack).toHaveAttribute("aria-checked", "false")
+  await expect(page.locator("#primitive-event")).toContainText('"checked":false')
+  await switchTrack.click()
+  await expect(switchTrack).toHaveAttribute("data-state", "checked")
+  await expect(switchTrack).toHaveAttribute("aria-checked", "true")
+  await expect(page.locator("#primitive-event")).toContainText('"checked":true')
+
   await radios.nth(1).click()
   await expect(radios.nth(1)).toHaveAttribute("data-state", "checked")
   await expect(page.locator("#primitive-event")).toContainText('"value":"beta"')
@@ -380,15 +394,16 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await form.locator("button[type='submit']").click()
   await expect(page.locator("body")).toHaveAttribute(
     "data-last-primitive-form",
-    "docs:reviewed, preview:enabled, audience:stable, channels:docs, cadence:monthly, region:apac, lane:audit, owner:docs"
+    "docs:reviewed, preview:enabled, notify:enabled, audience:stable, channels:docs, cadence:monthly, region:apac, lane:audit, owner:docs"
   )
   await expect(page.locator("#primitive-form-event")).toHaveText(
-    "Last primitive form data: docs:reviewed, preview:enabled, audience:stable, channels:docs, cadence:monthly, region:apac, lane:audit, owner:docs"
+    "Last primitive form data: docs:reviewed, preview:enabled, notify:enabled, audience:stable, channels:docs, cadence:monthly, region:apac, lane:audit, owner:docs"
   )
 
   await form.locator("button[type='reset']").click()
   await expect(checkboxButton).toHaveAttribute("data-state", "unchecked")
   await expect(toggleButton).toHaveAttribute("data-state", "off")
+  await expect(switchTrack).toHaveAttribute("data-state", "checked")
   await expect(radios.nth(0)).toHaveAttribute("data-state", "unchecked")
   await expect(toggleItems.nth(0)).toHaveAttribute("data-state", "on")
   await expect(toggleItems.nth(1)).toHaveAttribute("data-state", "off")
@@ -400,7 +415,7 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(comboboxInput).toHaveValue("Operations")
   await expect(page.locator("body")).toHaveAttribute(
     "data-last-primitive-form",
-    "channels:web, cadence:weekly, region:eu, lane:review, owner:ops"
+    "notify:enabled, channels:web, cadence:weekly, region:eu, lane:review, owner:ops"
   )
 
   await combobox.evaluate((element) => {
@@ -727,6 +742,7 @@ test("form-associated primitive controls receive disabled fieldset state", async
       <fieldset disabled>
         <iktia-checkbox name="blocked" value="yes" label="Blocked"></iktia-checkbox>
         <iktia-toggle name="blocked-toggle" value="yes" label="Blocked toggle"></iktia-toggle>
+        <iktia-switch name="blocked-switch" value="yes" label="Blocked switch"></iktia-switch>
         <iktia-radio-group name="blocked-radio" label="Blocked radio">
           <iktia-radio value="yes" label="Yes"></iktia-radio>
         </iktia-radio-group>
@@ -753,6 +769,7 @@ test("form-associated primitive controls receive disabled fieldset state", async
   const checkboxButton = page.locator("form fieldset iktia-checkbox button")
   const radio = page.locator("form fieldset iktia-radio")
   const toggleButton = page.locator("form fieldset iktia-toggle button")
+  const switchInput = page.locator("form fieldset iktia-switch input")
   const toggleItem = page.locator("form fieldset iktia-toggle-item")
   const segmentedItem = page.locator("form fieldset iktia-segmented-item")
   const selectButton = page.locator("form fieldset iktia-select button")
@@ -764,6 +781,7 @@ test("form-associated primitive controls receive disabled fieldset state", async
 
   await expect(checkboxButton).toBeDisabled()
   await expect(toggleButton).toBeDisabled()
+  await expect(switchInput).toBeDisabled()
   await expect(selectButton).toBeDisabled()
   await expect(comboboxInput).toBeDisabled()
   await expect(comboboxButton).toBeDisabled()
