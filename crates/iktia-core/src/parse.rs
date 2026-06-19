@@ -4,7 +4,8 @@ use crate::ast::{
 use crate::error::{
     CompilerError, CompilerResult, DIAGNOSTIC_CODE_COMPONENT_TEMPLATE_REQUIRED,
     DIAGNOSTIC_CODE_UNSUPPORTED_COMPONENT_OPTIONS, DIAGNOSTIC_CODE_UNSUPPORTED_FUNCTION_PROPS,
-    DIAGNOSTIC_HINT_FUNCTION_COMPONENT, removed_authoring_api, unsupported, unsupported_with_code,
+    DIAGNOSTIC_HINT_COMPONENT_OPTIONS, DIAGNOSTIC_HINT_FUNCTION_COMPONENT,
+    DIAGNOSTIC_HINT_FUNCTION_PROPS, removed_authoring_api, unsupported, unsupported_with_code,
 };
 use crate::model::{
     ComponentImport, ComponentModule, ComponentOptions, PropAccess, PropDefinition, PropKind,
@@ -134,7 +135,7 @@ fn capture_component_options(component_call: &str) -> CompilerResult<ComponentOp
             return Err(unsupported_with_code(
                 DIAGNOSTIC_CODE_UNSUPPORTED_COMPONENT_OPTIONS,
                 "Component options only support `styles` in the public v0.1 API.",
-                "Use `export const options = { styles: [...] } satisfies ComponentOptions`.",
+                DIAGNOSTIC_HINT_COMPONENT_OPTIONS,
             ));
         }
     }
@@ -217,7 +218,7 @@ fn capture_function_props(params: &str) -> CompilerResult<Vec<PropDefinition>> {
             return Err(unsupported_with_code(
                 DIAGNOSTIC_CODE_UNSUPPORTED_FUNCTION_PROPS,
                 "Function component rest props are not supported in the current compiler milestone.",
-                "Declare explicit destructured props with defaults.",
+                DIAGNOSTIC_HINT_FUNCTION_PROPS,
             ));
         }
         props.push(parse_function_prop(prop_source)?);
@@ -244,7 +245,7 @@ fn parse_function_prop(prop_source: &str) -> CompilerResult<PropDefinition> {
         return Err(unsupported_with_code(
             DIAGNOSTIC_CODE_UNSUPPORTED_FUNCTION_PROPS,
             "Function component prop binding must have a name.",
-            "Declare explicit destructured props with defaults.",
+            DIAGNOSTIC_HINT_FUNCTION_PROPS,
         ));
     }
 

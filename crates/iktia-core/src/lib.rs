@@ -40,15 +40,69 @@ mod tests {
     };
     use crate::error::{
         DIAGNOSTIC_CODE_COMPONENT_TEMPLATE_REQUIRED, DIAGNOSTIC_CODE_DSD_INPUT,
-        DIAGNOSTIC_CODE_REMOVED_AUTHORING_API, DIAGNOSTIC_CODE_UNSUPPORTED_COMPONENT_OPTIONS,
+        DIAGNOSTIC_CODE_REMOVED_AUTHORING_API, DIAGNOSTIC_CODE_TEMPLATE_PARSE,
+        DIAGNOSTIC_CODE_UNSUPPORTED_COMPONENT_OPTIONS,
         DIAGNOSTIC_CODE_UNSUPPORTED_COMPUTED_CALLBACK, DIAGNOSTIC_CODE_UNSUPPORTED_CONDITIONAL_JSX,
-        DIAGNOSTIC_CODE_UNSUPPORTED_FUNCTION_PROPS, DIAGNOSTIC_CODE_UNSUPPORTED_LIST_RENDERER,
-        DIAGNOSTIC_CODE_UNSUPPORTED_SHOW_FALLBACK,
+        DIAGNOSTIC_CODE_UNSUPPORTED_EFFECT_CALLBACK, DIAGNOSTIC_CODE_UNSUPPORTED_FUNCTION_PROPS,
+        DIAGNOSTIC_CODE_UNSUPPORTED_LIST_RENDERER, DIAGNOSTIC_CODE_UNSUPPORTED_SHOW_FALLBACK,
+        DIAGNOSTIC_CODE_UNSUPPORTED_SYNTAX,
     };
 
     #[test]
     fn core_version_should_match_crate_version() {
         assert_eq!(core_version(), env!("CARGO_PKG_VERSION"));
+    }
+
+    #[test]
+    fn diagnostic_catalog_code_literals_should_stay_stable() {
+        let codes = [
+            (DIAGNOSTIC_CODE_DSD_INPUT, "IKTIA_DSD_INPUT"),
+            (
+                DIAGNOSTIC_CODE_COMPONENT_TEMPLATE_REQUIRED,
+                "IKTIA_COMPONENT_TEMPLATE_REQUIRED",
+            ),
+            (
+                DIAGNOSTIC_CODE_REMOVED_AUTHORING_API,
+                "IKTIA_REMOVED_AUTHORING_API",
+            ),
+            (DIAGNOSTIC_CODE_TEMPLATE_PARSE, "IKTIA_TEMPLATE_PARSE"),
+            (
+                DIAGNOSTIC_CODE_UNSUPPORTED_COMPONENT_OPTIONS,
+                "IKTIA_UNSUPPORTED_COMPONENT_OPTIONS",
+            ),
+            (
+                DIAGNOSTIC_CODE_UNSUPPORTED_CONDITIONAL_JSX,
+                "IKTIA_UNSUPPORTED_CONDITIONAL_JSX",
+            ),
+            (
+                DIAGNOSTIC_CODE_UNSUPPORTED_COMPUTED_CALLBACK,
+                "IKTIA_UNSUPPORTED_COMPUTED_CALLBACK",
+            ),
+            (
+                DIAGNOSTIC_CODE_UNSUPPORTED_EFFECT_CALLBACK,
+                "IKTIA_UNSUPPORTED_EFFECT_CALLBACK",
+            ),
+            (
+                DIAGNOSTIC_CODE_UNSUPPORTED_FUNCTION_PROPS,
+                "IKTIA_UNSUPPORTED_FUNCTION_PROPS",
+            ),
+            (
+                DIAGNOSTIC_CODE_UNSUPPORTED_LIST_RENDERER,
+                "IKTIA_UNSUPPORTED_LIST_RENDERER",
+            ),
+            (
+                DIAGNOSTIC_CODE_UNSUPPORTED_SHOW_FALLBACK,
+                "IKTIA_UNSUPPORTED_SHOW_FALLBACK",
+            ),
+            (
+                DIAGNOSTIC_CODE_UNSUPPORTED_SYNTAX,
+                "IKTIA_UNSUPPORTED_SYNTAX",
+            ),
+        ];
+
+        for (actual, expected) in codes {
+            assert_eq!(actual, expected);
+        }
     }
 
     fn assert_diagnostic<T: std::fmt::Debug>(
@@ -161,6 +215,23 @@ mod tests {
                 "authoring limitations",
             ),
             (
+                "effect-malformed-callback.wc.tsx",
+                r#"
+                    import { effect, state } from "@iktia/core";
+
+                    export function EffectMalformedCallback() {
+                      const count = state(0);
+                      effect((() => {
+                        count.set(1);
+                      }) satisfies () => void);
+                      return <button>{count()}</button>;
+                    }
+                "#,
+                DIAGNOSTIC_CODE_UNSUPPORTED_EFFECT_CALLBACK,
+                "effect() callback body is malformed",
+                "authoring limitations",
+            ),
+            (
                 "unkeyed-map.wc.tsx",
                 r#"
                     import { computed } from "@iktia/core";
@@ -228,6 +299,16 @@ mod tests {
             DIAGNOSTIC_CODE_DSD_INPUT,
             "DSD prerender props must be a JSON object",
             "JSON objects",
+        );
+
+        assert_diagnostic(
+            Result::<(), super::CompilerError>::Err(crate::error::template_parse(
+                "Attribute `data-count` must use a quoted or braced value.",
+            )),
+            "template-parse.wc.tsx",
+            DIAGNOSTIC_CODE_TEMPLATE_PARSE,
+            "Attribute `data-count` must use a quoted or braced value",
+            "authoring limitations",
         );
     }
 

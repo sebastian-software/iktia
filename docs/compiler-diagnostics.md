@@ -19,12 +19,12 @@ currently report `span: null` until span-rich rejection paths are implemented.
 | `IKTIA_REMOVED_AUTHORING_API` | Removed v0.1 APIs such as `component()`, `signal()`, `prop()`, or `useHost()` were used. | Use the v0.1 function component authoring API. |
 | `IKTIA_UNSUPPORTED_COMPONENT_OPTIONS` | Component options used public fields outside `styles`. | Use `export const options = { styles: [...] } satisfies ComponentOptions`. |
 | `IKTIA_UNSUPPORTED_FUNCTION_PROPS` | Function props used unsupported destructuring such as rest props. | Declare explicit destructured props with defaults. |
-| `IKTIA_UNSUPPORTED_COMPUTED_CALLBACK` | `computed()` did not use the supported arrow-expression callback form. | Use `computed(() => expression)`. |
-| `IKTIA_UNSUPPORTED_EFFECT_CALLBACK` | `effect()` did not use the supported arrow callback shape. | Use `effect(() => { ... })` or `effect(() => cleanup)`. |
+| `IKTIA_UNSUPPORTED_COMPUTED_CALLBACK` | `computed()` did not use the supported arrow-expression callback form. | Check the v0.1 authoring limitations. |
+| `IKTIA_UNSUPPORTED_EFFECT_CALLBACK` | `effect()` did not use the supported arrow callback shape. | Check the v0.1 authoring limitations. |
 | `IKTIA_UNSUPPORTED_LIST_RENDERER` | A list expression did not match the supported keyed `.map()` or `<For>` shape. | Return one keyed JSX element from a simple arrow callback. |
 | `IKTIA_UNSUPPORTED_CONDITIONAL_JSX` | Conditional JSX was authored outside the explicit control-flow primitive. | Use `<Show when={...} fallback={...}>`. |
 | `IKTIA_UNSUPPORTED_SHOW_FALLBACK` | `<Show fallback>` was present without a value. | Provide a static, expression, or JSX fallback value. |
-| `IKTIA_TEMPLATE_PARSE` | The TSX template slice did not match Iktia's supported template grammar. | Check tag nesting, attribute values, and braced expressions. |
+| `IKTIA_TEMPLATE_PARSE` | The TSX template slice did not match Iktia's supported template grammar. | Check the v0.1 authoring limitations. |
 | `IKTIA_DSD_INPUT` | Declarative Shadow DOM props or inline styles were not valid JSON objects. | Pass JSON objects for DSD props and inline styles. |
 | `IKTIA_UNSUPPORTED_SYNTAX` | A syntax boundary is unsupported but not yet assigned a narrower catalog code. | Check the v0.1 authoring limitations. |
 | `IKTIA_INTERNAL_PATTERN` | A compiler-internal pattern failed. | Report this as an Iktia compiler bug. |

@@ -4,10 +4,14 @@ use crate::model::{CompilerDiagnostic, DiagnosticSeverity};
 
 pub(crate) const DIAGNOSTIC_HINT_AUTHORING_LIMITATIONS: &str =
     "Check the v0.1 authoring limitations for supported TSX.";
+pub(crate) const DIAGNOSTIC_HINT_COMPONENT_OPTIONS: &str =
+    "Use `export const options = { styles: [...] } satisfies ComponentOptions`.";
 pub(crate) const DIAGNOSTIC_HINT_DSD_INPUTS: &str =
     "Pass JSON objects for DSD props and inline styles.";
 pub(crate) const DIAGNOSTIC_HINT_FUNCTION_COMPONENT: &str =
     "Export a PascalCase function component with a parenthesized TSX return value.";
+pub(crate) const DIAGNOSTIC_HINT_FUNCTION_PROPS: &str =
+    "Declare explicit destructured props with defaults.";
 pub(crate) const DIAGNOSTIC_HINT_LISTS: &str =
     "Use a keyed .map() expression or <For> child that returns one JSX element.";
 pub(crate) const DIAGNOSTIC_HINT_REMOVED_API: &str =
