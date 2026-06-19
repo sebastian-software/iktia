@@ -78,6 +78,20 @@ Generated updates currently cover dynamic attributes, text bindings, effects,
 `.map()` list containers. Item-keyed lists reuse row nodes by key; index-keyed
 lists reuse row nodes by position and rebind item accessors on update.
 
+Item-keyed list row bindings can use a local keyed selector helper when the
+helper is a one-argument arrow function that directly compares a state accessor
+to the argument:
+
+```ts
+const selected = state("a")
+const isSelected = (id: string) => selected() === id
+```
+
+Bindings such as `aria-selected={isSelected(row.id)}` and
+`data-state={isSelected(row.id) ? "selected" : "idle"}` are lowered to keyed
+dirty bindings. Updating `selected` reruns row bindings registered for only the
+previous and next keys, without rerunning the full keyed list reconciliation.
+
 ## Dependency Detection Boundary
 
 Reactive update dependencies are detected from AST-selected source slices with
@@ -87,6 +101,14 @@ JavaScript syntax such as regex literals, dynamic helper indirection, and
 dependencies hidden inside arbitrary callbacks may still fall back to broad
 reruns. That fallback is conservative: it may update more DOM or rerun an
 effect, but it should not skip a known state, prop, or computed dependency.
+
+Keyed selector lowering stays inside that static boundary. The compiler
+recognizes direct local one-parameter arrow helpers in either comparison order,
+for example `selected() === id` or `id === selected()`. A row binding is keyed
+only when the binding expression contains exactly one recognized selector call.
+Arbitrary selector bodies, imported helpers, multiple selector calls in one
+binding, non-state comparisons, and helper indirection fall back to normal
+dependency detection.
 
 ## Styling Boundary
 

@@ -9,8 +9,8 @@ use crate::error::{
 };
 use crate::model::{
     ComponentModule, ComputedDefinition, DeclarativeShadowDomRenderResult, EffectDefinition,
-    EventDefinition, FormControlDefinition, PropDefinition, PropKind, SourceMap, StateDefinition,
-    TransformResult,
+    EventDefinition, FormControlDefinition, KeyedSelectorDefinition, PropDefinition, PropKind,
+    SourceMap, StateDefinition, TransformResult,
 };
 use crate::naming::{
     custom_element_tag_for_component, is_pascal_case_identifier, kebab_case_identifier,
@@ -469,8 +469,19 @@ impl<'a> CodeGenerator<'a> {
         expression_dependencies(expression, self.module)
     }
 
+    fn dependencies_for_expression_without_keyed_selectors(
+        &self,
+        expression: &str,
+    ) -> ReactiveDependencies {
+        expression_dependencies_without_keyed_selectors(expression, self.module)
+    }
+
     fn uses_scheduled_updates(&self) -> bool {
         !self.module.states.is_empty() || self.module.uses_host_helpers
+    }
+
+    fn uses_keyed_selectors(&self) -> bool {
+        !self.module.keyed_selectors.is_empty()
     }
 
     fn emit_runtime_imports(&self, code: &mut String) -> CompilerResult<()> {
@@ -545,6 +556,9 @@ impl<'a> CodeGenerator<'a> {
         }
         if !self.module.computed.is_empty() {
             writeln!(code, "  #computedCache = new Map();").map_err(format_error)?;
+        }
+        if self.uses_keyed_selectors() {
+            writeln!(code, "  #keyedBindingRegistry = new Map();").map_err(format_error)?;
         }
         if !self.module.form_controls.is_empty() {
             writeln!(code, "  #internals;").map_err(format_error)?;
@@ -987,6 +1001,9 @@ impl<'a> CodeGenerator<'a> {
         for computed in &self.module.computed {
             self.emit_computed_binding(code, computed)?;
         }
+        for selector in &self.module.keyed_selectors {
+            self.emit_keyed_selector_binding(code, selector)?;
+        }
         for event in &self.module.events {
             self.emit_event_binding(code, event)?;
         }
@@ -1016,16 +1033,63 @@ impl<'a> CodeGenerator<'a> {
             state.local_name, state.local_name
         )
         .map_err(format_error)?;
-        writeln!(
-            code,
-            "    {}.set = (value) => {{ this.#state.{} = value; this.#markDirty(\"{}\"); this.#scheduleFlush(); }};",
-            state.local_name, state.local_name, state.local_name
-        )
-        .map_err(format_error)?;
+        let keyed_selectors = self
+            .module
+            .keyed_selectors
+            .iter()
+            .filter(|selector| selector.source_name == state.local_name)
+            .collect::<Vec<_>>();
+        if keyed_selectors.is_empty() {
+            writeln!(
+                code,
+                "    {}.set = (value) => {{ this.#state.{} = value; this.#markDirty(\"{}\"); this.#scheduleFlush(); }};",
+                state.local_name, state.local_name, state.local_name
+            )
+            .map_err(format_error)?;
+        } else {
+            writeln!(code, "    {}.set = (value) => {{", state.local_name).map_err(format_error)?;
+            writeln!(
+                code,
+                "      const previousValue = this.#state.{};",
+                state.local_name
+            )
+            .map_err(format_error)?;
+            writeln!(code, "      this.#state.{} = value;", state.local_name)
+                .map_err(format_error)?;
+            writeln!(code, "      this.#markDirty(\"{}\");", state.local_name)
+                .map_err(format_error)?;
+            for selector in keyed_selectors {
+                writeln!(
+                    code,
+                    "      this.#markKeyedSelectorDirty(\"{}\", previousValue, value);",
+                    escape_js_string(&selector.local_name)
+                )
+                .map_err(format_error)?;
+            }
+            writeln!(code, "      this.#scheduleFlush();").map_err(format_error)?;
+            writeln!(code, "    }};").map_err(format_error)?;
+        }
         writeln!(
             code,
             "    {}.update = (updater) => {{ {}.set(updater({}())); }};",
             state.local_name, state.local_name, state.local_name
+        )
+        .map_err(format_error)?;
+        Ok(())
+    }
+
+    fn emit_keyed_selector_binding(
+        &self,
+        code: &mut String,
+        selector: &KeyedSelectorDefinition,
+    ) -> CompilerResult<()> {
+        writeln!(
+            code,
+            "    const {} = ({}) => {}() === {};",
+            selector.local_name,
+            selector.parameter_name,
+            selector.source_name,
+            selector.parameter_name
         )
         .map_err(format_error)?;
         Ok(())
@@ -1156,6 +1220,150 @@ impl<'a> CodeGenerator<'a> {
             writeln!(code, "    this.#computedCache.clear();").map_err(format_error)?;
         }
         writeln!(code, "  }}").map_err(format_error)?;
+        if self.uses_keyed_selectors() {
+            writeln!(
+                code,
+                "  #markKeyedSelectorDirty(selector, previousValue, nextValue) {{"
+            )
+            .map_err(format_error)?;
+            writeln!(code, "    if (Object.is(previousValue, nextValue)) return;")
+                .map_err(format_error)?;
+            writeln!(
+                code,
+                "    this.#dirtySources.add(this.#keyedSelectorToken(selector, previousValue));"
+            )
+            .map_err(format_error)?;
+            writeln!(
+                code,
+                "    this.#dirtySources.add(this.#keyedSelectorToken(selector, nextValue));"
+            )
+            .map_err(format_error)?;
+            writeln!(code, "  }}").map_err(format_error)?;
+            writeln!(code, "  #keyedSelectorToken(selector, key) {{").map_err(format_error)?;
+            writeln!(
+                code,
+                "    const type = key === null ? \"null\" : typeof key;"
+            )
+            .map_err(format_error)?;
+            writeln!(
+                code,
+                "    return `@iktia:keyed:${{selector}}:${{type}}:${{String(key)}}`;"
+            )
+            .map_err(format_error)?;
+            writeln!(code, "  }}").map_err(format_error)?;
+            writeln!(
+                code,
+                "  #registerKeyedBinding(selector, key, record, bindingName, update) {{"
+            )
+            .map_err(format_error)?;
+            writeln!(
+                code,
+                "    const token = this.#keyedSelectorToken(selector, key);"
+            )
+            .map_err(format_error)?;
+            writeln!(code, "    record.__iktiaKeyedBindings ??= new Map();")
+                .map_err(format_error)?;
+            writeln!(
+                code,
+                "    const previousToken = record.__iktiaKeyedBindings.get(bindingName);"
+            )
+            .map_err(format_error)?;
+            writeln!(
+                code,
+                "    if (previousToken && previousToken !== token) this.#unregisterKeyedBindingToken(previousToken, record, bindingName);"
+            )
+            .map_err(format_error)?;
+            writeln!(
+                code,
+                "    let recordBindings = this.#keyedBindingRegistry.get(token);"
+            )
+            .map_err(format_error)?;
+            writeln!(code, "    if (!recordBindings) {{").map_err(format_error)?;
+            writeln!(code, "      recordBindings = new Map();").map_err(format_error)?;
+            writeln!(
+                code,
+                "      this.#keyedBindingRegistry.set(token, recordBindings);"
+            )
+            .map_err(format_error)?;
+            writeln!(code, "    }}").map_err(format_error)?;
+            writeln!(code, "    let bindings = recordBindings.get(record);")
+                .map_err(format_error)?;
+            writeln!(code, "    if (!bindings) {{").map_err(format_error)?;
+            writeln!(code, "      bindings = new Map();").map_err(format_error)?;
+            writeln!(code, "      recordBindings.set(record, bindings);").map_err(format_error)?;
+            writeln!(code, "    }}").map_err(format_error)?;
+            writeln!(code, "    bindings.set(bindingName, update);").map_err(format_error)?;
+            writeln!(
+                code,
+                "    record.__iktiaKeyedBindings.set(bindingName, token);"
+            )
+            .map_err(format_error)?;
+            writeln!(code, "  }}").map_err(format_error)?;
+            writeln!(
+                code,
+                "  #unregisterKeyedBindingToken(token, record, bindingName) {{"
+            )
+            .map_err(format_error)?;
+            writeln!(
+                code,
+                "    const recordBindings = this.#keyedBindingRegistry.get(token);"
+            )
+            .map_err(format_error)?;
+            writeln!(code, "    if (!recordBindings) return;").map_err(format_error)?;
+            writeln!(code, "    const bindings = recordBindings.get(record);")
+                .map_err(format_error)?;
+            writeln!(code, "    if (!bindings) return;").map_err(format_error)?;
+            writeln!(code, "    bindings.delete(bindingName);").map_err(format_error)?;
+            writeln!(
+                code,
+                "    if (bindings.size === 0) recordBindings.delete(record);"
+            )
+            .map_err(format_error)?;
+            writeln!(
+                code,
+                "    if (recordBindings.size === 0) this.#keyedBindingRegistry.delete(token);"
+            )
+            .map_err(format_error)?;
+            writeln!(code, "  }}").map_err(format_error)?;
+            writeln!(code, "  #unregisterKeyedBindings(record) {{").map_err(format_error)?;
+            writeln!(code, "    if (!record.__iktiaKeyedBindings) return;")
+                .map_err(format_error)?;
+            writeln!(
+                code,
+                "    for (const [bindingName, token] of record.__iktiaKeyedBindings.entries()) {{"
+            )
+            .map_err(format_error)?;
+            writeln!(
+                code,
+                "      this.#unregisterKeyedBindingToken(token, record, bindingName);"
+            )
+            .map_err(format_error)?;
+            writeln!(code, "    }}").map_err(format_error)?;
+            writeln!(code, "    record.__iktiaKeyedBindings.clear();").map_err(format_error)?;
+            writeln!(code, "  }}").map_err(format_error)?;
+            writeln!(code, "  #runKeyedBindings(dirtySources) {{").map_err(format_error)?;
+            writeln!(code, "    if (dirtySources === null) return;").map_err(format_error)?;
+            writeln!(code, "    for (const source of dirtySources) {{").map_err(format_error)?;
+            writeln!(
+                code,
+                "      const recordBindings = this.#keyedBindingRegistry.get(source);"
+            )
+            .map_err(format_error)?;
+            writeln!(code, "      if (!recordBindings) continue;").map_err(format_error)?;
+            writeln!(
+                code,
+                "      for (const bindings of Array.from(recordBindings.values())) {{"
+            )
+            .map_err(format_error)?;
+            writeln!(
+                code,
+                "        for (const update of Array.from(bindings.values())) update();"
+            )
+            .map_err(format_error)?;
+            writeln!(code, "      }}").map_err(format_error)?;
+            writeln!(code, "    }}").map_err(format_error)?;
+            writeln!(code, "  }}").map_err(format_error)?;
+        }
         writeln!(code, "  #markAllDirty() {{").map_err(format_error)?;
         writeln!(code, "    this.#needsFullUpdate = true;").map_err(format_error)?;
         writeln!(code, "    this.#dirtySources.clear();").map_err(format_error)?;
@@ -1180,6 +1388,9 @@ impl<'a> CodeGenerator<'a> {
             writeln!(code, "    this.#computedCache.clear();").map_err(format_error)?;
         }
         writeln!(code, "    this.#update(dirtySources);").map_err(format_error)?;
+        if self.uses_keyed_selectors() {
+            writeln!(code, "    this.#runKeyedBindings(dirtySources);").map_err(format_error)?;
+        }
         if !self.module.form_controls.is_empty() {
             writeln!(code, "    this.#syncFormValue(dirtySources);").map_err(format_error)?;
         }
@@ -1660,6 +1871,8 @@ impl<'a> CodeGenerator<'a> {
         let cursor_variable = format!("{field}Cursor");
         let ordered_node_variable = format!("{field}OrderedNode");
         let next_sibling_variable = format!("{field}NextSibling");
+        let retained_records_variable = format!("{field}RetainedRecords");
+        let stale_record_variable = format!("{field}StaleRecord");
         let render_prefix = format!("for{index}");
         let row_template =
             self.emit_list_row_template(&rendered_template, &render_prefix, &record_variable)?;
@@ -1719,23 +1932,65 @@ impl<'a> CodeGenerator<'a> {
             row_template.record_properties.join(", ")
         ));
         update_lines.push("  }".to_owned());
-        if renderer.kind == ListRendererKind::IndexKeyed {
-            update_lines.push(format!(
-                "  {record_variable}.value = {items_variable}[{loop_index_variable}];"
-            ));
-            update_lines.push(format!(
-                "  const {} = () => {record_variable}.value;",
-                renderer.item_name
-            ));
+        match renderer.kind {
+            ListRendererKind::ItemKeyed => {
+                update_lines.push(format!(
+                    "  {record_variable}.value = {};",
+                    renderer.item_name
+                ));
+            }
+            ListRendererKind::IndexKeyed => {
+                update_lines.push(format!(
+                    "  {record_variable}.value = {items_variable}[{loop_index_variable}];"
+                ));
+                update_lines.push(format!(
+                    "  const {} = () => {record_variable}.value;",
+                    renderer.item_name
+                ));
+            }
         }
-        for line in &row_template.update_lines {
-            update_lines.push(format!("  {line}"));
+        update_lines.push(format!(
+            "  {record_variable}.index = {loop_index_variable};"
+        ));
+        let mut binding_index = 0usize;
+        for update_line in &row_template.update_lines {
+            if let Some(keyed_selector) = &update_line.keyed_selector {
+                let binding_name = format!("{render_prefix}Binding{binding_index}");
+                binding_index += 1;
+                update_lines.push(format!("  {record_variable}.{binding_name} = () => {{"));
+                for line in list_row_binding_scope_lines(renderer, &record_variable) {
+                    update_lines.push(format!("    {line}"));
+                }
+                update_lines.push(format!("    {}", update_line.line));
+                update_lines.push("  };".to_owned());
+                update_lines.push(format!("  {record_variable}.{binding_name}();"));
+                update_lines.push(format!(
+                    "  this.#registerKeyedBinding(\"{}\", {}, {record_variable}, \"{}\", {record_variable}.{binding_name});",
+                    escape_js_string(&keyed_selector.selector_name),
+                    keyed_selector.key_expression,
+                    escape_js_string(&binding_name)
+                ));
+            } else {
+                update_lines.push(format!("  {}", update_line.line));
+            }
         }
         update_lines.push(format!(
             "  {next_records_variable}.set({render_prefix}Key, {record_variable});"
         ));
         update_lines.push(format!("  {nodes_variable}.push({record_variable}.node);"));
         update_lines.push("}".to_owned());
+        if self.uses_keyed_selectors() {
+            update_lines.push(format!(
+                "const {retained_records_variable} = new Set({next_records_variable}.values());"
+            ));
+            update_lines.push(format!(
+                "for (const {stale_record_variable} of this.#{records_field}.values()) {{"
+            ));
+            update_lines.push(format!(
+                "  if (!{retained_records_variable}.has({stale_record_variable})) this.#unregisterKeyedBindings({stale_record_variable});"
+            ));
+            update_lines.push("}".to_owned());
+        }
         update_lines.push(format!("this.#{records_field} = {next_records_variable};"));
         update_lines.push(format!("let {cursor_variable} = this.#{field}.firstChild;"));
         update_lines.push(format!(
@@ -1762,7 +2017,7 @@ impl<'a> CodeGenerator<'a> {
         update_lines.push("}".to_owned());
         self.push_update_lines(
             update_lines,
-            self.dependencies_for_expression(&format!(
+            self.dependencies_for_expression_without_keyed_selectors(&format!(
                 "{} {} {}",
                 renderer.each_expression,
                 renderer.key_expression.as_deref().unwrap_or(""),
@@ -1796,6 +2051,16 @@ impl<'a> CodeGenerator<'a> {
             record_properties: build.record_properties,
             update_lines: build.update_lines,
         })
+    }
+
+    fn push_list_row_update_line(&self, build: &mut ListRowBuild, expression: &str, line: String) {
+        build.update_lines.push(ListRowUpdateLine {
+            line,
+            keyed_selector: keyed_selector_use_for_expression(
+                expression,
+                &self.module.keyed_selectors,
+            ),
+        });
     }
 
     fn emit_list_row_element(
@@ -1846,11 +2111,15 @@ impl<'a> CodeGenerator<'a> {
                         .create_lines
                         .push(format!("{variable}.append({text_variable});"));
                     build.record_properties.push(text_variable.clone());
-                    build.update_lines.push(format!(
-                        "{}.{text_variable}.data = String({});",
-                        build.record_variable,
-                        expression.trim()
-                    ));
+                    self.push_list_row_update_line(
+                        build,
+                        expression,
+                        format!(
+                            "{}.{text_variable}.data = String({});",
+                            build.record_variable,
+                            expression.trim()
+                        ),
+                    );
                 }
                 TemplateChild::Text(text) => {
                     if let Some(expression) = text_expression(text) {
@@ -1863,10 +2132,14 @@ impl<'a> CodeGenerator<'a> {
                             .create_lines
                             .push(format!("{variable}.append({text_variable});"));
                         build.record_properties.push(text_variable.clone());
-                        build.update_lines.push(format!(
-                            "{}.{text_variable}.data = {expression};",
-                            build.record_variable
-                        ));
+                        self.push_list_row_update_line(
+                            build,
+                            &expression,
+                            format!(
+                                "{}.{text_variable}.data = {expression};",
+                                build.record_variable
+                            ),
+                        );
                     }
                 }
             }
@@ -1898,10 +2171,10 @@ impl<'a> CodeGenerator<'a> {
                 "const {spread_cache} = {{ names: new Set(), listeners: new Map(), styles: new Set() }};"
             ));
             build.record_properties.push(spread_cache.clone());
-            build.update_lines.push(format!(
+            build.update_lines.push(ListRowUpdateLine::plain(format!(
                 "this.#applySpreadAttributes({}.{variable}, {}.{spread_cache}, {expression});",
                 build.record_variable, build.record_variable
-            ));
+            )));
             return Ok(());
         };
         if name == "key" {
@@ -1918,26 +2191,30 @@ impl<'a> CodeGenerator<'a> {
             build
                 .record_properties
                 .push(format!("{listener_property}: null"));
-            build.update_lines.push(format!(
+            build.update_lines.push(ListRowUpdateLine::plain(format!(
                 "if ({}.{listener_property}) {}.{variable}.removeEventListener(\"{event_name}\", {}.{listener_property});",
                 build.record_variable, build.record_variable, build.record_variable
-            ));
-            build.update_lines.push(format!(
+            )));
+            build.update_lines.push(ListRowUpdateLine::plain(format!(
                 "{}.{listener_property} = (event) => {{",
                 build.record_variable
-            ));
+            )));
             for line in handler_body(expression)
                 .lines()
                 .map(str::trim)
                 .filter(|line| !line.is_empty())
             {
-                build.update_lines.push(format!("  {line}"));
+                build
+                    .update_lines
+                    .push(ListRowUpdateLine::plain(format!("  {line}")));
             }
-            build.update_lines.push("};".to_owned());
-            build.update_lines.push(format!(
+            build
+                .update_lines
+                .push(ListRowUpdateLine::plain("};".to_owned()));
+            build.update_lines.push(ListRowUpdateLine::plain(format!(
                 "{}.{variable}.addEventListener(\"{event_name}\", {}.{listener_property});",
                 build.record_variable, build.record_variable
-            ));
+            )));
             return Ok(());
         }
 
@@ -1949,10 +2226,10 @@ impl<'a> CodeGenerator<'a> {
                     attribute_name
                 ));
                 if follows_spread {
-                    build.update_lines.push(format!(
+                    build.update_lines.push(ListRowUpdateLine::plain(format!(
                         "{}.{variable}.setAttribute(\"{}\", \"\");",
                         build.record_variable, attribute_name
-                    ));
+                    )));
                 }
             }
             AttributeValue::Static(value) => {
@@ -1962,21 +2239,25 @@ impl<'a> CodeGenerator<'a> {
                     escape_js_string(value)
                 ));
                 if follows_spread {
-                    build.update_lines.push(format!(
+                    build.update_lines.push(ListRowUpdateLine::plain(format!(
                         "{}.{variable}.setAttribute(\"{}\", \"{}\");",
                         build.record_variable,
                         attribute_name,
                         escape_js_string(value)
-                    ));
+                    )));
                 }
             }
             AttributeValue::Expression(expression) => {
-                build.update_lines.push(dynamic_attribute_update(
-                    &format!("{}.{variable}", build.record_variable),
-                    variable,
-                    &attribute_name,
+                self.push_list_row_update_line(
+                    build,
                     expression,
-                ));
+                    dynamic_attribute_update(
+                        &format!("{}.{variable}", build.record_variable),
+                        variable,
+                        &attribute_name,
+                        expression,
+                    ),
+                );
             }
         }
         Ok(())
@@ -2165,17 +2446,122 @@ fn dependencies_argument(dependencies: &ReactiveDependencies) -> String {
     }
 }
 
+fn list_row_binding_scope_lines(renderer: &ListRenderer, record_variable: &str) -> Vec<String> {
+    let mut lines = Vec::new();
+    match renderer.kind {
+        ListRendererKind::ItemKeyed => {
+            lines.push(format!(
+                "const {} = {record_variable}.value;",
+                renderer.item_name
+            ));
+        }
+        ListRendererKind::IndexKeyed => {
+            lines.push(format!(
+                "const {} = () => {record_variable}.value;",
+                renderer.item_name
+            ));
+        }
+    }
+    lines.push(format!(
+        "const {} = {record_variable}.index;",
+        renderer.index_name
+    ));
+    lines
+}
+
+fn keyed_selector_use_for_expression(
+    expression: &str,
+    selectors: &[KeyedSelectorDefinition],
+) -> Option<KeyedSelectorUse> {
+    let mut uses = Vec::new();
+    for selector in selectors {
+        collect_keyed_selector_uses(expression, selector, &mut uses);
+    }
+    if uses.len() == 1 { uses.pop() } else { None }
+}
+
+fn collect_keyed_selector_uses(
+    expression: &str,
+    selector: &KeyedSelectorDefinition,
+    uses: &mut Vec<KeyedSelectorUse>,
+) {
+    let mut offset = 0usize;
+    while let Some(relative_index) = expression[offset..].find(&selector.local_name) {
+        let index = offset + relative_index;
+        let after_name = index + selector.local_name.len();
+        let before = expression[..index].chars().next_back();
+        let after = expression[after_name..].chars().next();
+        if before.is_some_and(is_dependency_identifier_char)
+            || after.is_some_and(is_dependency_identifier_char)
+            || previous_non_whitespace(expression, index) == Some('.')
+        {
+            offset = after_name;
+            continue;
+        }
+
+        let mut open = after_name;
+        while open < expression.len() {
+            let Some(ch) = expression[open..].chars().next() else {
+                break;
+            };
+            if !ch.is_whitespace() {
+                break;
+            }
+            open += ch.len_utf8();
+        }
+        if !expression[open..].starts_with('(') {
+            offset = after_name;
+            continue;
+        }
+        let Ok(close) = find_matching_delimiter(expression, open, '(', ')') else {
+            offset = after_name;
+            continue;
+        };
+        let arguments = split_top_level_commas(&expression[open + 1..close]);
+        if arguments.len() == 1 {
+            let key_expression = arguments[0].trim();
+            if !key_expression.is_empty() {
+                uses.push(KeyedSelectorUse {
+                    selector_name: selector.local_name.clone(),
+                    key_expression: key_expression.to_owned(),
+                });
+            }
+        }
+        offset = close + 1;
+    }
+}
+
 fn expression_dependencies(expression: &str, module: &ComponentModule) -> ReactiveDependencies {
     DependencyContext {
         module,
         visiting_computed: BTreeSet::new(),
+        keyed_selector_mode: KeyedSelectorDependencyMode::IncludeSources,
     }
     .dependencies_for_expression(expression)
+}
+
+fn expression_dependencies_without_keyed_selectors(
+    expression: &str,
+    module: &ComponentModule,
+) -> ReactiveDependencies {
+    DependencyContext {
+        module,
+        visiting_computed: BTreeSet::new(),
+        keyed_selector_mode: KeyedSelectorDependencyMode::IgnoreSources,
+    }
+    .dependencies_for_expression(expression)
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum KeyedSelectorDependencyMode {
+    IncludeSources,
+    IgnoreSources,
 }
 
 struct DependencyContext<'a> {
     module: &'a ComponentModule,
     visiting_computed: BTreeSet<String>,
+    keyed_selector_mode: KeyedSelectorDependencyMode,
 }
 
 impl<'a> DependencyContext<'a> {
@@ -2218,6 +2604,18 @@ impl<'a> DependencyContext<'a> {
                         sources.extend(computed_sources);
                     }
                     ReactiveDependencies::Unknown => unknown = true,
+                }
+                continue;
+            }
+            if identifier.is_call
+                && let Some(selector) = self
+                    .module
+                    .keyed_selectors
+                    .iter()
+                    .find(|selector| selector.local_name == identifier.name)
+            {
+                if self.keyed_selector_mode == KeyedSelectorDependencyMode::IncludeSources {
+                    sources.insert(selector.source_name.clone());
                 }
                 continue;
             }
@@ -3292,7 +3690,7 @@ fn optional_attribute<'a>(
 struct ListRowTemplate {
     create_lines: Vec<String>,
     record_properties: Vec<String>,
-    update_lines: Vec<String>,
+    update_lines: Vec<ListRowUpdateLine>,
 }
 
 struct ListRowBuild {
@@ -3301,7 +3699,27 @@ struct ListRowBuild {
     next_index: usize,
     create_lines: Vec<String>,
     record_properties: Vec<String>,
-    update_lines: Vec<String>,
+    update_lines: Vec<ListRowUpdateLine>,
+}
+
+struct ListRowUpdateLine {
+    line: String,
+    keyed_selector: Option<KeyedSelectorUse>,
+}
+
+impl ListRowUpdateLine {
+    fn plain(line: String) -> Self {
+        Self {
+            line,
+            keyed_selector: None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct KeyedSelectorUse {
+    selector_name: String,
+    key_expression: String,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -3869,6 +4287,12 @@ fn binding_names(module: &ComponentModule) -> Vec<String> {
                 .computed
                 .iter()
                 .map(|computed| computed.local_name.clone()),
+        )
+        .chain(
+            module
+                .keyed_selectors
+                .iter()
+                .map(|selector| selector.local_name.clone()),
         )
         .chain(module.events.iter().map(|event| event.local_name.clone()))
         .collect::<Vec<_>>();

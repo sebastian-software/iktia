@@ -1,8 +1,9 @@
 use oxc_allocator::Allocator;
 use oxc_ast::ast::{
-    Argument, BindingPattern, CallExpression, Declaration, ExportDefaultDeclarationKind,
-    Expression, Function, FunctionBody, ImportDeclarationSpecifier, ImportOrExportKind,
-    ModuleExportName, Program, Statement, VariableDeclarationKind,
+    Argument, ArrowFunctionExpression, BinaryExpression, BindingPattern, CallExpression,
+    Declaration, ExportDefaultDeclarationKind, Expression, Function, FunctionBody,
+    ImportDeclarationSpecifier, ImportOrExportKind, ModuleExportName, Program, Statement,
+    VariableDeclarationKind,
 };
 use oxc_parser::Parser;
 use oxc_span::{GetSpan, SourceType, Span};
@@ -15,8 +16,8 @@ use crate::error::{
 };
 use crate::model::{
     ComponentImport, ComputedDefinition, DiagnosticSpan, EffectDefinition, EventDefinition,
-    FormControlDefinition, LifecycleCallbackDefinition, RuntimeImport, StateDefinition, StateKind,
-    StyleImport,
+    FormControlDefinition, KeyedSelectorDefinition, LifecycleCallbackDefinition, RuntimeImport,
+    StateDefinition, StateKind, StyleImport,
 };
 use crate::naming::is_pascal_case_identifier;
 
@@ -47,6 +48,7 @@ pub(crate) struct AstComponentSemantics {
     pub(crate) states: Vec<StateDefinition>,
     pub(crate) form_controls: Vec<FormControlDefinition>,
     pub(crate) computed: Vec<ComputedDefinition>,
+    pub(crate) keyed_selectors: Vec<KeyedSelectorDefinition>,
     pub(crate) effects: Vec<EffectDefinition>,
     pub(crate) connected_callbacks: Vec<LifecycleCallbackDefinition>,
     pub(crate) disconnected_callbacks: Vec<LifecycleCallbackDefinition>,
@@ -327,10 +329,18 @@ fn capture_body_statement(
                 let Some(local_name) = binding_identifier_name(&declarator.id) else {
                     continue;
                 };
-                let Some(Expression::CallExpression(call)) = &declarator.init else {
-                    continue;
-                };
-                capture_authoring_const(source, local_name, call, semantics)?;
+                match &declarator.init {
+                    Some(Expression::CallExpression(call)) => {
+                        capture_authoring_const(source, local_name, call, semantics)?;
+                    }
+                    Some(Expression::ArrowFunctionExpression(arrow)) => {
+                        if let Some(selector) = capture_keyed_selector(local_name, arrow, semantics)
+                        {
+                            semantics.keyed_selectors.push(selector);
+                        }
+                    }
+                    _ => {}
+                }
             }
         }
         Statement::ExpressionStatement(statement) => {
@@ -490,6 +500,78 @@ fn capture_form_control_definition(
         reset_body,
         disabled_expression,
     })
+}
+
+fn capture_keyed_selector(
+    local_name: &str,
+    arrow: &ArrowFunctionExpression<'_>,
+    semantics: &AstComponentSemantics,
+) -> Option<KeyedSelectorDefinition> {
+    if !arrow.expression || arrow.params.items.len() != 1 || arrow.params.rest.is_some() {
+        return None;
+    }
+    let parameter_name = binding_identifier_name(&arrow.params.items[0].pattern)?;
+    let Statement::ExpressionStatement(statement) = arrow.body.statements.first()? else {
+        return None;
+    };
+    let Expression::BinaryExpression(binary) = &statement.expression else {
+        return None;
+    };
+    let source_name = keyed_selector_source_name(binary, parameter_name, semantics)?;
+
+    Some(KeyedSelectorDefinition {
+        local_name: local_name.to_owned(),
+        source_name: source_name.to_owned(),
+        parameter_name: parameter_name.to_owned(),
+    })
+}
+
+fn keyed_selector_source_name<'a>(
+    binary: &'a BinaryExpression<'a>,
+    parameter_name: &str,
+    semantics: &'a AstComponentSemantics,
+) -> Option<&'a str> {
+    if !matches!(binary.operator.as_str(), "==" | "===") {
+        return None;
+    }
+
+    if expression_identifier_name(&binary.left) == Some(parameter_name) {
+        return state_accessor_call_name(&binary.right, semantics);
+    }
+    if expression_identifier_name(&binary.right) == Some(parameter_name) {
+        return state_accessor_call_name(&binary.left, semantics);
+    }
+    None
+}
+
+fn expression_identifier_name<'a>(expression: &'a Expression<'a>) -> Option<&'a str> {
+    match expression {
+        Expression::Identifier(identifier) => Some(identifier.name.as_str()),
+        Expression::ParenthesizedExpression(expression) => {
+            expression_identifier_name(&expression.expression)
+        }
+        _ => None,
+    }
+}
+
+fn state_accessor_call_name<'a>(
+    expression: &'a Expression<'a>,
+    semantics: &'a AstComponentSemantics,
+) -> Option<&'a str> {
+    match expression {
+        Expression::CallExpression(call) if call.arguments.is_empty() => {
+            let name = call_name(call)?;
+            semantics
+                .states
+                .iter()
+                .any(|state| state.local_name == name)
+                .then_some(name)
+        }
+        Expression::ParenthesizedExpression(expression) => {
+            state_accessor_call_name(&expression.expression, semantics)
+        }
+        _ => None,
+    }
 }
 
 fn binding_identifier_name<'a>(pattern: &'a BindingPattern<'a>) -> Option<&'a str> {

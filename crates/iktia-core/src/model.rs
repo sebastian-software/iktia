@@ -25,6 +25,8 @@ pub struct ComponentModule {
     pub form_controls: Vec<FormControlDefinition>,
     /// Pure derived value declarations.
     pub computed: Vec<ComputedDefinition>,
+    /// Compiler-recognized keyed boolean selector declarations.
+    pub keyed_selectors: Vec<KeyedSelectorDefinition>,
     /// Lifecycle side effect declarations.
     pub effects: Vec<EffectDefinition>,
     /// Connected lifecycle callbacks.
@@ -160,6 +162,17 @@ pub struct ComputedDefinition {
     pub local_name: String,
     /// Source text for the derived value expression.
     pub expression: String,
+}
+
+/// Local keyed selector helper that compares a state value with a key.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct KeyedSelectorDefinition {
+    /// Local selector helper name, for example `isSelected`.
+    pub local_name: String,
+    /// State accessor that drives the selector.
+    pub source_name: String,
+    /// Key parameter name accepted by the selector helper.
+    pub parameter_name: String,
 }
 
 /// Lifecycle side effect declaration.

@@ -10,6 +10,8 @@ declare global {
     __iktiaPrimitiveEvents?: PrimitiveEventRecord[]
     __iktiaProbeSecondaryMutationCount?: () => number
     __iktiaProbeSecondaryMutationObserver?: MutationObserver
+    __iktiaSelectorMutationCounts?: Record<string, number>
+    __iktiaSelectorMutationObserver?: MutationObserver
   }
 }
 
@@ -149,6 +151,8 @@ test("compiled list reconcilers preserve keyed and indexed row nodes", async ({
   const indexRows = probe.locator("[data-probe-index-row]")
 
   await expect(forRows).toHaveText(["Alpha", "Beta"])
+  await expect(forRows.nth(0)).toHaveAttribute("data-selected", "yes")
+  await expect(forRows.nth(1)).toHaveAttribute("data-selected", "no")
   const alphaRow = await forRows.nth(0).elementHandle()
   if (!alphaRow) throw new Error("Missing initial Alpha row.")
 
@@ -165,6 +169,47 @@ test("compiled list reconcilers preserve keyed and indexed row nodes", async ({
     "data-probe-for-clicked",
     "a"
   )
+
+  await probe.evaluate((element) => {
+    const root = element.shadowRoot ?? element
+    const list = root.querySelector("[data-probe-for-list]")
+    if (!list) throw new Error("Missing keyed selector probe list.")
+    const counts: Record<string, number> = {}
+    for (const row of root.querySelectorAll("[data-probe-for-row]")) {
+      const id = row.getAttribute("data-id")
+      if (id) counts[id] = 0
+    }
+    window.__iktiaSelectorMutationObserver?.disconnect()
+    const observer = new MutationObserver((records) => {
+      for (const record of records) {
+        if (!(record.target instanceof Element)) continue
+        const id = record.target.getAttribute("data-id")
+        if (!id) continue
+        counts[id] = (counts[id] ?? 0) + 1
+      }
+    })
+    observer.observe(list, {
+      attributeFilter: ["aria-selected", "data-selected"],
+      attributes: true,
+      subtree: true,
+    })
+    window.__iktiaSelectorMutationCounts = counts
+    window.__iktiaSelectorMutationObserver = observer
+  })
+
+  await forRows.nth(2).click()
+  await expect(forRows.nth(1)).toHaveAttribute("data-selected", "no")
+  await expect(forRows.nth(2)).toHaveAttribute("data-selected", "yes")
+  await expect(page.locator("body")).toHaveAttribute(
+    "data-probe-for-clicked",
+    "c"
+  )
+  const selectorMutationCounts = await page.evaluate(
+    () => window.__iktiaSelectorMutationCounts ?? {}
+  )
+  expect(selectorMutationCounts.a).toBeGreaterThan(0)
+  expect(selectorMutationCounts.b).toBe(0)
+  expect(selectorMutationCounts.c).toBeGreaterThan(0)
   await alphaRow.dispose()
 
   await expect(indexRows.nth(0)).toHaveValue("Alpha")

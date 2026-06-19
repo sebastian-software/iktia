@@ -11,6 +11,8 @@ export function ListReconcilerProbe() {
     { id: "b", label: "Beta" },
   ])
   const names = state(["Alpha", "Beta"])
+  const selected = state("a")
+  const isSelected = (id: string) => selected() === id
 
   return (
     <section part="root">
@@ -22,7 +24,10 @@ export function ListReconcilerProbe() {
               data-probe-for-row
               data-id={row.id}
               data-index={index}
+              data-selected={isSelected(row.id) ? "yes" : "no"}
+              aria-selected={isSelected(row.id)}
               onClick={() => {
+                selected.set(row.id)
                 document.body.dataset.probeForClicked = row.id
               }}
             >

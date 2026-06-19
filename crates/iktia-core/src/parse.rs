@@ -70,6 +70,7 @@ fn analyze_function_component(
         states: function_component.semantics.states,
         form_controls: function_component.semantics.form_controls,
         computed: function_component.semantics.computed,
+        keyed_selectors: function_component.semantics.keyed_selectors,
         effects: function_component.semantics.effects,
         connected_callbacks: function_component.semantics.connected_callbacks,
         disconnected_callbacks: function_component.semantics.disconnected_callbacks,

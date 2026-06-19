@@ -20,8 +20,8 @@ pub use error::{CompilerError, CompilerResult};
 pub use model::{
     CompilerDiagnostic, ComponentImport, ComponentModule, ComponentOptions, ComputedDefinition,
     DeclarativeShadowDomRenderResult, DiagnosticSeverity, DiagnosticSpan, EffectDefinition,
-    EventDefinition, PropAccess, PropDefinition, PropKind, SourceMap, StateDefinition, StateKind,
-    StyleImport, TransformResult,
+    EventDefinition, KeyedSelectorDefinition, PropAccess, PropDefinition, PropKind, SourceMap,
+    StateDefinition, StateKind, StyleImport, TransformResult,
 };
 pub use parse::analyze_component_module;
 
@@ -1200,6 +1200,77 @@ mod tests {
         assert!(!result.code.contains("this.#node1.replaceChildren("));
         assert!(!result.code.contains("this.#node2.replaceChildren("));
         assert!(!result.code.contains(".map(("));
+    }
+
+    #[test]
+    fn transform_component_module_should_lower_keyed_selector_bindings() {
+        let source = r#"
+            import { For, state } from "@iktia/core";
+
+            export function SelectorProbe() {
+              const rows = state([{ id: "a", label: "Alpha" }, { id: "b", label: "Beta" }]);
+              const selected = state("a");
+              const isSelected = (id: string) => selected() === id;
+
+              return (
+                <section>
+                  <For each={rows()}>
+                    {(row) => (
+                      <button
+                        key={row.id}
+                        aria-selected={isSelected(row.id)}
+                        data-state={isSelected(row.id) ? "selected" : "idle"}
+                      >
+                        {row.label}
+                      </button>
+                    )}
+                  </For>
+                </section>
+              );
+            }
+        "#;
+
+        let result = match transform_component_module(source, "selector-probe.wc.tsx") {
+            Ok(result) => result,
+            Err(error) => panic!("transform failed: {error}"),
+        };
+
+        assert!(result.code.contains("#keyedBindingRegistry = new Map();"));
+        assert!(
+            result
+                .code
+                .contains("const isSelected = (id) => selected() === id;")
+        );
+        assert!(
+            result
+                .code
+                .contains("this.#markKeyedSelectorDirty(\"isSelected\", previousValue, value);")
+        );
+        assert!(result.code.contains("#runKeyedBindings(dirtySources);"));
+        assert!(
+            result
+                .code
+                .contains("this.#registerKeyedBinding(\"isSelected\", row.id,")
+        );
+        assert_eq!(
+            result
+                .code
+                .matches("this.#registerKeyedBinding(\"isSelected\", row.id,")
+                .count(),
+            2
+        );
+        assert!(result.code.contains("bindings.set(bindingName, update);"));
+        assert!(result.code.contains("const row = node1Record.value;"));
+        assert!(
+            result
+                .code
+                .contains("if (this.#shouldUpdate([\"rows\"], dirtySources))")
+        );
+        assert!(
+            !result
+                .code
+                .contains("if (this.#shouldUpdate([\"rows\", \"selected\"], dirtySources))")
+        );
     }
 
     #[test]

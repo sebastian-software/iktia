@@ -440,6 +440,34 @@ body and put `key` on the returned root element. `<Index>` does not use a
 bodies, missing item keys, non-JSX map returns, and arbitrary list expressions
 fail during compiler analysis.
 
+Item-keyed lists can use a narrow local selector helper when a state value marks
+one active key at a time:
+
+```tsx
+const selected = state("a")
+const isSelected = (id: string) => selected() === id
+
+<For each={items()}>
+  {(item) => (
+    <button
+      key={item.id}
+      aria-selected={isSelected(item.id)}
+      data-state={isSelected(item.id) ? "selected" : "idle"}
+      onClick={() => selected.set(item.id)}
+    >
+      {item.label}
+    </button>
+  )}
+</For>
+```
+
+The compiler lowers row bindings that call `isSelected(item.id)` into keyed
+dirty bindings. When `selected` changes, only bindings for the previous key and
+the next key rerun; the list container itself still reconciles only when the
+list expression changes. The lowering is generic and does not hard-code
+`aria-selected`, `data-state`, class names, or text bindings. Unsupported
+selector shapes fall back to the normal conservative dependency behavior.
+
 ## Primitive Contracts
 
 Primitive Web Component fixtures should use platform-readable contracts rather
