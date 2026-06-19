@@ -23,7 +23,8 @@
     "lint:rust": "cargo clippy --all-targets --all-features -- -D warnings",
     "test": "pnpm -r --filter './packages/**' --if-present test && pnpm test:rust",
     "test:examples": "pnpm -r --filter './examples/**' --if-present test",
-    "test:rust": "cargo test --workspace"
+    "test:rust": "cargo test --workspace",
+    "verify:fresh-project": "node scripts/verify-fresh-project.mjs"
   },
   "devDependencies": {
     "@types/node": "^25.0.0",

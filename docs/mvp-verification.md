@@ -18,6 +18,7 @@ pnpm test
 pnpm --filter @iktia/example-counter type-check
 pnpm --filter @iktia/example-counter build
 pnpm --filter @iktia/example-counter test
+pnpm verify:fresh-project
 ```
 
 ## Expected Coverage
@@ -78,6 +79,15 @@ Example app:
   custom-element upgrade.
 * Delayed-upgrade browser tests verify DSD content is not cleared and becomes
   interactive after hydration.
+
+Fresh project smoke:
+
+* Local package artifacts pack successfully from the workspace.
+* A temporary project outside the monorepo installs the packed Iktia packages.
+* The installed compiler package resolves the current-platform native binding.
+* A minimal `.wc.tsx` component compiles through the installed Vite plugin.
+* The built output contains the generated Custom Element registration and
+  native `CustomEvent` dispatch.
 
 ## Commit Audit
 
