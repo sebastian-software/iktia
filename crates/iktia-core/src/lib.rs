@@ -825,7 +825,11 @@ mod tests {
         assert!(result.code.contains("\"pointer-move\": \"pointermove\""));
         assert!(result.code.contains("\"pointer-over\": \"pointerover\""));
         assert!(result.code.contains("\"pointer-leave\": \"pointerleave\""));
-        assert!(result.code.contains("\"pointer-cancel\": \"pointercancel\""));
+        assert!(
+            result
+                .code
+                .contains("\"pointer-cancel\": \"pointercancel\"")
+        );
         assert!(result.code.contains("\"context-menu\": \"contextmenu\""));
         assert!(result.code.contains("\"before-input\": \"beforeinput\""));
         assert!(result.code.contains("target.style[property]"));
@@ -1056,6 +1060,115 @@ mod tests {
         );
     }
 
+    const PRIMITIVE_CONTRACT_SOURCE: &str = r#"
+        import { Show, computed, event, on, state, type ComponentOptions } from "@iktia/core";
+        import css from "./toggle.css?inline";
+
+        export const options = {
+          styles: [css],
+        } satisfies ComponentOptions;
+
+        export function Toggle({ label = "Power", disabled = false }: ToggleProps = {}) {
+          const pressed = state(false);
+          const stateLabel = computed(() => pressed() ? "On" : "Off");
+          const indicators = computed(() => pressed() ? ["Pressed", "Active"] : ["Idle"]);
+          const changed = event<boolean>("toggle-change");
+
+          return (
+            <button
+              part="root control"
+              data-state={pressed() ? "on" : "off"}
+              data-disabled={disabled || undefined}
+              aria-pressed={pressed()}
+              disabled={disabled}
+              onClick={on("click", () => {
+                if (disabled) return;
+                pressed.update((value) => !value);
+                changed.emit(pressed());
+              })}
+            >
+              <span part="label">{label}</span>
+              <Show when={pressed()} fallback={<span part="indicator">Off</span>}>
+                <span part="indicator">{stateLabel()}</span>
+              </Show>
+              {indicators().map((item, index) => (
+                <span key={item} part="indicator" data-index={index}>
+                  {item}
+                </span>
+              ))}
+              <slot />
+            </button>
+          );
+        }
+    "#;
+
+    #[test]
+    fn generated_custom_element_contract_should_cover_primitive_public_surface() {
+        let result = match transform_component_module(PRIMITIVE_CONTRACT_SOURCE, "toggle.wc.tsx") {
+            Ok(result) => result,
+            Err(error) => panic!("transform failed: {error}"),
+        };
+
+        assert_contains(&result.code, "class ToggleElement extends HTMLElement");
+        assert_contains(
+            &result.code,
+            "customElements.define(\"x-toggle\", ToggleElement)",
+        );
+        assert_contains(&result.code, "static get observedAttributes() {");
+        assert_contains(&result.code, "return [\"label\", \"disabled\"];");
+        assert_contains(&result.code, "get label()");
+        assert_contains(&result.code, "set label(value)");
+        assert_contains(&result.code, "get disabled()");
+        assert_contains(&result.code, "set disabled(value)");
+        assert_contains(&result.code, "setAttribute(\"part\", \"root control\")");
+        assert_contains(&result.code, "setAttribute(\"data-state\",");
+        assert_contains(&result.code, "setAttribute(\"aria-pressed\",");
+        assert_contains(&result.code, "setAttribute(\"disabled\", \"\")");
+        assert_contains(&result.code, "document.createElement(\"slot\")");
+        assert_contains(&result.code, "new CustomEvent(\"toggle-change\"");
+        assert_contains(
+            &result.code,
+            "bubbles: true, composed: true, cancelable: false",
+        );
+        assert_contains(&result.code, "style.textContent = [css].join(\"\\n\");");
+    }
+
+    #[test]
+    fn generated_dsd_contract_should_cover_static_output_and_internal_markers() {
+        let result = match render_declarative_shadow_dom_module_with_inline_styles(
+            PRIMITIVE_CONTRACT_SOURCE,
+            "toggle.wc.tsx",
+            Some(r#"{"label":"Power"}"#),
+            Some(r#"{"css":":host { display: inline-block; }"}"#),
+        ) {
+            Ok(result) => result,
+            Err(error) => panic!("DSD render failed: {error}"),
+        };
+
+        assert_eq!(result.tag_name, "x-toggle");
+        assert_eq!(result.class_name, "ToggleElement");
+        assert_eq!(result.export_name.as_deref(), Some("Toggle"));
+        assert!(result.uses_declarative_shadow_dom);
+        assert!(result.html.starts_with("<x-toggle label=\"Power\">"));
+        assert_contains(&result.template_html, "<template shadowrootmode=\"open\">");
+        assert_contains(
+            &result.template_html,
+            "<style>:host { display: inline-block; }</style>",
+        );
+        assert_contains(&result.template_html, "part=\"root control\"");
+        assert_contains(&result.template_html, "data-state=\"off\"");
+        assert_contains(&result.template_html, "aria-pressed=\"false\"");
+        assert_contains(&result.template_html, "<slot data-iktia-node=");
+        assert_contains(&result.template_html, "data-iktia-root=\"\"");
+        assert_contains(&result.template_html, "data-iktia-node=\"node0\"");
+        assert_contains(&result.template_html, "data-iktia-text=\"text0\"");
+        assert_contains(&result.template_html, "data-iktia-control=\"show\"");
+        assert_contains(&result.template_html, "data-iktia-control=\"for\"");
+        assert_not_contains(&result.template_html, "addEventListener");
+        assert_not_contains(&result.template_html, "toggle-change");
+        assert_not_contains(&result.template_html, "CustomEvent");
+    }
+
     #[test]
     fn render_declarative_shadow_dom_module_should_reject_non_object_props() {
         let source = r#"
@@ -1068,5 +1181,19 @@ mod tests {
             .expect_err("non-object props should be rejected");
 
         assert!(error.to_string().contains("DSD prerender props"));
+    }
+
+    fn assert_contains(haystack: &str, needle: &str) {
+        assert!(
+            haystack.contains(needle),
+            "expected generated output to contain `{needle}`"
+        );
+    }
+
+    fn assert_not_contains(haystack: &str, needle: &str) {
+        assert!(
+            !haystack.contains(needle),
+            "expected generated output not to contain `{needle}`"
+        );
     }
 }

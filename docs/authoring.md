@@ -141,6 +141,10 @@ HTML and are internal generated markup, not semver-protected selectors.
 Development builds throw clear mismatch diagnostics; production builds remount
 imperatively if the prerendered structure is stale.
 
+See [Generated output contract](generated-output-contract.md) for the first
+batch of semver-facing generated behavior and the internal details that tests
+may assert only to protect hydration behavior.
+
 ## Function Components
 
 Exported PascalCase functions are the preferred component declaration form. The
