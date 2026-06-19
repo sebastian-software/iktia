@@ -308,14 +308,18 @@ const doubled = computed(() => count() * 2)
 doubled()
 ```
 
-The current compiler milestone supports pure expression-body callbacks. Computed
-values can be used in text bindings, dynamic attributes, `<Show when={...}>`,
-keyed `.map()` list expressions, events, and effects.
+The current compiler milestone supports pure expression-body callbacks. The
+generated accessor caches its value within an update pass and invalidates the
+cache when state or prop writes mark a source dirty. Computed values can be used
+in text bindings, dynamic attributes, `<Show when={...}>`, keyed `.map()` list
+expressions, events, and effects.
 
 ## Effects And Host Lifecycle
 
-Effects run after the element mounts and run again after generated update
-passes. Cleanup functions run before the next effect pass and on disconnect.
+Effects run after the element mounts. After that, generated code reruns an
+effect only when its detected state, prop, or computed dependencies change.
+Unknown helper reads conservatively fall back to the previous broad rerun
+behavior. Cleanup functions run before the next effect pass and on disconnect.
 
 ```ts
 effect(() => {
@@ -337,7 +341,9 @@ effect(() => {
 * `element`: the generated custom element instance.
 * `root`: the render root, either the shadow root or the host element.
 * `signal`: an `AbortSignal` aborted during `disconnectedCallback()`.
-* `update()`: an explicit request to run the generated update pass.
+* `update()`: an explicit request to schedule the generated update pass.
+* `flushSync()`: an explicit request to run pending generated updates
+  immediately.
 
 ## Events
 

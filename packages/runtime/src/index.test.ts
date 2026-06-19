@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { createIktiaEvent } from "./runtime.js"
+import { createIktiaEvent, scheduleIktiaUpdate } from "./runtime.js"
 
 describe("runtime helpers", () => {
   it("creates custom events with Iktia defaults", () => {
@@ -33,5 +33,16 @@ describe("runtime helpers", () => {
     createIktiaEvent("change", undefined, options)
 
     expect(options).toEqual({ bubbles: false, cancelable: true, composed: false })
+  })
+
+  it("schedules generated updates in a microtask", async () => {
+    const calls: string[] = []
+
+    scheduleIktiaUpdate(() => calls.push("flush"))
+    calls.push("sync")
+
+    expect(calls).toEqual(["sync"])
+    await Promise.resolve()
+    expect(calls).toEqual(["sync", "flush"])
   })
 })

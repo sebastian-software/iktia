@@ -207,6 +207,7 @@
   },
   "dependencies": {
     "@iktia/core": "workspace:^",
+    "@iktia/runtime": "workspace:^",
     "@internationalized/date": "3.12.2",
     "@zag-js/accordion": "1.41.2",
     "@zag-js/avatar": "1.41.2",

@@ -16,3 +16,12 @@ export function createIktiaEvent<Detail>(
     detail,
   })
 }
+
+export function scheduleIktiaUpdate(callback: () => void): void {
+  if (typeof queueMicrotask === "function") {
+    queueMicrotask(callback)
+    return
+  }
+
+  Promise.resolve().then(callback)
+}

@@ -3,6 +3,7 @@ import "@iktia/primitives"
 import "./counter.wc.tsx"
 import "./disclosure.wc.tsx"
 import "./field.wc.tsx"
+import "./reactivity-probe.wc.tsx"
 import "./toolbar.wc.tsx"
 import "./toggle.wc.tsx"
 

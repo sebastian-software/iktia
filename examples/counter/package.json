@@ -12,6 +12,7 @@
   "dependencies": {
     "@iktia/core": "workspace:^",
     "@iktia/primitives": "workspace:^",
+    "@iktia/runtime": "workspace:^",
     "@iktia/vite": "workspace:^"
   },
   "devDependencies": {

@@ -30,6 +30,10 @@ for v0.1 and are not published to crates.io.
 Authoring primitives are compile-time APIs. They throw if a `.wc.tsx` module is
 executed without the compiler transform.
 
+Generated `state.set()` and `state.update()` calls are batched into a microtask.
+Use `host().flushSync()` when a handler must observe the updated DOM
+immediately after changing state. `host().update()` requests a batched update.
+
 ## `@iktia/compiler`
 
 ```ts

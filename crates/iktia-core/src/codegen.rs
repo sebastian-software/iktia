@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Write as _;
 
 use crate::error::{
@@ -103,6 +103,34 @@ enum TemplateChild {
     Element(TemplateElement),
     Expression(String),
     Text(String),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum ReactiveDependencies {
+    Known(BTreeSet<String>),
+    Unknown,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct UpdateStep {
+    lines: Vec<String>,
+    dependencies: ReactiveDependencies,
+}
+
+impl UpdateStep {
+    fn new(line: String, dependencies: ReactiveDependencies) -> Self {
+        Self {
+            lines: vec![line],
+            dependencies,
+        }
+    }
+
+    fn lines(lines: Vec<String>, dependencies: ReactiveDependencies) -> Self {
+        Self {
+            lines,
+            dependencies,
+        }
+    }
 }
 
 struct TemplateParser<'a> {
@@ -348,7 +376,7 @@ struct CodeGenerator<'a> {
     text_fields: Vec<String>,
     mount_lines: Vec<String>,
     listener_lines: Vec<String>,
-    update_lines: Vec<String>,
+    update_steps: Vec<UpdateStep>,
     uses_spread_attributes: bool,
 }
 
@@ -363,7 +391,7 @@ impl<'a> CodeGenerator<'a> {
             text_fields: Vec::new(),
             mount_lines: Vec::new(),
             listener_lines: Vec::new(),
-            update_lines: Vec::new(),
+            update_steps: Vec::new(),
             uses_spread_attributes: false,
         }
     }
@@ -426,11 +454,35 @@ impl<'a> CodeGenerator<'a> {
         Ok(())
     }
 
+    fn push_update_line(&mut self, line: String, dependencies: ReactiveDependencies) {
+        self.update_steps.push(UpdateStep::new(line, dependencies));
+    }
+
+    fn push_update_lines(&mut self, lines: Vec<String>, dependencies: ReactiveDependencies) {
+        self.update_steps
+            .push(UpdateStep::lines(lines, dependencies));
+    }
+
+    fn dependencies_for_expression(&self, expression: &str) -> ReactiveDependencies {
+        expression_dependencies(expression, self.module)
+    }
+
+    fn uses_scheduled_updates(&self) -> bool {
+        !self.module.states.is_empty() || self.module.uses_host_helpers
+    }
+
     fn emit_runtime_imports(&self, code: &mut String) -> CompilerResult<()> {
+        if self.uses_scheduled_updates() {
+            writeln!(
+                code,
+                "import {{ scheduleIktiaUpdate as __scheduleIktiaUpdate }} from \"@iktia/runtime\";"
+            )
+            .map_err(format_error)?;
+        }
         for runtime_import in &self.module.runtime_imports {
             writeln!(code, "{}", runtime_import.source).map_err(format_error)?;
         }
-        if !self.module.runtime_imports.is_empty() {
+        if self.uses_scheduled_updates() || !self.module.runtime_imports.is_empty() {
             writeln!(code).map_err(format_error)?;
         }
         Ok(())
@@ -478,11 +530,19 @@ impl<'a> CodeGenerator<'a> {
         writeln!(code, "  #root;").map_err(format_error)?;
         writeln!(code, "  #mounted = false;").map_err(format_error)?;
         writeln!(code, "  #usesDeclarativeRoot = false;").map_err(format_error)?;
+        writeln!(code, "  #dirtySources = new Set();").map_err(format_error)?;
+        writeln!(code, "  #needsFullUpdate = true;").map_err(format_error)?;
+        if self.uses_scheduled_updates() {
+            writeln!(code, "  #flushScheduled = false;").map_err(format_error)?;
+        }
         if self.module.uses_host_helpers {
             writeln!(code, "  #abortController = new AbortController();").map_err(format_error)?;
         }
         if !self.module.effects.is_empty() {
             writeln!(code, "  #effectCleanups = [];").map_err(format_error)?;
+        }
+        if !self.module.computed.is_empty() {
+            writeln!(code, "  #computedCache = new Map();").map_err(format_error)?;
         }
         if !self.module.form_controls.is_empty() {
             writeln!(code, "  #internals;").map_err(format_error)?;
@@ -553,7 +613,7 @@ impl<'a> CodeGenerator<'a> {
         writeln!(code, "      this.#mounted = true;").map_err(format_error)?;
         writeln!(code, "    }}").map_err(format_error)?;
         self.emit_lifecycle_callback_lines(code, &self.module.connected_callbacks)?;
-        writeln!(code, "    this.#flush();").map_err(format_error)?;
+        writeln!(code, "    this.#flushSync();").map_err(format_error)?;
         writeln!(code, "  }}").map_err(format_error)?;
         if self.module.uses_host_helpers
             || !self.module.effects.is_empty()
@@ -589,10 +649,12 @@ impl<'a> CodeGenerator<'a> {
                 attr_parse_expression(prop)
             )
             .map_err(format_error)?;
+            writeln!(code, "        this.#markDirty(\"{}\");", prop.local_name)
+                .map_err(format_error)?;
             writeln!(code, "        break;").map_err(format_error)?;
         }
         writeln!(code, "    }}").map_err(format_error)?;
-        writeln!(code, "    this.#flush();").map_err(format_error)?;
+        writeln!(code, "    this.#flushSync();").map_err(format_error)?;
         writeln!(code, "  }}").map_err(format_error)?;
         Ok(())
     }
@@ -637,8 +699,10 @@ impl<'a> CodeGenerator<'a> {
             .map_err(format_error)?;
             writeln!(code, "    this.#props.{} = nextValue;", prop.local_name)
                 .map_err(format_error)?;
+            writeln!(code, "    this.#markDirty(\"{}\");", prop.local_name)
+                .map_err(format_error)?;
             self.emit_attribute_sync(code, prop)?;
-            writeln!(code, "    this.#flush();").map_err(format_error)?;
+            writeln!(code, "    this.#flushSync();").map_err(format_error)?;
             writeln!(code, "  }}").map_err(format_error)?;
         }
         Ok(())
@@ -682,8 +746,16 @@ impl<'a> CodeGenerator<'a> {
         code: &mut String,
         form_control: &FormControlDefinition,
     ) -> CompilerResult<()> {
-        writeln!(code, "  #syncFormValue() {{").map_err(format_error)?;
+        writeln!(code, "  #syncFormValue(dirtySources) {{").map_err(format_error)?;
         writeln!(code, "    if (!this.#mounted) return;").map_err(format_error)?;
+        writeln!(
+            code,
+            "    if (!this.#shouldUpdate({}, dirtySources)) return;",
+            dependencies_argument(
+                &self.dependencies_for_expression(&form_control.value_expression)
+            )
+        )
+        .map_err(format_error)?;
         let names = binding_names(self.module).join(", ");
         if !names.is_empty() {
             writeln!(code, "    const {{ {names} }} = this.#createBindings();")
@@ -720,8 +792,9 @@ impl<'a> CodeGenerator<'a> {
             }
         } else {
             writeln!(code, "    this.#initializeState();").map_err(format_error)?;
+            writeln!(code, "    this.#markAllDirty();").map_err(format_error)?;
         }
-        writeln!(code, "    this.#flush();").map_err(format_error)?;
+        writeln!(code, "    this.#flushSync();").map_err(format_error)?;
         writeln!(code, "  }}").map_err(format_error)?;
         Ok(())
     }
@@ -740,7 +813,7 @@ impl<'a> CodeGenerator<'a> {
         {
             writeln!(code, "    this.{} = disabled;", prop.prop_name).map_err(format_error)?;
         }
-        writeln!(code, "    this.#flush();").map_err(format_error)?;
+        writeln!(code, "    this.#flushSync();").map_err(format_error)?;
         writeln!(code, "  }}").map_err(format_error)?;
         Ok(())
     }
@@ -917,7 +990,12 @@ impl<'a> CodeGenerator<'a> {
             writeln!(code, "      element: this,").map_err(format_error)?;
             writeln!(code, "      root: this.#root,").map_err(format_error)?;
             writeln!(code, "      signal: this.#abortController.signal,").map_err(format_error)?;
-            writeln!(code, "      update: () => this.#flush(),").map_err(format_error)?;
+            writeln!(
+                code,
+                "      update: () => {{ this.#markAllDirty(); this.#scheduleFlush(); }},"
+            )
+            .map_err(format_error)?;
+            writeln!(code, "      flushSync: () => this.#flushSync(),").map_err(format_error)?;
             writeln!(code, "    }});").map_err(format_error)?;
         }
         let names = binding_names(self.module).join(", ");
@@ -935,8 +1013,8 @@ impl<'a> CodeGenerator<'a> {
         .map_err(format_error)?;
         writeln!(
             code,
-            "    {}.set = (value) => {{ this.#state.{} = value; this.#flush(); }};",
-            state.local_name, state.local_name
+            "    {}.set = (value) => {{ this.#state.{} = value; this.#markDirty(\"{}\"); this.#scheduleFlush(); }};",
+            state.local_name, state.local_name, state.local_name
         )
         .map_err(format_error)?;
         writeln!(
@@ -953,12 +1031,27 @@ impl<'a> CodeGenerator<'a> {
         code: &mut String,
         computed: &ComputedDefinition,
     ) -> CompilerResult<()> {
+        writeln!(code, "    const {} = () => {{", computed.local_name).map_err(format_error)?;
         writeln!(
             code,
-            "    const {} = () => ({});",
+            "      if (!this.#computedCache.has(\"{}\")) {{",
+            computed.local_name
+        )
+        .map_err(format_error)?;
+        writeln!(
+            code,
+            "        this.#computedCache.set(\"{}\", ({}));",
             computed.local_name, computed.expression
         )
         .map_err(format_error)?;
+        writeln!(code, "      }}").map_err(format_error)?;
+        writeln!(
+            code,
+            "      return this.#computedCache.get(\"{}\");",
+            computed.local_name
+        )
+        .map_err(format_error)?;
+        writeln!(code, "    }};").map_err(format_error)?;
         Ok(())
     }
 
@@ -979,21 +1072,35 @@ impl<'a> CodeGenerator<'a> {
         writeln!(code, "  #cleanupEffects() {{").map_err(format_error)?;
         writeln!(
             code,
-            "    for (const cleanup of this.#effectCleanups.splice(0)) {{"
+            "    for (let index = 0; index < this.#effectCleanups.length; index += 1) {{"
         )
         .map_err(format_error)?;
-        writeln!(code, "      cleanup();").map_err(format_error)?;
+        writeln!(code, "      this.#cleanupEffect(index);").map_err(format_error)?;
         writeln!(code, "    }}").map_err(format_error)?;
         writeln!(code, "  }}").map_err(format_error)?;
-        writeln!(code, "  #runEffects() {{").map_err(format_error)?;
-        writeln!(code, "    this.#cleanupEffects();").map_err(format_error)?;
+        writeln!(code, "  #cleanupEffect(index) {{").map_err(format_error)?;
+        writeln!(code, "    const cleanup = this.#effectCleanups[index];").map_err(format_error)?;
+        writeln!(code, "    if (typeof cleanup === \"function\") cleanup();")
+            .map_err(format_error)?;
+        writeln!(code, "    this.#effectCleanups[index] = undefined;").map_err(format_error)?;
+        writeln!(code, "  }}").map_err(format_error)?;
+        writeln!(code, "  #runEffects(dirtySources) {{").map_err(format_error)?;
         let names = binding_names(self.module).join(", ");
         if !names.is_empty() {
             writeln!(code, "    const {{ {names} }} = this.#createBindings();")
                 .map_err(format_error)?;
         }
         for (index, effect) in self.module.effects.iter().enumerate() {
+            let dependencies = self.dependencies_for_expression(&effect.body);
+            writeln!(
+                code,
+                "    if (this.#shouldUpdate({}, dirtySources)) {{",
+                dependencies_argument(&dependencies)
+            )
+            .map_err(format_error)?;
+            writeln!(code, "      this.#cleanupEffect({index});").map_err(format_error)?;
             self.emit_effect_body(code, index, effect)?;
+            writeln!(code, "    }}").map_err(format_error)?;
         }
         writeln!(code, "  }}").map_err(format_error)?;
         Ok(())
@@ -1005,32 +1112,96 @@ impl<'a> CodeGenerator<'a> {
         index: usize,
         effect: &EffectDefinition,
     ) -> CompilerResult<()> {
-        writeln!(code, "    const cleanup{index} = (() => {{").map_err(format_error)?;
+        writeln!(code, "      const cleanup{index} = (() => {{").map_err(format_error)?;
         for line in effect
             .body
             .lines()
             .map(str::trim)
             .filter(|line| !line.is_empty())
         {
-            writeln!(code, "      {line}").map_err(format_error)?;
+            writeln!(code, "        {line}").map_err(format_error)?;
         }
-        writeln!(code, "    }})();").map_err(format_error)?;
-        writeln!(code, "    if (typeof cleanup{index} === \"function\") {{")
+        writeln!(code, "      }})();").map_err(format_error)?;
+        writeln!(code, "      if (typeof cleanup{index} === \"function\") {{")
             .map_err(format_error)?;
-        writeln!(code, "      this.#effectCleanups.push(cleanup{index});").map_err(format_error)?;
-        writeln!(code, "    }}").map_err(format_error)?;
+        writeln!(
+            code,
+            "        this.#effectCleanups[{index}] = cleanup{index};"
+        )
+        .map_err(format_error)?;
+        writeln!(code, "      }}").map_err(format_error)?;
         Ok(())
     }
 
     fn emit_flush(&self, code: &mut String) -> CompilerResult<()> {
+        if self.uses_scheduled_updates() {
+            writeln!(code, "  #scheduleFlush() {{").map_err(format_error)?;
+            writeln!(code, "    if (this.#flushScheduled) return;").map_err(format_error)?;
+            writeln!(code, "    this.#flushScheduled = true;").map_err(format_error)?;
+            writeln!(code, "    __scheduleIktiaUpdate(() => {{").map_err(format_error)?;
+            writeln!(code, "      if (!this.#flushScheduled) return;").map_err(format_error)?;
+            writeln!(code, "      this.#flushScheduled = false;").map_err(format_error)?;
+            writeln!(code, "      this.#flush();").map_err(format_error)?;
+            writeln!(code, "    }});").map_err(format_error)?;
+            writeln!(code, "  }}").map_err(format_error)?;
+        }
+        writeln!(code, "  #markDirty(source) {{").map_err(format_error)?;
+        writeln!(code, "    this.#dirtySources.add(source);").map_err(format_error)?;
+        if !self.module.computed.is_empty() {
+            writeln!(code, "    this.#computedCache.clear();").map_err(format_error)?;
+        }
+        writeln!(code, "  }}").map_err(format_error)?;
+        writeln!(code, "  #markAllDirty() {{").map_err(format_error)?;
+        writeln!(code, "    this.#needsFullUpdate = true;").map_err(format_error)?;
+        writeln!(code, "    this.#dirtySources.clear();").map_err(format_error)?;
+        if !self.module.computed.is_empty() {
+            writeln!(code, "    this.#computedCache.clear();").map_err(format_error)?;
+        }
+        writeln!(code, "  }}").map_err(format_error)?;
+        writeln!(code, "  #flushSync() {{").map_err(format_error)?;
+        if self.uses_scheduled_updates() {
+            writeln!(code, "    this.#flushScheduled = false;").map_err(format_error)?;
+        }
+        writeln!(code, "    this.#flush();").map_err(format_error)?;
+        writeln!(code, "  }}").map_err(format_error)?;
         writeln!(code, "  #flush() {{").map_err(format_error)?;
-        writeln!(code, "    this.#update();").map_err(format_error)?;
+        writeln!(code, "    if (!this.#mounted) return;").map_err(format_error)?;
+        writeln!(
+            code,
+            "    const dirtySources = this.#consumeDirtySources();"
+        )
+        .map_err(format_error)?;
+        if !self.module.computed.is_empty() {
+            writeln!(code, "    this.#computedCache.clear();").map_err(format_error)?;
+        }
+        writeln!(code, "    this.#update(dirtySources);").map_err(format_error)?;
         if !self.module.form_controls.is_empty() {
-            writeln!(code, "    this.#syncFormValue();").map_err(format_error)?;
+            writeln!(code, "    this.#syncFormValue(dirtySources);").map_err(format_error)?;
         }
         if !self.module.effects.is_empty() {
-            writeln!(code, "    this.#runEffects();").map_err(format_error)?;
+            writeln!(code, "    this.#runEffects(dirtySources);").map_err(format_error)?;
         }
+        writeln!(code, "  }}").map_err(format_error)?;
+        writeln!(code, "  #consumeDirtySources() {{").map_err(format_error)?;
+        writeln!(code, "    if (this.#needsFullUpdate) {{").map_err(format_error)?;
+        writeln!(code, "      this.#needsFullUpdate = false;").map_err(format_error)?;
+        writeln!(code, "      this.#dirtySources.clear();").map_err(format_error)?;
+        writeln!(code, "      return null;").map_err(format_error)?;
+        writeln!(code, "    }}").map_err(format_error)?;
+        writeln!(code, "    const dirtySources = this.#dirtySources;").map_err(format_error)?;
+        writeln!(code, "    this.#dirtySources = new Set();").map_err(format_error)?;
+        writeln!(code, "    return dirtySources;").map_err(format_error)?;
+        writeln!(code, "  }}").map_err(format_error)?;
+        writeln!(code, "  #shouldUpdate(dependencies, dirtySources) {{").map_err(format_error)?;
+        writeln!(
+            code,
+            "    if (dirtySources === null || dependencies === null) return true;"
+        )
+        .map_err(format_error)?;
+        writeln!(code, "    for (const source of dependencies) {{").map_err(format_error)?;
+        writeln!(code, "      if (dirtySources.has(source)) return true;").map_err(format_error)?;
+        writeln!(code, "    }}").map_err(format_error)?;
+        writeln!(code, "    return false;").map_err(format_error)?;
         writeln!(code, "  }}").map_err(format_error)?;
         Ok(())
     }
@@ -1112,7 +1283,12 @@ impl<'a> CodeGenerator<'a> {
         writeln!(code, "    }} else {{").map_err(format_error)?;
         writeln!(
             code,
-            "      target.setAttribute(attributeName, value === true ? \"\" : String(value));"
+            "      const attributeValue = attributeName.startsWith(\"aria-\") ? String(value) : value === true ? \"\" : String(value);"
+        )
+        .map_err(format_error)?;
+        writeln!(
+            code,
+            "      target.setAttribute(attributeName, attributeValue);"
         )
         .map_err(format_error)?;
         writeln!(code, "    }}").map_err(format_error)?;
@@ -1206,15 +1382,24 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn emit_update(&self, code: &mut String) -> CompilerResult<()> {
-        writeln!(code, "  #update() {{").map_err(format_error)?;
+        writeln!(code, "  #update(dirtySources) {{").map_err(format_error)?;
         writeln!(code, "    if (!this.#mounted) return;").map_err(format_error)?;
         let names = binding_names(self.module).join(", ");
         if !names.is_empty() {
             writeln!(code, "    const {{ {names} }} = this.#createBindings();")
                 .map_err(format_error)?;
         }
-        for line in &self.update_lines {
-            writeln!(code, "    {line}").map_err(format_error)?;
+        for step in &self.update_steps {
+            writeln!(
+                code,
+                "    if (this.#shouldUpdate({}, dirtySources)) {{",
+                dependencies_argument(&step.dependencies)
+            )
+            .map_err(format_error)?;
+            for line in &step.lines {
+                writeln!(code, "      {line}").map_err(format_error)?;
+            }
+            writeln!(code, "    }}").map_err(format_error)?;
         }
         writeln!(code, "  }}").map_err(format_error)?;
         Ok(())
@@ -1393,11 +1578,15 @@ impl<'a> CodeGenerator<'a> {
         }
 
         let condition_variable = format!("{field}When");
-        self.update_lines
-            .push(format!("const {condition_variable} = Boolean({when});"));
-        self.update_lines.push(format!(
-            "this.#{content_field}.hidden = !{condition_variable}; this.#{fallback_field}.hidden = {condition_variable};"
-        ));
+        self.push_update_lines(
+            vec![
+                format!("const {condition_variable} = Boolean({when});"),
+                format!(
+                    "this.#{content_field}.hidden = !{condition_variable}; this.#{fallback_field}.hidden = {condition_variable};"
+                ),
+            ],
+            self.dependencies_for_expression(&when),
+        );
 
         Ok(variable)
     }
@@ -1472,24 +1661,32 @@ impl<'a> CodeGenerator<'a> {
         self.mount_lines
             .push(format!("this.#{field} = {variable};"));
 
-        self.update_lines.push(format!(
-            "const {items_variable} = Array.from(({}) ?? []);",
-            renderer.each_expression
-        ));
-        self.update_lines.push(format!(
-            "this.#{field}.replaceChildren(...{items_variable}.map(({}, {}) => {{",
-            renderer.item_name, renderer.index_name
-        ));
-        self.update_lines.push(format!(
-            "  const {render_prefix}Key = {}; void {render_prefix}Key;",
-            renderer.key_expression
-        ));
+        let mut update_lines = vec![
+            format!(
+                "const {items_variable} = Array.from(({}) ?? []);",
+                renderer.each_expression
+            ),
+            format!(
+                "this.#{field}.replaceChildren(...{items_variable}.map(({}, {}) => {{",
+                renderer.item_name, renderer.index_name
+            ),
+            format!(
+                "  const {render_prefix}Key = {}; void {render_prefix}Key;",
+                renderer.key_expression
+            ),
+        ];
         for line in render_lines {
-            self.update_lines.push(format!("  {line}"));
+            update_lines.push(format!("  {line}"));
         }
-        self.update_lines
-            .push(format!("  return {rendered_variable};"));
-        self.update_lines.push("}));".to_owned());
+        update_lines.push(format!("  return {rendered_variable};"));
+        update_lines.push("}));".to_owned());
+        self.push_update_lines(
+            update_lines,
+            self.dependencies_for_expression(&format!(
+                "{} {} {}",
+                renderer.each_expression, renderer.key_expression, renderer.template_source
+            )),
+        );
 
         Ok(variable)
     }
@@ -1672,9 +1869,12 @@ impl<'a> CodeGenerator<'a> {
             self.uses_spread_attributes = true;
             let spread_field = format!("{field_name}Spread{}", self.spread_fields.len());
             self.spread_fields.push(spread_field.clone());
-            self.update_lines.push(format!(
-                "this.#applySpreadAttributes({field_reference}, this.#{spread_field}, {expression});"
-            ));
+            self.push_update_line(
+                format!(
+                    "this.#applySpreadAttributes({field_reference}, this.#{spread_field}, {expression});"
+                ),
+                self.dependencies_for_expression(expression),
+            );
             return Ok(());
         };
         if name == "key" {
@@ -1711,10 +1911,13 @@ impl<'a> CodeGenerator<'a> {
                     attribute_name
                 ));
                 if follows_spread {
-                    self.update_lines.push(format!(
-                        "{field_reference}.setAttribute(\"{}\", \"\");",
-                        attribute_name
-                    ));
+                    self.push_update_line(
+                        format!(
+                            "{field_reference}.setAttribute(\"{}\", \"\");",
+                            attribute_name
+                        ),
+                        ReactiveDependencies::Unknown,
+                    );
                 }
             }
             AttributeValue::Static(value) => {
@@ -1724,20 +1927,31 @@ impl<'a> CodeGenerator<'a> {
                     escape_js_string(value)
                 ));
                 if follows_spread {
-                    self.update_lines.push(format!(
-                        "{field_reference}.setAttribute(\"{}\", \"{}\");",
-                        attribute_name,
-                        escape_js_string(value)
-                    ));
+                    self.push_update_line(
+                        format!(
+                            "{field_reference}.setAttribute(\"{}\", \"{}\");",
+                            attribute_name,
+                            escape_js_string(value)
+                        ),
+                        ReactiveDependencies::Unknown,
+                    );
                 }
             }
             AttributeValue::Expression(expression) => {
-                self.update_lines.push(dynamic_attribute_update(
-                    field_reference,
-                    field_name,
-                    &attribute_name,
-                    expression,
-                ));
+                let dependencies = if follows_spread {
+                    ReactiveDependencies::Unknown
+                } else {
+                    self.dependencies_for_expression(expression)
+                };
+                self.push_update_line(
+                    dynamic_attribute_update(
+                        field_reference,
+                        field_name,
+                        &attribute_name,
+                        expression,
+                    ),
+                    dependencies,
+                );
             }
         }
         Ok(())
@@ -1758,8 +1972,10 @@ impl<'a> CodeGenerator<'a> {
             .push(format!("this.#{field} = {variable};"));
         self.mount_lines
             .push(format!("{parent_variable}.append({variable});"));
-        self.update_lines
-            .push(format!("this.#{field}.data = {expression};"));
+        self.push_update_line(
+            format!("this.#{field}.data = {expression};"),
+            self.dependencies_for_expression(&expression),
+        );
     }
 
     fn emit_expression(&mut self, parent_variable: &str, expression: &str) -> CompilerResult<()> {
@@ -1779,10 +1995,352 @@ impl<'a> CodeGenerator<'a> {
             .push(format!("this.#{field} = {variable};"));
         self.mount_lines
             .push(format!("{parent_variable}.append({variable});"));
-        self.update_lines
-            .push(format!("this.#{field}.data = String({trimmed});"));
+        self.push_update_line(
+            format!("this.#{field}.data = String({trimmed});"),
+            self.dependencies_for_expression(trimmed),
+        );
         Ok(())
     }
+}
+
+fn dependencies_argument(dependencies: &ReactiveDependencies) -> String {
+    match dependencies {
+        ReactiveDependencies::Unknown => "null".to_owned(),
+        ReactiveDependencies::Known(sources) => {
+            let sources = sources
+                .iter()
+                .map(|source| format!("\"{}\"", escape_js_string(source)))
+                .collect::<Vec<_>>()
+                .join(", ");
+            format!("[{sources}]")
+        }
+    }
+}
+
+fn expression_dependencies(expression: &str, module: &ComponentModule) -> ReactiveDependencies {
+    DependencyContext {
+        module,
+        visiting_computed: BTreeSet::new(),
+    }
+    .dependencies_for_expression(expression)
+}
+
+struct DependencyContext<'a> {
+    module: &'a ComponentModule,
+    visiting_computed: BTreeSet<String>,
+}
+
+impl<'a> DependencyContext<'a> {
+    fn dependencies_for_expression(&mut self, expression: &str) -> ReactiveDependencies {
+        let mut sources = BTreeSet::new();
+        let mut unknown = false;
+
+        for identifier in identifier_uses(expression) {
+            if identifier.is_property {
+                continue;
+            }
+            if self
+                .module
+                .props
+                .iter()
+                .any(|prop| prop.local_name == identifier.name)
+            {
+                sources.insert(identifier.name);
+                continue;
+            }
+            if identifier.is_call
+                && self
+                    .module
+                    .states
+                    .iter()
+                    .any(|state| state.local_name == identifier.name)
+            {
+                sources.insert(identifier.name);
+                continue;
+            }
+            if identifier.is_call
+                && self
+                    .module
+                    .computed
+                    .iter()
+                    .any(|computed| computed.local_name == identifier.name)
+            {
+                match self.dependencies_for_computed(&identifier.name) {
+                    ReactiveDependencies::Known(computed_sources) => {
+                        sources.extend(computed_sources);
+                    }
+                    ReactiveDependencies::Unknown => unknown = true,
+                }
+                continue;
+            }
+            if identifier.is_call && !is_allowed_dependency_call(&identifier.name) {
+                unknown = true;
+            }
+        }
+
+        if unknown {
+            ReactiveDependencies::Unknown
+        } else {
+            ReactiveDependencies::Known(sources)
+        }
+    }
+
+    fn dependencies_for_computed(&mut self, name: &str) -> ReactiveDependencies {
+        if !self.visiting_computed.insert(name.to_owned()) {
+            return ReactiveDependencies::Unknown;
+        }
+        let Some(computed) = self
+            .module
+            .computed
+            .iter()
+            .find(|computed| computed.local_name == name)
+        else {
+            self.visiting_computed.remove(name);
+            return ReactiveDependencies::Unknown;
+        };
+        let dependencies = self.dependencies_for_expression(&computed.expression);
+        self.visiting_computed.remove(name);
+        dependencies
+    }
+}
+
+struct IdentifierUse {
+    name: String,
+    is_call: bool,
+    is_property: bool,
+}
+
+fn identifier_uses(source: &str) -> Vec<IdentifierUse> {
+    let mut identifiers = Vec::new();
+    collect_identifier_uses(source, &mut identifiers);
+    identifiers
+}
+
+fn collect_identifier_uses(source: &str, identifiers: &mut Vec<IdentifierUse>) {
+    let mut index = 0usize;
+    while index < source.len() {
+        let Some(ch) = source[index..].chars().next() else {
+            break;
+        };
+        if ch == '/' && source[index..].starts_with("//") {
+            index = skip_line_comment(source, index);
+            continue;
+        }
+        if ch == '/' && source[index..].starts_with("/*") {
+            index = skip_block_comment(source, index);
+            continue;
+        }
+        if ch == '\'' || ch == '"' {
+            index = skip_quoted_literal(source, index, ch);
+            continue;
+        }
+        if ch == '`' {
+            index = skip_template_literal(source, index, identifiers);
+            continue;
+        }
+        if !is_dependency_identifier_start(ch) {
+            index += ch.len_utf8();
+            continue;
+        }
+        let end = consume_dependency_identifier(source, index);
+        let name = source[index..end].to_owned();
+        identifiers.push(IdentifierUse {
+            name,
+            is_call: next_non_whitespace(source, end) == Some('('),
+            is_property: previous_non_whitespace(source, index) == Some('.'),
+        });
+        index = end;
+    }
+}
+
+fn consume_dependency_identifier(source: &str, start: usize) -> usize {
+    let mut end = start;
+    for (offset, ch) in source[start..].char_indices() {
+        if offset == 0 {
+            end = start + ch.len_utf8();
+            continue;
+        }
+        if !is_dependency_identifier_char(ch) {
+            return start + offset;
+        }
+        end = start + offset + ch.len_utf8();
+    }
+    end
+}
+
+fn previous_non_whitespace(source: &str, index: usize) -> Option<char> {
+    source[..index].chars().rev().find(|ch| !ch.is_whitespace())
+}
+
+fn next_non_whitespace(source: &str, index: usize) -> Option<char> {
+    let mut cursor = index;
+    while cursor < source.len() {
+        let ch = source[cursor..].chars().next()?;
+        if ch.is_whitespace() {
+            cursor += ch.len_utf8();
+            continue;
+        }
+        if ch == '/' && source[cursor..].starts_with("//") {
+            cursor = skip_line_comment(source, cursor);
+            continue;
+        }
+        if ch == '/' && source[cursor..].starts_with("/*") {
+            cursor = skip_block_comment(source, cursor);
+            continue;
+        }
+        return Some(ch);
+    }
+    None
+}
+
+fn skip_line_comment(source: &str, start: usize) -> usize {
+    source[start..]
+        .find('\n')
+        .map_or(source.len(), |offset| start + offset + 1)
+}
+
+fn skip_block_comment(source: &str, start: usize) -> usize {
+    source[start + 2..]
+        .find("*/")
+        .map_or(source.len(), |offset| start + 2 + offset + 2)
+}
+
+fn skip_quoted_literal(source: &str, start: usize, quote: char) -> usize {
+    let mut cursor = start + quote.len_utf8();
+    let mut escaped = false;
+    while cursor < source.len() {
+        let Some(ch) = source[cursor..].chars().next() else {
+            break;
+        };
+        cursor += ch.len_utf8();
+        if escaped {
+            escaped = false;
+            continue;
+        }
+        if ch == '\\' {
+            escaped = true;
+            continue;
+        }
+        if ch == quote {
+            return cursor;
+        }
+    }
+    source.len()
+}
+
+fn skip_template_literal(
+    source: &str,
+    start: usize,
+    identifiers: &mut Vec<IdentifierUse>,
+) -> usize {
+    let mut cursor = start + 1;
+    let mut escaped = false;
+    while cursor < source.len() {
+        let Some(ch) = source[cursor..].chars().next() else {
+            break;
+        };
+        if escaped {
+            escaped = false;
+            cursor += ch.len_utf8();
+            continue;
+        }
+        if ch == '\\' {
+            escaped = true;
+            cursor += ch.len_utf8();
+            continue;
+        }
+        if ch == '`' {
+            return cursor + 1;
+        }
+        if ch == '$' && source[cursor..].starts_with("${") {
+            let expression_start = cursor + 2;
+            let Some(expression_end) = template_expression_end(source, expression_start) else {
+                return source.len();
+            };
+            collect_identifier_uses(&source[expression_start..expression_end], identifiers);
+            cursor = expression_end + 1;
+            continue;
+        }
+        cursor += ch.len_utf8();
+    }
+    source.len()
+}
+
+fn template_expression_end(source: &str, start: usize) -> Option<usize> {
+    let mut cursor = start;
+    let mut depth = 1usize;
+    while cursor < source.len() {
+        let ch = source[cursor..].chars().next()?;
+        if ch == '/' && source[cursor..].starts_with("//") {
+            cursor = skip_line_comment(source, cursor);
+            continue;
+        }
+        if ch == '/' && source[cursor..].starts_with("/*") {
+            cursor = skip_block_comment(source, cursor);
+            continue;
+        }
+        if ch == '\'' || ch == '"' {
+            cursor = skip_quoted_literal(source, cursor, ch);
+            continue;
+        }
+        if ch == '`' {
+            let mut nested_identifiers = Vec::new();
+            cursor = skip_template_literal(source, cursor, &mut nested_identifiers);
+            continue;
+        }
+        if ch == '{' {
+            depth += 1;
+            cursor += ch.len_utf8();
+            continue;
+        }
+        if ch == '}' {
+            depth -= 1;
+            if depth == 0 {
+                return Some(cursor);
+            }
+            cursor += ch.len_utf8();
+            continue;
+        }
+        cursor += ch.len_utf8();
+    }
+    None
+}
+
+fn is_dependency_identifier_start(ch: char) -> bool {
+    ch == '_' || ch == '$' || ch.is_ascii_alphabetic()
+}
+
+fn is_dependency_identifier_char(ch: char) -> bool {
+    is_dependency_identifier_start(ch) || ch.is_ascii_digit()
+}
+
+fn is_allowed_dependency_call(name: &str) -> bool {
+    matches!(
+        name,
+        "String"
+            | "Number"
+            | "Boolean"
+            | "BigInt"
+            | "Symbol"
+            | "Array"
+            | "Object"
+            | "Date"
+            | "RegExp"
+            | "Set"
+            | "Map"
+            | "WeakSet"
+            | "WeakMap"
+            | "Promise"
+            | "encodeURI"
+            | "encodeURIComponent"
+            | "decodeURI"
+            | "decodeURIComponent"
+            | "isFinite"
+            | "isNaN"
+            | "parseFloat"
+            | "parseInt"
+            | "host"
+    )
 }
 
 struct DeclarativeShadowDomRenderer<'a> {

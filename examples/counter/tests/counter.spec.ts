@@ -8,6 +8,8 @@ type PrimitiveEventRecord = {
 declare global {
   interface Window {
     __iktiaPrimitiveEvents?: PrimitiveEventRecord[]
+    __iktiaProbeSecondaryMutationCount?: () => number
+    __iktiaProbeSecondaryMutationObserver?: MutationObserver
   }
 }
 
@@ -58,6 +60,69 @@ test("compiled counter renders, updates, and emits detail", async ({ page }) => 
   await expect(button).toHaveText("Count: 1")
   await expect(page.locator("body")).toHaveAttribute("data-last-change", "1")
   await expect(page.locator("#counter-event")).toHaveText("Last counter event: 1")
+})
+
+test("compiled reactive output batches and gates DOM updates", async ({
+  page,
+}) => {
+  await page.goto("/")
+
+  const probe = page.locator("#reactivity-probe-case reactivity-probe")
+  const primary = probe.locator("[data-probe-primary]")
+  const secondary = probe.locator("[data-probe-secondary]")
+  const primaryButton = probe.locator("[data-probe-primary-button]")
+  const secondaryButton = probe.locator("[data-probe-secondary-button]")
+  const batchButton = probe.locator("[data-probe-batch-button]")
+  const flushButton = probe.locator("[data-probe-flush-button]")
+  const body = page.locator("body")
+
+  await expect(primary).toHaveText("0")
+  await expect(secondary).toHaveText("0")
+  await expect(body).toHaveAttribute("data-probe-effect-runs", "1")
+
+  await probe.evaluate((element) => {
+    const root = element.shadowRoot ?? element
+    const target = root.querySelector("[data-probe-secondary]")
+    if (!target) throw new Error("Missing secondary probe target.")
+    let mutations = 0
+    window.__iktiaProbeSecondaryMutationObserver?.disconnect()
+    const observer = new MutationObserver(() => {
+      mutations += 1
+    })
+    observer.observe(target, {
+      characterData: true,
+      childList: true,
+      subtree: true,
+    })
+    window.__iktiaProbeSecondaryMutationCount = () => mutations
+    window.__iktiaProbeSecondaryMutationObserver = observer
+  })
+
+  await secondaryButton.click()
+  await expect(secondary).toHaveText("1")
+  await expect(body).toHaveAttribute("data-probe-effect-runs", "1")
+  const secondaryMutationsAfterSecondaryClick = await page.evaluate(
+    () => window.__iktiaProbeSecondaryMutationCount?.() ?? -1
+  )
+
+  await primaryButton.click()
+  await expect(primary).toHaveText("1")
+  await expect(body).toHaveAttribute("data-probe-effect-runs", "2")
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__iktiaProbeSecondaryMutationCount?.() ?? -1)
+    )
+    .toBe(secondaryMutationsAfterSecondaryClick)
+
+  await batchButton.click()
+  await expect(primary).toHaveText("3")
+  await expect(body).toHaveAttribute("data-probe-effect-runs", "3")
+
+  await flushButton.click()
+  await expect(primary).toHaveText("4")
+  await expect(body).toHaveAttribute("data-probe-before-flush", "3")
+  await expect(body).toHaveAttribute("data-probe-after-flush", "4")
+  await expect(body).toHaveAttribute("data-probe-effect-runs", "4")
 })
 
 test("compiled toggle renders primitive contracts and control flow", async ({ page }) => {
@@ -1128,7 +1193,7 @@ test("form-associated primitive controls receive disabled fieldset state", async
   await expect(datePickerTrigger).toBeDisabled()
   await expect(editableInput).toBeDisabled()
   await expect(editableEdit).toBeDisabled()
-  await expect(ratingItem).toHaveAttribute("aria-disabled", "")
+  await expect(ratingItem).toHaveAttribute("aria-disabled", "true")
   await expect(sliderThumb).toHaveAttribute("aria-disabled", "true")
   await expect(radio).toHaveAttribute("aria-disabled", "true")
   await expect(toggleItem).toHaveAttribute("aria-disabled", "true")
@@ -1282,6 +1347,11 @@ test("declarative shadow dom remounts on production hydration mismatches", async
     code = code.replaceAll(
       "/src/counter.wc.css?inline",
       "data:text/javascript,export default %22%22"
+    )
+    code = code.replace(
+      /from "([^"]*packages\/runtime\/dist\/runtime\.mjs)";/,
+      (_match, specifier: string) =>
+        `from ${JSON.stringify(new URL(specifier, window.location.href).href)};`
     )
     const url = URL.createObjectURL(new Blob([code], { type: "text/javascript" }))
     try {

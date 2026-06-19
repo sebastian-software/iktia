@@ -8,6 +8,7 @@ small browser API details in generated output, not to host component semantics.
 | Helper | Responsibility | Boundary |
 | --- | --- | --- |
 | `createIktiaEvent(name, detail, options)` | Create a native `CustomEvent` with Iktia's default event flags. | Platform utility only; it does not know about components, state, effects, DOM diffing, or lifecycle. |
+| `scheduleIktiaUpdate(callback)` | Schedule generated component flushes in a microtask. | Scheduling primitive only; generated code still owns dirty sources, computed caches, effects, and DOM updates. |
 
 ## Allowed Helpers
 

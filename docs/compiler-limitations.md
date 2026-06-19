@@ -75,6 +75,16 @@ Generated updates currently cover dynamic attributes, text bindings, effects,
 `<Show>` containers, and keyed `.map()` list containers. Lists re-render their
 container on update; keyed diffing is not part of the current MVP.
 
+## Dependency Detection Boundary
+
+Reactive update dependencies are detected from AST-selected source slices with
+a narrow lexical scan, not a full expression AST walk. The scan skips comments
+and string literals and reads template-literal interpolation, but complex
+JavaScript syntax such as regex literals, dynamic helper indirection, and
+dependencies hidden inside arbitrary callbacks may still fall back to broad
+reruns. That fallback is conservative: it may update more DOM or rerun an
+effect, but it should not skip a known state, prop, or computed dependency.
+
 ## Styling Boundary
 
 `styles: [...]` injects string expressions into a generated `<style>` element.

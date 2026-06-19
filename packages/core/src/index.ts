@@ -32,6 +32,7 @@ export type HostHandle = {
   readonly root: ParentNode
   readonly signal: AbortSignal
   update(): void
+  flushSync(): void
 }
 
 export type KnownDomEventMap = HTMLElementEventMap
