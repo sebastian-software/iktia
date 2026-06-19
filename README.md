@@ -9,6 +9,17 @@ classic web applications.
 No React runtime. No virtual DOM. Just typed components shaped into native
 elements.
 
+## Why the Name?
+
+Iktia (say `IK-tee-uh`) is a Greek-inspired coined name. It nods to Iktinos,
+often Latinized as Ictinus, the ancient Greek architect associated with the
+Parthenon.
+
+The reference is loose, not literal: architecture, proportion, and structure
+rather than mythology or a direct translation. That felt right for a compiler
+whose job is to turn typed interface code into native interface elements without
+carrying a framework runtime along for the ride.
+
 ```tsx
 import { computed, event, on, state } from "@iktia/core"
 
