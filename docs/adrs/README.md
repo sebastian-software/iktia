@@ -32,6 +32,7 @@ than chronological trivia.
 * [ADR 0015: CSS And Declarative Shadow DOM Contract](0015-css-and-dsd-contract.md)
 * [ADR 0016: Diagnostics And Source Maps](0016-diagnostics-and-source-maps.md)
 * [ADR 0017: Theme Package And Token Boundary](0017-theme-package-and-token-boundary.md)
+* [ADR 0018: Form-Associated Custom Element Support](0018-form-associated-custom-element-support.md)
 
 ### P2: Conventions And Implementation Guidance
 
@@ -48,6 +49,8 @@ Each ADR uses this structure:
 * Decision
 * Alternatives
 * Consequences
+* Open Questions, when the decision intentionally leaves follow-up API details
+  unresolved
 * Related Milestones
 
 ## Maintenance Rules
