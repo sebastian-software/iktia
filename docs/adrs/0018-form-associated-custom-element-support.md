@@ -1,6 +1,6 @@
 # ADR 0018: Form-Associated Custom Element Support
 
-Status: Proposed
+Status: Accepted
 
 Weight: P1
 
@@ -25,59 +25,48 @@ leaking the full browser API into ordinary component authoring.
 
 ## Decision
 
-Treat form-associated element support as an explicit post-v0.1 compiler
-capability for custom controls. Do not infer it from JSX that happens to render
-an `<input>` or other native control.
+Treat form-associated element support as an experimental compiler capability
+for custom controls. Do not infer it from JSX that happens to render an
+`<input>` or other native control.
 
-The first public authoring shape should have two parts:
+The first shipped authoring shape has one explicit body helper:
 
-* A component-level opt-in that tells the compiler to generate a
+* `formControl()` is compiler-known static authoring syntax.
+* The presence of `formControl()` tells the compiler to generate a
   form-associated custom element.
-* One compiler-known form-control binding that describes how authored state maps
-  to browser form semantics.
+* The helper describes how authored state maps to browser form semantics.
 
-The intended shape is:
+The current experimental shape is:
 
 ```tsx
-import { formControl, state, type ComponentOptions } from "@iktia/core"
-
-export const options = {
-  formAssociated: true,
-} satisfies ComponentOptions
+import { formControl, state } from "@iktia/core"
 
 export type TextFieldProps = {
   disabled?: boolean
   name?: string
-  required?: boolean
   value?: string
 }
 
 export function TextField({
   disabled = false,
   name = "",
-  required = false,
   value = "",
 }: TextFieldProps = {}) {
   const currentValue = state(value)
 
   const field = formControl({
-    name,
-    value: currentValue,
-    disabled,
-    required,
+    value: () => currentValue(),
     reset: () => currentValue.set(value),
-    validate: () =>
-      required && currentValue() === ""
-        ? { valueMissing: true, message: "Enter a value" }
-        : null,
+    disabled,
   })
+  void name
+  void field
 
   return (
     <input
       part="control"
-      disabled={field.disabled()}
-      required={required}
-      value={field.value()}
+      disabled={disabled}
+      value={currentValue()}
       onInput={(event) => {
         const input = event.currentTarget as HTMLInputElement
         currentValue.set(input.value)
@@ -87,29 +76,33 @@ export function TextField({
 }
 ```
 
-The exact exported helper name and TypeScript overloads can still change during
-implementation, but the shape is fixed enough for compiler design:
+The exact TypeScript overloads can still change while the helper is
+experimental, but the compiler contract is fixed enough to document:
 
-* `ComponentOptions.formAssociated: true` is the opt-in.
+* `formControl()` is the opt-in.
 * `formControl()` is compiler-known authoring syntax, not a runtime form
   library.
-* `name`, `value`, `disabled`, and `required` remain normal props and
-  attributes where possible.
+* `value`, `reset`, and `disabled` are the first supported bindings.
+* `name`, `required`, validation, labels, and multi-value controls remain
+  follow-up work.
 * The generated host element owns browser integration through
   `ElementInternals`.
 
 Generated output responsibilities:
 
-* Emit `static formAssociated = true` only for opted-in components.
+* Emit `static formAssociated = true` only for components using
+  `formControl()`.
 * Call `attachInternals()` once per element instance and keep the internals
   private to generated code.
 * Call `internals.setFormValue()` whenever the authored form value changes.
-* Call `internals.setValidity()` whenever authored validity changes.
 * Generate `formResetCallback()` to apply the authored reset behavior.
 * Generate `formDisabledCallback(disabled)` to update the authored disabled
   binding and re-render if necessary.
-* Leave host `name` integration to the platform attribute; do not create a
-  parallel Iktia naming system.
+* Defer `internals.setValidity()` and custom validity anchors until validation
+  semantics are designed.
+* Leave host `name` integration to the platform attribute for now; the current
+  implementation does not yet wire `name` into `FormData` beyond the browser's
+  built-in form-associated element contract.
 * Keep DSD hydration independent. DSD controls initial DOM structure, while
   form association controls form participation after element upgrade.
 
@@ -122,8 +115,9 @@ Runtime responsibilities:
 
 Compiler responsibilities:
 
-* Extend component option parsing beyond `styles` only when this API is ready.
-* Reject `formControl()` outside a `formAssociated: true` component.
+* Keep `ComponentOptions` limited to `styles` until another API needs a static
+  component-level option.
+* Treat `formControl()` as the static opt-in for form association.
 * Reject multiple ambiguous form-control bindings until multi-value controls are
   designed.
 * Emit diagnostics for unsupported values such as arbitrary `FormData` objects
@@ -131,10 +125,9 @@ Compiler responsibilities:
 * Preserve static analyzability: form-control binding shape must be simple
   enough for Rust/OXC analysis.
 
-No code prototype should land with this ADR. The design exposes unresolved API
-choices that would turn a quick prototype into accidental public surface. The
-first implementation PR should be fixture-driven and marked experimental in
-docs until the open questions below are answered.
+The first implementation is intentionally fixture-driven and documented as
+experimental. It exists to validate the compiler-owned `ElementInternals`
+pipeline before stabilizing broader forms and validation API.
 
 ## Alternatives
 

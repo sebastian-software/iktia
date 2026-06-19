@@ -49,6 +49,8 @@ Each ADR uses this structure:
 * Decision
 * Alternatives
 * Consequences
+* Open Questions, when the decision intentionally leaves follow-up API details
+  unresolved
 * Related Milestones
 
 ## Maintenance Rules

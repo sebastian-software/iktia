@@ -367,7 +367,7 @@ Future form-control components should explore:
 
 This should be a separate milestone from form actions. Form actions handle
 submitting forms. Form-associated custom elements handle authoring custom
-controls that participate in forms. ADR 0017 documents the proposed Iktia
+controls that participate in forms. ADR 0018 documents the accepted Iktia
 authoring and generated-output boundary for that custom-control work.
 
 ## Proposed Roadmap Extension
