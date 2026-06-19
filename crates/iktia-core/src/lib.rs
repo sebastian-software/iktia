@@ -1164,7 +1164,7 @@ mod tests {
         assert_contains(&result.template_html, "data-iktia-text=\"text0\"");
         assert_contains(&result.template_html, "data-iktia-control=\"show\"");
         assert_contains(&result.template_html, "data-iktia-control=\"for\"");
-        assert_not_contains(&result.template_html, "onClick");
+        assert_not_contains(&result.template_html, "addEventListener");
         assert_not_contains(&result.template_html, "toggle-change");
         assert_not_contains(&result.template_html, "CustomEvent");
     }
