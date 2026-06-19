@@ -127,7 +127,7 @@ the runtime hydrates.
 For a component like:
 
 ```tsx
-import css from "./counter.css?inline"
+import css from "./counter.wc.css?inline"
 
 export const options = {
   styles: [css],

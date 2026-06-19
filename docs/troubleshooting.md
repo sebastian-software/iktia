@@ -57,7 +57,7 @@ components, but it does not automatically write HTML for every component.
 Public component CSS should use Vite `?inline` imports:
 
 ```tsx
-import css from "./counter.css?inline"
+import css from "./counter.wc.css?inline"
 
 export const options = {
   styles: [css],

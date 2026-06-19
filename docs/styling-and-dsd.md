@@ -10,7 +10,7 @@ Use Vite `?inline` imports and list the imported CSS text in component options.
 
 ```tsx
 import { type ComponentOptions } from "@iktia/core"
-import css from "./counter.css?inline"
+import css from "./counter.wc.css?inline"
 
 export const options = {
   styles: [css],
