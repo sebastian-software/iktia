@@ -10,11 +10,13 @@ use oxc_span::{GetSpan, SourceType, Span};
 use crate::error::{
     CompilerError, CompilerResult, DIAGNOSTIC_CODE_UNSUPPORTED_COMPUTED_CALLBACK,
     DIAGNOSTIC_CODE_UNSUPPORTED_EFFECT_CALLBACK, DIAGNOSTIC_HINT_AUTHORING_LIMITATIONS,
-    removed_authoring_api, unsupported, unsupported_with_code,
+    removed_authoring_api, removed_authoring_api_with_span, unsupported, unsupported_with_code,
+    unsupported_with_code_and_span,
 };
 use crate::model::{
-    ComponentImport, ComputedDefinition, EffectDefinition, EventDefinition, FormControlDefinition,
-    LifecycleCallbackDefinition, RuntimeImport, StateDefinition, StateKind, StyleImport,
+    ComponentImport, ComputedDefinition, DiagnosticSpan, EffectDefinition, EventDefinition,
+    FormControlDefinition, LifecycleCallbackDefinition, RuntimeImport, StateDefinition, StateKind,
+    StyleImport,
 };
 use crate::naming::is_pascal_case_identifier;
 
@@ -29,6 +31,13 @@ impl SourceSpan {
         Self {
             start: span.start as usize,
             end: span.end as usize,
+        }
+    }
+
+    const fn to_diagnostic(self) -> DiagnosticSpan {
+        DiagnosticSpan {
+            start: self.start,
+            end: self.end,
         }
     }
 }
@@ -277,6 +286,14 @@ fn analyze_component_body(
 ) -> CompilerResult<AstComponentSemantics> {
     let mut semantics = AstComponentSemantics::default();
     let body_source = source_span(source, SourceSpan::from_oxc(body.span))?;
+    semantics.uses_host_helpers = contains_call(body_source, "host");
+
+    // Walk statements before string fallbacks so direct helper calls keep AST spans.
+    for statement in &body.statements {
+        capture_body_statement(source, statement, &mut semantics)?;
+    }
+
+    // These are span-less fallbacks for nested or otherwise unsupported helper shapes.
     if contains_call(body_source, "signal") {
         return Err(removed_authoring_api(
             "signal() was removed from the v0.1 authoring API. Use state() for local component state.",
@@ -291,11 +308,6 @@ fn analyze_component_body(
         return Err(removed_authoring_api(
             "useHost() was removed from the v0.1 authoring API. Use host() instead.",
         ));
-    }
-    semantics.uses_host_helpers = contains_call(body_source, "host");
-
-    for statement in &body.statements {
-        capture_body_statement(source, statement, &mut semantics)?;
     }
 
     Ok(semantics)
@@ -496,23 +508,27 @@ fn call_name<'a>(call: &'a CallExpression<'a>) -> Option<&'a str> {
 
 fn reject_removed_call(call: &CallExpression<'_>) -> CompilerResult<()> {
     if call_name(call) == Some("component") {
-        return Err(removed_authoring_api(
+        return Err(removed_authoring_api_with_span(
             "component() was removed from the v0.1 authoring API. Export a PascalCase function component instead.",
+            SourceSpan::from_oxc(call.span).to_diagnostic(),
         ));
     }
     if call_name(call) == Some("signal") {
-        return Err(removed_authoring_api(
+        return Err(removed_authoring_api_with_span(
             "signal() was removed from the v0.1 authoring API. Use state() for local component state.",
+            SourceSpan::from_oxc(call.span).to_diagnostic(),
         ));
     }
     if call_name(call) == Some("useHost") {
-        return Err(removed_authoring_api(
+        return Err(removed_authoring_api_with_span(
             "useHost() was removed from the v0.1 authoring API. Use host() instead.",
+            SourceSpan::from_oxc(call.span).to_diagnostic(),
         ));
     }
     if is_prop_call(call) {
-        return Err(removed_authoring_api(
+        return Err(removed_authoring_api_with_span(
             "prop.*() and prop() were removed from the v0.1 authoring API. Declare props with typed function parameters instead.",
+            SourceSpan::from_oxc(call.span).to_diagnostic(),
         ));
     }
     Ok(())
@@ -566,23 +582,33 @@ fn capture_arrow_expression_source(
     argument: &Argument<'_>,
 ) -> CompilerResult<String> {
     let callback_source = source_span(source, SourceSpan::from_oxc(argument.span()))?;
-    capture_arrow_expression_source_from_str(callback_source)
+    let callback_span = SourceSpan::from_oxc(argument.span()).to_diagnostic();
+    capture_arrow_expression_source_from_str_with_span(callback_source, Some(callback_span))
 }
 
 fn capture_arrow_expression_source_from_str(callback_source: &str) -> CompilerResult<String> {
+    capture_arrow_expression_source_from_str_with_span(callback_source, None)
+}
+
+fn capture_arrow_expression_source_from_str_with_span(
+    callback_source: &str,
+    callback_span: Option<DiagnosticSpan>,
+) -> CompilerResult<String> {
     let Some(arrow_index) = callback_source.find("=>") else {
-        return Err(unsupported_with_code(
+        return Err(unsupported_with_optional_span(
             DIAGNOSTIC_CODE_UNSUPPORTED_COMPUTED_CALLBACK,
             "computed() requires an arrow function callback.",
             DIAGNOSTIC_HINT_AUTHORING_LIMITATIONS,
+            callback_span,
         ));
     };
     let body = callback_source[arrow_index + 2..].trim();
     if body.starts_with('{') {
-        return Err(unsupported_with_code(
+        return Err(unsupported_with_optional_span(
             DIAGNOSTIC_CODE_UNSUPPORTED_COMPUTED_CALLBACK,
             "computed() must use an expression body in the current compiler milestone.",
             DIAGNOSTIC_HINT_AUTHORING_LIMITATIONS,
+            callback_span,
         ));
     }
     Ok(strip_wrapping_parentheses(body).to_owned())
@@ -590,10 +616,18 @@ fn capture_arrow_expression_source_from_str(callback_source: &str) -> CompilerRe
 
 fn capture_arrow_body_source(source: &str, argument: &Argument<'_>) -> CompilerResult<String> {
     let callback_source = source_span(source, SourceSpan::from_oxc(argument.span()))?;
-    capture_arrow_body_source_from_str(callback_source)
+    let callback_span = SourceSpan::from_oxc(argument.span()).to_diagnostic();
+    capture_arrow_body_source_from_str_with_span(callback_source, Some(callback_span))
 }
 
 fn capture_arrow_body_source_from_str(callback_source: &str) -> CompilerResult<String> {
+    capture_arrow_body_source_from_str_with_span(callback_source, None)
+}
+
+fn capture_arrow_body_source_from_str_with_span(
+    callback_source: &str,
+    callback_span: Option<DiagnosticSpan>,
+) -> CompilerResult<String> {
     let Some(arrow_index) = callback_source.find("=>") else {
         return Err(unsupported(
             "Iktia compiler helpers require an arrow function callback.",
@@ -602,15 +636,29 @@ fn capture_arrow_body_source_from_str(callback_source: &str) -> CompilerResult<S
     let body = callback_source[arrow_index + 2..].trim();
     if body.starts_with('{') {
         if !body.ends_with('}') || body.len() < 2 {
-            return Err(unsupported_with_code(
+            return Err(unsupported_with_optional_span(
                 DIAGNOSTIC_CODE_UNSUPPORTED_EFFECT_CALLBACK,
                 "effect() callback body is malformed.",
                 DIAGNOSTIC_HINT_AUTHORING_LIMITATIONS,
+                callback_span,
             ));
         }
         return Ok(body[1..body.len() - 1].trim().to_owned());
     }
     Ok(format!("return {};", strip_wrapping_parentheses(body)))
+}
+
+fn unsupported_with_optional_span(
+    code: &'static str,
+    message: impl Into<String>,
+    hint: &'static str,
+    span: Option<DiagnosticSpan>,
+) -> CompilerError {
+    let message = message.into();
+    match span {
+        Some(span) => unsupported_with_code_and_span(code, message, hint, span),
+        None => unsupported_with_code(code, message, hint),
+    }
 }
 
 fn split_top_level_commas(source: &str) -> Vec<&str> {
