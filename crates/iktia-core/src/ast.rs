@@ -288,10 +288,12 @@ fn analyze_component_body(
     let body_source = source_span(source, SourceSpan::from_oxc(body.span))?;
     semantics.uses_host_helpers = contains_call(body_source, "host");
 
+    // Walk statements before string fallbacks so direct helper calls keep AST spans.
     for statement in &body.statements {
         capture_body_statement(source, statement, &mut semantics)?;
     }
 
+    // These are span-less fallbacks for nested or otherwise unsupported helper shapes.
     if contains_call(body_source, "signal") {
         return Err(removed_authoring_api(
             "signal() was removed from the v0.1 authoring API. Use state() for local component state.",
