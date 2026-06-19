@@ -9,6 +9,13 @@ Adopt the architectural lesson behind Remix v3's UI component model without
 copying its public `return () => JSX` component shape as Iktia's default
 authoring syntax.
 
+The stronger comparison class for Iktia is not runtime-first Remix. It is the
+setup-once, compiler-oriented family represented by Solid, Svelte 5, and Marko
+6: component setup is not the repeated render path, reactivity is explicit or
+compiler-visible, and the implementation tries to update only the affected
+work. Remix is still useful as a source of host-handle and abortability ideas,
+but it is the wrong baseline for Iktia's component shape.
+
 Iktia components should be specified as instance setup functions: the exported
 component function defines per-instance state, effects, events, host access,
 and the declarative view for one generated Custom Element instance. The
@@ -78,6 +85,13 @@ Remix API docs list `3.0.0-beta.3` as latest. The relevant references are:
 * [Remix `Handle` API](https://api.remix.run/api/remix/ui/interface/Handle/)
 * [Remix `EntryComponent` API](https://api.remix.run/api/remix/ui/type/EntryComponent/)
 
+The broader compiler-side references are:
+
+* [Solid: Intro to reactivity](https://docs.solidjs.com/concepts/intro-to-reactivity)
+* [Solid: Fine-grained reactivity](https://docs.solidjs.com/advanced-concepts/fine-grained-reactivity)
+* [Svelte: Introducing runes](https://svelte.dev/blog/runes)
+* [Marko: Compiling Fine-Grained Reactivity](https://dev.to/ryansolid/marko-compiling-fine-grained-reactivity-4lk4)
+
 The important learning is not the arrow function itself. The important learning
 is the lifecycle separation:
 
@@ -94,6 +108,13 @@ inspiration for Web composition, platform types, dependency restraint,
 model-friendly source, and cohesive package surfaces. It also says Iktia should
 not adopt Remix v3's runtime-first principle. Iktia remains a compiler for
 native Web Components.
+
+For the component shape decision, Remix is therefore mostly a contrast case.
+Its inner render function runs after `update()`, while Iktia's source component
+body is transformed into a generated Custom Element class. Solid's documented
+model that components run once, Svelte 5's move from implicit `let` reactivity
+to explicit `$state()`, and Marko's compiled fine-grained output are stronger
+evidence for Iktia's current direction than Remix's returned render function.
 
 ## Existing Iktia Constraints
 
@@ -289,11 +310,30 @@ plus `handle.update()` and `state()` are first-class, authors must learn when
 each should be used. The compiler must also define which values are observable
 for text bindings, attributes, effects, form sync, and DSD prerendering.
 
+The plain-`let` argument is also weaker than it first appears. Svelte 3 and 4
+made assignments to local `let` variables reactive inside components; Svelte 5
+introduced explicit `$state()` runes because implicit component-only
+reactivity did not scale cleanly across files, helper functions, and normal
+JavaScript modules. Iktia's explicit `state()` is closer to that newer
+direction than to Svelte's older magic assignment model.
+
 Render functions weaken the static syntax boundary. Even if the compiler can
 support the shape, public render callbacks invite arbitrary JavaScript returns,
 branching, local helper functions, loops, nested callbacks, and runtime-only
 template construction. That fights ADR 0005's preference for explicit,
 statically analyzable constructs.
+
+Render functions also introduce a mental-model divergence. An author sees code
+that appears to run on every render, but Iktia wants generated fine-grained DOM
+updates, not source-level render re-execution. Code that depends on genuine
+render re-execution would either be wrong or would force Iktia toward a real
+runtime renderer.
+
+The divergence is stronger for Iktia than for Solid or Remix. Solid actually
+runs setup code once at runtime. Remix actually calls the returned render
+function. Iktia authoring APIs are compile-time stubs, and `.wc.tsx` source is
+not the runtime artifact. A returned render function therefore suggests a
+runtime level that Iktia intentionally does not have.
 
 The handle becomes a large public API too early. Stable props, update-scoped
 AbortSignals, context, IDs, queueing, frame access, and task scheduling are all
@@ -319,6 +359,10 @@ setup/render separation, but it also imports runtime-first signals into a
 compiler-first project. It is powerful, but it makes Iktia look like a UI
 runtime that happens to compile, rather than a compiler that emits native Web
 Components.
+
+More importantly, it imports a render-repeated mental model into a setup-once
+compiler. That is the wrong direction for Iktia even before considering
+implementation cost.
 
 ## Option B: Keep Single JSX Return, Define Instance Factory Semantics
 
@@ -483,9 +527,11 @@ framework.
 ### Assessment
 
 This option is attractive as an experiment but weak as a v0.1 public default.
-If Iktia wants to test factory syntax later, it should do so behind an explicit
-experimental flag or in private compiler fixtures, not as a documented stable
-shape.
+It should not be held open as a planned future public mode, because it would
+create a second component lifecycle model. If Iktia ever revisits factory
+syntax, it should require a new RFC that proves the shape can preserve the
+same setup-once compiler semantics, not merely a feature flag that imports
+render-repeated behavior.
 
 ## Recommendation
 
@@ -659,8 +705,9 @@ Remix lesson:
 
 * `props` provides a stable live read model for advanced code that should not
   depend on destructured setup values;
-* `id` gives deterministic instance IDs for labels, descriptions, ARIA
-  relationships, and internally generated IDs;
+* `id` gives deterministic instance IDs for hydration-safe internal IDs and
+  cross-boundary ARIA relationships where host applications need stable
+  references;
 * `signal` handles disconnect cleanup;
 * `update()` schedules an update and can provide an update-scoped signal;
 * `queueTask()` can coordinate work after generated DOM updates.
@@ -739,6 +786,45 @@ boundary:
 Public factory render functions would make this boundary more ambiguous.
 Single-return instance declarations keep it clearer.
 
+## Fine-Grained Codegen Follow-Up
+
+The syntax decision does not by itself make Iktia's generated updates as
+selective as the setup-once compiler family. The current generator has the
+right broad shape but still uses a coarse update model:
+
+* `#createBindings()` reconstructs the full binding object whenever generated
+  code asks for bindings.
+* `computed()` lowers to a plain function and is not memoized.
+* `state.set()` calls `#flush()` synchronously.
+* `#flush()` runs `#update()`, form sync, and all effects.
+* `#update()` executes every generated update line.
+* `#runEffects()` cleans and reruns every effect on every flush.
+
+Those facts do not change the recommendation in this RFC. They strengthen it.
+If Iktia keeps the single-return instance setup model, the next architectural
+leverage is making the compiler smarter under that model, not adding a second
+component syntax.
+
+The recommended follow-up is a separate RFC for fine-grained reactive codegen:
+
+1. **Write batching**: state writes should mark dirty sources and coalesce
+   flushes into a microtask, with a synchronous escape hatch only when a
+   component must observe updated DOM immediately.
+2. **Compile-time dependency graph**: the compiler should collect which props,
+   states, and computed values each text binding, dynamic attribute, form
+   value, and effect reads, then update only affected work when a source
+   changes.
+3. **Per-effect dependencies**: effects should clean and rerun only when their
+   tracked sources change. Direct reads in effect bodies should be
+   compiler-detected; helper-function cases need an explicit dependency escape
+   rather than today's no-op `void state()` markers.
+4. **Memoized computed values**: pure `computed()` values should cache within
+   an update pass and invalidate when their dependency sources change.
+
+The fallback for unknown reads must be conservative: run the same broad update
+behavior Iktia runs today. Correctness should dominate granularity. This keeps
+the improvements incremental and compatible with the v0.1 authoring API.
+
 ## Comparison Matrix
 
 | Criteria | Option A: Remix-style public factories | Option B: Iktia instance semantics | Option C: Both shapes |
@@ -778,7 +864,7 @@ Single-return instance declarations keep it clearer.
 
 ### Neutral
 
-* This does not prevent a future experimental factory syntax.
+* This does not reserve factory syntax as a planned future mode.
 * This does not require changing generated output immediately.
 * This does not require committing to a specific update-scoped signal API yet.
 * This does not change the Zag-backed primitives roadmap; it clarifies the
@@ -811,25 +897,30 @@ likely useful:
 2. Add compiler diagnostics for callback-returned JSX such as
    `return () => <button />`, explaining that public factory render functions
    are not part of the accepted v0.1 component shape.
-3. Review generated `host()` bindings and decide whether the next small step is
-   stable `id`, typed `props`, `queueTask()`, or update-scoped abort signals.
-4. Review `on()` and primitive behavior kernels for async cleanup gaps.
-5. Add tests that prove component setup state initializes once per element
+3. Prioritize abortable async work: `host().signal` already covers disconnect
+   cleanup, but Iktia still needs a design for update-scoped abort signals and
+   event-handler re-entry cancellation.
+4. Review generated `host()` bindings and decide whether the next small step is
+   stable hydration-safe `id`, typed `props`, `queueTask()`, or
+   `update(): Promise<AbortSignal>`.
+5. Write a separate fine-grained reactive codegen RFC covering write batching,
+   compile-time dependency graphs, per-effect dependencies, and memoized
+   computed values.
+6. Review `on()` and primitive behavior kernels for async cleanup gaps.
+7. Add tests that prove component setup state initializes once per element
    instance and prop updates use generated update bindings rather than
    re-running setup.
-6. Add DSD tests that preserve the static evaluation boundary.
+8. Add DSD tests that preserve the static evaluation boundary.
 
 ## Open Questions
 
-* Should `host().update()` continue returning `void`, or should it eventually
-  return a `Promise<AbortSignal>` after the generated update completes?
-* Should `on()` handlers receive an optional `AbortSignal`, or should async
-  cancellation be exposed only through `host()`?
+* Should update-scoped cancellation live on `host().update()`, event handlers,
+  or both?
 * Should `host()` expose stable typed `props`, or should props remain available
   only through destructured function parameters and generated bindings?
 * Should the compiler provide deterministic instance IDs by default?
-* Should factory syntax be explicitly rejected forever, or left as a future
-  experimental mode?
+* Should the explicit dependency escape for effects be a new helper, an option
+  on `effect()`, or a compiler-recognized wrapper around existing code?
 
 ## Acceptance Criteria
 
@@ -841,9 +932,12 @@ This RFC is considered accepted when:
   not as an Iktia compatibility target;
 * the current single JSX return shape remains the canonical v0.1 authoring
   syntax;
+* factory syntax is not presented as a planned future public mode;
 * `host()` is treated as the explicit instance handle surface in future API
   design;
-* abortable async work is tracked as a real follow-up requirement;
+* abortable async work is tracked as a prioritized follow-up requirement;
+* fine-grained reactive codegen is tracked as a separate follow-up RFC or
+  implementation plan;
 * callback-returned JSX is either rejected with a clear diagnostic or remains
   documented as unsupported.
 
