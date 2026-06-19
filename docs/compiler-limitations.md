@@ -176,3 +176,11 @@ every rejection path remains future hardening work.
 
 Future work should add span-rich diagnostics and fixture coverage for every
 supported rejection path.
+
+## Conformance Fixtures
+
+The local conformance suite in
+`crates/iktia-core/tests/fixtures/conformance` defines the durable compiler
+boundary for accepted, rejected, and Declarative Shadow DOM authoring patterns.
+See [Compiler conformance fixtures](conformance-fixtures.md) for the fixture
+layout and rules for adding coverage when compiler syntax changes.
