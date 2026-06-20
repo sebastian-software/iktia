@@ -47,6 +47,11 @@ Factory render callbacks such as `return () => <JSX>` are not part of Iktia's
 v0.1 component shape. Generated state writes, prop changes, effects, and host
 updates drive the DOM patch code instead.
 
+The single JSX return can still describe multiple visual states. Loading,
+error, empty, and ready views should be modeled as state or derived values and
+explicit control-flow subtrees inside the returned template. The compiler
+boundary rejects arbitrary returned render functions, not conditional UI.
+
 Some MVP detail parsers remain intentionally conservative: function prop
 destructuring, component options, inline style arrays, and generated-template
 parsing still use narrow source-slice analysis fed by AST-selected regions.
