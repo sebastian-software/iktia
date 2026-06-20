@@ -173,6 +173,11 @@ generated updates. The mental model is closer to Solid's setup-once components
 and Svelte's compiled component instances than to runtime rerendering. The
 single JSX return declares the view for that instance.
 
+That single return is a compiler boundary, not a one-state UI limitation.
+Loading, error, empty, and ready variants should be represented as state or
+derived values inside the returned view, using explicit control-flow primitives
+such as `<Show>` for conditional subtrees.
+
 ```tsx
 export type TextFieldProps = {
   disabled?: boolean
