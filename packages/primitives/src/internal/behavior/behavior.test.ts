@@ -2,6 +2,11 @@ import { describe, expect, it } from "vitest"
 
 import { nextCheckboxState } from "./checkbox.js"
 import {
+  consumeIktiaContext,
+  createIktiaContext,
+  provideIktiaContext,
+} from "./context.js"
+import {
   nextDisclosureOpen,
   shouldCloseDisclosureForKey,
 } from "./disclosure.js"
@@ -12,7 +17,89 @@ import { createZagScope } from "../zag/scope.js"
 import { createZagService } from "../zag/service.js"
 import { createZagTabsProbe } from "../zag/tabs-probe.js"
 
+class TestCustomEvent<Detail> extends Event {
+  readonly detail: Detail
+
+  constructor(type: string, init: CustomEventInit<Detail>) {
+    super(type, init)
+    this.detail = init.detail as Detail
+  }
+}
+
+class TestEventTarget implements EventTarget {
+  parent: TestEventTarget | null = null
+  private listeners = new Map<string, Set<EventListenerOrEventListenerObject>>()
+
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject | null,
+    _options?: AddEventListenerOptions | boolean
+  ) {
+    if (listener == null) return
+    let listeners = this.listeners.get(type)
+    if (listeners == null) {
+      listeners = new Set()
+      this.listeners.set(type, listeners)
+    }
+    listeners.add(listener)
+  }
+
+  dispatchEvent(event: Event) {
+    for (const listener of this.listeners.get(event.type) ?? []) {
+      if (typeof listener === "function") listener.call(this, event)
+      else listener.handleEvent(event)
+    }
+    if (event.bubbles && !event.cancelBubble) {
+      this.parent?.dispatchEvent(event)
+    }
+    return !event.defaultPrevented
+  }
+
+  removeEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject | null,
+    _options?: EventListenerOptions | boolean
+  ) {
+    if (listener == null) return
+    this.listeners.get(type)?.delete(listener)
+  }
+}
+
 describe("primitive behavior kernels", () => {
+  it("provides and consumes DOM-native context-request values", async () => {
+    const originalCustomEvent = globalThis.CustomEvent
+    globalThis.CustomEvent = TestCustomEvent as unknown as typeof CustomEvent
+
+    const context = createIktiaContext<string>("test-context")
+    const providerTarget = new TestEventTarget()
+    const consumerTarget = new TestEventTarget()
+    consumerTarget.parent = providerTarget
+    const received: string[] = []
+
+    const provider = provideIktiaContext({
+      context,
+      host: providerTarget,
+      value: "initial",
+    })
+    const cleanup = consumeIktiaContext({
+      callback(value) {
+        received.push(value)
+      },
+      context,
+      element: consumerTarget,
+      subscribe: true,
+    })
+
+    await Promise.resolve()
+    provider.setValue("next")
+    cleanup()
+    provider.setValue("ignored")
+    provider.destroy()
+    globalThis.CustomEvent = originalCustomEvent
+
+    expect(received).toEqual(["initial", "next"])
+  })
+
   it("toggles pressed state and form value", () => {
     expect(nextTogglePressed(false)).toBe(true)
     expect(nextTogglePressed(true)).toBe(false)

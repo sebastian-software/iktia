@@ -1,4 +1,16 @@
-import { type ComponentOptions } from "@iktia/core"
+import {
+  effect,
+  host,
+  onConnected,
+  onDisconnected,
+  state,
+  type ComponentOptions,
+} from "@iktia/core"
+import { consumeIktiaContext } from "./internal/behavior/context.js"
+import {
+  IKTIA_RADIO_GROUP_CONTEXT,
+} from "./internal/zag/radio-group.js"
+import type { IktiaRadioGroupContext } from "./internal/zag/radio-group.js"
 import css from "./radio.wc.css?inline"
 
 export type IktiaRadioProps = {
@@ -16,8 +28,33 @@ export function IktiaRadio({
   label = "",
   value = "",
 }: IktiaRadioProps = {}) {
-  void disabled
-  void value
+  const radioContext = state<IktiaRadioGroupContext | null>(null)
+  const contextCleanup = state<VoidFunction | null>(null)
+
+  onConnected(() => {
+    contextCleanup.set(consumeIktiaContext({
+      callback(context) {
+        radioContext.set(context)
+      },
+      context: IKTIA_RADIO_GROUP_CONTEXT,
+      element: host().element,
+      subscribe: true,
+    }))
+  })
+  onDisconnected(() => {
+    contextCleanup()?.()
+    contextCleanup.set(null)
+    radioContext.set(null)
+  })
+  effect(() => {
+    const context = radioContext()
+    if (context == null) return
+    return context.syncRadio({
+      disabled,
+      element: host().element,
+      value,
+    })
+  })
 
   return (
     <span part="root">

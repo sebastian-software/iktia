@@ -11,11 +11,14 @@ import {
 } from "@iktia/core"
 import {
   createIktiaZagRadioGroupService,
+  createIktiaRadioGroupContextController,
   getIktiaZagRadioGroupApi,
   stopIktiaZagRadioGroupService,
-  syncIktiaRadioGroupItems,
 } from "./internal/zag/radio-group.js"
-import type { IktiaZagRadioGroupService } from "./internal/zag/radio-group.js"
+import type {
+  IktiaZagRadioGroupService,
+  IktiaRadioGroupContextController,
+} from "./internal/zag/radio-group.js"
 import css from "./radio-group.wc.css?inline"
 
 export type IktiaRadioGroupProps = {
@@ -38,6 +41,7 @@ export function IktiaRadioGroup({
   value = "",
 }: IktiaRadioGroupProps = {}) {
   const selected = state(value)
+  const radioContext = state<IktiaRadioGroupContextController | null>(null)
   const radioService = state<IktiaZagRadioGroupService | null>(null)
   const radioApi = computed(() => getIktiaZagRadioGroupApi(radioService()))
   const changed = event<{ value: string }>("iktia-change")
@@ -67,19 +71,25 @@ export function IktiaRadioGroup({
       root: host().root,
       value: selected(),
     }))
+    radioContext.set(createIktiaRadioGroupContextController({
+      host: host().element,
+      onRequestUpdate: () => host().update(),
+    }))
   })
   onDisconnected(() => {
+    radioContext()?.destroy()
+    radioContext.set(null)
     stopIktiaZagRadioGroupService(radioService())
     radioService.set(null)
   })
   effect(() => {
     const api = radioApi()
-    if (api == null) return
-    return syncIktiaRadioGroupItems({
+    const context = radioContext()
+    if (api == null || context == null) return
+    void selected()
+    context.update({
       api,
       disabled,
-      host: host().element,
-      onRequestUpdate: () => host().update(),
       orientation,
     })
   })

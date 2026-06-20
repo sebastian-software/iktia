@@ -73,4 +73,6 @@ cross-browser coverage are complete.
 
 Shared behavior lives in private package modules under `src/internal`. Simple
 kernels remain under `src/internal/behavior`; Zag-backed adapters live under
-`src/internal/zag`. They are intentionally not public exports.
+`src/internal/zag`. Compound primitives can use the package-private
+`context-request` helper for DOM-native child registration without a framework
+runtime or public context API. They are intentionally not public exports.

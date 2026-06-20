@@ -65,8 +65,11 @@ describe("@iktia/primitives build output", () => {
 
   it("keeps primitive behavior kernels private but available to compiled components", () => {
     const dropdown = readFileSync(join(distRoot, "dropdown.mjs"), "utf8")
+    const context = readFileSync(join(distRoot, "internal", "behavior", "context.js"), "utf8")
 
     expect(dropdown).toContain("from \"./internal/behavior/disclosure.js\"")
+    expect(context).toContain("context-request")
+    expect(context).toContain("createIktiaContext")
     expect(dropdown).not.toContain("@iktia/core")
   })
 
@@ -127,7 +130,10 @@ describe("@iktia/primitives build output", () => {
     expect(popover).toContain("@zag-js/popover")
     expect(progress).toContain("@zag-js/progress")
     expect(radioGroup).toContain("@zag-js/radio-group")
-    expect(radioGroup).toContain("syncIktiaRadioGroupItems")
+    expect(radioGroup).toContain("IKTIA_RADIO_GROUP_CONTEXT")
+    expect(radioGroup).toContain("createIktiaRadioGroupContextController")
+    expect(radioGroup).not.toContain("MutationObserver")
+    expect(radioGroup).not.toContain("querySelectorAll")
     expect(ratingGroup).toContain("@zag-js/rating-group")
     expect(service).toContain("createZagService")
     expect(props).toContain("normalizeZagProps")
@@ -204,7 +210,7 @@ describe("@iktia/primitives build output", () => {
 
     expect(radioGroup).toContain("from \"./internal/zag/radio-group.js\"")
     expect(radioGroup).toContain("createIktiaZagRadioGroupService")
-    expect(radioGroup).toContain("syncIktiaRadioGroupItems")
+    expect(radioGroup).toContain("createIktiaRadioGroupContextController")
     expect(radioGroup).toContain("#applySpreadAttributes")
     expect(radioGroup).not.toContain("@iktia/core")
     expect(radioGroup).not.toContain("type IktiaZagRadioGroupService")

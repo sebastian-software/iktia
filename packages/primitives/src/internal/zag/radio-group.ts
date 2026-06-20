@@ -7,6 +7,11 @@ import {
 import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
+import {
+  createIktiaContext,
+  provideIktiaContext,
+  type IktiaContextProvider,
+} from "../behavior/context.js"
 
 export type IktiaZagRadioGroupService = ReturnType<typeof createZagService>
 
@@ -26,12 +31,8 @@ type IktiaRadioItemElement = HTMLElement & {
   value?: string
 }
 
-type SyncIktiaRadioGroupItemsOptions = {
-  api: ZagRadioGroupApi
-  disabled: boolean
-  host: HTMLElement
-  onRequestUpdate(): void
-  orientation: "horizontal" | "vertical"
+export type IktiaRadioGroupContext = {
+  syncRadio(options: SyncIktiaRadioOptions): VoidFunction
 }
 
 type RadioItem = {
@@ -40,7 +41,28 @@ type RadioItem = {
   value: string
 }
 
-const radioSelector = "iktia-radio"
+type SyncIktiaRadioOptions = {
+  disabled: boolean
+  element: IktiaRadioItemElement
+  value: string
+}
+
+export type IktiaRadioGroupContextController = {
+  destroy(): void
+  update(options: IktiaRadioGroupContextUpdate): void
+}
+
+type IktiaRadioGroupContextUpdate = {
+  api: ZagRadioGroupApi
+  disabled: boolean
+  orientation: "horizontal" | "vertical"
+}
+
+const documentPositionPreceding = 2
+const documentPositionFollowing = 4
+
+export const IKTIA_RADIO_GROUP_CONTEXT =
+  createIktiaContext<IktiaRadioGroupContext>("iktia-radio-group")
 
 export function createIktiaZagRadioGroupService({
   disabled,
@@ -85,41 +107,118 @@ export function stopIktiaZagRadioGroupService(
   service?.stop()
 }
 
-export function syncIktiaRadioGroupItems({
-  api,
-  disabled,
+export function createIktiaRadioGroupContextController({
   host,
   onRequestUpdate,
-  orientation,
-}: SyncIktiaRadioGroupItemsOptions) {
-  const cleanups: VoidFunction[] = []
-  const items = radioItemsFor(host, disabled)
+}: {
+  host: HTMLElement
+  onRequestUpdate(): void
+}): IktiaRadioGroupContextController {
+  let current: IktiaRadioGroupContextUpdate | null = null
+  const radios = new Map<IktiaRadioItemElement, RadioItem>()
 
-  for (const item of items) {
-    cleanups.push(syncRadioItem({ api, item, items, onRequestUpdate, orientation }))
+  const context: IktiaRadioGroupContext = {
+    syncRadio({ disabled, element, value }) {
+      if (!value) return () => undefined
+      const item = { disabled, element, value }
+      radios.set(element, item)
+      const selectCurrent = () => {
+        if (current == null || current.disabled || item.disabled || !item.value) return
+        current.api.setValue(item.value)
+        item.element.focus()
+        onRequestUpdate()
+        syncAll()
+      }
+      const clickListener = () => selectCurrent()
+      const keyListener = (event: KeyboardEvent) => {
+        if (current == null) return
+        const next = nextRadioItemForKey({
+          current: item,
+          event,
+          items: currentItems(),
+          orientation: current.orientation,
+        })
+        if (next == null) return
+        event.preventDefault()
+        if (next !== item) {
+          current.api.setValue(next.value)
+          next.element.focus()
+          onRequestUpdate()
+          syncAll()
+          return
+        }
+        selectCurrent()
+      }
+
+      element.addEventListener("click", clickListener)
+      element.addEventListener("keydown", keyListener)
+      syncAll()
+
+      return () => {
+        element.removeEventListener("click", clickListener)
+        element.removeEventListener("keydown", keyListener)
+        if (radios.get(element) === item) {
+          radios.delete(element)
+          syncAll()
+        }
+      }
+    },
+  }
+  const provider: IktiaContextProvider<IktiaRadioGroupContext> =
+    provideIktiaContext({
+      context: IKTIA_RADIO_GROUP_CONTEXT,
+      host,
+      value: context,
+    })
+
+  const currentItems = (active: IktiaRadioGroupContextUpdate | null = current) => {
+    const items = Array.from(radios.values())
+      .filter((item) => item.value.length > 0)
+      .sort(compareRadioItems)
+    if (active == null) return items
+    return items.map((item) => ({
+      ...item,
+      disabled: active.disabled || item.disabled,
+    }))
   }
 
-  const observer = new MutationObserver(() => onRequestUpdate())
-  observer.observe(host, {
-    attributeFilter: ["disabled", "value"],
-    attributes: true,
-    childList: true,
-    subtree: true,
-  })
-  cleanups.push(() => observer.disconnect())
+  const syncAll = () => {
+    const active = current
+    if (active == null) return
+    const items = currentItems(active)
+    for (const item of items) {
+      syncRadioItem({
+        api: active.api,
+        item,
+        items,
+        onRequestUpdate,
+        orientation: active.orientation,
+        attachListeners: false,
+      })
+    }
+  }
 
-  return () => {
-    for (const cleanup of cleanups.splice(0)) cleanup()
+  return {
+    destroy() {
+      provider.destroy()
+      radios.clear()
+    },
+    update(options) {
+      current = options
+      syncAll()
+    },
   }
 }
 
 function syncRadioItem({
+  attachListeners = true,
   api,
   item,
   items,
   onRequestUpdate,
   orientation,
 }: {
+  attachListeners?: boolean
   api: ZagRadioGroupApi
   item: RadioItem
   items: RadioItem[]
@@ -140,6 +239,8 @@ function syncRadioItem({
   setStringAttribute(element, "data-orientation", orientation)
   setStringAttribute(element, "data-disabled", disabled ? "" : null)
   element.tabIndex = isTabStop ? 0 : -1
+
+  if (!attachListeners) return () => undefined
 
   const selectCurrent = () => {
     if (disabled) return
@@ -169,20 +270,12 @@ function syncRadioItem({
   }
 }
 
-function radioItemsFor(host: HTMLElement, groupDisabled: boolean): RadioItem[] {
-  return Array.from(host.querySelectorAll<IktiaRadioItemElement>(radioSelector))
-    .map((element) => {
-      const value = element.value ?? element.getAttribute("value") ?? ""
-      return {
-        disabled:
-          groupDisabled ||
-          Boolean(element.disabled) ||
-          element.hasAttribute("disabled"),
-        element,
-        value,
-      }
-    })
-    .filter((item) => item.value.length > 0)
+function compareRadioItems(a: RadioItem, b: RadioItem) {
+  if (a.element === b.element) return 0
+  const position = a.element.compareDocumentPosition(b.element)
+  if (position & documentPositionPreceding) return 1
+  if (position & documentPositionFollowing) return -1
+  return 0
 }
 
 function firstEnabledItem(items: RadioItem[]) {

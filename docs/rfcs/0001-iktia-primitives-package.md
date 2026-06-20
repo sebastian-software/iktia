@@ -118,6 +118,10 @@ platform helpers and do not become a component runtime.
 Primitive behavior kernels should live under package-internal modules such as
 `@iktia/primitives/internal/behavior/*` during the experimental phase. Public
 behavior-only exports require a later RFC or explicit stability review.
+Compound primitives that need parent-child coordination should use the
+package-private `context-request` protocol defined in
+[RFC 0005](0005-native-context-request-primitives.md) before adding compiler or
+runtime-level context features.
 
 Before implementing those kernels from scratch, evaluate mature open-source
 behavior libraries and decide per primitive whether to adapt, depend on,
