@@ -1137,6 +1137,8 @@ mod tests {
                 <button
                   aria-pressed={selected()}
                   data-count={count()}
+                  data-label={label}
+                  data-step={step}
                 >
                   {text()}
                 </button>
@@ -1156,6 +1158,83 @@ mod tests {
         assert!(result.code.contains("this.#state.text = label;"));
         assert!(result.code.contains("this.#state.count = step;"));
         assert!(!result.code.contains("#state = {\n    selected: checked"));
+
+        assert_eq!(
+            occurrence_count(&result.code, "this.#initializeState();"),
+            1,
+            "state setup should run only from the first connectedCallback mount path"
+        );
+
+        let connected_callback = section_between(
+            &result.code,
+            "  connectedCallback() {",
+            "\n  attributeChangedCallback",
+        );
+        assert_contains(connected_callback, "if (!this.#mounted) {");
+        assert_contains(connected_callback, "this.#initializeState();");
+        assert_contains(connected_callback, "this.#mounted = true;");
+
+        let attribute_changed = section_between(
+            &result.code,
+            "  attributeChangedCallback",
+            "\n  get checked()",
+        );
+        assert_not_contains(attribute_changed, "#initializeState");
+        assert_contains(
+            attribute_changed,
+            "this.#props.checked = newValue !== null;",
+        );
+        assert_contains(attribute_changed, "this.#markDirty(\"checked\");");
+        assert_contains(
+            attribute_changed,
+            "this.#props.label = newValue ?? \"Ready\";",
+        );
+        assert_contains(attribute_changed, "this.#markDirty(\"label\");");
+        assert_contains(
+            attribute_changed,
+            "this.#props.step = Number.isFinite(Number(newValue)) ? Number(newValue) : 1;",
+        );
+        assert_contains(attribute_changed, "this.#markDirty(\"step\");");
+        assert_contains(attribute_changed, "this.#flushSync();");
+
+        let step_setter =
+            section_between(&result.code, "  set step(value) {", "\n  #initializeState");
+        assert_not_contains(step_setter, "#initializeState");
+        assert_contains(
+            step_setter,
+            "const nextValue = Number.isFinite(Number(value)) ? Number(value) : 1;",
+        );
+        assert_contains(step_setter, "this.#props.step = nextValue;");
+        assert_contains(step_setter, "this.#markDirty(\"step\");");
+        assert_contains(step_setter, "this.#flushSync();");
+
+        assert_contains(&result.code, "const label = this.#props.label;");
+        assert_contains(&result.code, "const step = this.#props.step;");
+        assert_contains(&result.code, "const count = () => this.#state.count;");
+        assert_contains(
+            &result.code,
+            "return { checked, label, step, selected, text, count };",
+        );
+        assert_contains(
+            &result.code,
+            "if (this.#shouldUpdate([\"label\"], dirtySources))",
+        );
+        assert_contains(
+            &result.code,
+            "if (this.#shouldUpdate([\"step\"], dirtySources))",
+        );
+        assert_contains(
+            &result.code,
+            "if (this.#shouldUpdate([\"count\"], dirtySources))",
+        );
+        assert_contains(
+            &result.code,
+            "if (this.#shouldUpdate([\"selected\"], dirtySources))",
+        );
+        assert_contains(
+            &result.code,
+            "if (this.#shouldUpdate([\"text\"], dirtySources))",
+        );
     }
 
     #[test]
@@ -2186,5 +2265,22 @@ mod tests {
             !haystack.contains(needle),
             "expected generated output not to contain `{needle}`"
         );
+    }
+
+    fn occurrence_count(haystack: &str, needle: &str) -> usize {
+        haystack.match_indices(needle).count()
+    }
+
+    fn section_between<'a>(haystack: &'a str, start: &str, end: &str) -> &'a str {
+        let after_start = haystack
+            .split_once(start)
+            .unwrap_or_else(|| {
+                panic!("expected generated output to contain section start `{start}`")
+            })
+            .1;
+        after_start
+            .split_once(end)
+            .unwrap_or_else(|| panic!("expected generated output to contain section end `{end}`"))
+            .0
     }
 }
