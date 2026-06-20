@@ -503,6 +503,46 @@ dispatch native CustomEvents.</code></pre>
           <pre><code>import "@iktia/primitives"</code></pre>
         </div>
       </section>
+
+      <section class="demo-case" id="router-case" aria-labelledby="router-title">
+        <div class="case-copy">
+          <p class="case-kicker">Use case 09</p>
+          <h2 id="router-title">Custom Element router</h2>
+          <p>
+            The optional <code>@iktia/router</code> package maps browser URLs to
+            native Custom Element views without a framework runtime.
+          </p>
+          <ul>
+            <li>Route records target custom-element tags.</li>
+            <li>Anchors remain ordinary <code>&lt;a href&gt;</code> links.</li>
+            <li>Params, search params, active links, and not-found fallback are DOM-visible.</li>
+          </ul>
+        </div>
+        <div class="case-surface router-surface">
+          <nav class="router-nav" aria-label="Router demo routes">
+            <a data-router-to="/" data-iktia-active-match="exact" href="./">Home</a>
+            <a
+              data-router-to="/products/:id"
+              data-iktia-active-match="prefix"
+              href="./products/42?tab=details"
+            >
+              Product
+            </a>
+            <a data-router-to="/settings" data-iktia-active-match="exact" href="./settings">
+              Settings
+            </a>
+            <a data-router-to="/missing" data-iktia-active-match="exact" href="./missing">
+              Missing
+            </a>
+          </nav>
+          <div id="router-outlet" class="router-outlet" aria-live="polite"></div>
+          <output id="router-event">Last router route: none</output>
+          <pre><code>createRouter({
+  outlet,
+  routes: [{ path: "/products/:id", tag: "router-product-view" }]
+})</code></pre>
+        </div>
+      </section>
     </main>
 
     <script type="module" src="/src/main.ts"></script>

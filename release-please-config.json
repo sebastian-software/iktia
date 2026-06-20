@@ -17,6 +17,11 @@
       "package-name": "@iktia/primitives",
       "release-type": "node"
     },
+    "packages/router": {
+      "component": "router",
+      "package-name": "@iktia/router",
+      "release-type": "node"
+    },
     "packages/compiler": {
       "component": "compiler",
       "package-name": "@iktia/compiler",

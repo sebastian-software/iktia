@@ -168,6 +168,10 @@ iktia-checkbox,
 iktia-dropdown,
 iktia-field,
 iktia-tabs,
+router-home-view,
+router-not-found-view,
+router-product-view,
+router-settings-view,
 iktia-toggle {
   justify-self: start;
 }
@@ -229,6 +233,63 @@ iktia-toggle {
 .native-action:focus-visible {
   outline: 2px solid #0f766e;
   outline-offset: 2px;
+}
+
+.router-surface {
+  align-content: start;
+}
+
+.router-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.router-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  border: 1px solid #94a3b8;
+  border-radius: 0.375rem;
+  padding: 0.4rem 0.7rem;
+  color: #334155;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.router-nav a[data-active] {
+  border-color: #0f766e;
+  background: #ccfbf1;
+  color: #134e4a;
+}
+
+.router-outlet {
+  min-height: 8rem;
+}
+
+.router-view {
+  display: grid;
+  gap: 0.5rem;
+  min-height: 8rem;
+  border: 1px solid #d7dde5;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background: #ffffff;
+}
+
+.router-view h3,
+.router-view p {
+  margin: 0;
+}
+
+.router-view h3 {
+  color: #18202a;
+  font-size: 1.25rem;
+}
+
+.router-view p:not(.case-kicker) {
+  color: #475569;
 }
 
 @media (max-width: 780px) {

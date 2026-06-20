@@ -10,6 +10,7 @@ The public npm release set is:
 
 * `@iktia/core`
 * `@iktia/runtime`
+* `@iktia/router`
 * `@iktia/compiler`
 * `@iktia/vite`
 * `@iktia/cli`

@@ -13,6 +13,12 @@ pnpm add -D @iktia/compiler @iktia/vite @iktia/cli
 `@iktia/compiler` resolves the matching optional native package for the current
 platform. npm installs do not build native code from source.
 
+For browser app-shell routing, add the optional router package:
+
+```sh
+pnpm add @iktia/router
+```
+
 For repository development, install dependencies and build the local native
 binding from the workspace root:
 

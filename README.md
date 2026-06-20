@@ -67,6 +67,7 @@ The current implementation proves the vertical slice:
 * typed N-API boundary and Node wrapper
 * Vite transform plugin
 * first experimental `@iktia/primitives` package built from `.wc.tsx` sources
+* optional `@iktia/router` package for Custom Element app shells
 * Ardo-rendered docs plus linked static demos with Playwright browser gates
 * Shadow DOM style injection and default/named slots
 
@@ -116,7 +117,7 @@ For package consumers, install the public packages:
 
 ```sh
 pnpm add @iktia/core @iktia/runtime
-pnpm add @iktia/primitives
+pnpm add @iktia/primitives @iktia/router
 pnpm add -D @iktia/compiler @iktia/vite @iktia/cli
 ```
 
@@ -182,8 +183,8 @@ pnpm --filter @iktia/example-counter test
 The public site is split into Ardo-rendered docs at the root and linked static
 Iktia demos under `/demos/`. The demos cover reactive state, events, primitive
 parts/slots/state attributes, PascalCase composition, CSS variables, packaged
-`@iktia/primitives`, and a generated Declarative Shadow DOM page with delayed
-custom-element upgrade. See
+`@iktia/primitives`, an optional `@iktia/router` Custom Element route shell,
+and a generated Declarative Shadow DOM page with delayed custom-element upgrade. See
 [docs/demos.md](docs/demos.md) for the docs/demo matrix, local commands, and
 Pages workflow details.
 
@@ -266,6 +267,7 @@ see [docs/authoring.md](docs/authoring.md).
 ```txt
 @iktia/core       Authoring API and JSX runtime types
 @iktia/runtime    Tiny platform helpers for generated elements
+@iktia/router     Tiny platform router for Custom Element app shells
 @iktia/compiler   Node wrapper around the Rust compiler
 @iktia/compiler-* Platform-specific optional native compiler bindings
 @iktia/cli        Minimal compile, prerender, and info commands

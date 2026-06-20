@@ -2,6 +2,7 @@
   "packages/core": "0.0.0",
   "packages/runtime": "0.0.0",
   "packages/primitives": "0.0.0",
+  "packages/router": "0.0.0",
   "packages/compiler": "0.0.0",
   "packages/vite": "0.0.0",
   "packages/cli": "0.0.0",

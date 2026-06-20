@@ -9,6 +9,7 @@ for v0.1 and are not published to crates.io.
 | --- | --- |
 | `@iktia/core` | Authoring primitives and JSX runtime types. |
 | `@iktia/runtime` | Tiny platform helpers for generated output. |
+| `@iktia/router` | Optional platform router for Custom Element app shells. |
 | `@iktia/compiler` | Node wrapper around the native compiler. |
 | `@iktia/compiler-*` | Platform-specific optional native compiler bindings. |
 | `@iktia/vite` | Vite transform and prerender metadata plugin. |
@@ -69,6 +70,24 @@ optional hint.
 `iktia(options)` transforms accepted `.wc.tsx` modules and emits prerender
 metadata by default for static HTML workflows. Set `prerender: false` only for
 builds that never need Declarative Shadow DOM metadata.
+
+## `@iktia/router`
+
+`createRouter(options)` creates an optional browser-side router for Custom
+Element app shells. It maps route records to native element tags or explicit
+element factories, lazy-loads route modules, exposes `iktiaRoute` with params,
+search params, URL, navigation type, and `AbortSignal`, intercepts same-origin
+anchors, updates active-link attributes, and mounts not-found or error routes.
+
+```ts
+const routes = defineRoutes([
+  { path: "/", tag: "app-home" },
+  { path: "/products/:id", tag: "app-product" },
+])
+```
+
+The package has no React, Lit, Vaadin Router, TanStack Router, or Waku runtime
+dependency and is not used by generated components unless an app imports it.
 
 ## `@iktia/cli`
 

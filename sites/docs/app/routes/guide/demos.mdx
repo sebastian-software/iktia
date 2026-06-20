@@ -16,8 +16,10 @@ surface is built as a separate Vite site and linked from Ardo.
 | Slots and parts | [Primitive toggle](../../demos/#toggle-case) | `part`, `slot`, `data-state`, ARIA, `Show`, keyed `.map()`, `on()`, and `host()`. |
 | CSS variables | [Theming](../../demos/#theme-case) | Host-provided CSS custom properties cross the Shadow DOM boundary. |
 | Packaged primitives | [Primitive package](../../demos/#primitive-package-case) | `@iktia/primitives` imports compiled `.wc.tsx` package components. |
+| Router package | [Custom Element router](../../demos/#router-case) | `@iktia/router` maps browser URLs to native Custom Element views. |
 | Static DSD | [DSD page](../../demos/dsd.html) | Explicit prerender output with `<template shadowrootmode="open">`. |
 | Hydration behavior | [Delayed upgrade](../../demos/dsd.html?delayUpgrade=1) | Static DOM is useful before upgrade and hydrates after the client module loads. |
 
-The demos consume generated elements from regular HTML. There is no React, Vue,
-Angular, Solid, or Remix host adapter in the v0.1 launch proof.
+The demos consume generated elements and router-mounted custom elements from
+regular HTML. There is no React, Vue, Angular, Solid, or Remix host adapter in
+the v0.1 launch proof.

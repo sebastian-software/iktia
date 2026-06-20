@@ -1,0 +1,43 @@
+{
+  "name": "@iktia/router",
+  "version": "0.0.0",
+  "description": "Tiny platform router for Custom Element applications.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sebastian-software/iktia.git",
+    "directory": "packages/router"
+  },
+  "bugs": "https://github.com/sebastian-software/iktia/issues",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "sideEffects": false,
+  "files": ["dist/"],
+  "scripts": {
+    "build": "tsdown",
+    "check-types": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --globals --environment happy-dom src/*.test.ts"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.0",
+    "happy-dom": "^20.0.11",
+    "typescript": "^6.0.3",
+    "tsdown": "0.22.3",
+    "vitest": "^4.1.6"
+  }
+}

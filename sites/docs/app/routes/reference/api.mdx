@@ -29,6 +29,21 @@ Tiny platform helper runtime for generated output: events, scheduling, and
 hydration helpers. It is not a reconciler, virtual DOM, component runtime, or
 framework adapter.
 
+## `@iktia/router`
+
+Optional browser-side router for Custom Element app shells.
+
+| Export | Stability | Notes |
+| --- | --- | --- |
+| `defineRoutes()` | Experimental | Preserves route-table inference for path params. |
+| `createRouter()` | Experimental | Creates a router that mounts custom-element route targets into an outlet. |
+| `IktiaRouter` | Experimental | EventTarget-backed router instance with `start`, `stop`, `navigate`, `replace`, `href`, `prefetch`, `back`, `forward`, and `reload`. |
+
+Mounted route elements receive an `iktiaRoute` property with the current route,
+URL, params, search params, navigation type, and abort signal. The router
+intercepts only same-origin anchors it can handle and falls back to ordinary
+browser navigation for external links, downloads, targets, and modified clicks.
+
 ## `@iktia/primitives`
 
 Experimental primitive Custom Elements authored in Iktia `.wc.tsx` and compiled

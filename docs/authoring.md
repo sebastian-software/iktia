@@ -68,6 +68,7 @@ The package exposes:
 
 * `@iktia/core`: authoring functions and JSX types.
 * `@iktia/runtime`: runtime helpers.
+* `@iktia/router`: optional Custom Element app-shell router.
 * `@iktia/compiler`: native compiler wrapper.
 * `@iktia/compiler-*`: platform-specific optional native packages.
 * `@iktia/cli`: `iktia compile`, `iktia prerender`, and `iktia info`.

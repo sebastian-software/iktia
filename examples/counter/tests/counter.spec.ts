@@ -301,6 +301,62 @@ test("compiled elements accept host-provided css custom properties", async ({
   await expect(toggle.locator("button")).toHaveCSS("background-color", "rgb(204, 251, 241)")
 })
 
+test("router package mounts Custom Element routes from normal anchors", async ({
+  page,
+}) => {
+  await page.goto("/")
+
+  const section = page.locator("#router-case")
+  const outlet = section.locator("#router-outlet")
+  const homeLink = section.locator("[data-router-to='/']")
+  const productLink = section.locator("[data-router-to='/products/:id']")
+  const settingsLink = section.locator("[data-router-to='/settings']")
+  const missingLink = section.locator("[data-router-to='/missing']")
+  const eventOutput = section.locator("#router-event")
+
+  await expect(outlet.locator("router-home-view")).toContainText("Router home")
+  await expect(homeLink).toHaveAttribute("data-active", "")
+  await expect(homeLink).toHaveAttribute("aria-current", "page")
+
+  await productLink.click()
+
+  await expect(page).toHaveURL(/\/products\/42\?tab=details$/u)
+  const productView = outlet.locator("router-product-view")
+  await expect(productView).toHaveAttribute("data-product-id", "42")
+  await expect(productView).toHaveJSProperty("productId", "42")
+  await expect(productView).toContainText("Product 42")
+  await expect(productView).toContainText("Search tab: details")
+  await expect(productLink).toHaveAttribute("data-active", "")
+  await expect(page.locator("body")).toHaveAttribute(
+    "data-last-router-route",
+    "/products/42?tab=details"
+  )
+  await expect(eventOutput).toHaveText(
+    "Last router route: /products/42?tab=details"
+  )
+
+  await settingsLink.click()
+
+  await expect(page).toHaveURL(/\/settings$/u)
+  await expect(outlet.locator("router-settings-view")).toContainText(
+    "Router settings"
+  )
+  await expect(settingsLink).toHaveAttribute("data-active", "")
+
+  await missingLink.click()
+
+  await expect(page).toHaveURL(/\/missing$/u)
+  await expect(outlet.locator("router-not-found-view")).toContainText(
+    "Route not found"
+  )
+  await expect(missingLink).toHaveAttribute("data-active", "")
+
+  await homeLink.click()
+
+  await expect(page).toHaveURL(/\/$/u)
+  await expect(outlet.locator("router-home-view")).toContainText("Router home")
+})
+
 test("compiled design-system primitives expose native contracts", async ({
   page,
 }) => {
