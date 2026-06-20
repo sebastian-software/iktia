@@ -12,3 +12,4 @@ sets, and phased execution plans.
 * [RFC 0004: Component Instance Factory Semantics](0004-component-instance-factory-semantics.md)
   * [Review: RFC 0004 (independent assessment)](0004-component-instance-factory-semantics-review.md)
 * [RFC 0005: Native Context Request for Compound Primitives](0005-native-context-request-primitives.md)
+* [RFC 0006: Iktia Router Package](0006-iktia-router-package.md)
