@@ -372,10 +372,12 @@ struct CodeGenerator<'a> {
     next_node_index: usize,
     next_text_index: usize,
     node_fields: Vec<String>,
+    element_ref_names: Vec<String>,
     list_record_fields: Vec<String>,
     spread_fields: Vec<String>,
     text_fields: Vec<String>,
     mount_lines: Vec<String>,
+    ref_lines: Vec<String>,
     listener_lines: Vec<String>,
     update_steps: Vec<UpdateStep>,
     uses_spread_attributes: bool,
@@ -388,10 +390,12 @@ impl<'a> CodeGenerator<'a> {
             next_node_index: 0,
             next_text_index: 0,
             node_fields: Vec::new(),
+            element_ref_names: Vec::new(),
             list_record_fields: Vec::new(),
             spread_fields: Vec::new(),
             text_fields: Vec::new(),
             mount_lines: Vec::new(),
+            ref_lines: Vec::new(),
             listener_lines: Vec::new(),
             update_steps: Vec::new(),
             uses_spread_attributes: false,
@@ -399,6 +403,7 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn generate(&mut self, root: &TemplateElement) -> CompilerResult<String> {
+        self.collect_element_refs(root)?;
         let root_variable = self.emit_element(root)?;
         self.mount_lines
             .push(format!("this.#root.append({root_variable});"));
@@ -467,6 +472,49 @@ impl<'a> CodeGenerator<'a> {
 
     fn dependencies_for_expression(&self, expression: &str) -> ReactiveDependencies {
         expression_dependencies(expression, self.module)
+    }
+
+    fn binding_names(&self) -> Vec<String> {
+        binding_names_with_refs(self.module, &self.element_ref_names)
+    }
+
+    fn collect_element_refs(&mut self, element: &TemplateElement) -> CompilerResult<()> {
+        for attribute in &element.attributes {
+            let TemplateAttribute::Named { name, value } = attribute else {
+                continue;
+            };
+            if name != "ref" {
+                continue;
+            }
+            let AttributeValue::Expression(expression) = value else {
+                return Err(unsupported("JSX `ref` must use a braced value."));
+            };
+            let expression = expression.trim();
+            if is_identifier(expression) {
+                if binding_names(self.module)
+                    .iter()
+                    .any(|name| name == expression)
+                {
+                    return Err(unsupported(format!(
+                        "JSX ref variable `{expression}` conflicts with an existing component binding."
+                    )));
+                }
+                if !self.element_ref_names.iter().any(|name| name == expression) {
+                    self.element_ref_names.push(expression.to_owned());
+                }
+            } else if !is_ref_callback_expression(expression) {
+                return Err(unsupported(
+                    "JSX `ref` supports an identifier variable or arrow-function callback.",
+                ));
+            }
+        }
+
+        for child in &element.children {
+            if let TemplateChild::Element(child_element) = child {
+                self.collect_element_refs(child_element)?;
+            }
+        }
+        Ok(())
     }
 
     fn dependencies_for_expression_without_keyed_selectors(
@@ -556,6 +604,9 @@ impl<'a> CodeGenerator<'a> {
         }
         if !self.module.computed.is_empty() {
             writeln!(code, "  #computedCache = new Map();").map_err(format_error)?;
+        }
+        if !self.element_ref_names.is_empty() {
+            writeln!(code, "  #refs = {{}};").map_err(format_error)?;
         }
         if self.uses_keyed_selectors() {
             writeln!(code, "  #keyedBindingRegistry = new Map();").map_err(format_error)?;
@@ -686,7 +737,7 @@ impl<'a> CodeGenerator<'a> {
         if callbacks.is_empty() {
             return Ok(());
         }
-        let names = binding_names(self.module).join(", ");
+        let names = self.binding_names().join(", ");
         if !names.is_empty() {
             writeln!(code, "    const {{ {names} }} = this.#createBindings();")
                 .map_err(format_error)?;
@@ -775,7 +826,7 @@ impl<'a> CodeGenerator<'a> {
             )
         )
         .map_err(format_error)?;
-        let names = binding_names(self.module).join(", ");
+        let names = self.binding_names().join(", ");
         if !names.is_empty() {
             writeln!(code, "    const {{ {names} }} = this.#createBindings();")
                 .map_err(format_error)?;
@@ -797,7 +848,7 @@ impl<'a> CodeGenerator<'a> {
     ) -> CompilerResult<()> {
         writeln!(code, "  formResetCallback() {{").map_err(format_error)?;
         if let Some(reset_body) = &form_control.reset_body {
-            let names = binding_names(self.module).join(", ");
+            let names = self.binding_names().join(", ");
             if !names.is_empty() {
                 writeln!(code, "    const {{ {names} }} = this.#createBindings();")
                     .map_err(format_error)?;
@@ -891,6 +942,9 @@ impl<'a> CodeGenerator<'a> {
         for line in &self.mount_lines {
             writeln!(code, "    {line}").map_err(format_error)?;
         }
+        if !self.ref_lines.is_empty() {
+            writeln!(code, "    this.#applyRefs();").map_err(format_error)?;
+        }
         writeln!(code, "    this.#installEventListeners();").map_err(format_error)?;
         writeln!(code, "  }}").map_err(format_error)?;
         Ok(())
@@ -912,6 +966,9 @@ impl<'a> CodeGenerator<'a> {
                 "      this.#{field} = this.#requiredHydrationText(\"{field}\");"
             )
             .map_err(format_error)?;
+        }
+        if !self.ref_lines.is_empty() {
+            writeln!(code, "      this.#applyRefs();").map_err(format_error)?;
         }
         writeln!(code, "      this.#installEventListeners();").map_err(format_error)?;
         writeln!(code, "    }} catch (error) {{").map_err(format_error)?;
@@ -982,6 +1039,13 @@ impl<'a> CodeGenerator<'a> {
             writeln!(code, "    {line}").map_err(format_error)?;
         }
         writeln!(code, "  }}").map_err(format_error)?;
+        if !self.ref_lines.is_empty() {
+            writeln!(code, "  #applyRefs() {{").map_err(format_error)?;
+            for line in &self.ref_lines {
+                writeln!(code, "    {line}").map_err(format_error)?;
+            }
+            writeln!(code, "  }}").map_err(format_error)?;
+        }
         Ok(())
     }
 
@@ -1007,6 +1071,13 @@ impl<'a> CodeGenerator<'a> {
         for event in &self.module.events {
             self.emit_event_binding(code, event)?;
         }
+        for ref_name in &self.element_ref_names {
+            writeln!(
+                code,
+                "    const {ref_name} = this.#refs.{ref_name} ?? null;"
+            )
+            .map_err(format_error)?;
+        }
         if self.module.uses_host_helpers {
             writeln!(code, "    const host = () => ({{").map_err(format_error)?;
             writeln!(code, "      element: this,").map_err(format_error)?;
@@ -1020,7 +1091,7 @@ impl<'a> CodeGenerator<'a> {
             writeln!(code, "      flushSync: () => this.#flushSync(),").map_err(format_error)?;
             writeln!(code, "    }});").map_err(format_error)?;
         }
-        let names = binding_names(self.module).join(", ");
+        let names = self.binding_names().join(", ");
         writeln!(code, "    return {{ {names} }};").map_err(format_error)?;
         writeln!(code, "  }}").map_err(format_error)?;
         Ok(())
@@ -1154,7 +1225,7 @@ impl<'a> CodeGenerator<'a> {
         writeln!(code, "    this.#effectCleanups[index] = undefined;").map_err(format_error)?;
         writeln!(code, "  }}").map_err(format_error)?;
         writeln!(code, "  #runEffects(dirtySources) {{").map_err(format_error)?;
-        let names = binding_names(self.module).join(", ");
+        let names = self.binding_names().join(", ");
         if !names.is_empty() {
             writeln!(code, "    const {{ {names} }} = this.#createBindings();")
                 .map_err(format_error)?;
@@ -1600,7 +1671,7 @@ impl<'a> CodeGenerator<'a> {
     fn emit_update(&self, code: &mut String) -> CompilerResult<()> {
         writeln!(code, "  #update(dirtySources) {{").map_err(format_error)?;
         writeln!(code, "    if (!this.#mounted) return;").map_err(format_error)?;
-        let names = binding_names(self.module).join(", ");
+        let names = self.binding_names().join(", ");
         if !names.is_empty() {
             writeln!(code, "    const {{ {names} }} = this.#createBindings();")
                 .map_err(format_error)?;
@@ -2268,6 +2339,11 @@ impl<'a> CodeGenerator<'a> {
         if name == "key" {
             return Ok(());
         }
+        if name == "ref" {
+            return Err(unsupported(
+                "JSX `ref` is not currently supported inside dynamic list row templates.",
+            ));
+        }
         if let Some(event_name) = event_name_from_attribute(name) {
             let AttributeValue::Expression(expression) = value else {
                 return Err(unsupported(format!(
@@ -2351,6 +2427,37 @@ impl<'a> CodeGenerator<'a> {
         Ok(())
     }
 
+    fn emit_ref_binding(
+        &mut self,
+        field_reference: &str,
+        value: &AttributeValue,
+    ) -> CompilerResult<()> {
+        let AttributeValue::Expression(expression) = value else {
+            return Err(unsupported("JSX `ref` must use a braced value."));
+        };
+        let expression = expression.trim();
+        if is_identifier(expression) {
+            self.ref_lines
+                .push(format!("this.#refs.{expression} = {field_reference};"));
+            return Ok(());
+        }
+        if !is_ref_callback_expression(expression) {
+            return Err(unsupported(
+                "JSX `ref` supports an identifier variable or arrow-function callback.",
+            ));
+        }
+        self.ref_lines.push("{".to_owned());
+        let names = self.binding_names().join(", ");
+        if !names.is_empty() {
+            self.ref_lines
+                .push(format!("  const {{ {names} }} = this.#createBindings();"));
+        }
+        self.ref_lines
+            .push(format!("  ({expression})({field_reference});"));
+        self.ref_lines.push("}".to_owned());
+        Ok(())
+    }
+
     fn element_tag_name(&self, tag_name: &str) -> String {
         if !is_pascal_case_identifier(tag_name) {
             return tag_name.to_owned();
@@ -2397,6 +2504,10 @@ impl<'a> CodeGenerator<'a> {
         if name == "key" {
             return Ok(());
         }
+        if name == "ref" {
+            self.emit_ref_binding(field_reference, value)?;
+            return Ok(());
+        }
         if let Some(event_name) = event_name_from_attribute(name) {
             let AttributeValue::Expression(expression) = value else {
                 return Err(unsupported(format!(
@@ -2408,7 +2519,7 @@ impl<'a> CodeGenerator<'a> {
             self.listener_lines.push(format!(
                 "{field_reference}.addEventListener(\"{event_name}\", (event) => {{"
             ));
-            let names = binding_names(self.module).join(", ");
+            let names = self.binding_names().join(", ");
             if !names.is_empty() {
                 self.listener_lines
                     .push(format!("  const {{ {names} }} = this.#createBindings();"));
@@ -3123,6 +3234,9 @@ impl<'a> DeclarativeShadowDomRenderer<'a> {
             return Ok(());
         };
         if name == "key" {
+            return Ok(());
+        }
+        if name == "ref" {
             return Ok(());
         }
         if event_name_from_attribute(name).is_some() {
@@ -4522,6 +4636,10 @@ fn find_matching_delimiter(
 }
 
 fn binding_names(module: &ComponentModule) -> Vec<String> {
+    binding_names_with_refs(module, &[])
+}
+
+fn binding_names_with_refs(module: &ComponentModule, ref_names: &[String]) -> Vec<String> {
     let mut names = module
         .props
         .iter()
@@ -4541,10 +4659,16 @@ fn binding_names(module: &ComponentModule) -> Vec<String> {
         )
         .chain(module.events.iter().map(|event| event.local_name.clone()))
         .collect::<Vec<_>>();
+    names.extend(ref_names.iter().cloned());
     if module.uses_host_helpers {
         names.push("host".to_owned());
     }
     names
+}
+
+fn is_ref_callback_expression(expression: &str) -> bool {
+    let trimmed = expression.trim();
+    trimmed.contains("=>")
 }
 
 fn escape_js_string(value: &str) -> String {

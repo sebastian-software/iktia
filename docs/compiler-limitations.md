@@ -194,6 +194,7 @@ Currently unsupported:
 * `.map()` list callbacks with block bodies or non-JSX return values.
 * Arbitrary array mapping or list expressions outside the accepted `<For>`,
   `<Index>`, or keyed `.map()` forms.
+* `ref` inside dynamic `<For>`, `<Index>`, or keyed `.map()` row templates.
 * Spread attributes.
 * Component composition that requires module graph analysis beyond direct `.wc`
   imports.

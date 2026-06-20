@@ -12,6 +12,12 @@ export type EventHandler<EventType extends Event = Event> = (
   event: EventType & { currentTarget: EventTarget }
 ) => void
 
+export type ElementRef<ElementType extends Element = HTMLElement> =
+  | ElementType
+  | null
+  | undefined
+  | ((element: ElementType) => void)
+
 export type IntrinsicElementAttributes = {
   [attribute: `aria-${string}`]: AttributeValue
   [attribute: `data-${string}`]: AttributeValue
@@ -28,6 +34,7 @@ export type IntrinsicElementAttributes = {
   onKeyDown?: EventHandler<KeyboardEvent>
   onPointerDown?: EventHandler<PointerEvent>
   part?: string
+  ref?: ElementRef
   role?: string
   slot?: string
   tabindex?: number

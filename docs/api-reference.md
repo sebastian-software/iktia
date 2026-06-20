@@ -31,6 +31,7 @@ for v0.1 and are not published to crates.io.
 | `For` | Public | Item-keyed list control-flow primitive. |
 | `Index` | Public | Position-keyed list control-flow primitive with item accessors. |
 | `ComponentOptions` | Public | Component-level `styles` metadata. |
+| `ElementRef` | Public | JSX `ref` variable or callback type for direct element access. |
 
 Authoring primitives are compile-time APIs. They throw if a `.wc.tsx` module is
 executed without the compiler transform.

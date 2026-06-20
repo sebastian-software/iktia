@@ -403,9 +403,28 @@ return (
 ```
 
 Supported typed attributes include common DOM attributes, `aria-*`, `data-*`,
-`part`, `slot`, `class`, `value`, and common event handlers such as `onClick`,
-`onInput`, `onFocus`, and `onBlur`. Additional intrinsic element names are
-accepted through the JSX index signature.
+`part`, `slot`, `class`, `value`, `ref`, and common event handlers such as
+`onClick`, `onInput`, `onFocus`, and `onBlur`. Additional intrinsic element
+names are accepted through the JSX index signature.
+
+Use `ref` when component logic needs a direct element handle without querying
+the shadow root. Identifier refs are assigned once when the generated element is
+mounted or hydrated, and callback refs are invoked once with the element.
+DOM-connected work still belongs in `onConnected()`.
+
+```tsx
+let button: HTMLButtonElement | null = null
+
+onConnected(() => {
+  button?.focus()
+})
+
+return (
+  <button ref={button} onClick={() => button?.setAttribute("data-clicked", "true")}>
+    Save
+  </button>
+)
+```
 
 PascalCase child components are rewritten to inferred Custom Element tags.
 Direct `.wc` imports are preserved as side-effect imports so the generated child

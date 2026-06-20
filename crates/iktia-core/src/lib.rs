@@ -980,6 +980,146 @@ mod tests {
     }
 
     #[test]
+    fn transform_component_module_should_generate_element_refs() {
+        let source = r#"
+            import { onConnected, state } from "@iktia/core";
+
+            export function RefProbe() {
+              let button: HTMLButtonElement | null = null;
+              const count = state(0);
+
+              onConnected(() => {
+                button?.setAttribute("data-connected", "true");
+              });
+
+              return (
+                <section>
+                  <button
+                    ref={button}
+                    data-count={count()}
+                    onClick={() => {
+                      button?.focus();
+                      count.set(count() + 1);
+                    }}
+                  >
+                    Clicks {count()}
+                  </button>
+                  <span ref={(element) => element.setAttribute("data-ref", "callback")} />
+                </section>
+              );
+            }
+        "#;
+
+        let result = match transform_component_module(source, "ref-probe.wc.tsx") {
+            Ok(result) => result,
+            Err(error) => panic!("transform failed: {error}"),
+        };
+
+        assert_contains(&result.code, "#refs = {};");
+        assert_contains(&result.code, "this.#refs.button = this.#node1;");
+        assert_contains(&result.code, "this.#applyRefs();");
+        assert_contains(
+            &result.code,
+            "((element) => element.setAttribute(\"data-ref\", \"callback\"))(this.#node2);",
+        );
+        assert_contains(&result.code, "const button = this.#refs.button ?? null;");
+        assert_contains(&result.code, "return { count, button };");
+        assert_contains(
+            &result.code,
+            "const { count, button } = this.#createBindings();",
+        );
+        assert_contains(
+            &result.code,
+            "button?.setAttribute(\"data-connected\", \"true\");",
+        );
+        assert_contains(&result.code, "button?.focus();");
+        assert_contains(
+            &result.code,
+            "this.#node1 = this.#requiredHydrationElement(\"node1\");",
+        );
+        assert_not_contains(&result.code, "setAttribute(\"ref\"");
+        assert_not_contains(&result.code, "this.#shouldUpdate([\"button\"]");
+    }
+
+    #[test]
+    fn render_declarative_shadow_dom_module_should_omit_element_refs() {
+        let source = r#"
+            import { state } from "@iktia/core";
+
+            export function RefProbe() {
+              let button: HTMLButtonElement | null = null;
+              const count = state(0);
+
+              return (
+                <button
+                  ref={button}
+                  data-count={count()}
+                  onClick={() => button?.focus()}
+                >
+                  {count()}
+                </button>
+              );
+            }
+        "#;
+
+        let result = match render_declarative_shadow_dom_module(source, "ref-probe.wc.tsx", None) {
+            Ok(result) => result,
+            Err(error) => panic!("DSD render failed: {error}"),
+        };
+
+        assert_contains(&result.template_html, "data-count=\"0\"");
+        assert_contains(&result.template_html, ">0<");
+        assert_not_contains(&result.template_html, "ref=");
+        assert_not_contains(&result.template_html, "button?.focus");
+        assert_not_contains(&result.template_html, "onClick");
+    }
+
+    #[test]
+    fn transform_component_module_should_reject_ref_binding_name_conflicts() {
+        let source = r#"
+            import { state } from "@iktia/core";
+
+            export function RefConflict() {
+              const count = state(0);
+
+              return <button ref={count}>{count()}</button>;
+            }
+        "#;
+
+        let error = transform_component_module(source, "ref-conflict.wc.tsx")
+            .expect_err("conflicting ref binding should be rejected");
+
+        assert!(error.to_string().contains("conflicts"));
+        assert!(error.to_string().contains("count"));
+    }
+
+    #[test]
+    fn transform_component_module_should_reject_refs_inside_dynamic_list_rows() {
+        let source = r#"
+            import { state } from "@iktia/core";
+
+            export function RefList() {
+              let row: HTMLButtonElement | null = null;
+              const items = state(["A", "B"]);
+
+              return (
+                <ul>
+                  {items().map((item) => (
+                    <li key={item} ref={row}>{item}</li>
+                  ))}
+                </ul>
+              );
+            }
+        "#;
+
+        let error = transform_component_module(source, "ref-list.wc.tsx")
+            .expect_err("dynamic row refs should be rejected");
+
+        assert!(error.to_string().contains("ref"));
+        assert!(error.to_string().contains("dynamic list row"));
+    }
+
+    #[test]
     fn transform_component_module_should_initialize_state_from_props_in_instance_context() {
         let source = r#"
             import { state } from "@iktia/core";

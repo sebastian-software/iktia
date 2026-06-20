@@ -154,4 +154,4 @@ function authoringRuntimeError(apiName: string): never {
   )
 }
 
-export type { JSX } from "./jsx-runtime.js"
+export type { ElementRef, JSX } from "./jsx-runtime.js"

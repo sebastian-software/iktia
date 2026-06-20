@@ -12,6 +12,7 @@ import {
   on,
   state,
   type ComponentOptions,
+  type ElementRef,
 } from "@iktia/core"
 
 type IktiaCore = typeof import("@iktia/core")
@@ -57,6 +58,10 @@ function FunctionCounter({
   label = "Count",
   onChange,
 }: FunctionCounterProps = {}) {
+  let buttonRef: HTMLButtonElement | null = null
+  const callbackRef: ElementRef = (element) =>
+    element.setAttribute("data-ref", "typed")
+  void callbackRef
   const count = state(0)
   const doubled = computed(() => count() * 2)
   const items = computed(() => [label, String(doubled())] as const)
@@ -98,9 +103,11 @@ function FunctionCounter({
 
   return (
     <button
+      ref={buttonRef}
       disabled={!enabled}
       onClick={on("click", (event) => {
         event.preventDefault()
+        void buttonRef
         count.update((value) => value + 1)
         change.emit(count())
         onChange?.(new CustomEvent("change", { detail: count() }))
@@ -108,7 +115,9 @@ function FunctionCounter({
     >
       {label}: {count()}
       <Show when={count() > 0} fallback={<span>Empty</span>}>
-        <span>{doubled()}</span>
+        <span ref={(element) => element.setAttribute("data-ref", "callback")}>
+          {doubled()}
+        </span>
       </Show>
       <Switch>
         <Match when={count() < 0}>
