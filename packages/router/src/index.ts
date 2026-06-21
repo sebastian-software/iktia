@@ -193,6 +193,8 @@ const ROUTER_EVENT_NAMES = new Set<string>([
   "iktia:routechange",
 ])
 
+const MAX_REDIRECTS = 10
+
 export function defineRoutes<const Routes extends readonly IktiaRoute[]>(
   routes: Routes
 ): Routes {
@@ -355,7 +357,12 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     if (!anchor || !isRoutableAnchor(anchor)) return
 
     const url = new URL(anchor.href, this.#currentUrl())
-    if (url.origin !== this.#currentUrl().origin || this.#toInternalPath(url) === null) {
+    const currentUrl = this.#currentUrl()
+    if (url.origin !== currentUrl.origin || this.#toInternalPath(url) === null) {
+      return
+    }
+
+    if (url.pathname === currentUrl.pathname && url.search === currentUrl.search && url.hash) {
       return
     }
 
@@ -415,6 +422,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     url: URL,
     options: {
       readonly history: "none" | "push" | "replace"
+      readonly redirectCount?: number
       readonly type: IktiaNavigationType
       readonly viewTransition: boolean
     }
@@ -458,8 +466,13 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
       if (!this.#isCurrent(navigation)) return null
       if (guard === false) return null
       if (typeof guard === "string" || guard instanceof URL) {
+        const redirectCount = options.redirectCount ?? 0
+        if (redirectCount >= MAX_REDIRECTS) {
+          throw new Error(`Router redirect limit exceeded while navigating to "${url.pathname}".`)
+        }
         return this.#navigateToUrl(this.#resolveUrl(guard), {
           history: "replace",
+          redirectCount: redirectCount + 1,
           type: "replace",
           viewTransition: options.viewTransition,
         })
@@ -573,6 +586,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
         const replace = actionData.replace ?? options.replace
         return this.#navigateToUrl(this.#resolveUrl(actionData.to), {
           history: replace ? "replace" : "push",
+          redirectCount: 1,
           type: replace ? "replace" : "push",
           viewTransition: options.viewTransition,
         })
@@ -929,7 +943,7 @@ function normalizeMethod(method: string): string {
 
 function appendFormDataToUrl(url: URL, formData: FormData): URL {
   const next = new URL(url)
-  const params = new URLSearchParams(next.search)
+  const params = new URLSearchParams()
   for (const [name, value] of formData) {
     params.append(name, typeof value === "string" ? value : value.name)
   }

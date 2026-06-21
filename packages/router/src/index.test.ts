@@ -287,6 +287,86 @@ describe("IktiaRouter", () => {
     expect(outlet.firstElementChild?.tagName.toLowerCase()).toBe("app-form")
   })
 
+  it("lets same-page hash links use native fragment navigation", () => {
+    document.body.innerHTML = `
+      <section data-root>
+        <a href="#details" data-fragment>Details</a>
+        <main data-outlet></main>
+      </section>
+    `
+
+    class AppHome extends HTMLElement {}
+    if (!customElements.get("app-hash-home")) customElements.define("app-hash-home", AppHome)
+
+    const outlet = document.querySelector("[data-outlet]")
+    const linkRoot = document.querySelector("[data-root]")
+    const anchor = document.querySelector("[data-fragment]")
+    if (!outlet || !linkRoot || !anchor) throw new Error("Missing test hash-link setup.")
+
+    const router = createRouter({
+      linkRoot,
+      outlet,
+      routes: defineRoutes([{ path: "/", tag: "app-hash-home" }] as const),
+    })
+
+    router.start()
+    const event = new MouseEvent("click", { bubbles: true, cancelable: true })
+    anchor.dispatchEvent(event)
+
+    expect(event.defaultPrevented).toBe(false)
+    router.stop()
+  })
+
+  it("replaces an action URL query string for GET submissions", async () => {
+    document.body.innerHTML = `<main data-outlet></main>`
+
+    class AppSearch extends HTMLElement {}
+    if (!customElements.get("app-search")) customElements.define("app-search", AppSearch)
+
+    const outlet = document.querySelector("[data-outlet]")
+    if (!outlet) throw new Error("Missing test outlet.")
+
+    const router = createRouter({
+      outlet,
+      routes: defineRoutes([{ path: "/search", tag: "app-search" }] as const),
+    })
+
+    const match = await router.submit("/search?q=old&page=1", {
+      formData: { q: "new" },
+      method: "get",
+    })
+
+    expect(match?.url.search).toBe("?q=new")
+  })
+
+  it("commits the error route for cyclic guard redirects", async () => {
+    document.body.innerHTML = `<main data-outlet></main>`
+
+    class AppPage extends HTMLElement {}
+    class AppError extends HTMLElement {}
+    if (!customElements.get("app-loop-page")) customElements.define("app-loop-page", AppPage)
+    if (!customElements.get("app-loop-error")) customElements.define("app-loop-error", AppError)
+
+    const outlet = document.querySelector("[data-outlet]")
+    if (!outlet) throw new Error("Missing test outlet.")
+
+    const router = createRouter({
+      outlet,
+      routes: defineRoutes([
+        { path: "/a", tag: "app-loop-page", canEnter: () => "/b" },
+        { path: "/b", tag: "app-loop-page", canEnter: () => "/a" },
+      ] as const),
+      error: {
+        tag: "app-loop-error",
+      },
+    })
+
+    const match = await router.navigate("/a")
+
+    expect(match?.route.tag).toBe("app-loop-error")
+    expect(outlet.firstElementChild?.tagName.toLowerCase()).toBe("app-loop-error")
+  })
+
   it("does not abort a committed navigation when navigating again", async () => {
     const { router } = setupRouter()
     const aborts: number[] = []
