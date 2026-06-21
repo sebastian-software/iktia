@@ -1159,6 +1159,8 @@ mod tests {
         assert!(result.code.contains("this.#state.count = step;"));
         assert!(!result.code.contains("#state = {\n    selected: checked"));
 
+        // This fixture intentionally does not use formControl(), which has its
+        // own valid initialization call from generated form reset handling.
         assert_eq!(
             occurrence_count(&result.code, "this.#initializeState();"),
             1,
