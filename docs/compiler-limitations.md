@@ -91,6 +91,9 @@ The MVP template parser supports:
 * PascalCase child components imported from direct `.wc` modules.
 * Default and named slots.
 * `part`, `class`, `data-*`, `aria-*`, and common DOM attributes.
+* `ref` on static native elements. Identifier refs receive the generated element
+  once at mount or hydration time. Callback refs are currently supported only as
+  inline arrow expressions, for example `ref={(element) => useElement(element)}`.
 
 Generated updates currently cover dynamic attributes, text bindings, effects,
 `<Show>` containers, `<Switch>` containers, `<For>` containers, `<Index>`
@@ -195,6 +198,9 @@ Currently unsupported:
 * Arbitrary array mapping or list expressions outside the accepted `<For>`,
   `<Index>`, or keyed `.map()` forms.
 * `ref` inside dynamic `<For>`, `<Index>`, or keyed `.map()` row templates.
+* Ref callback variables such as `ref={callbackRef}`; use an inline arrow
+  callback or an identifier value ref instead.
+* Cleanup functions returned from ref callbacks.
 * Spread attributes.
 * Component composition that requires module graph analysis beyond direct `.wc`
   imports.

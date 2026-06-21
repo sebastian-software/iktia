@@ -409,8 +409,9 @@ names are accepted through the JSX index signature.
 
 Use `ref` when component logic needs a direct element handle without querying
 the shadow root. Identifier refs are assigned once when the generated element is
-mounted or hydrated, and callback refs are invoked once with the element.
-DOM-connected work still belongs in `onConnected()`.
+mounted or hydrated. Inline arrow callback refs are invoked once with the
+element, but callback variables and cleanup return values are outside the v0.1
+compiler boundary. DOM-connected work still belongs in `onConnected()`.
 
 ```tsx
 let button: HTMLButtonElement | null = null
