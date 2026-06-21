@@ -137,6 +137,9 @@ const DSD_FIXTURES: &[DsdFixture] = &[
         source: include_str!("fixtures/conformance/dsd/static-evaluation-boundary.wc.tsx"),
         props: Some(r#"{"label":"Runtime","count":5}"#),
         inline_styles: Some(r#"{"css":":host { color: teal; }"}"#),
+        // computed() dynamic text fallback is covered by
+        // render_declarative_shadow_dom_module_should_mark_unsupported_dynamic_values.
+        // This fixture focuses on the prop/state/browser-only static boundary.
         snippets: &[
             "<static-evaluation-boundary",
             "label=\"Runtime\"",
@@ -155,7 +158,7 @@ const DSD_FIXTURES: &[DsdFixture] = &[
             ">Runtime<",
             "Runtime: 5",
             "[\"static\",\"Runtime\"]",
-            "data-iktia-text=",
+            "<span style=\"display: contents\" data-iktia-text=\"text3\"></span>",
         ],
         forbidden_snippets: &[
             "data-browser=",
