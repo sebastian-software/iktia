@@ -23,14 +23,17 @@ you already know the workflow.
    metadata behavior.
 6. [CLI](cli.md)
    Documents `iktia compile`, `iktia prerender`, and `iktia info`.
-7. [Native Distribution](native-distribution.md)
+7. [Data Resources](data.md)
+   Covers optional fetch and subscription resources for Custom Element data
+   loading.
+8. [Native Distribution](native-distribution.md)
    Explains optional native compiler packages, loader order, and local native
    builds.
-8. [API Reference](api-reference.md)
+9. [API Reference](api-reference.md)
    Summarizes the public v0.1 package and authoring API surface.
-9. [Demos](demos.md)
+10. [Demos](demos.md)
    Maps the public demo sections to the compiler capabilities they prove.
-10. [Troubleshooting](troubleshooting.md)
+11. [Troubleshooting](troubleshooting.md)
     Covers native binding loading, unsupported syntax, DSD output, CLI output,
     and local verification.
 

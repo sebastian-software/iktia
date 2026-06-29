@@ -3,6 +3,8 @@ import { join } from "node:path"
 
 const publicPackages = [
   "packages/core",
+  "packages/data",
+  "packages/data-convex",
   "packages/runtime",
   "packages/primitives",
   "packages/router",
@@ -21,6 +23,8 @@ const publicPackages = [
 
 const jsPackages = [
   "packages/core",
+  "packages/data",
+  "packages/data-convex",
   "packages/runtime",
   "packages/primitives",
   "packages/router",

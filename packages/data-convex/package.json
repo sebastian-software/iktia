@@ -1,0 +1,49 @@
+{
+  "name": "@iktia/data-convex",
+  "version": "0.0.0",
+  "description": "Optional Convex adapter for Iktia data resources.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sebastian-software/iktia.git",
+    "directory": "packages/data-convex"
+  },
+  "bugs": "https://github.com/sebastian-software/iktia/issues",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "sideEffects": false,
+  "files": ["dist/"],
+  "scripts": {
+    "build": "tsdown",
+    "check-types": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --globals src/*.test.ts"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@iktia/data": "workspace:^"
+  },
+  "peerDependencies": {
+    "convex": "^1.41.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.0",
+    "convex": "^1.41.0",
+    "typescript": "^6.0.3",
+    "tsdown": "0.22.3",
+    "vitest": "^4.1.6"
+  }
+}

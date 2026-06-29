@@ -5,6 +5,8 @@
     { "path": "./packages/cli" },
     { "path": "./packages/compiler" },
     { "path": "./packages/core" },
+    { "path": "./packages/data" },
+    { "path": "./packages/data-convex" },
     { "path": "./packages/primitives" },
     { "path": "./packages/runtime" },
     { "path": "./packages/vite" }

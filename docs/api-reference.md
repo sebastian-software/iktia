@@ -8,6 +8,8 @@ for v0.1 and are not published to crates.io.
 | Package | Public role |
 | --- | --- |
 | `@iktia/core` | Authoring primitives and JSX runtime types. |
+| `@iktia/data` | Optional fetch and subscription resources for Custom Element data loading. |
+| `@iktia/data-convex` | Optional Convex adapter for `@iktia/data` resources. |
 | `@iktia/runtime` | Tiny platform helpers for generated output. |
 | `@iktia/router` | Optional platform router for Custom Element app shells. |
 | `@iktia/compiler` | Node wrapper around the native compiler. |
@@ -39,6 +41,38 @@ executed without the compiler transform.
 Generated `state.set()` and `state.update()` calls are batched into a microtask.
 Use `host().flushSync()` when a handler must observe the updated DOM
 immediately after changing state. `host().update()` requests a batched update.
+
+## `@iktia/data`
+
+| Export | Stability | Purpose |
+| --- | --- | --- |
+| `fetchResource(key, fetcher, options?)` | Experimental | Create an abortable, cached, stale-while-revalidate resource from a fetcher. |
+| `subscriptionResource(key, subscriber, options?)` | Experimental | Create a ref-counted resource from a push subscription source. |
+| `ResourceCache` | Experimental | Scope resource cache, in-flight fetches, and active subscriptions. |
+| `defaultResourceCache` | Experimental | Shared default cache for simple apps. |
+| `normalizeResourceKey(key)` | Experimental | Convert string, tuple, or object keys into stable cache keys. |
+
+`null`, `undefined`, and `false` keys disable a resource. Fetchers receive an
+`AbortSignal`; equivalent in-flight keys are deduped; cached data is retained as
+stale while revalidation runs. Subscription resources share equivalent upstream
+subscriptions until the final consumer is disposed.
+`@iktia/data` intentionally has no provider SDK dependencies; provider-specific
+adapters such as Convex should live in separate optional packages.
+
+See [Data Resources](data.md) for examples and the Convex adapter direction.
+
+## `@iktia/data-convex`
+
+| Export | Stability | Purpose |
+| --- | --- | --- |
+| `convexResource(client, query, args, options?)` | Experimental | Create a resource from a Convex WebSocket query subscription. |
+| `convexMutation(client, mutation, options?)` | Experimental | Create a typed Convex mutation caller. |
+| `convexAction(client, action)` | Experimental | Create a typed Convex action caller. |
+| `convexConnectionResource(client, options?)` | Experimental | Create a resource from Convex connection state. |
+| `convexQueryKey(query, args)` | Experimental | Create the stable `@iktia/data` cache key for a Convex query. |
+
+`@iktia/data-convex` depends on `@iktia/data` and declares `convex` as a peer
+dependency. It should be installed only by apps that use Convex.
 
 ## `@iktia/compiler`
 

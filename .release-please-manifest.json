@@ -1,5 +1,7 @@
 {
   "packages/core": "0.0.0",
+  "packages/data": "0.0.0",
+  "packages/data-convex": "0.0.0",
   "packages/runtime": "0.0.0",
   "packages/primitives": "0.0.0",
   "packages/router": "0.0.0",

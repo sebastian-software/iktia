@@ -7,6 +7,16 @@
       "package-name": "@iktia/core",
       "release-type": "node"
     },
+    "packages/data": {
+      "component": "data",
+      "package-name": "@iktia/data",
+      "release-type": "node"
+    },
+    "packages/data-convex": {
+      "component": "data-convex",
+      "package-name": "@iktia/data-convex",
+      "release-type": "node"
+    },
     "packages/runtime": {
       "component": "runtime",
       "package-name": "@iktia/runtime",
