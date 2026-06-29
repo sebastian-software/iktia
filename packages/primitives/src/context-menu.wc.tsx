@@ -15,6 +15,10 @@ import {
   syncIktiaMenuItems,
 } from "./internal/zag/menu.js"
 import type { IktiaZagMenuService } from "./internal/zag/menu.js"
+import {
+  getIktiaOverlayStateAttributes,
+  listenForIktiaOverlayEscape,
+} from "./internal/behavior/overlay.js"
 import css from "./context-menu.wc.css?inline"
 
 export type IktiaContextMenuProps = {
@@ -81,20 +85,20 @@ export function IktiaContextMenu({
     const api = contextMenuApi()
     void expanded()
     if (api == null || !expanded()) return
-    const abort = new AbortController()
-    document.addEventListener("keydown", (event) => {
-      if (event.key !== "Escape") return
-      event.preventDefault()
-      api.setOpen(false)
-    }, { signal: abort.signal })
-    return () => abort.abort()
+    return listenForIktiaOverlayEscape({
+      onClose: () => api.setOpen(false),
+      target: document,
+    })
   })
 
   return (
     <div
       part="root"
-      data-state={expanded() ? "open" : "closed"}
       data-disabled={disabled || undefined}
+      {...getIktiaOverlayStateAttributes({
+        kind: "context-menu",
+        open: expanded(),
+      })}
     >
       <div
         {...(disabled ? {} : contextMenuApi()?.getContextTriggerProps() ?? {})}
@@ -104,11 +108,21 @@ export function IktiaContextMenu({
       >
         <slot name="trigger">{label}</slot>
       </div>
-      <div {...(contextMenuApi()?.getPositionerProps() ?? {})} part="positioner">
+      <div
+        {...(contextMenuApi()?.getPositionerProps() ?? {})}
+        part="positioner"
+        {...getIktiaOverlayStateAttributes({
+          kind: "context-menu",
+          open: expanded(),
+        })}
+      >
         <div
           {...(contextMenuApi()?.getContentProps() ?? {})}
           part="content"
-          data-state={expanded() ? "open" : "closed"}
+          {...getIktiaOverlayStateAttributes({
+            kind: "context-menu",
+            open: expanded(),
+          })}
         >
           <slot name="item" />
         </div>

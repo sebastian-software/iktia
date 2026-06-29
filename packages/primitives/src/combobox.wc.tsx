@@ -18,6 +18,7 @@ import {
   syncIktiaComboboxItems,
 } from "./internal/zag/combobox.js"
 import type { IktiaZagComboboxService } from "./internal/zag/combobox.js"
+import { getIktiaOverlayStateAttributes } from "./internal/behavior/overlay.js"
 import css from "./combobox.wc.css?inline"
 
 export type IktiaComboboxProps = {
@@ -113,7 +114,10 @@ export function IktiaCombobox({
     <section
       {...(comboboxApi()?.getRootProps() ?? {})}
       part="root"
-      data-state={open() ? "open" : "closed"}
+      {...getIktiaOverlayStateAttributes({
+        kind: "combobox",
+        open: open(),
+      })}
       data-disabled={disabled || undefined}
     >
       <label {...(comboboxApi()?.getLabelProps() ?? {})} part="label">
@@ -133,11 +137,21 @@ export function IktiaCombobox({
           v
         </button>
       </div>
-      <div {...(comboboxApi()?.getPositionerProps() ?? {})} part="positioner">
+      <div
+        {...(comboboxApi()?.getPositionerProps() ?? {})}
+        part="positioner"
+        {...getIktiaOverlayStateAttributes({
+          kind: "combobox",
+          open: open(),
+        })}
+      >
         <div
           {...(comboboxApi()?.getContentProps() ?? {})}
           part="content"
-          data-state={open() ? "open" : "closed"}
+          {...getIktiaOverlayStateAttributes({
+            kind: "combobox",
+            open: open(),
+          })}
         >
           <div {...(comboboxApi()?.getListProps() ?? {})} part="list">
             <slot name="item" />

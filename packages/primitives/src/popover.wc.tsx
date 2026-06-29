@@ -14,6 +14,10 @@ import {
   stopIktiaZagPopoverService,
 } from "./internal/zag/popover.js"
 import type { IktiaZagPopoverService } from "./internal/zag/popover.js"
+import {
+  getIktiaOverlayStateAttributes,
+  listenForIktiaOverlayEscape,
+} from "./internal/behavior/overlay.js"
 import css from "./popover.wc.css?inline"
 
 export type IktiaPopoverProps = {
@@ -59,17 +63,21 @@ export function IktiaPopover({
     const api = popoverApi()
     void expanded()
     if (api == null || !expanded()) return
-    const abort = new AbortController()
-    document.addEventListener("keydown", (event) => {
-      if (event.key !== "Escape") return
-      event.preventDefault()
-      api.setOpen(false)
-    }, { signal: abort.signal })
-    return () => abort.abort()
+    return listenForIktiaOverlayEscape({
+      onClose: () => api.setOpen(false),
+      target: document,
+    })
   })
 
   return (
-    <div part="root" data-state={expanded() ? "open" : "closed"}>
+    <div
+      part="root"
+      {...getIktiaOverlayStateAttributes({
+        kind: "popover",
+        modal,
+        open: expanded(),
+      })}
+    >
       <button
         {...(popoverApi()?.getTriggerProps() ?? {})}
         part="trigger"
@@ -78,11 +86,23 @@ export function IktiaPopover({
       >
         <slot name="trigger">{label}</slot>
       </button>
-      <div {...(popoverApi()?.getPositionerProps() ?? {})} part="positioner">
+      <div
+        {...(popoverApi()?.getPositionerProps() ?? {})}
+        part="positioner"
+        {...getIktiaOverlayStateAttributes({
+          kind: "popover",
+          modal,
+          open: expanded(),
+        })}
+      >
         <div
           {...(popoverApi()?.getContentProps() ?? {})}
           part="content"
-          data-state={expanded() ? "open" : "closed"}
+          {...getIktiaOverlayStateAttributes({
+            kind: "popover",
+            modal,
+            open: expanded(),
+          })}
         >
           <div part="header">
             <h2 {...(popoverApi()?.getTitleProps() ?? {})} part="title">

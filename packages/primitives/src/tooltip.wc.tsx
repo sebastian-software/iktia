@@ -14,6 +14,10 @@ import {
   stopIktiaZagTooltipService,
 } from "./internal/zag/tooltip.js"
 import type { IktiaZagTooltipService } from "./internal/zag/tooltip.js"
+import {
+  getIktiaOverlayStateAttributes,
+  listenForIktiaOverlayEscape,
+} from "./internal/behavior/overlay.js"
 import css from "./tooltip.wc.css?inline"
 
 export type IktiaTooltipProps = {
@@ -65,13 +69,10 @@ export function IktiaTooltip({
     const api = tooltipApi()
     void expanded()
     if (api == null || !expanded()) return
-    const abort = new AbortController()
-    document.addEventListener("keydown", (event) => {
-      if (event.key !== "Escape") return
-      event.preventDefault()
-      api.setOpen(false)
-    }, { signal: abort.signal })
-    return () => abort.abort()
+    return listenForIktiaOverlayEscape({
+      onClose: () => api.setOpen(false),
+      target: document,
+    })
   })
   effect(() => {
     const api = tooltipApi()
@@ -98,7 +99,13 @@ export function IktiaTooltip({
   })
 
   return (
-    <span part="root" data-state={expanded() ? "open" : "closed"}>
+    <span
+      part="root"
+      {...getIktiaOverlayStateAttributes({
+        kind: "tooltip",
+        open: expanded(),
+      })}
+    >
       <button
         {...(tooltipApi()?.getTriggerProps() ?? {})}
         part="trigger"
@@ -109,11 +116,21 @@ export function IktiaTooltip({
       >
         <slot name="trigger">{label}</slot>
       </button>
-      <span {...(tooltipApi()?.getPositionerProps() ?? {})} part="positioner">
+      <span
+        {...(tooltipApi()?.getPositionerProps() ?? {})}
+        part="positioner"
+        {...getIktiaOverlayStateAttributes({
+          kind: "tooltip",
+          open: expanded(),
+        })}
+      >
         <span
           {...(tooltipApi()?.getContentProps() ?? {})}
           part="content"
-          data-state={expanded() ? "open" : "closed"}
+          {...getIktiaOverlayStateAttributes({
+            kind: "tooltip",
+            open: expanded(),
+          })}
         >
           <slot>{text}</slot>
         </span>

@@ -59,6 +59,8 @@ The primitives expose platform-readable contracts:
 
 * `part` names for styling hooks.
 * `data-state`, `data-disabled`, `data-invalid`, and `data-orientation`.
+* Overlay hooks such as `data-iktia-overlay`, `data-modal`, `data-side`,
+  `data-align`, `data-anchor-hidden`, and `data-layer` where applicable.
 * CSS custom properties with `--iktia-*` names.
 * Native ARIA attributes where the current `.wc.tsx` compiler surface supports them.
 * Iktia-prefixed `CustomEvent`s such as `iktia-change`, `iktia-select`, and
@@ -75,4 +77,7 @@ Shared behavior lives in private package modules under `src/internal`. Simple
 kernels remain under `src/internal/behavior`; Zag-backed adapters live under
 `src/internal/zag`. Compound primitives can use the package-private
 `context-request` helper for DOM-native child registration without a framework
-runtime or public context API. They are intentionally not public exports.
+runtime or public context API. Overlay primitives share a package-private
+`overlay` helper for state attributes, geometry variable names, Escape routing,
+outside-interaction classification, and layer stack ownership. They are
+intentionally not public exports.

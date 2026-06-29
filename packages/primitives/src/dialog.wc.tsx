@@ -14,6 +14,10 @@ import {
   stopIktiaZagDialogService,
 } from "./internal/zag/dialog.js"
 import type { IktiaZagDialogService } from "./internal/zag/dialog.js"
+import {
+  getIktiaOverlayStateAttributes,
+  listenForIktiaOverlayEscape,
+} from "./internal/behavior/overlay.js"
 import css from "./dialog.wc.css?inline"
 
 export type IktiaDialogProps = {
@@ -70,22 +74,31 @@ export function IktiaDialog({
       setTimeout(() => trigger.focus(), 0)
     }
     const abort = new AbortController()
-    document.addEventListener("keydown", (event) => {
-      if (event.key !== "Escape") return
-      event.preventDefault()
-      closeDialog()
-    }, { signal: abort.signal })
+    const cleanupEscape = listenForIktiaOverlayEscape({
+      onClose: closeDialog,
+      target: document,
+    })
     document.addEventListener("pointerdown", (event) => {
       const path = event.composedPath()
       if (content != null && path.includes(content)) return
       if (trigger != null && path.includes(trigger)) return
       closeDialog()
     }, { capture: true, signal: abort.signal })
-    return () => abort.abort()
+    return () => {
+      cleanupEscape()
+      abort.abort()
+    }
   })
 
   return (
-    <div part="root" data-state={expanded() ? "open" : "closed"}>
+    <div
+      part="root"
+      {...getIktiaOverlayStateAttributes({
+        kind: "dialog",
+        modal,
+        open: expanded(),
+      })}
+    >
       <button
         {...(dialogApi()?.getTriggerProps() ?? {})}
         part="trigger"
@@ -97,14 +110,30 @@ export function IktiaDialog({
       <div
         {...(dialogApi()?.getBackdropProps() ?? {})}
         part="backdrop"
-        data-state={expanded() ? "open" : "closed"}
+        {...getIktiaOverlayStateAttributes({
+          kind: "dialog",
+          modal,
+          open: expanded(),
+        })}
       />
-      <div {...(dialogApi()?.getPositionerProps() ?? {})} part="positioner">
+      <div
+        {...(dialogApi()?.getPositionerProps() ?? {})}
+        part="positioner"
+        {...getIktiaOverlayStateAttributes({
+          kind: "dialog",
+          modal,
+          open: expanded(),
+        })}
+      >
         <section
           {...(dialogApi()?.getContentProps() ?? {})}
           part="content"
           aria-modal={modal ? "true" : undefined}
-          data-state={expanded() ? "open" : "closed"}
+          {...getIktiaOverlayStateAttributes({
+            kind: "dialog",
+            modal,
+            open: expanded(),
+          })}
         >
           <div part="header">
             <h2 {...(dialogApi()?.getTitleProps() ?? {})} part="title">

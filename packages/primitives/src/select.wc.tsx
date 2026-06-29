@@ -18,6 +18,7 @@ import {
   syncIktiaSelectItems,
 } from "./internal/zag/select.js"
 import type { IktiaZagSelectService } from "./internal/zag/select.js"
+import { getIktiaOverlayStateAttributes } from "./internal/behavior/overlay.js"
 import css from "./select.wc.css?inline"
 
 export type IktiaSelectProps = {
@@ -100,8 +101,11 @@ export function IktiaSelect({
     <section
       {...(selectApi()?.getRootProps() ?? {})}
       part="root"
-      data-state={open() ? "open" : "closed"}
       data-disabled={disabled || undefined}
+      {...getIktiaOverlayStateAttributes({
+        kind: "select",
+        open: open(),
+      })}
     >
       <span {...(selectApi()?.getLabelProps() ?? {})} part="label">
         {label}
@@ -120,11 +124,21 @@ export function IktiaSelect({
           </span>
         </button>
       </div>
-      <div {...(selectApi()?.getPositionerProps() ?? {})} part="positioner">
+      <div
+        {...(selectApi()?.getPositionerProps() ?? {})}
+        part="positioner"
+        {...getIktiaOverlayStateAttributes({
+          kind: "select",
+          open: open(),
+        })}
+      >
         <div
           {...(selectApi()?.getContentProps() ?? {})}
           part="content"
-          data-state={open() ? "open" : "closed"}
+          {...getIktiaOverlayStateAttributes({
+            kind: "select",
+            open: open(),
+          })}
         >
           <div {...(selectApi()?.getListProps() ?? {})} part="list">
             <slot name="item" />

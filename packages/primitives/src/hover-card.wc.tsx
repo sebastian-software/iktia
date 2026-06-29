@@ -14,6 +14,10 @@ import {
   stopIktiaZagHoverCardService,
 } from "./internal/zag/hover-card.js"
 import type { IktiaZagHoverCardService } from "./internal/zag/hover-card.js"
+import {
+  getIktiaOverlayStateAttributes,
+  listenForIktiaOverlayEscape,
+} from "./internal/behavior/overlay.js"
 import css from "./hover-card.wc.css?inline"
 
 export type IktiaHoverCardProps = {
@@ -67,13 +71,10 @@ export function IktiaHoverCard({
     const api = hoverCardApi()
     void expanded()
     if (api == null || !expanded()) return
-    const abort = new AbortController()
-    document.addEventListener("keydown", (event) => {
-      if (event.key !== "Escape") return
-      event.preventDefault()
-      api.setOpen(false)
-    }, { signal: abort.signal })
-    return () => abort.abort()
+    return listenForIktiaOverlayEscape({
+      onClose: () => api.setOpen(false),
+      target: document,
+    })
   })
   effect(() => {
     const api = hoverCardApi()
@@ -106,7 +107,13 @@ export function IktiaHoverCard({
   })
 
   return (
-    <span part="root" data-state={expanded() ? "open" : "closed"}>
+    <span
+      part="root"
+      {...getIktiaOverlayStateAttributes({
+        kind: "hover-card",
+        open: expanded(),
+      })}
+    >
       <button
         {...(hoverCardApi()?.getTriggerProps() ?? {})}
         part="trigger"
@@ -117,11 +124,21 @@ export function IktiaHoverCard({
       >
         <slot name="trigger">{label}</slot>
       </button>
-      <span {...(hoverCardApi()?.getPositionerProps() ?? {})} part="positioner">
+      <span
+        {...(hoverCardApi()?.getPositionerProps() ?? {})}
+        part="positioner"
+        {...getIktiaOverlayStateAttributes({
+          kind: "hover-card",
+          open: expanded(),
+        })}
+      >
         <section
           {...(hoverCardApi()?.getContentProps() ?? {})}
           part="content"
-          data-state={expanded() ? "open" : "closed"}
+          {...getIktiaOverlayStateAttributes({
+            kind: "hover-card",
+            open: expanded(),
+          })}
         >
           <h2 part="title">
             <slot name="title">{title}</slot>

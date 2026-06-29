@@ -10,6 +10,13 @@ import {
   nextDisclosureOpen,
   shouldCloseDisclosureForKey,
 } from "./disclosure.js"
+import {
+  createIktiaOverlayLayerStack,
+  getIktiaOverlayGeometryStyle,
+  getIktiaOverlayStateAttributes,
+  isIktiaOverlayOutsideEventPath,
+  shouldCloseIktiaOverlayForKey,
+} from "./overlay.js"
 import { tabsValueForKey } from "./tabs.js"
 import { nextTogglePressed, toggleFormValue } from "./toggle.js"
 import { normalizeZagInputPropBag, normalizeZagPropBag } from "../zag/props.js"
@@ -123,6 +130,83 @@ describe("primitive behavior kernels", () => {
     expect(nextDisclosureOpen(false)).toBe(true)
     expect(shouldCloseDisclosureForKey("Escape")).toBe(true)
     expect(shouldCloseDisclosureForKey("Enter")).toBe(false)
+  })
+
+  it("maps overlay state attributes for public styling hooks", () => {
+    expect(
+      getIktiaOverlayStateAttributes({
+        align: "start",
+        anchorHidden: true,
+        kind: "popover",
+        layer: 3,
+        modal: true,
+        open: true,
+        side: "bottom",
+      })
+    ).toEqual({
+      "data-align": "start",
+      "data-anchor-hidden": "",
+      "data-iktia-overlay": "popover",
+      "data-layer": "3",
+      "data-modal": "",
+      "data-side": "bottom",
+      "data-state": "open",
+    })
+  })
+
+  it("maps overlay geometry to Iktia CSS variables", () => {
+    expect(
+      getIktiaOverlayGeometryStyle({
+        anchorHeight: 32,
+        anchorWidth: "var(--trigger-width)",
+        availableHeight: 240,
+        transformOrigin: "top left",
+      })
+    ).toEqual({
+      "--iktia-anchor-height": "32px",
+      "--iktia-anchor-width": "var(--trigger-width)",
+      "--iktia-available-height": "240px",
+      "--iktia-transform-origin": "top left",
+    })
+  })
+
+  it("tracks the active overlay layer", () => {
+    const closed: string[] = []
+    const stack = createIktiaOverlayLayerStack()
+    const unregisterFirst = stack.register({
+      close: (reason) => closed.push(`first:${reason}`),
+      id: "first",
+    })
+    const unregisterSecond = stack.register({
+      close: (reason) => closed.push(`second:${reason}`),
+      id: "second",
+      modal: true,
+    })
+
+    expect(stack.size()).toBe(2)
+    expect(stack.isTopLayer("second")).toBe(true)
+    expect(stack.closeTop("escape")).toBe(true)
+    expect(closed).toEqual(["second:escape"])
+
+    unregisterSecond()
+    expect(stack.topLayer()?.id).toBe("first")
+    unregisterFirst()
+    expect(stack.closeTop("escape")).toBe(false)
+  })
+
+  it("detects overlay escape and outside interaction", () => {
+    const content = new EventTarget()
+    const trigger = new EventTarget()
+    const outside = new EventTarget()
+
+    expect(shouldCloseIktiaOverlayForKey({ key: "Escape" })).toBe(true)
+    expect(
+      shouldCloseIktiaOverlayForKey({ defaultPrevented: true, key: "Escape" })
+    ).toBe(false)
+    expect(shouldCloseIktiaOverlayForKey({ key: "Enter" })).toBe(false)
+    expect(isIktiaOverlayOutsideEventPath([outside], [content, trigger])).toBe(true)
+    expect(isIktiaOverlayOutsideEventPath([content, outside], [content, trigger]))
+      .toBe(false)
   })
 
   it("maps tab keyboard movement", () => {
