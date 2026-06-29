@@ -141,6 +141,36 @@ test("compiled reactive output batches and gates DOM updates", async ({
   await expect(body).toHaveAttribute("data-probe-effect-runs", "4")
 })
 
+test("compiled async lifecycle signals abort stale work", async ({ page }) => {
+  await page.goto("/")
+
+  const probe = page.locator("#reactivity-probe-case reactivity-probe")
+  const primary = probe.locator("[data-probe-primary]")
+  const primaryButton = probe.locator("[data-probe-primary-button]")
+  const eventSignalButton = probe.locator("[data-probe-event-signal-button]")
+  const updateSignalButton = probe.locator("[data-probe-update-signal-button]")
+  const body = page.locator("body")
+
+  await eventSignalButton.click()
+  await eventSignalButton.click()
+  await expect(body).toHaveAttribute("data-probe-event-abort-count", "1")
+  await expect
+    .poll(() =>
+      page.evaluate(() => document.body.dataset.probeEventCompletedRun)
+    )
+    .toBe("2")
+  await expect(body).toHaveAttribute("data-probe-event-signal-aborted", "false")
+
+  await updateSignalButton.click()
+  await expect(primary).toHaveText("1")
+  await expect(body).toHaveAttribute("data-probe-update-signal-aborted", "false")
+  await expect(body).toHaveAttribute("data-probe-queued-task-primary", "1")
+
+  await primaryButton.click()
+  await expect(primary).toHaveText("2")
+  await expect(body).toHaveAttribute("data-probe-update-abort-count", "1")
+})
+
 test("compiled list reconcilers preserve keyed and indexed row nodes", async ({
   page,
 }) => {
