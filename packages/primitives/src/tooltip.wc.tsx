@@ -18,6 +18,16 @@ import {
   getIktiaOverlayStateAttributes,
   listenForIktiaOverlayEscape,
 } from "./internal/behavior/overlay.js"
+import {
+  createIktiaPresenceSnapshot,
+  getIktiaPresenceAttributes,
+  isIktiaPresenceHidden,
+  isIktiaPresenceOpen,
+  nextIktiaPresenceSnapshot,
+  scheduleIktiaPresenceFrame,
+  settleIktiaPresenceSnapshot,
+  waitForIktiaPresenceExit,
+} from "./internal/behavior/presence.js"
 import css from "./tooltip.wc.css?inline"
 
 export type IktiaTooltipProps = {
@@ -42,6 +52,7 @@ export function IktiaTooltip({
   text = "More information",
 }: IktiaTooltipProps = {}) {
   const expanded = state(open)
+  const presence = state(createIktiaPresenceSnapshot(open))
   const tooltipService = state<IktiaZagTooltipService | null>(null)
   const tooltipApi = computed(() => getIktiaZagTooltipApi(tooltipService()))
   const changed = event<{ open: boolean }>("iktia-open-change")
@@ -64,6 +75,30 @@ export function IktiaTooltip({
   onDisconnected(() => {
     stopIktiaZagTooltipService(tooltipService())
     tooltipService.set(null)
+  })
+  effect(() => {
+    const next = nextIktiaPresenceSnapshot(presence(), expanded())
+    if (next !== presence()) presence.set(next)
+  })
+  effect(() => {
+    const snapshot = presence()
+    if (snapshot.phase === "entering") {
+      return scheduleIktiaPresenceFrame(() => {
+        if (expanded()) {
+          presence.set(settleIktiaPresenceSnapshot(presence(), true))
+        }
+      })
+    }
+    if (snapshot.phase !== "closing") return
+    const content = host().root.querySelector("[part~='content']")
+    return waitForIktiaPresenceExit(
+      content instanceof Element ? content : null,
+      () => {
+        if (!expanded()) {
+          presence.set(settleIktiaPresenceSnapshot(presence(), false))
+        }
+      }
+    )
   })
   effect(() => {
     const api = tooltipApi()
@@ -103,8 +138,9 @@ export function IktiaTooltip({
       part="root"
       {...getIktiaOverlayStateAttributes({
         kind: "tooltip",
-        open: expanded(),
+        open: isIktiaPresenceOpen(presence()),
       })}
+      {...getIktiaPresenceAttributes(presence())}
     >
       <button
         {...(tooltipApi()?.getTriggerProps() ?? {})}
@@ -121,16 +157,20 @@ export function IktiaTooltip({
         part="positioner"
         {...getIktiaOverlayStateAttributes({
           kind: "tooltip",
-          open: expanded(),
+          open: isIktiaPresenceOpen(presence()),
         })}
+        {...getIktiaPresenceAttributes(presence())}
+        hidden={isIktiaPresenceHidden(presence())}
       >
         <span
           {...(tooltipApi()?.getContentProps() ?? {})}
           part="content"
           {...getIktiaOverlayStateAttributes({
             kind: "tooltip",
-            open: expanded(),
+            open: isIktiaPresenceOpen(presence()),
           })}
+          {...getIktiaPresenceAttributes(presence())}
+          hidden={isIktiaPresenceHidden(presence())}
         >
           <slot>{text}</slot>
         </span>

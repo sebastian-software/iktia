@@ -742,9 +742,11 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(dialogContent).toBeHidden()
   await expect(tooltipTrigger).toHaveAttribute("data-state", "closed")
   await expect(tooltipContent).toHaveAttribute("role", "tooltip")
+  await expect(tooltipContent).toHaveAttribute("data-iktia-presence", "closed")
   await expect(tooltipContent).toBeHidden()
   await expect(hoverCardTrigger).toHaveAttribute("data-state", "closed")
   await expect(hoverCardContent).toHaveAttribute("data-scope", "hover-card")
+  await expect(hoverCardContent).toHaveAttribute("data-iktia-presence", "closed")
   await expect(hoverCardContent).toBeHidden()
   await expect(progressRoot).toHaveAttribute("data-state", "loading")
   await expect(progressRoot).toHaveAttribute("data-value", "80")
@@ -1259,9 +1261,19 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(tooltipTrigger).toHaveAttribute("data-state", "open")
   await expect(tooltipTrigger).toHaveAttribute("aria-describedby", /.+/)
   await expect(tooltipContent).toBeVisible()
+  await expect(tooltipContent).toHaveAttribute("data-iktia-presence", "open")
+  await tooltipContent.evaluate((content) => {
+    (content as HTMLElement).style.setProperty(
+      "--iktia-tooltip-motion-duration",
+      "250ms"
+    )
+  })
   await expect(page.locator("#primitive-event")).toContainText('"open":true')
   await page.keyboard.press("Escape")
+  await expect(tooltipContent).toHaveAttribute("data-iktia-presence", "closing")
+  await expect(tooltipContent).toHaveAttribute("data-ending-style", "")
   await expect(tooltipContent).toBeHidden()
+  await expect(tooltipContent).toHaveAttribute("data-iktia-presence", "closed")
   await expect(page.locator("#primitive-event")).toContainText('"open":false')
 
   await tooltipTrigger.evaluate((trigger) => {
@@ -1271,6 +1283,7 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
     }))
   })
   await expect(tooltipContent).toBeVisible()
+  await expect(tooltipContent).toHaveAttribute("data-iktia-presence", "open")
   await tooltipTrigger.evaluate((trigger) => {
     trigger.dispatchEvent(new PointerEvent("pointerleave", {
       bubbles: true,
@@ -1278,6 +1291,7 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
     }))
   })
   await expect(tooltipContent).toBeHidden()
+  await expect(tooltipContent).toHaveAttribute("data-iktia-presence", "closed")
 
   await hoverCardTrigger.evaluate((trigger) => {
     trigger.dispatchEvent(new PointerEvent("pointermove", {
@@ -1287,9 +1301,19 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   })
   await expect(hoverCardTrigger).toHaveAttribute("data-state", "open")
   await expect(hoverCardContent).toBeVisible()
+  await expect(hoverCardContent).toHaveAttribute("data-iktia-presence", "open")
+  await hoverCardContent.evaluate((content) => {
+    (content as HTMLElement).style.setProperty(
+      "--iktia-hover-card-motion-duration",
+      "250ms"
+    )
+  })
   await expect(page.locator("#primitive-event")).toContainText('"open":true')
   await page.keyboard.press("Escape")
+  await expect(hoverCardContent).toHaveAttribute("data-iktia-presence", "closing")
+  await expect(hoverCardContent).toHaveAttribute("data-ending-style", "")
   await expect(hoverCardContent).toBeHidden()
+  await expect(hoverCardContent).toHaveAttribute("data-iktia-presence", "closed")
   await expect(page.locator("#primitive-event")).toContainText('"open":false')
 
   await hoverCardTrigger.evaluate((trigger) => {
@@ -1299,6 +1323,7 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
     }))
   })
   await expect(hoverCardContent).toBeVisible()
+  await expect(hoverCardContent).toHaveAttribute("data-iktia-presence", "open")
   await hoverCardContent.evaluate((content) => {
     content.dispatchEvent(new PointerEvent("pointerleave", {
       bubbles: true,
@@ -1306,6 +1331,7 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
     }))
   })
   await expect(hoverCardContent).toBeHidden()
+  await expect(hoverCardContent).toHaveAttribute("data-iktia-presence", "closed")
 
   await toastTrigger.click()
   await expectPrimitiveEventType(page, "iktia-create")

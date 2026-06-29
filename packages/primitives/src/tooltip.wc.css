@@ -50,8 +50,28 @@
   font-size: 0.875rem;
   line-height: 1.35;
   box-shadow: var(--iktia-tooltip-shadow, 0 8px 20px rgb(15 23 42 / 0.16));
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transform-origin: var(--iktia-transform-origin, top left);
+  transition:
+    opacity var(--iktia-tooltip-motion-duration, 100ms)
+      var(--iktia-tooltip-motion-easing, ease),
+    transform var(--iktia-tooltip-motion-duration, 100ms)
+      var(--iktia-tooltip-motion-easing, ease);
 }
 
 [part~="content"][hidden] {
   display: none;
+}
+
+[part~="content"][data-starting-style],
+[part~="content"][data-ending-style] {
+  opacity: 0;
+  transform: translateY(-0.125rem) scale(0.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [part~="content"] {
+    transition-duration: 1ms;
+  }
 }

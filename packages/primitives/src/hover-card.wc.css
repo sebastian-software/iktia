@@ -50,10 +50,30 @@
   background: var(--iktia-hover-card-bg, #ffffff);
   color: var(--iktia-hover-card-fg, #17201b);
   box-shadow: var(--iktia-hover-card-shadow, 0 12px 28px rgb(15 23 42 / 0.14));
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transform-origin: var(--iktia-transform-origin, top left);
+  transition:
+    opacity var(--iktia-hover-card-motion-duration, 120ms)
+      var(--iktia-hover-card-motion-easing, ease),
+    transform var(--iktia-hover-card-motion-duration, 120ms)
+      var(--iktia-hover-card-motion-easing, ease);
 }
 
 [part~="content"][hidden] {
   display: none;
+}
+
+[part~="content"][data-starting-style],
+[part~="content"][data-ending-style] {
+  opacity: 0;
+  transform: translateY(-0.125rem) scale(0.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [part~="content"] {
+    transition-duration: 1ms;
+  }
 }
 
 [part~="title"] {

@@ -63,7 +63,8 @@ measurement, or portal movement.
 
 `<iktia-dialog>` and `<iktia-popover>` use the helper first because both already
 share the overlay kernel from RFC 0007 and both need a mounted-while-closing
-state before physical portal work can be meaningful.
+state before physical portal work can be meaningful. `<iktia-tooltip>` and
+`<iktia-hover-card>` follow the same contract for non-modal transient overlays.
 
 Their default CSS uses opacity/transform transitions and CSS custom properties
 for duration and easing:
@@ -72,11 +73,15 @@ for duration and easing:
 * `--iktia-dialog-motion-easing`
 * `--iktia-popover-motion-duration`
 * `--iktia-popover-motion-easing`
+* `--iktia-tooltip-motion-duration`
+* `--iktia-tooltip-motion-easing`
+* `--iktia-hover-card-motion-duration`
+* `--iktia-hover-card-motion-easing`
 
 ## Follow-Up Work
 
-* Apply presence to tooltip, hover card, menu, context menu, select, combobox,
-  and toast once the first consumer behavior is stable.
+* Apply presence to menu, context menu, select, combobox, and toast once the
+  first non-modal consumer behavior is stable.
 * Add compiler-level transition authoring after the public helper shape is
   proven in primitives.
 * Add FLIP only after keyed list reconciliation exposes stable before/after DOM

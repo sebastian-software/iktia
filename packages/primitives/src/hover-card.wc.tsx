@@ -18,6 +18,16 @@ import {
   getIktiaOverlayStateAttributes,
   listenForIktiaOverlayEscape,
 } from "./internal/behavior/overlay.js"
+import {
+  createIktiaPresenceSnapshot,
+  getIktiaPresenceAttributes,
+  isIktiaPresenceHidden,
+  isIktiaPresenceOpen,
+  nextIktiaPresenceSnapshot,
+  scheduleIktiaPresenceFrame,
+  settleIktiaPresenceSnapshot,
+  waitForIktiaPresenceExit,
+} from "./internal/behavior/presence.js"
 import css from "./hover-card.wc.css?inline"
 
 export type IktiaHoverCardProps = {
@@ -44,6 +54,7 @@ export function IktiaHoverCard({
   title = "Details",
 }: IktiaHoverCardProps = {}) {
   const expanded = state(open)
+  const presence = state(createIktiaPresenceSnapshot(open))
   const hoverCardService = state<IktiaZagHoverCardService | null>(null)
   const hoverCardApi = computed(() => getIktiaZagHoverCardApi(hoverCardService()))
   const changed = event<{ open: boolean }>("iktia-open-change")
@@ -66,6 +77,30 @@ export function IktiaHoverCard({
   onDisconnected(() => {
     stopIktiaZagHoverCardService(hoverCardService())
     hoverCardService.set(null)
+  })
+  effect(() => {
+    const next = nextIktiaPresenceSnapshot(presence(), expanded())
+    if (next !== presence()) presence.set(next)
+  })
+  effect(() => {
+    const snapshot = presence()
+    if (snapshot.phase === "entering") {
+      return scheduleIktiaPresenceFrame(() => {
+        if (expanded()) {
+          presence.set(settleIktiaPresenceSnapshot(presence(), true))
+        }
+      })
+    }
+    if (snapshot.phase !== "closing") return
+    const content = host().root.querySelector("[part~='content']")
+    return waitForIktiaPresenceExit(
+      content instanceof Element ? content : null,
+      () => {
+        if (!expanded()) {
+          presence.set(settleIktiaPresenceSnapshot(presence(), false))
+        }
+      }
+    )
   })
   effect(() => {
     const api = hoverCardApi()
@@ -111,8 +146,9 @@ export function IktiaHoverCard({
       part="root"
       {...getIktiaOverlayStateAttributes({
         kind: "hover-card",
-        open: expanded(),
+        open: isIktiaPresenceOpen(presence()),
       })}
+      {...getIktiaPresenceAttributes(presence())}
     >
       <button
         {...(hoverCardApi()?.getTriggerProps() ?? {})}
@@ -129,16 +165,20 @@ export function IktiaHoverCard({
         part="positioner"
         {...getIktiaOverlayStateAttributes({
           kind: "hover-card",
-          open: expanded(),
+          open: isIktiaPresenceOpen(presence()),
         })}
+        {...getIktiaPresenceAttributes(presence())}
+        hidden={isIktiaPresenceHidden(presence())}
       >
         <section
           {...(hoverCardApi()?.getContentProps() ?? {})}
           part="content"
           {...getIktiaOverlayStateAttributes({
             kind: "hover-card",
-            open: expanded(),
+            open: isIktiaPresenceOpen(presence()),
           })}
+          {...getIktiaPresenceAttributes(presence())}
+          hidden={isIktiaPresenceHidden(presence())}
         >
           <h2 part="title">
             <slot name="title">{title}</slot>

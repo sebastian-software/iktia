@@ -65,15 +65,19 @@ describe("@iktia/primitives build output", () => {
 
   it("keeps primitive behavior kernels private but available to compiled components", () => {
     const dropdown = readFileSync(join(distRoot, "dropdown.mjs"), "utf8")
+    const hoverCardComponent = readFileSync(join(distRoot, "hover-card.mjs"), "utf8")
     const index = readFileSync(join(distRoot, "index.mjs"), "utf8")
     const popover = readFileSync(join(distRoot, "popover.mjs"), "utf8")
+    const tooltipComponent = readFileSync(join(distRoot, "tooltip.mjs"), "utf8")
     const context = readFileSync(join(distRoot, "internal", "behavior", "context.js"), "utf8")
     const overlay = readFileSync(join(distRoot, "internal", "behavior", "overlay.js"), "utf8")
     const presence = readFileSync(join(distRoot, "internal", "behavior", "presence.js"), "utf8")
 
     expect(dropdown).toContain("from \"./internal/behavior/disclosure.js\"")
+    expect(hoverCardComponent).toContain("from \"./internal/behavior/presence.js\"")
     expect(popover).toContain("from \"./internal/behavior/overlay.js\"")
     expect(popover).toContain("from \"./internal/behavior/presence.js\"")
+    expect(tooltipComponent).toContain("from \"./internal/behavior/presence.js\"")
     expect(context).toContain("context-request")
     expect(context).toContain("createIktiaContext")
     expect(overlay).toContain("getIktiaOverlayStateAttributes")
