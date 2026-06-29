@@ -37,6 +37,12 @@ you already know the workflow.
     Covers native binding loading, unsupported syntax, DSD output, CLI output,
     and local verification.
 
+Architecture follow-up audits:
+
+* [Base UI primitive architecture audit](base-ui-primitive-architecture-audit.md)
+  maps Base UI's durable primitive lessons to Iktia's Web Components-first
+  contracts without adopting Base UI as a dependency or API surface.
+
 ## Verification
 
 Use [MVP verification](mvp-verification.md) for the complete local health
