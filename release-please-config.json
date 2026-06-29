@@ -17,6 +17,11 @@
       "package-name": "@iktia/data-convex",
       "release-type": "node"
     },
+    "packages/motion": {
+      "component": "motion",
+      "package-name": "@iktia/motion",
+      "release-type": "node"
+    },
     "packages/runtime": {
       "component": "runtime",
       "package-name": "@iktia/runtime",

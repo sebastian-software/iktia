@@ -81,6 +81,7 @@ describe("@iktia/primitives build output", () => {
     expect(context).toContain("context-request")
     expect(context).toContain("createIktiaContext")
     expect(overlay).toContain("getIktiaOverlayStateAttributes")
+    expect(presence).toContain("from \"@iktia/motion\"")
     expect(presence).toContain("waitForIktiaPresenceExit")
     expect(index).not.toContain("internal/behavior")
     expect(dropdown).not.toContain("@iktia/core")

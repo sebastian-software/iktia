@@ -7,6 +7,7 @@
     { "path": "./packages/core" },
     { "path": "./packages/data" },
     { "path": "./packages/data-convex" },
+    { "path": "./packages/motion" },
     { "path": "./packages/primitives" },
     { "path": "./packages/runtime" },
     { "path": "./packages/vite" }

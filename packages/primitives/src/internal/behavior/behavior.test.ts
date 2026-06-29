@@ -274,6 +274,7 @@ describe("primitive behavior kernels", () => {
       resolveFinished()
       await finished
       await Promise.resolve()
+      await Promise.resolve()
       expect(calls).toEqual(["done"])
     } finally {
       globalThis.requestAnimationFrame = originalRequestAnimationFrame

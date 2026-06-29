@@ -1,3 +1,5 @@
+import { waitForAnimations } from "@iktia/motion"
+
 export type IktiaPresencePhase =
   | "closed"
   | "closing"
@@ -67,40 +69,24 @@ export function waitForIktiaPresenceExit(
   callback: () => void
 ) {
   let cancelled = false
+  const abort = new AbortController()
   const finish = () => {
     if (!cancelled) callback()
   }
 
   const cancelFrame = scheduleIktiaPresenceFrame(() => {
-    if (cancelled || shouldSkipIktiaPresenceMotion()) {
-      finish()
-      return
-    }
-    const animations = getIktiaPresenceAnimations(element)
-    if (animations.length === 0) {
-      finish()
-      return
-    }
-    void Promise.allSettled(animations.map((animation) => animation.finished))
+    if (cancelled) return
+    void waitForAnimations(element, {
+      reducedMotion: "media",
+      signal: abort.signal,
+      subtree: true,
+    })
       .then(finish)
   })
 
   return () => {
     cancelled = true
+    abort.abort()
     cancelFrame()
   }
-}
-
-function getIktiaPresenceAnimations(element: Element | null | undefined) {
-  if (element == null || typeof element.getAnimations !== "function") return []
-  return element
-    .getAnimations({ subtree: true })
-    .filter((animation) =>
-      animation.playState !== "finished" && animation.playState !== "idle"
-    )
-}
-
-function shouldSkipIktiaPresenceMotion() {
-  if (typeof globalThis.matchMedia !== "function") return false
-  return globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches
 }
