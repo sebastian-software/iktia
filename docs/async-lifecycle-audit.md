@@ -41,3 +41,7 @@ Spread event attributes remain plain DOM listener assignments. They do not get
 Iktia re-entry signals because they are not `on()` calls and may come from
 foreign object shapes. If those need lifecycle-aware cancellation later, they
 should become an explicit spread-event policy rather than implicit magic.
+
+Generated `on()` listeners invoke the supplied handler with `(event, signal)`.
+They do not bind a receiver, so handlers that rely on `this` should keep using
+an arrow or closure instead of a standalone `function` body.

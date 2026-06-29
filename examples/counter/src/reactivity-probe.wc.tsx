@@ -1,4 +1,4 @@
-import { effect, host, state } from "@iktia/core"
+import { effect, host, on, state } from "@iktia/core"
 
 export function ReactivityProbe() {
   const primary = state(0)
@@ -52,6 +52,56 @@ export function ReactivityProbe() {
         }}
       >
         Flush
+      </button>
+      <button
+        data-probe-event-signal-button
+        onClick={on("click", async (_event, signal) => {
+          const run = Number(document.body.dataset.probeEventRun ?? "0") + 1
+          document.body.dataset.probeEventRun = String(run)
+          document.body.dataset.probeEventSignalAborted = String(signal.aborted)
+          signal.addEventListener(
+            "abort",
+            () => {
+              const aborts =
+                Number(document.body.dataset.probeEventAbortCount ?? "0") + 1
+              document.body.dataset.probeEventAbortCount = String(aborts)
+            },
+            { once: true }
+          )
+          await new Promise((resolve) => setTimeout(resolve, 50))
+          document.body.dataset.probeEventSignalAborted = String(signal.aborted)
+          if (!signal.aborted) {
+            document.body.dataset.probeEventCompletedRun = String(run)
+          }
+        })}
+      >
+        Event signal
+      </button>
+      <button
+        data-probe-update-signal-button
+        onClick={on("click", async () => {
+          primary.set(primary() + 1)
+          const updateSignal = await host().update()
+          document.body.dataset.probeUpdateSignalAborted = String(
+            updateSignal.aborted
+          )
+          updateSignal.addEventListener(
+            "abort",
+            () => {
+              const aborts =
+                Number(document.body.dataset.probeUpdateAbortCount ?? "0") + 1
+              document.body.dataset.probeUpdateAbortCount = String(aborts)
+            },
+            { once: true }
+          )
+          host().queueTask(() => {
+            const primaryNode = host().root.querySelector("[data-probe-primary]")
+            document.body.dataset.probeQueuedTaskPrimary =
+              primaryNode?.textContent ?? ""
+          })
+        })}
+      >
+        Update signal
       </button>
     </section>
   )
