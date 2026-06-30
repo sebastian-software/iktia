@@ -1437,8 +1437,7 @@ impl<'a> CodeGenerator<'a> {
             .map_err(format_error)?;
             writeln!(code, "  }}").map_err(format_error)?;
             writeln!(code, "  #unregisterKeyedBindings(record) {{").map_err(format_error)?;
-            writeln!(code, "    if (!record.__naosKeyedBindings) return;")
-                .map_err(format_error)?;
+            writeln!(code, "    if (!record.__naosKeyedBindings) return;").map_err(format_error)?;
             writeln!(
                 code,
                 "    for (const [bindingName, token] of record.__naosKeyedBindings.entries()) {{"

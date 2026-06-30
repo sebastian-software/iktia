@@ -1550,9 +1550,11 @@ mod tests {
                 .code
                 .contains("for (const controller of Array.from(node1StaleRecord.__naosEventAbortControllers)) controller.abort();")
         );
-        assert!(result.code.contains(
-            "const __naosEventSignal = node1Record.for1Node0ListenerclickAbort.signal;"
-        ));
+        assert!(
+            result.code.contains(
+                "const __naosEventSignal = node1Record.for1Node0ListenerclickAbort.signal;"
+            )
+        );
         assert!(
             result
                 .code
