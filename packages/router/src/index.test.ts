@@ -1,6 +1,15 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 
 import { createRouter, defineRoutes, redirect, type IktiaRouteMatch } from "./index.js"
+
+type TestPlatform = {
+  readonly history: History
+  readonly location: Location
+  readonly routerPlatform: unknown
+  readonly scrollToCalls: Array<{ x: number; y: number }>
+  dispatchPopState(): void
+  setScroll(position: { x: number; y: number }): void
+}
 
 function setupRouter() {
   document.body.innerHTML = `
@@ -55,6 +64,86 @@ function setupRouter() {
   })
 
   return { outlet, router }
+}
+
+function setupPlatform(initialUrl = "https://iktia.test/"): TestPlatform {
+  let currentScroll = { x: 0, y: 0 }
+  const listeners = new Set<EventListener>()
+  const scrollToCalls: Array<{ x: number; y: number }> = []
+  const entries: Array<{ href: string; state: unknown }> = [{ href: initialUrl, state: null }]
+  let index = 0
+  const currentHref = () => entries[index]?.href ?? initialUrl
+
+  const dispatchPopState = () => {
+    const event = new PopStateEvent("popstate", { state: entries[index]?.state })
+    for (const listener of listeners) listener(event)
+  }
+
+  const history = {
+    scrollRestoration: "auto",
+    get state() {
+      return entries[index]?.state ?? null
+    },
+    back() {
+      if (index === 0) return
+      index -= 1
+      dispatchPopState()
+    },
+    forward() {
+      if (index >= entries.length - 1) return
+      index += 1
+      dispatchPopState()
+    },
+    pushState(data: unknown, _unused: string, url?: string | URL | null) {
+      const href = url ? new URL(String(url), currentHref()).href : currentHref()
+      entries.splice(index + 1)
+      entries.push({ href, state: data })
+      index = entries.length - 1
+    },
+    replaceState(data: unknown, _unused: string, url?: string | URL | null) {
+      const href = url ? new URL(String(url), currentHref()).href : currentHref()
+      entries[index] = { href, state: data }
+    },
+  } as History
+
+  const location = {
+    get href() {
+      return currentHref()
+    },
+  } as Location
+
+  const platform = {
+    document,
+    history,
+    location,
+    addEventListener: (_name: "popstate", listener: EventListener) => {
+      listeners.add(listener)
+    },
+    getScrollPosition: () => currentScroll,
+    removeEventListener: (_name: "popstate", listener: EventListener) => {
+      listeners.delete(listener)
+    },
+    scrollTo: (position: { x: number; y: number }) => {
+      currentScroll = position
+      scrollToCalls.push(position)
+    },
+  }
+
+  return {
+    dispatchPopState,
+    history,
+    location,
+    routerPlatform: platform,
+    scrollToCalls,
+    setScroll(position) {
+      currentScroll = position
+    },
+  }
+}
+
+async function waitForRouterWork(): Promise<void> {
+  await Promise.resolve()
+  await Promise.resolve()
 }
 
 describe("IktiaRouter", () => {
@@ -315,6 +404,186 @@ describe("IktiaRouter", () => {
 
     expect(event.defaultPrevented).toBe(false)
     router.stop()
+  })
+
+  it("restores scroll positions when traversing history entries", async () => {
+    document.body.innerHTML = `<main data-outlet></main>`
+
+    class AppScrollA extends HTMLElement {}
+    class AppScrollB extends HTMLElement {}
+    if (!customElements.get("app-scroll-a")) customElements.define("app-scroll-a", AppScrollA)
+    if (!customElements.get("app-scroll-b")) customElements.define("app-scroll-b", AppScrollB)
+
+    const outlet = document.querySelector("[data-outlet]")
+    if (!outlet) throw new Error("Missing test outlet.")
+
+    const platform = setupPlatform("https://iktia.test/a")
+    const router = createRouter({
+      outlet,
+      routes: defineRoutes([
+        { path: "/a", tag: "app-scroll-a" },
+        { path: "/b", tag: "app-scroll-b" },
+      ] as const),
+      ...({ platform: platform.routerPlatform } as { platform: unknown }),
+    })
+
+    router.start()
+    await waitForRouterWork()
+    platform.setScroll({ x: 0, y: 128 })
+
+    await router.navigate("/b")
+    expect(platform.scrollToCalls.at(-1)).toEqual({ x: 0, y: 0 })
+
+    platform.setScroll({ x: 0, y: 512 })
+    platform.history.back()
+    await waitForRouterWork()
+
+    expect(outlet.firstElementChild?.tagName.toLowerCase()).toBe("app-scroll-a")
+    expect(platform.scrollToCalls.at(-1)).toEqual({ x: 0, y: 128 })
+    expect(platform.history.scrollRestoration).toBe("manual")
+
+    router.stop()
+    expect(platform.history.scrollRestoration).toBe("auto")
+  })
+
+  it("uses a configured scroll restoration key strategy", async () => {
+    document.body.innerHTML = `<main data-outlet></main>`
+
+    class AppKeyedA extends HTMLElement {}
+    class AppKeyedB extends HTMLElement {}
+    if (!customElements.get("app-keyed-a")) customElements.define("app-keyed-a", AppKeyedA)
+    if (!customElements.get("app-keyed-b")) customElements.define("app-keyed-b", AppKeyedB)
+
+    const outlet = document.querySelector("[data-outlet]")
+    if (!outlet) throw new Error("Missing test outlet.")
+
+    const getKey = vi.fn(({ url }: { url: URL }) => `${url.pathname}${url.search}`)
+    const platform = setupPlatform("https://iktia.test/a?tab=one")
+    const router = createRouter({
+      outlet,
+      routes: defineRoutes([
+        { path: "/a", tag: "app-keyed-a" },
+        { path: "/b", tag: "app-keyed-b" },
+      ] as const),
+      scrollRestoration: { getKey },
+      ...({ platform: platform.routerPlatform } as { platform: unknown }),
+    })
+
+    router.start()
+    await waitForRouterWork()
+    platform.setScroll({ x: 4, y: 240 })
+
+    await router.navigate("/b?tab=two")
+    platform.history.back()
+    await waitForRouterWork()
+
+    expect(getKey).toHaveBeenCalled()
+    expect(platform.scrollToCalls.at(-1)).toEqual({ x: 4, y: 240 })
+
+    router.stop()
+  })
+
+  it("scrolls new navigations to hash targets and can skip scroll restoration per navigation", async () => {
+    document.body.innerHTML = `<main data-outlet></main>`
+    const scrollIntoView = vi.fn()
+    Element.prototype.scrollIntoView = scrollIntoView
+
+    class AppHashTarget extends HTMLElement {
+      connectedCallback() {
+        this.innerHTML = `<article><h1 id="details">Details</h1></article>`
+      }
+    }
+    class AppManualScroll extends HTMLElement {}
+    if (!customElements.get("app-hash-target")) customElements.define("app-hash-target", AppHashTarget)
+    if (!customElements.get("app-manual-scroll")) customElements.define("app-manual-scroll", AppManualScroll)
+
+    const outlet = document.querySelector("[data-outlet]")
+    if (!outlet) throw new Error("Missing test outlet.")
+
+    const platform = setupPlatform()
+    const router = createRouter({
+      outlet,
+      routes: defineRoutes([
+        { path: "/details", tag: "app-hash-target" },
+        { path: "/manual", tag: "app-manual-scroll" },
+      ] as const),
+      ...({ platform: platform.routerPlatform } as { platform: unknown }),
+    })
+
+    await router.navigate("/details#details")
+    expect(scrollIntoView).toHaveBeenCalledTimes(1)
+    expect(platform.scrollToCalls).toHaveLength(0)
+
+    await router.navigate("/manual", { scroll: false })
+    expect(platform.scrollToCalls).toHaveLength(0)
+  })
+
+  it("moves focus to route targets and falls back to headings", async () => {
+    document.body.innerHTML = `<main data-outlet></main>`
+
+    class AppFocused extends HTMLElement {
+      connectedCallback() {
+        this.innerHTML = `<article><button data-focus-target>Save</button></article>`
+      }
+    }
+    class AppFallbackFocus extends HTMLElement {
+      connectedCallback() {
+        this.innerHTML = `<article><h1>Fallback heading</h1></article>`
+      }
+    }
+    if (!customElements.get("app-focused")) customElements.define("app-focused", AppFocused)
+    if (!customElements.get("app-fallback-focus")) customElements.define("app-fallback-focus", AppFallbackFocus)
+
+    const outlet = document.querySelector("[data-outlet]")
+    if (!outlet) throw new Error("Missing test outlet.")
+
+    const platform = setupPlatform()
+    const router = createRouter({
+      outlet,
+      routes: defineRoutes([
+        { path: "/focused", tag: "app-focused", focusTarget: "[data-focus-target]" },
+        { path: "/fallback", tag: "app-fallback-focus", focusTarget: "[data-missing]" },
+      ] as const),
+      ...({ platform: platform.routerPlatform } as { platform: unknown }),
+    })
+
+    await router.navigate("/focused")
+    expect(document.activeElement?.getAttribute("data-focus-target")).toBe("")
+
+    await router.navigate("/fallback")
+    expect(document.activeElement?.tagName.toLowerCase()).toBe("h1")
+  })
+
+  it("can disable scroll and focus restoration for manually controlled apps", async () => {
+    document.body.innerHTML = `<button data-before>Before</button><main data-outlet></main>`
+
+    class AppDisabledRestoration extends HTMLElement {
+      connectedCallback() {
+        this.innerHTML = `<article><h1>Manual</h1></article>`
+      }
+    }
+    if (!customElements.get("app-disabled-restoration")) {
+      customElements.define("app-disabled-restoration", AppDisabledRestoration)
+    }
+
+    const outlet = document.querySelector("[data-outlet]")
+    const before = document.querySelector<HTMLElement>("[data-before]")
+    if (!outlet || !before) throw new Error("Missing test outlet.")
+    before.focus()
+
+    const platform = setupPlatform()
+    const router = createRouter({
+      focusRestoration: false,
+      outlet,
+      routes: defineRoutes([{ path: "/manual", tag: "app-disabled-restoration" }] as const),
+      scrollRestoration: false,
+      ...({ platform: platform.routerPlatform } as { platform: unknown }),
+    })
+
+    await router.navigate("/manual")
+
+    expect(platform.scrollToCalls).toHaveLength(0)
+    expect(document.activeElement).toBe(before)
   })
 
   it("replaces an action URL query string for GET submissions", async () => {

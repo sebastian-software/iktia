@@ -132,7 +132,8 @@ element factories, lazy-loads route modules, runs abortable route `loader`
 hooks, handles explicit `data-iktia-action` forms through route `action` hooks,
 exposes `iktiaRoute` with params, search params, loader data, action data, URL,
 navigation type, and `AbortSignal`, intercepts same-origin anchors, updates
-active-link attributes, and mounts not-found or error routes.
+active-link attributes, restores scroll and focus after route commits, emits
+route/action events, and mounts not-found or error routes.
 
 ```ts
 const routes = defineRoutes([
@@ -142,13 +143,34 @@ const routes = defineRoutes([
     tag: "app-product",
     loader: ({ params }) => fetch(`/api/products/${params.id}`).then((response) => response.json()),
     action: ({ formData }) => saveProduct(formData),
+    focusTarget: "h1,[autofocus]",
   },
 ])
 ```
 
-The package has no React, Lit, Vaadin Router, TanStack Router, or Waku runtime
-dependency and is not used by generated components unless an app imports it. It
-does not own application caching, sessions, cookies, SSR, or backend routing.
+`scrollRestoration` is enabled by default. Push/replace navigations scroll to
+the top or hash target, traverse navigations restore the recorded position, and
+same-page hash links remain native browser fragment navigation. Apps can pass a
+custom `scrollRestoration.getKey({ url, state, navigation })`, disable the
+feature with `scrollRestoration: false`, or skip it per navigation with
+`router.navigate("/path", { scroll: false })`.
+
+`focusRestoration` is also enabled by default. After a committed navigation,
+focus moves to a route `focusTarget` selector or callback, then `[autofocus]`,
+`main`, the first heading, or the outlet. Apps can disable it globally with
+`focusRestoration: false` or per navigation with `{ focus: false }`. Prefer a
+real page heading or primary landmark as the focus target so keyboard and screen
+reader users get a clear route-change point.
+
+The router emits `iktia:navigationstart`, `iktia:navigationcommit`,
+`iktia:navigationabort`, `iktia:navigationerror`, `iktia:routechange`,
+`iktia:actionstart`, `iktia:actioncommit`, and `iktia:actionerror` from the
+router and the outlet.
+
+The package has no React, Next.js, TanStack Router, Angular, Lit, Vaadin Router,
+Waku, or virtual DOM runtime dependency and is not used by generated components
+unless an app imports it. It does not own application caching, sessions,
+cookies, SSR, or backend routing.
 
 ## `@iktia/cli`
 

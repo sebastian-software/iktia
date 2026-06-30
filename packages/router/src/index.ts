@@ -42,11 +42,35 @@ export type IktiaRedirect = {
   readonly to: string | URL
 }
 
+export type IktiaFocusTarget =
+  | string
+  | ((match: IktiaRouteMatch) => Element | null | undefined)
+
+export type IktiaFocusRestorationOptions = {
+  readonly target?: IktiaFocusTarget
+}
+
+export type IktiaScrollKeyArgs = {
+  readonly navigation: IktiaNavigation | null
+  readonly state: unknown
+  readonly url: URL
+}
+
+export type IktiaScrollPosition = {
+  readonly x: number
+  readonly y: number
+}
+
+export type IktiaScrollRestorationOptions = {
+  readonly getKey?: (args: IktiaScrollKeyArgs) => string
+}
+
 export type IktiaRouteBase = {
   readonly path: string
   readonly action?: (args: IktiaActionArgs) => Promise<unknown> | unknown
   readonly loader?: (args: IktiaLoaderArgs) => Promise<unknown> | unknown
   readonly load?: (navigation: IktiaNavigation) => Promise<unknown> | unknown
+  readonly focusTarget?: IktiaFocusTarget
   readonly props?: (match: IktiaRouteMatch) => Record<string, unknown>
   readonly attrs?: (match: IktiaRouteMatch) => Record<string, string | null>
   readonly canEnter?: (
@@ -77,26 +101,32 @@ export type IktiaHrefOptions = {
 }
 
 export type IktiaNavigateOptions = {
+  readonly focus?: boolean
   readonly replace?: boolean
+  readonly scroll?: boolean
   readonly viewTransition?: boolean
 }
 
 export type IktiaSubmitOptions = {
+  readonly focus?: boolean
   readonly form?: HTMLFormElement | null
   readonly formData?: FormData | URLSearchParams | Record<string, FormDataEntryValue | boolean | number | null | undefined>
   readonly method?: string
   readonly replace?: boolean
+  readonly scroll?: boolean
   readonly submitter?: HTMLElement | null
   readonly viewTransition?: boolean
 }
 
 export type IktiaRouterOptions<Routes extends readonly IktiaRoute[]> = {
   readonly basePath?: string
+  readonly focusRestoration?: boolean | IktiaFocusRestorationOptions
   readonly linkRoot?: ParentNode & EventTarget
   readonly notFound?: IktiaFallbackRoute
   readonly error?: IktiaFallbackRoute
   readonly outlet: Element
   readonly routes: Routes
+  readonly scrollRestoration?: boolean | IktiaScrollRestorationOptions
 }
 
 export type IktiaRouterEventMap<Routes extends readonly IktiaRoute[]> = {
@@ -175,7 +205,9 @@ type RouterPlatform = {
   readonly history: History
   readonly location: Location
   addEventListener(name: "popstate", listener: EventListener): void
+  getScrollPosition(): IktiaScrollPosition
   removeEventListener(name: "popstate", listener: EventListener): void
+  scrollTo(position: IktiaScrollPosition): void
 }
 
 type ViewTransitionDocument = Document & {
@@ -194,6 +226,7 @@ const ROUTER_EVENT_NAMES = new Set<string>([
 ])
 
 const MAX_REDIRECTS = 10
+const SCROLL_STATE_KEY = "__iktiaScrollKey"
 
 export function defineRoutes<const Routes extends readonly IktiaRoute[]>(
   routes: Routes
@@ -219,6 +252,8 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
   #activeController: AbortController | null = null
   #activeNavigation: IktiaNavigation | null = null
   #currentMatch: IktiaRouteMatch<Routes[number]> | null = null
+  #currentScrollKey: string | null = null
+  #focusRestoration: IktiaFocusRestorationOptions | false
   #linkRoot: (ParentNode & EventTarget) | null
   #loadPromises = new WeakMap<IktiaRoute | IktiaFallbackRoute, Promise<unknown>>()
   #matchers: RouteMatcher[]
@@ -226,6 +261,10 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
   #notFound: IktiaFallbackRoute | null
   #error: IktiaFallbackRoute | null
   #platform: RouterPlatform
+  #previousNativeScrollRestoration: History["scrollRestoration"] | null = null
+  #scrollKeyId = 0
+  #scrollPositions = new Map<string, IktiaScrollPosition>()
+  #scrollRestoration: IktiaScrollRestorationOptions | false
   #started = false
 
   constructor(options: InternalRouterOptions<Routes>) {
@@ -237,6 +276,8 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     this.#notFound = options.notFound ?? null
     this.#error = options.error ?? null
     this.#platform = options.platform ?? defaultPlatform()
+    this.#focusRestoration = normalizeFocusRestoration(options.focusRestoration)
+    this.#scrollRestoration = normalizeScrollRestoration(options.scrollRestoration)
     this.#matchers = options.routes.map((route) => ({
       route,
       exec: compileRoutePath(route.path),
@@ -253,8 +294,11 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     this.#linkRoot?.addEventListener("click", this.#onClick)
     this.#linkRoot?.addEventListener("submit", this.#onSubmit)
     this.#platform.addEventListener("popstate", this.#onPopState)
+    this.#startNativeScrollRestoration()
     void this.#navigateToUrl(this.#currentUrl(), {
+      focus: false,
       history: "none",
+      scroll: false,
       type: "load",
       viewTransition: false,
     })
@@ -266,6 +310,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     this.#linkRoot?.removeEventListener("click", this.#onClick)
     this.#linkRoot?.removeEventListener("submit", this.#onSubmit)
     this.#platform.removeEventListener("popstate", this.#onPopState)
+    this.#stopNativeScrollRestoration()
     this.#activeController?.abort()
     this.#activeController = null
     this.#activeNavigation = null
@@ -296,7 +341,9 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
 
   navigate(to: string | URL, options: IktiaNavigateOptions = {}): Promise<IktiaRouteMatch<Routes[number]> | null> {
     return this.#navigateToUrl(this.#resolveUrl(to), {
+      focus: options.focus ?? true,
       history: options.replace ? "replace" : "push",
+      scroll: options.scroll ?? true,
       type: options.replace ? "replace" : "push",
       viewTransition: options.viewTransition ?? false,
     })
@@ -339,14 +386,18 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     if (submission.method === "GET") {
       const targetUrl = appendFormDataToUrl(url, submission.formData)
       return this.#navigateToUrl(targetUrl, {
+        focus: options.focus ?? true,
         history: options.replace ? "replace" : "push",
+        scroll: options.scroll ?? true,
         type: options.replace ? "replace" : "push",
         viewTransition: options.viewTransition ?? false,
       })
     }
 
     return this.#submitToUrl(url, submission, {
+      focus: options.focus ?? true,
       replace: options.replace ?? false,
+      scroll: options.scroll ?? true,
       viewTransition: options.viewTransition ?? false,
     })
   }
@@ -412,7 +463,9 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
 
   #onPopState = (): void => {
     void this.#navigateToUrl(this.#currentUrl(), {
+      focus: true,
       history: "none",
+      scroll: true,
       type: "traverse",
       viewTransition: false,
     })
@@ -422,11 +475,14 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     url: URL,
     options: {
       readonly history: "none" | "push" | "replace"
+      readonly focus: boolean
       readonly redirectCount?: number
+      readonly scroll: boolean
       readonly type: IktiaNavigationType
       readonly viewTransition: boolean
     }
   ): Promise<IktiaRouteMatch<Routes[number]> | null> {
+    this.#saveCurrentScrollPosition()
     if (this.#activeController && this.#activeNavigation) {
       const previousNavigation = this.#activeNavigation
       this.#activeController.abort()
@@ -471,8 +527,10 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
           throw new Error(`Router redirect limit exceeded while navigating to "${url.pathname}".`)
         }
         return this.#navigateToUrl(this.#resolveUrl(guard), {
+          focus: options.focus,
           history: "replace",
           redirectCount: redirectCount + 1,
+          scroll: options.scroll,
           type: "replace",
           viewTransition: options.viewTransition,
         })
@@ -487,12 +545,16 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
       const match = { ...matchWithoutData, data } satisfies IktiaRouteMatch<Routes[number]>
 
       if (options.history === "push") {
-        this.#platform.history.pushState(null, "", url)
+        this.#platform.history.pushState(this.#historyStateFor(url, navigation, "push"), "", url)
       } else if (options.history === "replace") {
-        this.#platform.history.replaceState(null, "", url)
+        this.#platform.history.replaceState(this.#historyStateFor(url, navigation, "replace"), "", url)
       }
 
-      await this.#commit(match, route, options.viewTransition)
+      await this.#commit(match, route, {
+        focus: options.focus,
+        scroll: options.scroll,
+        viewTransition: options.viewTransition,
+      })
       return match
     } catch (error) {
       if (!this.#isCurrent(navigation)) return null
@@ -506,7 +568,11 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
           search: url.searchParams,
           navigation,
         } satisfies IktiaRouteMatch<Routes[number]>
-        await this.#commit(match, this.#error, false)
+        await this.#commit(match, this.#error, {
+          focus: options.focus,
+          scroll: options.scroll,
+          viewTransition: false,
+        })
         return match
       }
       throw error
@@ -522,10 +588,13 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     url: URL,
     submission: IktiaActionSubmission,
     options: {
+      readonly focus: boolean
       readonly replace: boolean
+      readonly scroll: boolean
       readonly viewTransition: boolean
     }
   ): Promise<IktiaRouteMatch<Routes[number]> | null> {
+    this.#saveCurrentScrollPosition()
     if (this.#activeController && this.#activeNavigation) {
       const previousNavigation = this.#activeNavigation
       this.#activeController.abort()
@@ -585,8 +654,10 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
         })
         const replace = actionData.replace ?? options.replace
         return this.#navigateToUrl(this.#resolveUrl(actionData.to), {
+          focus: options.focus,
           history: replace ? "replace" : "push",
           redirectCount: 1,
+          scroll: options.scroll,
           type: replace ? "replace" : "push",
           viewTransition: options.viewTransition,
         })
@@ -606,12 +677,16 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
 
       const currentUrl = this.#currentUrl()
       if (options.replace) {
-        this.#platform.history.replaceState(null, "", url)
+        this.#platform.history.replaceState(this.#historyStateFor(url, navigation, "replace"), "", url)
       } else if (currentUrl.href !== url.href) {
-        this.#platform.history.pushState(null, "", url)
+        this.#platform.history.pushState(this.#historyStateFor(url, navigation, "push"), "", url)
       }
 
-      await this.#commit(match, route, options.viewTransition)
+      await this.#commit(match, route, {
+        focus: options.focus,
+        scroll: options.scroll,
+        viewTransition: options.viewTransition,
+      })
       this.#dispatchRouterEvent("iktia:actioncommit", {
         data: actionData,
         match,
@@ -632,7 +707,11 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
           search: url.searchParams,
           navigation,
         } satisfies IktiaRouteMatch<Routes[number]>
-        await this.#commit(match, this.#error, false)
+        await this.#commit(match, this.#error, {
+          focus: options.focus,
+          scroll: options.scroll,
+          viewTransition: false,
+        })
         return match
       }
       throw error
@@ -644,7 +723,11 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
   async #commit(
     match: IktiaRouteMatch<Routes[number]>,
     route: IktiaRoute | IktiaFallbackRoute,
-    viewTransition: boolean
+    options: {
+      readonly focus: boolean
+      readonly scroll: boolean
+      readonly viewTransition: boolean
+    }
   ): Promise<void> {
     const commit = () => {
       this.#mount(match, route)
@@ -662,13 +745,16 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     }
 
     const documentWithTransitions = this.#platform.document as ViewTransitionDocument
-    if (viewTransition && typeof documentWithTransitions.startViewTransition === "function") {
+    if (options.viewTransition && typeof documentWithTransitions.startViewTransition === "function") {
       const transition = documentWithTransitions.startViewTransition(commit)
       await transition.finished
-      return
+    } else {
+      commit()
     }
 
-    commit()
+    this.#currentScrollKey = this.#resolveScrollKey(match.url, match.navigation)
+    if (options.scroll) this.#restoreScroll(match)
+    if (options.focus) this.#restoreFocus(match, route)
   }
 
   #mount(match: IktiaRouteMatch<Routes[number]>, route: IktiaRoute | IktiaFallbackRoute): void {
@@ -837,6 +923,113 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
       this.#activeNavigation = null
     }
   }
+
+  #historyStateFor(
+    url: URL,
+    navigation: IktiaNavigation,
+    mode: "push" | "replace"
+  ): unknown {
+    if (this.#scrollRestoration === false || this.#scrollRestoration.getKey) {
+      return null
+    }
+
+    const existing = mode === "replace" ? readScrollKeyFromState(this.#platform.history.state) : null
+    const key = existing ?? this.#createScrollKey(url, navigation)
+    return addScrollKeyToState(mode === "replace" ? this.#platform.history.state : null, key)
+  }
+
+  #restoreFocus(
+    match: IktiaRouteMatch<Routes[number]>,
+    route: IktiaRoute | IktiaFallbackRoute
+  ): void {
+    if (this.#focusRestoration === false) return
+    const target = findFocusTarget(this.outlet, match, route, this.#focusRestoration)
+    focusElement(target)
+  }
+
+  #restoreScroll(match: IktiaRouteMatch<Routes[number]>): void {
+    if (this.#scrollRestoration === false) return
+
+    if (match.navigation.type === "traverse") {
+      const key = this.#resolveScrollKey(match.url, match.navigation)
+      const position = this.#scrollPositions.get(key)
+      this.#platform.scrollTo(position ?? { x: 0, y: 0 })
+      return
+    }
+
+    const target = findHashTarget(this.#platform.document, match.url)
+    if (target && typeof target.scrollIntoView === "function") {
+      target.scrollIntoView()
+      return
+    }
+
+    this.#platform.scrollTo({ x: 0, y: 0 })
+  }
+
+  #resolveScrollKey(url: URL, navigation: IktiaNavigation | null): string {
+    if (this.#scrollRestoration && this.#scrollRestoration.getKey) {
+      return this.#scrollRestoration.getKey({
+        navigation,
+        state: this.#platform.history.state,
+        url,
+      })
+    }
+
+    const stateKey = readScrollKeyFromState(this.#platform.history.state)
+    if (stateKey) return stateKey
+    return `${url.pathname}${url.search}${url.hash}`
+  }
+
+  #saveCurrentScrollPosition(): void {
+    if (this.#scrollRestoration === false) return
+    const url = this.#currentMatch?.url ?? this.#currentUrl()
+    const key = this.#currentScrollKey ?? this.#resolveScrollKey(url, this.#activeNavigation)
+    this.#currentScrollKey = key
+    this.#scrollPositions.set(key, this.#platform.getScrollPosition())
+  }
+
+  #createScrollKey(url: URL, navigation: IktiaNavigation | null): string {
+    if (this.#scrollRestoration && this.#scrollRestoration.getKey) {
+      return this.#scrollRestoration.getKey({
+        navigation,
+        state: this.#platform.history.state,
+        url,
+      })
+    }
+    this.#scrollKeyId += 1
+    return `${url.pathname}${url.search}${url.hash}:${this.#scrollKeyId}`
+  }
+
+  #startNativeScrollRestoration(): void {
+    if (this.#scrollRestoration === false || !("scrollRestoration" in this.#platform.history)) return
+    this.#previousNativeScrollRestoration = this.#platform.history.scrollRestoration
+    this.#platform.history.scrollRestoration = "manual"
+    this.#currentScrollKey = this.#ensureCurrentHistoryScrollKey()
+  }
+
+  #stopNativeScrollRestoration(): void {
+    if (this.#previousNativeScrollRestoration === null || !("scrollRestoration" in this.#platform.history)) return
+    this.#platform.history.scrollRestoration = this.#previousNativeScrollRestoration
+    this.#previousNativeScrollRestoration = null
+  }
+
+  #ensureCurrentHistoryScrollKey(): string {
+    const url = this.#currentUrl()
+    if (this.#scrollRestoration && this.#scrollRestoration.getKey) {
+      return this.#scrollRestoration.getKey({
+        navigation: null,
+        state: this.#platform.history.state,
+        url,
+      })
+    }
+
+    const existing = readScrollKeyFromState(this.#platform.history.state)
+    if (existing) return existing
+
+    const key = this.#createScrollKey(url, null)
+    this.#platform.history.replaceState(addScrollKeyToState(this.#platform.history.state, key), "", url)
+    return key
+  }
 }
 
 function defaultPlatform(): RouterPlatform {
@@ -845,12 +1038,112 @@ function defaultPlatform(): RouterPlatform {
     history: window.history,
     location: window.location,
     addEventListener: (name, listener) => window.addEventListener(name, listener),
+    getScrollPosition: () => ({ x: window.scrollX, y: window.scrollY }),
     removeEventListener: (name, listener) => window.removeEventListener(name, listener),
+    scrollTo: (position) => window.scrollTo(position.x, position.y),
   }
 }
 
 function defaultLinkRoot(): (ParentNode & EventTarget) | null {
   return typeof document === "undefined" ? null : document
+}
+
+function normalizeFocusRestoration(
+  value: boolean | IktiaFocusRestorationOptions | undefined
+): IktiaFocusRestorationOptions | false {
+  if (value === false) return false
+  if (value === true || value === undefined) return {}
+  return value
+}
+
+function normalizeScrollRestoration(
+  value: boolean | IktiaScrollRestorationOptions | undefined
+): IktiaScrollRestorationOptions | false {
+  if (value === false) return false
+  if (value === true || value === undefined) return {}
+  return value
+}
+
+function readScrollKeyFromState(state: unknown): string | null {
+  if (!isRecord(state)) return null
+  const key = state[SCROLL_STATE_KEY]
+  return typeof key === "string" ? key : null
+}
+
+function addScrollKeyToState(state: unknown, key: string): Record<string, unknown> {
+  return isRecord(state) ? { ...state, [SCROLL_STATE_KEY]: key } : { [SCROLL_STATE_KEY]: key }
+}
+
+function findHashTarget(document: Document, url: URL): Element | null {
+  if (!url.hash) return null
+  const id = decodeHash(url.hash)
+  if (!id) return null
+  return document.getElementById(id) ?? document.getElementsByName(id)[0] ?? null
+}
+
+function decodeHash(hash: string): string {
+  try {
+    return decodeURIComponent(hash.slice(1))
+  } catch {
+    return hash.slice(1)
+  }
+}
+
+function findFocusTarget(
+  outlet: Element,
+  match: IktiaRouteMatch,
+  route: IktiaRoute | IktiaFallbackRoute,
+  options: IktiaFocusRestorationOptions
+): Element | null {
+  const routeElement = outlet.firstElementChild ?? outlet
+  return (
+    resolveFocusTarget(route.focusTarget, match, routeElement) ??
+    resolveFocusTarget(options.target, match, routeElement) ??
+    queryWithin(routeElement, "[autofocus]") ??
+    queryWithin(routeElement, "main") ??
+    queryWithin(routeElement, "h1,h2,h3,h4,h5,h6") ??
+    outlet
+  )
+}
+
+function resolveFocusTarget(
+  target: IktiaFocusTarget | undefined,
+  match: IktiaRouteMatch,
+  root: Element
+): Element | null {
+  if (!target) return null
+  if (typeof target === "function") return target(match) ?? null
+  return queryWithin(root, target)
+}
+
+function queryWithin(root: Element, selector: string): Element | null {
+  try {
+    if (root.matches(selector)) return root
+    return root.querySelector(selector)
+  } catch {
+    return null
+  }
+}
+
+function focusElement(element: Element | null): void {
+  if (!element || typeof (element as HTMLElement).focus !== "function") return
+  const focusTarget = element as HTMLElement
+  if (!focusTarget.hasAttribute("tabindex") && !isNaturallyFocusable(focusTarget)) {
+    focusTarget.tabIndex = -1
+  }
+  try {
+    focusTarget.focus({ preventScroll: true })
+  } catch {
+    focusTarget.focus()
+  }
+}
+
+function isNaturallyFocusable(element: HTMLElement): boolean {
+  return element.matches("a[href],button,input,select,textarea,summary,iframe,[tabindex]")
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value))
 }
 
 function createRouteElement(

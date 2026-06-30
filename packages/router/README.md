@@ -5,7 +5,8 @@
 It maps URLs to native elements, lazy-loads route modules, runs abortable route
 loaders and FormData actions, exposes route params and search params, intercepts
 ordinary same-origin anchors and explicit action forms, updates active link
-state, and cancels stale async navigations.
+state, restores scroll and focus after route commits, emits route events, and
+cancels stale async navigations.
 
 ```ts
 import { createRouter, defineRoutes, redirect } from "@iktia/router"
@@ -31,12 +32,17 @@ const routes = defineRoutes([
     props({ params }) {
       return { productId: params.id }
     },
+    focusTarget: "h1,[autofocus]",
   },
 ])
 
 createRouter({
+  focusRestoration: true,
   outlet: document.querySelector("[data-app-outlet]")!,
   routes,
+  scrollRestoration: {
+    getKey: ({ url }) => `${url.pathname}${url.search}`,
+  },
 }).start()
 ```
 
@@ -44,5 +50,19 @@ Route elements receive `element.iktiaRoute`, including `params`, `search`,
 `data`, `actionData`, the current `URL`, and the navigation `AbortSignal`.
 Native forms opt into action handling with `data-iktia-action`.
 
+The router defaults to browser-native app navigation behavior: new route commits
+scroll to the top or hash target, back/forward restores the previous scroll
+position, and focus moves to the route `focusTarget`, then `[autofocus]`, `main`,
+the first heading, or the outlet. Apps that own this behavior can pass
+`scrollRestoration: false`, `focusRestoration: false`, or per-navigation
+`{ scroll: false, focus: false }`. Same-page hash links still fall through to
+native fragment navigation.
+
+Route events are dispatched from the router and the outlet:
+`iktia:navigationstart`, `iktia:navigationcommit`, `iktia:navigationabort`,
+`iktia:navigationerror`, `iktia:routechange`, `iktia:actionstart`,
+`iktia:actioncommit`, and `iktia:actionerror`.
+
 The package is optional. It is not a dependency of generated Iktia components,
-`@iktia/runtime`, or `@iktia/primitives`.
+`@iktia/runtime`, or `@iktia/primitives`, and it does not depend on React,
+Next.js, TanStack Router, Angular, Lit, or a virtual DOM runtime.

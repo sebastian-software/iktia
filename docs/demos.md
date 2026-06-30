@@ -30,7 +30,7 @@ browser page.
 | CSS variable theming | `Counter` and `Toggle` | Host-provided CSS custom properties crossing Shadow DOM, with parts and state attributes as styling hooks |
 | Design-system primitives | `Disclosure` / `x-disclosure`, `Field` / `x-field` | Framework-free primitives with slots, parts, ARIA, `data-state`, typed events, and CSS custom properties |
 | Packaged primitives | `@iktia/primitives` / `iktia-*` | First package-built primitive elements compiled from `.wc.tsx` sources, imported through package exports |
-| Custom Element router | `@iktia/router` / `router-*` | URL-to-Custom-Element routing, lazy route hooks, loaders, actions, params/search exposure, active links, and not-found fallback |
+| Custom Element router | `@iktia/router` / `router-*` | URL-to-Custom-Element routing, lazy route hooks, loaders, actions, params/search exposure, active links, scroll/focus restoration, and not-found fallback |
 | Declarative Shadow DOM | `Counter` and `Toggle` | Prerendered static HTML, `<template shadowrootmode="open">`, DSD-only hydration markers, delayed custom-element upgrade, post-upgrade interactivity |
 
 The examples intentionally use the generated Custom Elements from regular

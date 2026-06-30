@@ -125,11 +125,13 @@ if (routerOutlet && routerSection) {
     {
       path: "/",
       tag: "router-home-view",
+      focusTarget: "h3",
       title: "Iktia demos",
     },
     {
       path: "/products/:id",
       tag: "router-product-view",
+      focusTarget: "h3,[autofocus]",
       load: async () => Promise.resolve(),
       loader({ params, search }) {
         const id = params.id ?? "unknown"
@@ -157,6 +159,7 @@ if (routerOutlet && routerSection) {
     {
       path: "/settings",
       tag: "router-settings-view",
+      focusTarget: "h3",
       load: async () => Promise.resolve(),
     },
   ] as const)

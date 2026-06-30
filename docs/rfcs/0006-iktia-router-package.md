@@ -278,8 +278,12 @@ Route records:
 ```ts
 export type IktiaRoute = {
   readonly path: string
-  readonly tag: string
+  readonly tag?: string
+  readonly createElement?: (match: IktiaRouteMatch) => HTMLElement
+  readonly action?: (args: IktiaActionArgs) => Promise<unknown> | unknown
+  readonly loader?: (args: IktiaLoaderArgs) => Promise<unknown> | unknown
   readonly load?: (navigation: IktiaNavigation) => Promise<unknown>
+  readonly focusTarget?: string | ((match: IktiaRouteMatch) => Element | null | undefined)
   readonly props?: (match: IktiaRouteMatch) => Record<string, unknown>
   readonly attrs?: (match: IktiaRouteMatch) => Record<string, string | null>
   readonly canEnter?: (
@@ -296,11 +300,13 @@ export type IktiaNavigation = {
   readonly id: number
   readonly url: URL
   readonly from: URL | null
-  readonly type: "push" | "replace" | "traverse" | "load"
+  readonly type: "action" | "load" | "push" | "replace" | "traverse"
   readonly signal: AbortSignal
 }
 
 export type IktiaRouteMatch = {
+  readonly actionData?: unknown
+  readonly data?: unknown
   readonly route: IktiaRoute
   readonly url: URL
   readonly params: Readonly<Record<string, string>>
@@ -489,6 +495,40 @@ and:
 
 When enabled and `document.startViewTransition` exists, the router wraps the
 route commit. If the API is missing, navigation still commits normally.
+
+## Scroll And Focus Restoration
+
+The router owns the default app-navigation affordances that browsers normally
+provide for document navigations:
+
+* new push/replace navigations scroll to the top or to the URL hash target;
+* traverse navigations restore the saved scroll position for the history entry;
+* same-page hash links continue to fall through to native fragment navigation;
+* focus moves after a committed route change.
+
+The public surface should stay DOM-native:
+
+```ts
+createRouter({
+  outlet,
+  routes,
+  scrollRestoration: {
+    getKey: ({ url }) => `${url.pathname}${url.search}`,
+  },
+  focusRestoration: true,
+})
+
+router.navigate("/products/123", { scroll: false, focus: false })
+```
+
+Route records may provide `focusTarget` as a selector or callback. If it does
+not resolve, the router falls back to `[autofocus]`, `main`, the first heading,
+and then the outlet. This gives keyboard and assistive-technology users a
+predictable route-change focus point without requiring a framework link
+component.
+
+Apps that fully own restoration can pass `scrollRestoration: false`,
+`focusRestoration: false`, or disable either behavior per navigation.
 
 ## Package Boundary
 
