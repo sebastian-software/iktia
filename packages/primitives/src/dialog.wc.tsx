@@ -21,6 +21,7 @@ import {
 import {
   createIktiaPresenceSnapshot,
   getIktiaPresenceAttributes,
+  getIktiaPresenceMotionAttributes,
   isIktiaPresenceHidden,
   isIktiaPresenceOpen,
   nextIktiaPresenceSnapshot,
@@ -134,6 +135,7 @@ export function IktiaDialog({
         open: isIktiaPresenceOpen(presence()),
       })}
       {...getIktiaPresenceAttributes(presence())}
+      {...getIktiaPresenceMotionAttributes()}
     >
       <button
         {...(dialogApi()?.getTriggerProps() ?? {})}

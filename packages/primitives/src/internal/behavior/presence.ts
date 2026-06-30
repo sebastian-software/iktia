@@ -1,4 +1,4 @@
-import { waitForAnimations } from "@iktia/motion"
+import { spring, waitForAnimations, type IktiaSpringPreset } from "@iktia/motion"
 
 export type IktiaPresencePhase =
   | "closed"
@@ -9,6 +9,10 @@ export type IktiaPresencePhase =
 
 export type IktiaPresenceSnapshot = {
   phase: IktiaPresencePhase
+}
+
+export type IktiaPresenceMotionAttributes = {
+  style: string
 }
 
 export function createIktiaPresenceSnapshot(open: boolean): IktiaPresenceSnapshot {
@@ -52,6 +56,18 @@ export function getIktiaPresenceAttributes({
     "data-ending-style": phase === "closing" ? "" : undefined,
     "data-iktia-presence": phase,
     "data-starting-style": phase === "entering" ? "" : undefined,
+  }
+}
+
+export function getIktiaPresenceMotionAttributes(
+  preset: IktiaSpringPreset = "snappy"
+): IktiaPresenceMotionAttributes {
+  const timing = spring(preset)
+  return {
+    style: [
+      `--iktia-presence-motion-duration: ${timing.duration}ms`,
+      `--iktia-presence-motion-easing: ${timing.easing}`,
+    ].join("; "),
   }
 }
 

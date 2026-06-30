@@ -20,6 +20,7 @@ import {
 import {
   createIktiaPresenceSnapshot,
   getIktiaPresenceAttributes,
+  getIktiaPresenceMotionAttributes,
   isIktiaPresenceHidden,
   isIktiaPresenceOpen,
   nextIktiaPresenceSnapshot,
@@ -243,6 +244,14 @@ describe("primitive behavior kernels", () => {
       "data-iktia-presence": "closing",
       "data-starting-style": undefined,
     })
+  })
+
+  it("maps presence motion to shared spring CSS variables", () => {
+    const motion = getIktiaPresenceMotionAttributes()
+
+    expect(motion.style).toContain("--iktia-presence-motion-duration: ")
+    expect(motion.style).toContain("ms")
+    expect(motion.style).toContain("--iktia-presence-motion-easing: linear(")
   })
 
   it("waits for presence exit animations before settling", async () => {

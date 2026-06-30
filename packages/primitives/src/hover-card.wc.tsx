@@ -21,6 +21,7 @@ import {
 import {
   createIktiaPresenceSnapshot,
   getIktiaPresenceAttributes,
+  getIktiaPresenceMotionAttributes,
   isIktiaPresenceHidden,
   isIktiaPresenceOpen,
   nextIktiaPresenceSnapshot,
@@ -149,6 +150,7 @@ export function IktiaHoverCard({
         open: isIktiaPresenceOpen(presence()),
       })}
       {...getIktiaPresenceAttributes(presence())}
+      {...getIktiaPresenceMotionAttributes()}
     >
       <button
         {...(hoverCardApi()?.getTriggerProps() ?? {})}

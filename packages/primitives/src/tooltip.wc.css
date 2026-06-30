@@ -54,10 +54,12 @@
   transform: translateY(0) scale(1);
   transform-origin: var(--iktia-transform-origin, top left);
   transition:
-    opacity var(--iktia-tooltip-motion-duration, 100ms)
-      var(--iktia-tooltip-motion-easing, ease),
-    transform var(--iktia-tooltip-motion-duration, 100ms)
-      var(--iktia-tooltip-motion-easing, ease);
+    opacity
+      var(--iktia-tooltip-motion-duration, var(--iktia-presence-motion-duration, 100ms))
+      var(--iktia-tooltip-motion-easing, var(--iktia-presence-motion-easing, ease)),
+    transform
+      var(--iktia-tooltip-motion-duration, var(--iktia-presence-motion-duration, 100ms))
+      var(--iktia-tooltip-motion-easing, var(--iktia-presence-motion-easing, ease));
 }
 
 [part~="content"][hidden] {

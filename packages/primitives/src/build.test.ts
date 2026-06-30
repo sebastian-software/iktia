@@ -75,6 +75,7 @@ describe("@iktia/primitives build output", () => {
 
     expect(dropdown).toContain("from \"./internal/behavior/disclosure.js\"")
     expect(hoverCardComponent).toContain("from \"./internal/behavior/presence.js\"")
+    expect(hoverCardComponent).toContain("getIktiaPresenceMotionAttributes")
     expect(popover).toContain("from \"./internal/behavior/overlay.js\"")
     expect(popover).toContain("from \"./internal/behavior/presence.js\"")
     expect(tooltipComponent).toContain("from \"./internal/behavior/presence.js\"")
@@ -82,6 +83,8 @@ describe("@iktia/primitives build output", () => {
     expect(context).toContain("createIktiaContext")
     expect(overlay).toContain("getIktiaOverlayStateAttributes")
     expect(presence).toContain("from \"@iktia/motion\"")
+    expect(presence).toContain("--iktia-presence-motion-duration")
+    expect(presence).toContain("--iktia-presence-motion-easing")
     expect(presence).toContain("waitForIktiaPresenceExit")
     expect(index).not.toContain("internal/behavior")
     expect(dropdown).not.toContain("@iktia/core")

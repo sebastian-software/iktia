@@ -40,8 +40,9 @@
   z-index: 50;
   background: var(--iktia-dialog-backdrop-bg, rgb(15 23 42 / 0.36));
   opacity: 1;
-  transition: opacity var(--iktia-dialog-motion-duration, 120ms)
-    var(--iktia-dialog-motion-easing, ease);
+  transition: opacity
+    var(--iktia-dialog-motion-duration, var(--iktia-presence-motion-duration, 120ms))
+    var(--iktia-dialog-motion-easing, var(--iktia-presence-motion-easing, ease));
 }
 
 [part~="backdrop"][hidden] {
@@ -73,10 +74,12 @@
   transform: translateY(0) scale(1);
   transform-origin: var(--iktia-transform-origin, center);
   transition:
-    opacity var(--iktia-dialog-motion-duration, 120ms)
-      var(--iktia-dialog-motion-easing, ease),
-    transform var(--iktia-dialog-motion-duration, 120ms)
-      var(--iktia-dialog-motion-easing, ease);
+    opacity
+      var(--iktia-dialog-motion-duration, var(--iktia-presence-motion-duration, 120ms))
+      var(--iktia-dialog-motion-easing, var(--iktia-presence-motion-easing, ease)),
+    transform
+      var(--iktia-dialog-motion-duration, var(--iktia-presence-motion-duration, 120ms))
+      var(--iktia-dialog-motion-easing, var(--iktia-presence-motion-easing, ease));
 }
 
 [part~="content"][hidden] {

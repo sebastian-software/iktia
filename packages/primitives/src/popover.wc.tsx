@@ -21,6 +21,7 @@ import {
 import {
   createIktiaPresenceSnapshot,
   getIktiaPresenceAttributes,
+  getIktiaPresenceMotionAttributes,
   isIktiaPresenceHidden,
   isIktiaPresenceOpen,
   nextIktiaPresenceSnapshot,
@@ -113,6 +114,7 @@ export function IktiaPopover({
         open: isIktiaPresenceOpen(presence()),
       })}
       {...getIktiaPresenceAttributes(presence())}
+      {...getIktiaPresenceMotionAttributes()}
     >
       <button
         {...(popoverApi()?.getTriggerProps() ?? {})}

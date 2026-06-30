@@ -21,6 +21,7 @@ import {
 import {
   createIktiaPresenceSnapshot,
   getIktiaPresenceAttributes,
+  getIktiaPresenceMotionAttributes,
   isIktiaPresenceHidden,
   isIktiaPresenceOpen,
   nextIktiaPresenceSnapshot,
@@ -141,6 +142,7 @@ export function IktiaTooltip({
         open: isIktiaPresenceOpen(presence()),
       })}
       {...getIktiaPresenceAttributes(presence())}
+      {...getIktiaPresenceMotionAttributes()}
     >
       <button
         {...(tooltipApi()?.getTriggerProps() ?? {})}
