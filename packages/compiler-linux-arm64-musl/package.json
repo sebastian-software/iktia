@@ -1,11 +1,14 @@
 {
   "name": "@naos-ui/compiler-linux-arm64-musl",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Linux arm64 musl native bindings for @naos-ui/compiler.",
   "license": "Apache-2.0",
   "type": "commonjs",
   "main": "./naos-node.node",
-  "files": ["README.md", "naos-node.node"],
+  "files": [
+    "README.md",
+    "naos-node.node"
+  ],
   "scripts": {
     "build": "node ../compiler/scripts/build-native.mjs"
   },
@@ -21,7 +24,13 @@
   "publishConfig": {
     "access": "public"
   },
-  "os": ["linux"],
-  "cpu": ["arm64"],
-  "libc": ["musl"]
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "libc": [
+    "musl"
+  ]
 }

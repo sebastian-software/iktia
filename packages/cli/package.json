@@ -1,6 +1,6 @@
 {
   "name": "@naos-ui/cli",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Command line tools for compiling and prerendering Naos components.",
   "license": "Apache-2.0",
   "type": "module",
@@ -24,7 +24,9 @@
   "module": "./dist/cli.mjs",
   "types": "./dist/cli.d.mts",
   "sideEffects": false,
-  "files": ["dist/"],
+  "files": [
+    "dist/"
+  ],
   "scripts": {
     "build": "tsdown",
     "check-types": "tsc --noEmit -p tsconfig.json",

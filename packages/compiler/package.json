@@ -1,6 +1,6 @@
 {
   "name": "@naos-ui/compiler",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Thin Node.js wrapper around the Naos native compiler.",
   "license": "Apache-2.0",
   "type": "module",
@@ -21,7 +21,9 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "sideEffects": false,
-  "files": ["dist/"],
+  "files": [
+    "dist/"
+  ],
   "scripts": {
     "build": "tsdown",
     "check-types": "tsc --noEmit -p tsconfig.json",

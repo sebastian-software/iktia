@@ -1,6 +1,6 @@
 {
   "name": "@naos-ui/core",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Authoring API and JSX types for Naos native interface elements.",
   "license": "Apache-2.0",
   "type": "module",
@@ -31,7 +31,9 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "sideEffects": false,
-  "files": ["dist/"],
+  "files": [
+    "dist/"
+  ],
   "scripts": {
     "build": "tsdown",
     "check-types": "tsc --noEmit -p tsconfig.json",
