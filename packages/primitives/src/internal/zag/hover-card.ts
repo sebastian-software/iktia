@@ -8,9 +8,9 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaZagHoverCardService = ReturnType<typeof createZagService>
+export type NaosZagHoverCardService = ReturnType<typeof createZagService>
 
-type IktiaZagHoverCardServiceOptions = {
+type NaosZagHoverCardServiceOptions = {
   closeDelay: number
   disabled: boolean
   host: HTMLElement
@@ -21,7 +21,7 @@ type IktiaZagHoverCardServiceOptions = {
   root: ParentNode
 }
 
-export function createIktiaZagHoverCardService({
+export function createNaosZagHoverCardService({
   closeDelay,
   disabled,
   host,
@@ -30,7 +30,7 @@ export function createIktiaZagHoverCardService({
   open,
   openDelay,
   root,
-}: IktiaZagHoverCardServiceOptions): IktiaZagHoverCardService {
+}: NaosZagHoverCardServiceOptions): NaosZagHoverCardService {
   return createZagService({
     machine: hoverCardMachine as never,
     props: {
@@ -52,15 +52,15 @@ export function createIktiaZagHoverCardService({
   })
 }
 
-export function getIktiaZagHoverCardApi(
-  service: IktiaZagHoverCardService | null
+export function getNaosZagHoverCardApi(
+  service: NaosZagHoverCardService | null
 ): ZagHoverCardApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagHoverCardService(
-  service: IktiaZagHoverCardService | null
+export function stopNaosZagHoverCardService(
+  service: NaosZagHoverCardService | null
 ) {
   service?.stop()
 }

@@ -1,13 +1,13 @@
-# Iktia Documentation
+# Naos Documentation
 
 This directory is the source-level documentation map for the v0.1 prerelease.
-Read it in order when you are new to Iktia; jump to the reference pages when
+Read it in order when you are new to Naos; jump to the reference pages when
 you already know the workflow.
 
 ## Learning Path
 
 1. [Introduction](../README.md)
-   Explains what Iktia is, where it fits, and why the compiler stays narrow.
+   Explains what Naos is, where it fits, and why the compiler stays narrow.
 2. [Quickstart](quickstart.md)
    Installs the packages, configures TypeScript and Vite, writes a component,
    and points to the demo commands.
@@ -22,7 +22,7 @@ you already know the workflow.
    Shows the transform plugin, default `.wc.tsx` filter, and prerender
    metadata behavior.
 6. [CLI](cli.md)
-   Documents `iktia compile`, `iktia prerender`, and `iktia info`.
+   Documents `naos compile`, `naos prerender`, and `naos info`.
 7. [Data Resources](data.md)
    Covers optional fetch and subscription resources for Custom Element data
    loading.
@@ -40,7 +40,7 @@ you already know the workflow.
 Architecture follow-up audits:
 
 * [Base UI primitive architecture audit](base-ui-primitive-architecture-audit.md)
-  maps Base UI's durable primitive lessons to Iktia's Web Components-first
+  maps Base UI's durable primitive lessons to Naos's Web Components-first
   contracts without adopting Base UI as a dependency or API surface.
 
 ## Verification
@@ -53,8 +53,8 @@ pnpm install
 pnpm build:native
 pnpm check-types
 pnpm test
-pnpm --filter @iktia/example-counter build
-pnpm --filter @iktia/example-counter test
+pnpm --filter @naos-ui/example-counter build
+pnpm --filter @naos-ui/example-counter test
 ```
 
 For the exact accepted and rejected TSX boundary, use

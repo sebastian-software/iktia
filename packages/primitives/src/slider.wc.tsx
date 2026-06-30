@@ -8,16 +8,16 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  createIktiaZagSliderService,
-  getIktiaZagSliderApi,
-  stopIktiaZagSliderService,
+  createNaosZagSliderService,
+  getNaosZagSliderApi,
+  stopNaosZagSliderService,
 } from "./internal/zag/slider.js"
-import type { IktiaZagSliderService } from "./internal/zag/slider.js"
+import type { NaosZagSliderService } from "./internal/zag/slider.js"
 import css from "./slider.wc.css?inline"
 
-export type IktiaSliderProps = {
+export type NaosSliderProps = {
   disabled?: boolean
   label?: string
   max?: number
@@ -31,7 +31,7 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaSlider({
+export function NaosSlider({
   disabled = false,
   label = "Slider",
   max = 100,
@@ -39,11 +39,11 @@ export function IktiaSlider({
   name = "",
   step = 1,
   value = 0,
-}: IktiaSliderProps = {}) {
+}: NaosSliderProps = {}) {
   const current = state(value)
-  const sliderService = state<IktiaZagSliderService | null>(null)
-  const sliderApi = computed(() => getIktiaZagSliderApi(sliderService()))
-  const changed = event<{ value: number }>("iktia-change")
+  const sliderService = state<NaosZagSliderService | null>(null)
+  const sliderApi = computed(() => getNaosZagSliderApi(sliderService()))
+  const changed = event<{ value: number }>("naos-change")
   const form = formControl({
     value: () => String(current()),
     reset: () => {
@@ -56,10 +56,10 @@ export function IktiaSlider({
   void name
 
   onConnected(() => {
-    sliderService.set(createIktiaZagSliderService({
+    sliderService.set(createNaosZagSliderService({
       disabled,
       host: host().element,
-      id: "iktia-slider",
+      id: "naos-slider",
       label,
       max,
       min,
@@ -104,7 +104,7 @@ export function IktiaSlider({
     )
   })
   onDisconnected(() => {
-    stopIktiaZagSliderService(sliderService())
+    stopNaosZagSliderService(sliderService())
     sliderService.set(null)
   })
 

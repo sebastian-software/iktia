@@ -1,6 +1,6 @@
 :host {
   display: inline-block;
-  color: var(--iktia-button-fg, #17201b);
+  color: var(--naos-button-fg, #17201b);
   font: inherit;
 }
 
@@ -12,31 +12,31 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--iktia-button-gap, 0.45rem);
-  min-height: var(--iktia-button-min-height, 2.35rem);
-  border: 1px solid var(--iktia-button-border, #26584a);
-  border-radius: var(--iktia-button-radius, 0.375rem);
-  padding: var(--iktia-button-padding, 0.5rem 0.8rem);
-  background: var(--iktia-button-bg, #f3faf6);
+  gap: var(--naos-button-gap, 0.45rem);
+  min-height: var(--naos-button-min-height, 2.35rem);
+  border: 1px solid var(--naos-button-border, #26584a);
+  border-radius: var(--naos-button-radius, 0.375rem);
+  padding: var(--naos-button-padding, 0.5rem 0.8rem);
+  background: var(--naos-button-bg, #f3faf6);
   color: inherit;
   font: inherit;
-  font-weight: var(--iktia-button-weight, 700);
+  font-weight: var(--naos-button-weight, 700);
   cursor: pointer;
 }
 
 button:hover {
-  background: var(--iktia-button-bg-hover, #e2f3ea);
+  background: var(--naos-button-bg-hover, #e2f3ea);
 }
 
 button:focus-visible {
-  outline: 2px solid var(--iktia-focus-ring, #0f766e);
+  outline: 2px solid var(--naos-focus-ring, #0f766e);
   outline-offset: 2px;
 }
 
 button[data-variant="primary"] {
-  border-color: var(--iktia-button-primary-border, #0f766e);
-  background: var(--iktia-button-primary-bg, #0f766e);
-  color: var(--iktia-button-primary-fg, #f8fffb);
+  border-color: var(--naos-button-primary-border, #0f766e);
+  background: var(--naos-button-primary-bg, #0f766e);
+  color: var(--naos-button-primary-fg, #f8fffb);
 }
 
 button[data-variant="ghost"] {

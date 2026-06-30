@@ -4,9 +4,9 @@ import { fileURLToPath } from "node:url"
 
 const rootDir = dirname(fileURLToPath(new URL("../package.json", import.meta.url)))
 const sourceByPlatform = {
-  darwin: "libiktia_node.dylib",
-  linux: "libiktia_node.so",
-  win32: "iktia_node.dll",
+  darwin: "libnaos_node.dylib",
+  linux: "libnaos_node.so",
+  win32: "naos_node.dll",
 }
 
 const sourceFileName = sourceByPlatform[process.platform]
@@ -16,7 +16,7 @@ if (!sourceFileName) {
 
 const sourcePath = join(rootDir, "target", "debug", sourceFileName)
 const targetDir = join(rootDir, "packages", "compiler", "native")
-const targetPath = join(targetDir, "iktia-node.node")
+const targetPath = join(targetDir, "naos-node.node")
 
 mkdirSync(targetDir, { recursive: true })
 copyFileSync(sourcePath, targetPath)

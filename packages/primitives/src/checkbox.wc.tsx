@@ -8,17 +8,17 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
   checkboxStateFor,
-  createIktiaZagCheckboxService,
-  getIktiaZagCheckboxApi,
-  stopIktiaZagCheckboxService,
+  createNaosZagCheckboxService,
+  getNaosZagCheckboxApi,
+  stopNaosZagCheckboxService,
 } from "./internal/zag/checkbox.js"
-import type { IktiaZagCheckboxService } from "./internal/zag/checkbox.js"
+import type { NaosZagCheckboxService } from "./internal/zag/checkbox.js"
 import css from "./checkbox.wc.css?inline"
 
-export type IktiaCheckboxProps = {
+export type NaosCheckboxProps = {
   checked?: boolean
   disabled?: boolean
   indeterminate?: boolean
@@ -31,19 +31,19 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaCheckbox({
+export function NaosCheckbox({
   checked = false,
   disabled = false,
   indeterminate = false,
   label = "Checkbox",
   name = "",
   value = "on",
-}: IktiaCheckboxProps = {}) {
+}: NaosCheckboxProps = {}) {
   const selected = state(checked)
   const mixed = state(indeterminate)
-  const checkboxService = state<IktiaZagCheckboxService | null>(null)
-  const checkboxApi = computed(() => getIktiaZagCheckboxApi(checkboxService()))
-  const changed = event<{ checked: boolean; indeterminate: boolean }>("iktia-change")
+  const checkboxService = state<NaosZagCheckboxService | null>(null)
+  const checkboxApi = computed(() => getNaosZagCheckboxApi(checkboxService()))
+  const changed = event<{ checked: boolean; indeterminate: boolean }>("naos-change")
   const form = formControl({
     value: () => (selected() ? value : null),
     reset: () => {
@@ -57,11 +57,11 @@ export function IktiaCheckbox({
   void name
 
   onConnected(() => {
-    checkboxService.set(createIktiaZagCheckboxService({
+    checkboxService.set(createNaosZagCheckboxService({
       checked: selected(),
       disabled,
       host: host().element,
-      id: "iktia-checkbox",
+      id: "naos-checkbox",
       indeterminate: mixed(),
       onCheckedChange(details) {
         selected.set(details.checked)
@@ -73,7 +73,7 @@ export function IktiaCheckbox({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagCheckboxService(checkboxService())
+    stopNaosZagCheckboxService(checkboxService())
     checkboxService.set(null)
   })
 

@@ -5,7 +5,7 @@ Date: 2026-06-18
 
 ## Summary
 
-Turn `@iktia/primitives` into a Zag-backed Core Design System package. Iktia
+Turn `@naos-ui/primitives` into a Zag-backed Core Design System package. Naos
 will keep the public API, Custom Element output, slots, parts, form behavior,
 events, and CSS custom properties. Zag machines will provide internal behavior
 for complex state, ARIA wiring, keyboard interaction, focus management,
@@ -25,15 +25,15 @@ Specialized widgets remain deferred until the core component set is stable.
 
 ## Decisions
 
-* Zag packages are acceptable runtime dependencies for `@iktia/primitives`.
-* Zag APIs remain private implementation details. Users import only Iktia
+* Zag packages are acceptable runtime dependencies for `@naos-ui/primitives`.
+* Zag APIs remain private implementation details. Users import only Naos
   primitives.
 * Existing simple primitives should migrate to Zag when a matching Zag machine
   exists and the public DOM contract can be preserved.
-* Public Iktia events remain Iktia-prefixed, such as `iktia-change`,
-  `iktia-open-change`, `iktia-select`, `iktia-input`, and `iktia-invalid`.
+* Public Naos events remain Naos-prefixed, such as `naos-change`,
+  `naos-open-change`, `naos-select`, `naos-input`, and `naos-invalid`.
 * Public item APIs use subcomponents rather than array-only props, for example
-  `<iktia-select-item>` and `<iktia-tab-panel>`.
+  `<naos-select-item>` and `<naos-tab-panel>`.
 * The compiler must support JSX spread on native elements so Zag prop bags can
   be applied without manual attribute and listener mapping.
 * Components remain experimental until form, keyboard, focus, Shadow DOM, and
@@ -102,15 +102,15 @@ public contract can be preserved.
 
 Initial migration targets:
 
-* `<iktia-checkbox>` -> `@zag-js/checkbox`
-* `<iktia-toggle>` -> `@zag-js/toggle`
-* `<iktia-tabs>` -> `@zag-js/tabs`
+* `<naos-checkbox>` -> `@zag-js/checkbox`
+* `<naos-toggle>` -> `@zag-js/toggle`
+* `<naos-tabs>` -> `@zag-js/tabs`
 
 Keep native or structural components as-is unless Zag adds clear value:
 
-* `<iktia-button>` remains a native button primitive.
-* `<iktia-field>` remains a label, hint, status, and layout shell.
-* `<iktia-button-group>` remains structural until a segmented or toggle-group
+* `<naos-button>` remains a native button primitive.
+* `<naos-field>` remains a label, hint, status, and layout shell.
+* `<naos-button-group>` remains structural until a segmented or toggle-group
   primitive is added.
 
 Acceptance criteria:
@@ -118,7 +118,7 @@ Acceptance criteria:
 * Existing browser tests still pass.
 * `name`, `value`, reset, disabled fieldset propagation, and `FormData` still
   work for custom form controls.
-* Existing Iktia events keep their names and payload shape unless a separate RFC
+* Existing Naos events keep their names and payload shape unless a separate RFC
   accepts a breaking change.
 
 ### M4: Core Collection Components
@@ -127,13 +127,13 @@ Add collection-driven primitives using subcomponent public APIs.
 
 Components:
 
-* Tabs: `<iktia-tabs>`, `<iktia-tab>`, `<iktia-tab-panel>`
-* Radio: `<iktia-radio-group>`, `<iktia-radio>`
-* Segmented controls: `<iktia-segmented-control>`, `<iktia-segmented-item>`
-* Toggle groups: `<iktia-toggle-group>`, `<iktia-toggle-item>`
-* Selection: `<iktia-select>`, `<iktia-select-item>`
-* Combobox: `<iktia-combobox>`, `<iktia-combobox-item>`
-* Listbox: `<iktia-listbox>`, `<iktia-listbox-item>`
+* Tabs: `<naos-tabs>`, `<naos-tab>`, `<naos-tab-panel>`
+* Radio: `<naos-radio-group>`, `<naos-radio>`
+* Segmented controls: `<naos-segmented-control>`, `<naos-segmented-item>`
+* Toggle groups: `<naos-toggle-group>`, `<naos-toggle-item>`
+* Selection: `<naos-select>`, `<naos-select-item>`
+* Combobox: `<naos-combobox>`, `<naos-combobox-item>`
+* Listbox: `<naos-listbox>`, `<naos-listbox-item>`
 
 Implementation rules:
 
@@ -158,14 +158,14 @@ transitive helpers.
 
 Components:
 
-* `<iktia-menu>`, `<iktia-menu-item>`
-* `<iktia-context-menu>`
-* `<iktia-dialog>`
-* `<iktia-popover>`
-* `<iktia-tooltip>`
-* `<iktia-hover-card>`
-* `<iktia-accordion>`, `<iktia-accordion-item>`
-* `<iktia-collapsible>`
+* `<naos-menu>`, `<naos-menu-item>`
+* `<naos-context-menu>`
+* `<naos-dialog>`
+* `<naos-popover>`
+* `<naos-tooltip>`
+* `<naos-hover-card>`
+* `<naos-accordion>`, `<naos-accordion-item>`
+* `<naos-collapsible>`
 
 Implementation rules:
 
@@ -187,21 +187,21 @@ Add form and input primitives where Zag saves significant behavior work.
 
 Components:
 
-* `<iktia-switch>`
-* `<iktia-number-input>`
-* `<iktia-slider>`
-* `<iktia-pin-input>`
-* `<iktia-tags-input>`
-* `<iktia-file-upload>`
-* `<iktia-rating-group>`
-* `<iktia-date-picker>`
-* `<iktia-editable>`
+* `<naos-switch>`
+* `<naos-number-input>`
+* `<naos-slider>`
+* `<naos-pin-input>`
+* `<naos-tags-input>`
+* `<naos-file-upload>`
+* `<naos-rating-group>`
+* `<naos-date-picker>`
+* `<naos-editable>`
 
 Implementation rules:
 
-* Use `formControl()` as the Iktia form bridge whenever a custom element
+* Use `formControl()` as the Naos form bridge whenever a custom element
   represents a submitted value.
-* Zag owns interaction behavior; Iktia owns native form integration.
+* Zag owns interaction behavior; Naos owns native form integration.
 * Native browser inputs remain preferred when styling and behavior requirements
   can be met without rebuilding the control.
 
@@ -219,10 +219,10 @@ Add feedback primitives after forms, overlays, and collections are stable.
 
 Components:
 
-* `<iktia-progress>`
-* `<iktia-avatar>`
-* `<iktia-toast>` plus a minimal toast root custom element.
-* `<iktia-presence>` only if it becomes useful as an internal animation or
+* `<naos-progress>`
+* `<naos-avatar>`
+* `<naos-toast>` plus a minimal toast root custom element.
+* `<naos-presence>` only if it becomes useful as an internal animation or
   mount/unmount primitive.
 
 Acceptance criteria:
@@ -245,7 +245,7 @@ Deliverables:
 
 Acceptance criteria:
 
-* Users can install `@iktia/primitives`, import components, customize styling,
+* Users can install `@naos-ui/primitives`, import components, customize styling,
   and understand experimental limitations from docs alone.
 * Browser tests pass in Chromium, Firefox, and WebKit.
 * Workspace checks remain green.
@@ -279,11 +279,11 @@ support, and component families are proven in production-shaped tests.
 Required checks for each implementation milestone:
 
 ```sh
-cargo test -p iktia-core
-pnpm --filter @iktia/primitives build
-pnpm --filter @iktia/primitives check-types
-pnpm --filter @iktia/primitives test
-pnpm --filter @iktia/example-counter test
+cargo test -p naos-core
+pnpm --filter @naos-ui/primitives build
+pnpm --filter @naos-ui/primitives check-types
+pnpm --filter @naos-ui/primitives test
+pnpm --filter @naos-ui/example-counter test
 pnpm check-types
 pnpm check:docs
 pnpm check-release-set

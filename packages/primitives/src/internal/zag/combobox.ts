@@ -9,20 +9,20 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaComboboxItem = {
+export type NaosComboboxItem = {
   disabled: boolean
   label: string
   value: string
 }
 
-export type IktiaZagComboboxService = ReturnType<typeof createZagService>
+export type NaosZagComboboxService = ReturnType<typeof createZagService>
 
-type IktiaZagComboboxServiceOptions = {
+type NaosZagComboboxServiceOptions = {
   disabled: boolean
   host: HTMLElement
   id: string
   inputValue: string
-  items: IktiaComboboxItem[]
+  items: NaosComboboxItem[]
   name: string
   onInputValueChange(value: string): void
   onOpenChange(open: boolean): void
@@ -32,23 +32,23 @@ type IktiaZagComboboxServiceOptions = {
   value: string
 }
 
-type IktiaComboboxItemElement = HTMLElement & {
+type NaosComboboxItemElement = HTMLElement & {
   disabled?: boolean
   label?: string
   value?: string
 }
 
-type SyncIktiaComboboxItemsOptions = {
+type SyncNaosComboboxItemsOptions = {
   api: ZagComboboxApi
   disabled: boolean
   host: HTMLElement
   onRequestUpdate(): void
 }
 
-const comboboxItemSelector = "iktia-combobox-item"
+const comboboxItemSelector = "naos-combobox-item"
 
-export function collectIktiaComboboxItems(host: HTMLElement): IktiaComboboxItem[] {
-  return Array.from(host.querySelectorAll<IktiaComboboxItemElement>(comboboxItemSelector))
+export function collectNaosComboboxItems(host: HTMLElement): NaosComboboxItem[] {
+  return Array.from(host.querySelectorAll<NaosComboboxItemElement>(comboboxItemSelector))
     .map((element) => {
       const value = element.value ?? element.getAttribute("value") ?? ""
       const label =
@@ -65,11 +65,11 @@ export function collectIktiaComboboxItems(host: HTMLElement): IktiaComboboxItem[
     .filter((item) => item.value.length > 0)
 }
 
-export function labelForIktiaComboboxValue(host: HTMLElement, value: string) {
-  return collectIktiaComboboxItems(host).find((item) => item.value === value)?.label ?? ""
+export function labelForNaosComboboxValue(host: HTMLElement, value: string) {
+  return collectNaosComboboxItems(host).find((item) => item.value === value)?.label ?? ""
 }
 
-export function createIktiaZagComboboxService({
+export function createNaosZagComboboxService({
   disabled,
   host,
   id,
@@ -82,7 +82,7 @@ export function createIktiaZagComboboxService({
   placeholder,
   root,
   value,
-}: IktiaZagComboboxServiceOptions): IktiaZagComboboxService {
+}: NaosZagComboboxServiceOptions): NaosZagComboboxService {
   return createZagService({
     machine: comboboxMachine as never,
     props: {
@@ -116,30 +116,30 @@ export function createIktiaZagComboboxService({
   })
 }
 
-export function getIktiaZagComboboxApi(
-  service: IktiaZagComboboxService | null
+export function getNaosZagComboboxApi(
+  service: NaosZagComboboxService | null
 ): ZagComboboxApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagComboboxService(
-  service: IktiaZagComboboxService | null
+export function stopNaosZagComboboxService(
+  service: NaosZagComboboxService | null
 ) {
   service?.stop()
 }
 
-export function syncIktiaComboboxItems({
+export function syncNaosComboboxItems({
   api,
   disabled,
   host,
   onRequestUpdate,
-}: SyncIktiaComboboxItemsOptions) {
+}: SyncNaosComboboxItemsOptions) {
   const cleanups: VoidFunction[] = []
-  const items = collectIktiaComboboxItems(host)
+  const items = collectNaosComboboxItems(host)
 
   for (const item of items) {
-    const element = host.querySelector<IktiaComboboxItemElement>(
+    const element = host.querySelector<NaosComboboxItemElement>(
       `${comboboxItemSelector}[value="${cssEscape(item.value)}"]`
     )
     if (element == null) continue
@@ -160,7 +160,7 @@ export function syncIktiaComboboxItems({
   }
 }
 
-function createComboboxCollection(items: IktiaComboboxItem[]) {
+function createComboboxCollection(items: NaosComboboxItem[]) {
   return comboboxCollection({
     items,
     isItemDisabled: (item) => item.disabled,
@@ -178,8 +178,8 @@ function syncComboboxItem({
 }: {
   api: ZagComboboxApi
   disabled: boolean
-  element: IktiaComboboxItemElement
-  item: IktiaComboboxItem
+  element: NaosComboboxItemElement
+  item: NaosComboboxItem
   onRequestUpdate(): void
 }) {
   const itemState = api.getItemState({ item })

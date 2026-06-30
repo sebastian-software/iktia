@@ -1,17 +1,17 @@
 {
-  "name": "@iktia/cli",
+  "name": "@naos-ui/cli",
   "version": "0.0.0",
-  "description": "Command line tools for compiling and prerendering Iktia components.",
+  "description": "Command line tools for compiling and prerendering Naos components.",
   "license": "Apache-2.0",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sebastian-software/iktia.git",
+    "url": "git+https://github.com/sebastian-software/naos-ui.git",
     "directory": "packages/cli"
   },
-  "bugs": "https://github.com/sebastian-software/iktia/issues",
+  "bugs": "https://github.com/sebastian-software/naos-ui/issues",
   "bin": {
-    "iktia": "./dist/cli.mjs"
+    "naos": "./dist/cli.mjs"
   },
   "exports": {
     ".": {
@@ -37,7 +37,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@iktia/compiler": "workspace:^"
+    "@naos-ui/compiler": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "^25.0.0",

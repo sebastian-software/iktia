@@ -5,8 +5,8 @@ Status: Accepted audit for issue #77
 
 ## Summary
 
-Base UI is a useful reference for Iktia primitive architecture, but it is not a
-dependency target and its React API surface is not an Iktia API model. The
+Base UI is a useful reference for Naos primitive architecture, but it is not a
+dependency target and its React API surface is not an Naos API model. The
 durable lessons are:
 
 * anatomy-first primitive parts;
@@ -19,10 +19,10 @@ durable lessons are:
   display, and server validation results;
 * typed per-component contract docs.
 
-Iktia should translate those lessons into its existing Web Components-first
+Naos should translate those lessons into its existing Web Components-first
 surface: custom elements, Shadow DOM, Light DOM slots, `part`, `data-*` state,
 ARIA, CSS custom properties, `formControl()`, package-private behavior kernels,
-and the `@iktia/primitives` package boundary. It should not add React, Base UI,
+and the `@naos-ui/primitives` package boundary. It should not add React, Base UI,
 Radix, MUI, a virtual DOM, or a framework adapter runtime.
 
 ## Sources Reviewed
@@ -37,77 +37,77 @@ Primary Base UI sources:
 * [TypeScript](https://base-ui.com/react/handbook/typescript.md)
 * [Base UI repository](https://github.com/mui/base-ui)
 
-Local Iktia sources:
+Local Naos sources:
 
-* [RFC 0001: Iktia Primitives Package](rfcs/0001-iktia-primitives-package.md)
+* [RFC 0001: Naos Primitives Package](rfcs/0001-naos-primitives-package.md)
 * [RFC 0002: Zag-Backed Primitives Roadmap](rfcs/0002-zag-backed-primitives-roadmap.md)
-* [RFC 0006: Iktia Router Package](rfcs/0006-iktia-router-package.md)
+* [RFC 0006: Naos Router Package](rfcs/0006-naos-router-package.md)
 * [ADR 0004: No Framework Runtime](adrs/0004-no-framework-runtime.md)
 * [ADR 0008: Primitive Contracts With Parts, Slots, And Data State](adrs/0008-primitive-contracts-parts-slots-data-state.md)
 * [ADR 0017: Theme Package And Token Boundary](adrs/0017-theme-package-and-token-boundary.md)
 * [ADR 0018: Form-Associated Custom Element Support](adrs/0018-form-associated-custom-element-support.md)
-* [`@iktia/primitives` README](../packages/primitives/README.md)
+* [`@naos-ui/primitives` README](../packages/primitives/README.md)
 
 ## Base UI Pattern Translation
 
-| Base UI pattern | React-specific shape | Iktia translation | Decision |
+| Base UI pattern | React-specific shape | Naos translation | Decision |
 | --- | --- | --- | --- |
-| One tree-shakable package with subpath imports | `@base-ui/react/popover` | Keep `@iktia/primitives` as one package with per-component subpath imports. | Adopt as package ergonomics. |
+| One tree-shakable package with subpath imports | `@base-ui/react/popover` | Keep `@naos-ui/primitives` as one package with per-component subpath imports. | Adopt as package ergonomics. |
 | Anatomy parts | `Root`, `Trigger`, `Portal`, `Positioner`, `Popup`, `Arrow`, `Item` | Custom elements and internal parts with stable slots, `part`, ARIA, and state attributes. | Adopt concept, not names wholesale. |
 | Styling hooks | `className`, stateful `className` functions, stateful `style` functions, data attributes, CSS variables | Do not add React-style styling callbacks. Use `part`, `data-*`, ARIA, CSS custom properties, and theme tokens. | Adopt state/variable contract only. |
-| Dynamic geometry variables | `--available-height`, `--anchor-width`, `--transform-origin`, popup dimensions | Publish `--iktia-anchor-width`, `--iktia-anchor-height`, `--iktia-available-width`, `--iktia-available-height`, `--iktia-popup-width`, `--iktia-popup-height`, and `--iktia-transform-origin` where applicable. | Add to overlay docs/tests. |
+| Dynamic geometry variables | `--available-height`, `--anchor-width`, `--transform-origin`, popup dimensions | Publish `--naos-anchor-width`, `--naos-anchor-height`, `--naos-available-width`, `--naos-available-height`, `--naos-popup-width`, `--naos-popup-height`, and `--naos-transform-origin` where applicable. | Add to overlay docs/tests. |
 | Render composition | `render={<MyButton />}` or render function that receives props/state | Prefer Light DOM triggers, named slots, child custom elements, and package-private context. Use issue #38 only for behavior attachment where a real host-node override is needed. | Do not copy React `render`. |
 | Nested trigger composition | Tooltip trigger wrapping Dialog trigger wrapping Menu trigger | Define compound-trigger rules for tooltip/dialog/menu/popover when the same Light DOM node participates in multiple behaviors. | Needs conformance tests. |
-| Portal setup | `Portal`, `Positioner`, app root `isolation: isolate`, iOS visual viewport note | Define Iktia overlay root guidance and viewport/backdrop rules independent of React portals. | Add overlay architecture follow-up. |
+| Portal setup | `Portal`, `Positioner`, app root `isolation: isolate`, iOS visual viewport note | Define Naos overlay root guidance and viewport/backdrop rules independent of React portals. | Add overlay architecture follow-up. |
 | Animation lifecycle | `data-starting-style`, `data-ending-style`, `data-open`, `data-closed`, `keepMounted`, `actionsRef`, `getAnimations()` | Add a transient-ui lifecycle for entering, open, closing, and unmounted states. Prefer CSS transitions and use `Element.getAnimations()` for teardown when the primitive owns unmounting. | Feed #36 and #70. |
-| Forms | Base UI field/form abstractions, native constraint validation, server errors, React Hook Form/TanStack integrations | Iktia should use native `<form>`, `FormData`, `ElementInternals`, `formControl()`, `setValidity()`, field state, and router/action integration. | Feed #72 and #73. |
+| Forms | Base UI field/form abstractions, native constraint validation, server errors, React Hook Form/TanStack integrations | Naos should use native `<form>`, `FormData`, `ElementInternals`, `formControl()`, `setValidity()`, field state, and router/action integration. | Feed #72 and #73. |
 | Typed component contracts | part namespaces with `Props`, `State`, event detail types | Generate or maintain contract tables for attributes, properties, events, parts, slots, CSS variables, and form behavior. | Add docs metadata follow-up. |
 
 ## Component Coverage Matrix
 
-The priority ranks architectural value for Iktia, not user-facing popularity.
+The priority ranks architectural value for Naos, not user-facing popularity.
 
-| Base UI component | Iktia current status | Architectural value | Dependencies | Priority |
+| Base UI component | Naos current status | Architectural value | Dependencies | Priority |
 | --- | --- | --- | --- | --- |
-| Accordion | `<iktia-accordion>` / item exist, Zag-backed. | Disclosure, roving focus, nested state. | Context/request, keyboard tests. | P1 stabilize. |
-| Alert Dialog | No dedicated component; `<iktia-dialog>` exists. | Modal semantics, destructive action patterns. | Dialog overlay kernel, focus trap. | P2 after dialog contract. |
-| Autocomplete | No separate primitive; `<iktia-combobox>` exists. | Filtering, input/listbox coordination. | Combobox collection, form control. | P2 split only if UX differs. |
-| Avatar | `<iktia-avatar>` exists. | Feedback/loading state. | Image loading tests. | P3. |
-| Button | `<iktia-button>` exists. | Native baseline and event naming. | Native button semantics. | P1 stabilize. |
-| Checkbox | `<iktia-checkbox>` exists, form-associated MVP. | Native form contract. | Validation, labels, reset tests. | P1 stabilize. |
+| Accordion | `<naos-accordion>` / item exist, Zag-backed. | Disclosure, roving focus, nested state. | Context/request, keyboard tests. | P1 stabilize. |
+| Alert Dialog | No dedicated component; `<naos-dialog>` exists. | Modal semantics, destructive action patterns. | Dialog overlay kernel, focus trap. | P2 after dialog contract. |
+| Autocomplete | No separate primitive; `<naos-combobox>` exists. | Filtering, input/listbox coordination. | Combobox collection, form control. | P2 split only if UX differs. |
+| Avatar | `<naos-avatar>` exists. | Feedback/loading state. | Image loading tests. | P3. |
+| Button | `<naos-button>` exists. | Native baseline and event naming. | Native button semantics. | P1 stabilize. |
+| Checkbox | `<naos-checkbox>` exists, form-associated MVP. | Native form contract. | Validation, labels, reset tests. | P1 stabilize. |
 | Checkbox Group | Not present. | Multi-value form state. | Multi-value `formControl()` contract. | P2. |
-| Collapsible | `<iktia-collapsible>` exists. | Disclosure baseline. | ARIA and hidden-state tests. | P1 stabilize. |
-| Combobox | `<iktia-combobox>` / item exist. | Collection, typeahead, popup, form control. | Overlay, collection, form. | P1 stabilize. |
-| Context Menu | `<iktia-context-menu>` exists. | Pointer anchoring and menu behavior. | Overlay kernel, nested menus later. | P2. |
-| Dialog | `<iktia-dialog>` exists. | Modal stack, focus trap, inert policy. | Overlay kernel. | P1 stabilize. |
+| Collapsible | `<naos-collapsible>` exists. | Disclosure baseline. | ARIA and hidden-state tests. | P1 stabilize. |
+| Combobox | `<naos-combobox>` / item exist. | Collection, typeahead, popup, form control. | Overlay, collection, form. | P1 stabilize. |
+| Context Menu | `<naos-context-menu>` exists. | Pointer anchoring and menu behavior. | Overlay kernel, nested menus later. | P2. |
+| Dialog | `<naos-dialog>` exists. | Modal stack, focus trap, inert policy. | Overlay kernel. | P1 stabilize. |
 | Drawer | Not present. | Modal overlay plus visual-viewport/backdrop stress case. | Dialog kernel, animation lifecycle. | P2 after dialog. |
-| Field | `<iktia-field>` exists. | Label, hint, status, error structure. | Form state docs. | P1 stabilize. |
+| Field | `<naos-field>` exists. | Label, hint, status, error structure. | Form state docs. | P1 stabilize. |
 | Fieldset | No dedicated custom element. | Group labels and disabled propagation. | Native fieldset mapping. | P2. |
 | Form | No primitive form wrapper. | Submission status, server errors, action bridge. | #72, #73, router actions. | P1 design. |
-| Input | No dedicated `<iktia-input>` in package despite RFC candidate. | Native entry baseline, labels, validation. | `formControl()` or slotted input policy. | P1 add or document non-goal. |
-| Menu | `<iktia-menu>` / item exist. | Roving focus, typeahead, dismiss, selection. | Overlay kernel. | P1 stabilize. |
+| Input | No dedicated `<naos-input>` in package despite RFC candidate. | Native entry baseline, labels, validation. | `formControl()` or slotted input policy. | P1 add or document non-goal. |
+| Menu | `<naos-menu>` / item exist. | Roving focus, typeahead, dismiss, selection. | Overlay kernel. | P1 stabilize. |
 | Menubar | Not present. | Horizontal menu and nested composite focus. | Menu stabilization. | P3. |
 | Meter | Not present. | Low-risk feedback semantics. | Native meter comparison. | P3. |
 | Navigation Menu | Not present. | Composite links and disclosure navigation. | Menu/popover/link composition. | P3. |
-| Number Field | `<iktia-number-input>` exists. | Custom input, steppers, validation. | Form control, keyboard tests. | P1 stabilize. |
-| OTP Field | `<iktia-pin-input>` exists as equivalent. | Multi-cell input and paste behavior. | Form control, focus management. | P2. |
-| Popover | `<iktia-popover>` exists. | Non-modal overlay kernel. | Positioner, outside dismiss, animation. | P1 stabilize. |
-| Preview Card | `<iktia-hover-card>` exists as equivalent. | Hover/focus preview and delay groups. | Overlay kernel. | P2. |
-| Progress | `<iktia-progress>` exists. | Feedback ARIA baseline. | Value semantics. | P3. |
-| Radio | `<iktia-radio-group>` / radio exist. | Single-value form collection. | Form control, roving focus. | P1 stabilize. |
+| Number Field | `<naos-number-input>` exists. | Custom input, steppers, validation. | Form control, keyboard tests. | P1 stabilize. |
+| OTP Field | `<naos-pin-input>` exists as equivalent. | Multi-cell input and paste behavior. | Form control, focus management. | P2. |
+| Popover | `<naos-popover>` exists. | Non-modal overlay kernel. | Positioner, outside dismiss, animation. | P1 stabilize. |
+| Preview Card | `<naos-hover-card>` exists as equivalent. | Hover/focus preview and delay groups. | Overlay kernel. | P2. |
+| Progress | `<naos-progress>` exists. | Feedback ARIA baseline. | Value semantics. | P3. |
+| Radio | `<naos-radio-group>` / radio exist. | Single-value form collection. | Form control, roving focus. | P1 stabilize. |
 | Scroll Area | Not present. | Styling and scroll affordances. | Native scrollbar policy. | P3 reference only. |
-| Select | `<iktia-select>` / item exist. | Collection, popup, typeahead, form. | Overlay, collection, form. | P1 stabilize. |
+| Select | `<naos-select>` / item exist. | Collection, popup, typeahead, form. | Overlay, collection, form. | P1 stabilize. |
 | Separator | Not present. | Low-risk structural primitive. | ARIA orientation. | P3. |
-| Slider | `<iktia-slider>` exists. | Pointer/keyboard/input value bridge. | Form control, touch tests. | P1 stabilize. |
-| Switch | `<iktia-switch>` exists. | Boolean form control. | Label and validation policy. | P1 stabilize. |
-| Tabs | `<iktia-tabs>` / tab / panel exist. | Roving focus and panel linkage. | Context, keyboard tests. | P1 stabilize. |
-| Toast | `<iktia-toast>` / root exist. | Transient lifecycle and stacked layout. | Animation lifecycle, live region docs. | P2. |
-| Toggle | `<iktia-toggle>` exists. | Pressed state and form value bridge. | Form control. | P2. |
-| Toggle Group | `<iktia-toggle-group>` / item exist. | Single/multiple collection value. | Multi-value form contract. | P2. |
+| Slider | `<naos-slider>` exists. | Pointer/keyboard/input value bridge. | Form control, touch tests. | P1 stabilize. |
+| Switch | `<naos-switch>` exists. | Boolean form control. | Label and validation policy. | P1 stabilize. |
+| Tabs | `<naos-tabs>` / tab / panel exist. | Roving focus and panel linkage. | Context, keyboard tests. | P1 stabilize. |
+| Toast | `<naos-toast>` / root exist. | Transient lifecycle and stacked layout. | Animation lifecycle, live region docs. | P2. |
+| Toggle | `<naos-toggle>` exists. | Pressed state and form value bridge. | Form control. | P2. |
+| Toggle Group | `<naos-toggle-group>` / item exist. | Single/multiple collection value. | Multi-value form contract. | P2. |
 | Toolbar | Not present. | Composite focus grouping. | Roving focus kernel. | P3. |
-| Tooltip | `<iktia-tooltip>` exists. | Non-interactive overlay and trigger composition. | Overlay kernel, compound triggers. | P1 stabilize. |
+| Tooltip | `<naos-tooltip>` exists. | Non-interactive overlay and trigger composition. | Overlay kernel, compound triggers. | P1 stabilize. |
 
-Iktia also has primitives that Base UI does not frame the same way: date picker,
+Naos also has primitives that Base UI does not frame the same way: date picker,
 editable, file upload, listbox, rating group, segmented control, and tags input.
 Those should stay in the Zag-backed roadmap and use the same audit conclusions:
 stable DOM contracts first, package-private behavior second, docs/tests before
@@ -115,11 +115,11 @@ stability.
 
 ## Overlay Architecture
 
-Base UI's overlay architecture is the highest-value reference area for Iktia.
-Iktia already has overlay primitives, but they need one shared contract instead
+Base UI's overlay architecture is the highest-value reference area for Naos.
+Naos already has overlay primitives, but they need one shared contract instead
 of per-component accidental behavior.
 
-The Iktia overlay contract should define:
+The Naos overlay contract should define:
 
 * **Portal target**: where floating content is moved or rendered, how the target
   is selected, and how Shadow DOM ownership is preserved.
@@ -148,15 +148,15 @@ Recommended public names for dynamic overlay variables:
 
 | Variable | Meaning |
 | --- | --- |
-| `--iktia-anchor-width` | Anchor border-box width. |
-| `--iktia-anchor-height` | Anchor border-box height. |
-| `--iktia-available-width` | Available collision-aware width. |
-| `--iktia-available-height` | Available collision-aware height. |
-| `--iktia-popup-width` | Resolved popup width, when measured. |
-| `--iktia-popup-height` | Resolved popup height, when measured. |
-| `--iktia-positioner-width` | Positioner width, when the positioner is a distinct part. |
-| `--iktia-positioner-height` | Positioner height, when the positioner is a distinct part. |
-| `--iktia-transform-origin` | Transform origin for scale/opacity transitions. |
+| `--naos-anchor-width` | Anchor border-box width. |
+| `--naos-anchor-height` | Anchor border-box height. |
+| `--naos-available-width` | Available collision-aware width. |
+| `--naos-available-height` | Available collision-aware height. |
+| `--naos-popup-width` | Resolved popup width, when measured. |
+| `--naos-popup-height` | Resolved popup height, when measured. |
+| `--naos-positioner-width` | Positioner width, when the positioner is a distinct part. |
+| `--naos-positioner-height` | Positioner height, when the positioner is a distinct part. |
+| `--naos-transform-origin` | Transform origin for scale/opacity transitions. |
 
 Recommended public state attributes:
 
@@ -176,7 +176,7 @@ root stacking guidance and visual-viewport policy.
 ## Animation Lifecycle
 
 `data-state="open|closed"` is insufficient for polished transient UI because a
-component can be logically closed while still mounted for exit animation. Iktia
+component can be logically closed while still mounted for exit animation. Naos
 should define a lifecycle that every overlay and toast-like primitive can share:
 
 | Phase | Mounted | Suggested public hook | Meaning |
@@ -187,11 +187,11 @@ should define a lifecycle that every overlay and toast-like primitive can share:
 | `closed` | Optional | `data-state="closed"` | Element is kept mounted by user or primitive policy. |
 | `unmounted` | No | None | Element has been removed after teardown. |
 
-Iktia should prefer CSS transitions for cancellable state changes. When a
+Naos should prefer CSS transitions for cancellable state changes. When a
 primitive owns unmounting, it should wait for `Element.getAnimations()` on the
 popup/root nodes before removing DOM, with a timeout or abort path so teardown
 cannot hang. A public `keepMounted`-equivalent can be considered, but it should
-be named and typed as an Iktia property, not copied from Base UI by default.
+be named and typed as an Naos property, not copied from Base UI by default.
 
 Follow-up: issue #36 should own the generic transient lifecycle and animation
 teardown rules. Issue #70 should reuse the same lifecycle for router view
@@ -200,10 +200,10 @@ transitions instead of creating a parallel mount model.
 ## Forms Architecture
 
 Base UI's forms work confirms that forms should be platform infrastructure, not
-a component-library afterthought. Iktia has the stronger native path because it
+a component-library afterthought. Naos has the stronger native path because it
 targets Custom Elements and already has ADR 0018 plus `formControl()`.
 
-Iktia form primitives should converge on this contract:
+Naos form primitives should converge on this contract:
 
 * native `<form>` submission and `FormData` remain the source of truth;
 * custom controls use Form-Associated Custom Elements when they submit values;
@@ -223,9 +223,9 @@ The split should be:
 
 | Owner | Responsibility |
 | --- | --- |
-| `@iktia/primitives` | Field shells, form-associated controls, parts, slots, ARIA, state attributes, primitive events. |
-| `@iktia/router` / actions package | Submission orchestration, action result mapping, pending state, server validation payloads. |
-| `@iktia/runtime` | Only tiny generated-code helpers already allowed by ADR 0004/0013. |
+| `@naos-ui/primitives` | Field shells, form-associated controls, parts, slots, ARIA, state attributes, primitive events. |
+| `@naos-ui/router` / actions package | Submission orchestration, action result mapping, pending state, server validation payloads. |
+| `@naos-ui/runtime` | Only tiny generated-code helpers already allowed by ADR 0004/0013. |
 | App code | Persistence, schema validation, business rules, and server transport. |
 
 Follow-up: issue #73 should expand from form status to field-state semantics,
@@ -236,10 +236,10 @@ and fields can consume without coupling forms to the router.
 ## Composition Architecture
 
 Base UI's `render` prop solves two real problems: replacing the underlying DOM
-node and allowing several behaviors to share one trigger. Iktia needs those
+node and allowing several behaviors to share one trigger. Naos needs those
 capabilities, but the React mechanism does not translate directly.
 
-Iktia should use these composition layers, in order:
+Naos should use these composition layers, in order:
 
 1. Prefer native Light DOM ownership for author-provided triggers, labels, and
    links.
@@ -267,7 +267,7 @@ support compound triggers.
 
 ## Typed Contract Documentation
 
-Base UI exposes part-level props, state, and event detail types. Iktia should
+Base UI exposes part-level props, state, and event detail types. Naos should
 not mirror React namespaces, but it should make every primitive contract
 machine-checkable enough that docs, tests, and TypeScript types do not drift.
 
@@ -285,7 +285,7 @@ Each primitive family should document:
 * stability level and known experimental gaps.
 
 Recommended follow-up: define a small source metadata format in
-`@iktia/primitives` and generate reference tables for docs. This can start as a
+`@naos-ui/primitives` and generate reference tables for docs. This can start as a
 plain TypeScript object per primitive family before any build-time generator is
 introduced.
 
@@ -297,7 +297,7 @@ tasks:
 1. Add a shared overlay contract document or RFC section for portal target,
    layer stack, focus, dismiss, scroll lock, visual viewport, positioner,
    popup, arrow, and cleanup.
-2. Add public overlay CSS variable names with the `--iktia-*` prefix and tests
+2. Add public overlay CSS variable names with the `--naos-*` prefix and tests
    that assert they update for popover, select, menu, tooltip, and dialog.
 3. Add a transient UI lifecycle helper/protocol for entering, open, closing,
    closed, and unmounted states using `data-starting-style`,
@@ -306,13 +306,13 @@ tasks:
    touched, dirty, submitting, server errors, and clear-on-change behavior.
 5. Define compound-trigger composition conformance tests for tooltip, dialog,
    menu, popover, links, and disabled triggers.
-6. Decide whether `<iktia-input>`, checkbox group, fieldset, form, drawer,
+6. Decide whether `<naos-input>`, checkbox group, fieldset, form, drawer,
    separator, and toolbar belong in the core roadmap or should be explicitly
    deferred.
 7. Add per-primitive contract metadata and generated docs tables for
    attributes, properties, events, parts, slots, CSS variables, and form
    behavior.
-8. Update `@iktia/primitives` stabilization criteria so a primitive cannot move
+8. Update `@naos-ui/primitives` stabilization criteria so a primitive cannot move
    out of experimental status until its contract table, keyboard behavior,
    form behavior, Shadow DOM behavior, and cleanup tests are present.
 
@@ -324,7 +324,7 @@ The audit changes the scope of related issues as follows:
 | --- | --- |
 | #35 | Treat as the owner for the shared portal/overlay kernel and root stacking/visual viewport guidance, not only a compile-time style-delivery feature. |
 | #36 | Treat as the owner for transient UI lifecycle, `data-starting-style`, `data-ending-style`, cancellable CSS transitions, and `getAnimations()` teardown. |
-| #38 | Use Base UI composition as reference evidence for compound triggers and host-node behavior attachment, while preserving Iktia's `use={[...]}` direction. |
+| #38 | Use Base UI composition as reference evidence for compound triggers and host-node behavior attachment, while preserving Naos's `use={[...]}` direction. |
 | #70 | Reuse the same transient lifecycle for view transitions and link prefetch UX instead of a separate router-only mount model. |
 | #72 | Return reusable action/server-validation results in a shape that fields can consume without coupling primitives to router internals. |
 | #73 | Expand form status into field-state semantics, server-error merge/clear behavior, label/error ARIA wiring, and FACE validation docs. |
@@ -338,7 +338,7 @@ This audit satisfies issue #77 by:
 * separating React-specific API shape from durable primitive architecture
   lessons;
 * linking the Base UI docs pages reviewed;
-* identifying more than five concrete Iktia follow-up changes;
+* identifying more than five concrete Naos follow-up changes;
 * covering styling, composition, forms, animation, overlays, and component
   coverage;
 * aligning with ADR 0004, ADR 0008, RFC 0001, RFC 0002, RFC 0006, ADR 0017,

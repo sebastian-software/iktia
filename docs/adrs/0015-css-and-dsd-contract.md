@@ -10,7 +10,7 @@ The MVP supports inline `styles: [...]` strings and explicit Declarative Shadow
 DOM prerendering. v0.1 needs a public styling story that works with Vite,
 Shadow DOM, static HTML, and the no-framework-runtime constraint.
 
-Vite already supports importing CSS as a string with `?inline`. Iktia does not
+Vite already supports importing CSS as a string with `?inline`. Naos does not
 need to own CSS graph resolution in v0.1.
 
 ## Decision
@@ -25,35 +25,35 @@ export const options = {
 } satisfies ComponentOptions
 ```
 
-Iktia injects style strings as `<style>` elements in imperative Shadow DOM and
+Naos injects style strings as `<style>` elements in imperative Shadow DOM and
 Declarative Shadow DOM output.
 
 The v0.1 CSS contract is flat:
 
-* no Iktia CSS graph;
+* no Naos CSS graph;
 * no CSS Modules contract;
 * no Sass contract;
 * no PostCSS contract;
 * no constructable stylesheet contract;
-* no custom Iktia CSS helper.
+* no custom Naos CSS helper.
 
 Theming should use CSS custom properties. Host pages can set custom properties
 on the element or ancestors, and component CSS can consume them with `var()`.
 
 Declarative Shadow DOM is public only through explicit prerender entry points:
 
-* `renderDeclarativeShadowDom()` in `@iktia/compiler`;
-* `iktia prerender` in `@iktia/cli`;
+* `renderDeclarativeShadowDom()` in `@naos-ui/compiler`;
+* `naos prerender` in `@naos-ui/cli`;
 * default Vite metadata for static site and demo builds.
 
 Normal client builds do not use a public `ComponentOptions.dsd` flag.
-`data-iktia-*` hydration markers are internal generated markup and are not
+`data-naos-*` hydration markers are internal generated markup and are not
 semver-protected. Development hydration mismatches throw structured
 diagnostics. Production hydration mismatches remount imperatively.
 
 ## Alternatives
 
-* Add an Iktia `css("./file.css")` helper.
+* Add an Naos `css("./file.css")` helper.
 * Treat normal `.css` imports as component-scoped text.
 * Use Shadow Root `<link rel="stylesheet">` URLs.
 * Add constructable stylesheets for v0.1.

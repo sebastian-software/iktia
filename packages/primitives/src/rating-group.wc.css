@@ -5,14 +5,14 @@
 
 [part~="root"] {
   display: grid;
-  gap: var(--iktia-rating-group-gap, 0.4rem);
+  gap: var(--naos-rating-group-gap, 0.4rem);
   width: max-content;
   max-width: 100%;
-  color: var(--iktia-rating-group-fg, #17201b);
+  color: var(--naos-rating-group-fg, #17201b);
 }
 
 [part~="label"] {
-  color: var(--iktia-rating-group-label-fg, #283c35);
+  color: var(--naos-rating-group-label-fg, #283c35);
   font-size: 0.9rem;
   font-weight: 700;
 }
@@ -20,18 +20,18 @@
 [part~="control"] {
   display: inline-flex;
   align-items: center;
-  gap: var(--iktia-rating-group-item-gap, 0.15rem);
+  gap: var(--naos-rating-group-item-gap, 0.15rem);
 }
 
 [part~="item"] {
   display: inline-grid;
   place-items: center;
-  width: var(--iktia-rating-group-item-size, 1.75rem);
-  height: var(--iktia-rating-group-item-size, 1.75rem);
+  width: var(--naos-rating-group-item-size, 1.75rem);
+  height: var(--naos-rating-group-item-size, 1.75rem);
   border: 1px solid transparent;
   border-radius: 6px;
   background: transparent;
-  color: var(--iktia-rating-group-item-fg, #64748b);
+  color: var(--naos-rating-group-item-fg, #64748b);
   cursor: pointer;
   font: inherit;
   font-size: 1.3rem;
@@ -40,11 +40,11 @@
 
 [part~="item"][data-highlighted],
 [part~="item"][data-checked] {
-  color: var(--iktia-rating-group-item-active-fg, #b45309);
+  color: var(--naos-rating-group-item-active-fg, #b45309);
 }
 
 [part~="item"]:focus-visible {
-  outline: 2px solid var(--iktia-focus-ring, #0f766e);
+  outline: 2px solid var(--naos-focus-ring, #0f766e);
   outline-offset: 2px;
 }
 

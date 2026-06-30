@@ -10,11 +10,11 @@
 button {
   display: inline-flex;
   align-items: center;
-  gap: var(--iktia-checkbox-gap, 0.55rem);
+  gap: var(--naos-checkbox-gap, 0.55rem);
   border: 0;
   padding: 0;
   background: transparent;
-  color: var(--iktia-checkbox-fg, #17201b);
+  color: var(--naos-checkbox-fg, #17201b);
   font: inherit;
   cursor: pointer;
 }
@@ -22,12 +22,12 @@ button {
 [part~="indicator"] {
   display: inline-grid;
   place-items: center;
-  width: var(--iktia-checkbox-size, 1.15rem);
-  height: var(--iktia-checkbox-size, 1.15rem);
-  border: 1px solid var(--iktia-checkbox-border, #65736d);
-  border-radius: var(--iktia-checkbox-radius, 0.25rem);
-  background: var(--iktia-checkbox-bg, #ffffff);
-  color: var(--iktia-checkbox-mark, #f8fffb);
+  width: var(--naos-checkbox-size, 1.15rem);
+  height: var(--naos-checkbox-size, 1.15rem);
+  border: 1px solid var(--naos-checkbox-border, #65736d);
+  border-radius: var(--naos-checkbox-radius, 0.25rem);
+  background: var(--naos-checkbox-bg, #ffffff);
+  color: var(--naos-checkbox-mark, #f8fffb);
   font-size: 0.82rem;
   font-weight: 900;
   line-height: 1;
@@ -35,12 +35,12 @@ button {
 
 button[data-state="checked"] [part~="indicator"],
 button[data-state="indeterminate"] [part~="indicator"] {
-  border-color: var(--iktia-checkbox-checked-border, #0f766e);
-  background: var(--iktia-checkbox-checked-bg, #0f766e);
+  border-color: var(--naos-checkbox-checked-border, #0f766e);
+  background: var(--naos-checkbox-checked-bg, #0f766e);
 }
 
 button:focus-visible {
-  outline: 2px solid var(--iktia-focus-ring, #0f766e);
+  outline: 2px solid var(--naos-focus-ring, #0f766e);
   outline-offset: 3px;
 }
 

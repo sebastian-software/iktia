@@ -5,15 +5,15 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
-import { consumeIktiaContext } from "./internal/behavior/context.js"
+} from "@naos-ui/core"
+import { consumeNaosContext } from "./internal/behavior/context.js"
 import {
-  IKTIA_RADIO_GROUP_CONTEXT,
+  NAOS_RADIO_GROUP_CONTEXT,
 } from "./internal/zag/radio-group.js"
-import type { IktiaRadioGroupContext } from "./internal/zag/radio-group.js"
+import type { NaosRadioGroupContext } from "./internal/zag/radio-group.js"
 import css from "./radio.wc.css?inline"
 
-export type IktiaRadioProps = {
+export type NaosRadioProps = {
   disabled?: boolean
   label?: string
   value?: string
@@ -23,20 +23,20 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaRadio({
+export function NaosRadio({
   disabled = false,
   label = "",
   value = "",
-}: IktiaRadioProps = {}) {
-  const radioContext = state<IktiaRadioGroupContext | null>(null)
+}: NaosRadioProps = {}) {
+  const radioContext = state<NaosRadioGroupContext | null>(null)
   const contextCleanup = state<VoidFunction | null>(null)
 
   onConnected(() => {
-    contextCleanup.set(consumeIktiaContext({
+    contextCleanup.set(consumeNaosContext({
       callback(context) {
         radioContext.set(context)
       },
-      context: IKTIA_RADIO_GROUP_CONTEXT,
+      context: NAOS_RADIO_GROUP_CONTEXT,
       element: host().element,
     }))
   })

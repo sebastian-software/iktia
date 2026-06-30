@@ -7,19 +7,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--iktia-select-item-gap, 0.75rem);
-  min-height: var(--iktia-select-item-min-height, 2rem);
-  border-radius: var(--iktia-select-item-radius, 0.25rem);
-  padding: var(--iktia-select-item-padding, 0.4rem 0.55rem);
-  color: var(--iktia-select-item-fg, #17201b);
+  gap: var(--naos-select-item-gap, 0.75rem);
+  min-height: var(--naos-select-item-min-height, 2rem);
+  border-radius: var(--naos-select-item-radius, 0.25rem);
+  padding: var(--naos-select-item-padding, 0.4rem 0.55rem);
+  color: var(--naos-select-item-fg, #17201b);
   font: inherit;
   cursor: pointer;
 }
 
 :host([data-highlighted]) [part~="root"],
 :host([data-state="checked"]) [part~="root"] {
-  background: var(--iktia-select-item-active-bg, #e2f3ea);
-  color: var(--iktia-select-item-active-fg, #0f3f35);
+  background: var(--naos-select-item-active-bg, #e2f3ea);
+  color: var(--naos-select-item-active-fg, #0f3f35);
 }
 
 :host([data-disabled]) [part~="root"] {

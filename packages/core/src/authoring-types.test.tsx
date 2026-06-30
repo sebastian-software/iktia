@@ -1,4 +1,4 @@
-/** @jsxImportSource @iktia/core */
+/** @jsxImportSource @naos-ui/core */
 import {
   Show,
   Switch,
@@ -13,21 +13,21 @@ import {
   state,
   type ComponentOptions,
   type ElementRef,
-} from "@iktia/core"
+} from "@naos-ui/core"
 
-type IktiaCore = typeof import("@iktia/core")
+type NaosCore = typeof import("@naos-ui/core")
 
 // @ts-expect-error component() is not part of the v0.1 public API
-type RemovedComponentApi = IktiaCore["component"]
+type RemovedComponentApi = NaosCore["component"]
 
 // @ts-expect-error prop.*() is not part of the v0.1 public API
-type RemovedPropApi = IktiaCore["prop"]
+type RemovedPropApi = NaosCore["prop"]
 
 // @ts-expect-error signal() is not part of the v0.1 public API
-type RemovedSignalApi = IktiaCore["signal"]
+type RemovedSignalApi = NaosCore["signal"]
 
 // @ts-expect-error useHost() is not part of the v0.1 public API
-type RemovedUseHostApi = IktiaCore["useHost"]
+type RemovedUseHostApi = NaosCore["useHost"]
 
 const componentOptions = {
   styles: [":host { display: block; }"],

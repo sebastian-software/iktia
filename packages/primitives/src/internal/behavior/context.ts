@@ -1,4 +1,4 @@
-export type IktiaContext<Value> = {
+export type NaosContext<Value> = {
   readonly description: string
   readonly key: symbol
 }
@@ -10,35 +10,35 @@ type ContextCallback<Value> = (
 
 type ContextRequestDetail<Value> = {
   callback: ContextCallback<Value>
-  context: IktiaContext<Value>
+  context: NaosContext<Value>
   subscribe?: boolean
 }
 
 type ContextRequestEvent<Value> = CustomEvent<ContextRequestDetail<Value>>
 
-export type IktiaContextProvider<Value> = {
+export type NaosContextProvider<Value> = {
   destroy(): void
   setValue(value: Value): void
 }
 
-export function createIktiaContext<Value>(
+export function createNaosContext<Value>(
   description: string
-): IktiaContext<Value> {
+): NaosContext<Value> {
   return {
     description,
     key: Symbol(description),
   }
 }
 
-export function provideIktiaContext<Value>({
+export function provideNaosContext<Value>({
   context,
   host,
   value,
 }: {
-  context: IktiaContext<Value>
+  context: NaosContext<Value>
   host: EventTarget
   value: Value
-}): IktiaContextProvider<Value> {
+}): NaosContextProvider<Value> {
   let currentValue = value
   const subscribers = new Set<ContextCallback<Value>>()
 
@@ -76,14 +76,14 @@ export function provideIktiaContext<Value>({
   }
 }
 
-export function consumeIktiaContext<Value>({
+export function consumeNaosContext<Value>({
   callback,
   context,
   element,
   subscribe = false,
 }: {
   callback: ContextCallback<Value>
-  context: IktiaContext<Value>
+  context: NaosContext<Value>
   element: EventTarget
   subscribe?: boolean
 }): VoidFunction {

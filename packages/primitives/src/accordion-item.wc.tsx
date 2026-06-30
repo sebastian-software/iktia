@@ -1,7 +1,7 @@
-import { type ComponentOptions } from "@iktia/core"
+import { type ComponentOptions } from "@naos-ui/core"
 import css from "./accordion-item.wc.css?inline"
 
-export type IktiaAccordionItemProps = {
+export type NaosAccordionItemProps = {
   disabled?: boolean
   label?: string
   value?: string
@@ -11,11 +11,11 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaAccordionItem({
+export function NaosAccordionItem({
   disabled = false,
   label = "",
   value = "",
-}: IktiaAccordionItemProps = {}) {
+}: NaosAccordionItemProps = {}) {
   void disabled
   void value
 

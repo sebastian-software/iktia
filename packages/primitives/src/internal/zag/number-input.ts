@@ -8,9 +8,9 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaZagNumberInputService = ReturnType<typeof createZagService>
+export type NaosZagNumberInputService = ReturnType<typeof createZagService>
 
-type IktiaZagNumberInputServiceOptions = {
+type NaosZagNumberInputServiceOptions = {
   disabled: boolean
   host: HTMLElement
   id: string
@@ -23,7 +23,7 @@ type IktiaZagNumberInputServiceOptions = {
   value: string
 }
 
-export function createIktiaZagNumberInputService({
+export function createNaosZagNumberInputService({
   disabled,
   host,
   id,
@@ -34,7 +34,7 @@ export function createIktiaZagNumberInputService({
   root,
   step,
   value,
-}: IktiaZagNumberInputServiceOptions): IktiaZagNumberInputService {
+}: NaosZagNumberInputServiceOptions): NaosZagNumberInputService {
   return createZagService({
     machine: numberInputMachine as never,
     props: {
@@ -63,15 +63,15 @@ export function createIktiaZagNumberInputService({
   })
 }
 
-export function getIktiaZagNumberInputApi(
-  service: IktiaZagNumberInputService | null
+export function getNaosZagNumberInputApi(
+  service: NaosZagNumberInputService | null
 ): ZagNumberInputApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagNumberInputService(
-  service: IktiaZagNumberInputService | null
+export function stopNaosZagNumberInputService(
+  service: NaosZagNumberInputService | null
 ) {
   service?.stop()
 }

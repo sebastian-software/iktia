@@ -9,9 +9,9 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaZagCheckboxService = ReturnType<typeof createZagService>
+export type NaosZagCheckboxService = ReturnType<typeof createZagService>
 
-type IktiaZagCheckboxServiceOptions = {
+type NaosZagCheckboxServiceOptions = {
   checked: boolean
   disabled: boolean
   host: HTMLElement
@@ -32,7 +32,7 @@ export function checkboxStateFor({
   return indeterminate ? "indeterminate" : checked
 }
 
-export function createIktiaZagCheckboxService({
+export function createNaosZagCheckboxService({
   checked,
   disabled,
   host,
@@ -41,7 +41,7 @@ export function createIktiaZagCheckboxService({
   onCheckedChange,
   root,
   value,
-}: IktiaZagCheckboxServiceOptions): IktiaZagCheckboxService {
+}: NaosZagCheckboxServiceOptions): NaosZagCheckboxService {
   return createZagService({
     machine: checkboxMachine as never,
     props: {
@@ -64,15 +64,15 @@ export function createIktiaZagCheckboxService({
   })
 }
 
-export function getIktiaZagCheckboxApi(
-  service: IktiaZagCheckboxService | null
+export function getNaosZagCheckboxApi(
+  service: NaosZagCheckboxService | null
 ): ZagCheckboxApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagCheckboxService(
-  service: IktiaZagCheckboxService | null
+export function stopNaosZagCheckboxService(
+  service: NaosZagCheckboxService | null
 ) {
   service?.stop()
 }

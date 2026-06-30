@@ -5,12 +5,12 @@
 
 [part~="root"] {
   display: grid;
-  gap: var(--iktia-select-gap, 0.55rem);
-  color: var(--iktia-select-fg, #17201b);
+  gap: var(--naos-select-gap, 0.55rem);
+  color: var(--naos-select-fg, #17201b);
 }
 
 [part~="label"] {
-  color: var(--iktia-select-label-fg, #17201b);
+  color: var(--naos-select-label-fg, #17201b);
   font-weight: 800;
 }
 
@@ -18,14 +18,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--iktia-select-trigger-gap, 0.75rem);
-  min-width: var(--iktia-select-min-width, 12rem);
-  min-height: var(--iktia-select-min-height, 2.35rem);
-  border: 1px solid var(--iktia-select-border, #65736d);
-  border-radius: var(--iktia-select-radius, 0.375rem);
-  padding: var(--iktia-select-padding, 0.45rem 0.65rem);
-  background: var(--iktia-select-bg, #ffffff);
-  color: var(--iktia-select-fg, #17201b);
+  gap: var(--naos-select-trigger-gap, 0.75rem);
+  min-width: var(--naos-select-min-width, 12rem);
+  min-height: var(--naos-select-min-height, 2.35rem);
+  border: 1px solid var(--naos-select-border, #65736d);
+  border-radius: var(--naos-select-radius, 0.375rem);
+  padding: var(--naos-select-padding, 0.45rem 0.65rem);
+  background: var(--naos-select-bg, #ffffff);
+  color: var(--naos-select-fg, #17201b);
   font: inherit;
   font-weight: 750;
   cursor: pointer;
@@ -37,7 +37,7 @@
 }
 
 [part~="trigger"]:focus-visible {
-  outline: 2px solid var(--iktia-focus-ring, #0f766e);
+  outline: 2px solid var(--naos-focus-ring, #0f766e);
   outline-offset: 2px;
 }
 
@@ -46,7 +46,7 @@
 }
 
 [part~="indicator"] {
-  color: var(--iktia-select-indicator-fg, #58665f);
+  color: var(--naos-select-indicator-fg, #58665f);
 }
 
 [part~="positioner"] {
@@ -55,12 +55,12 @@
 
 [part~="content"] {
   width: max-content;
-  min-width: var(--iktia-select-min-width, 12rem);
-  border: 1px solid var(--iktia-select-border, #65736d);
-  border-radius: var(--iktia-select-radius, 0.375rem);
+  min-width: var(--naos-select-min-width, 12rem);
+  border: 1px solid var(--naos-select-border, #65736d);
+  border-radius: var(--naos-select-radius, 0.375rem);
   margin-top: 0.25rem;
-  background: var(--iktia-select-content-bg, #ffffff);
-  box-shadow: var(--iktia-select-shadow, 0 10px 24px rgb(15 23 42 / 0.12));
+  background: var(--naos-select-content-bg, #ffffff);
+  box-shadow: var(--naos-select-shadow, 0 10px 24px rgb(15 23 42 / 0.12));
 }
 
 [part~="content"][hidden] {
@@ -69,5 +69,5 @@
 
 [part~="list"] {
   display: grid;
-  padding: var(--iktia-select-list-padding, 0.25rem);
+  padding: var(--naos-select-list-padding, 0.25rem);
 }

@@ -1,0 +1,25 @@
+[package]
+name = "naos-node"
+description = "Node.js bindings for the Naos Rust compiler core."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+publish = false
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+naos-core = { path = "../naos-core" }
+napi = { version = "3.9.0", default-features = false, features = ["napi9"] }
+napi-derive = "3.5.6"
+serde_json = "1.0.145"
+
+[build-dependencies]
+napi-build = "2.3.2"
+
+[lints]
+workspace = true

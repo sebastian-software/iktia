@@ -9,7 +9,7 @@ order: 1
 This page records the v0.1 public API shape. Rust crates remain internal and are
 not published to crates.io for v0.1.
 
-## `@iktia/core`
+## `@naos-ui/core`
 
 | Export | Stability | Notes |
 | --- | --- | --- |
@@ -23,13 +23,13 @@ not published to crates.io for v0.1.
 | `Show` | Public | Static conditional rendering primitive. |
 | `ComponentOptions` | Public | Flat `styles` metadata for component CSS. |
 
-## `@iktia/runtime`
+## `@naos-ui/runtime`
 
 Tiny platform helper runtime for generated output: events, scheduling, and
 hydration helpers. It is not a reconciler, virtual DOM, component runtime, or
 framework adapter.
 
-## `@iktia/router`
+## `@naos-ui/router`
 
 Optional browser-side router for Custom Element app shells.
 
@@ -38,87 +38,87 @@ Optional browser-side router for Custom Element app shells.
 | `defineRoutes()` | Experimental | Preserves route-table inference for path params. |
 | `createRouter()` | Experimental | Creates a router that mounts custom-element route targets into an outlet. |
 | `redirect()` | Experimental | Creates an action redirect result for route actions. |
-| `IktiaRouter` | Experimental | EventTarget-backed router instance with `start`, `stop`, `navigate`, `replace`, `submit`, `href`, `prefetch`, `back`, `forward`, and `reload`. |
+| `NaosRouter` | Experimental | EventTarget-backed router instance with `start`, `stop`, `navigate`, `replace`, `submit`, `href`, `prefetch`, `back`, `forward`, and `reload`. |
 
-Mounted route elements receive an `iktiaRoute` property with the current route,
+Mounted route elements receive an `naosRoute` property with the current route,
 URL, params, search params, loader data, action data, navigation type, and abort
 signal. Route records may define `loader` and `action`; native forms opt into
-action handling with `data-iktia-action`. The router intercepts only same-origin
+action handling with `data-naos-action`. The router intercepts only same-origin
 anchors and explicit action forms it can handle and falls back to ordinary
 browser behavior for external links, downloads, targets, and modified clicks.
 
-## `@iktia/primitives`
+## `@naos-ui/primitives`
 
-Experimental primitive Custom Elements authored in Iktia `.wc.tsx` and compiled
+Experimental primitive Custom Elements authored in Naos `.wc.tsx` and compiled
 for package distribution.
 
-All primitives remain experimental. The package exposes Iktia elements only;
+All primitives remain experimental. The package exposes Naos elements only;
 Zag machines and adapter helpers stay private under the package internals.
 
 ### Actions And Structure
 
 | Element | Key attributes | Events | Notes |
 | --- | --- | --- | --- |
-| `<iktia-button>` | `variant`, `disabled`, `label` | `iktia-press` | Native button action primitive with slots, parts, and CSS custom properties. |
-| `<iktia-button-group>` | `orientation`, `label` | None | Structural grouping for related actions. |
-| `<iktia-field>` | `label`, `hint`, `status`, `invalid` | None | Label, hint, status, and layout shell. |
+| `<naos-button>` | `variant`, `disabled`, `label` | `naos-press` | Native button action primitive with slots, parts, and CSS custom properties. |
+| `<naos-button-group>` | `orientation`, `label` | None | Structural grouping for related actions. |
+| `<naos-field>` | `label`, `hint`, `status`, `invalid` | None | Label, hint, status, and layout shell. |
 
 ### Forms And Inputs
 
 | Element | Key attributes | Events | Form behavior |
 | --- | --- | --- | --- |
-| `<iktia-checkbox>` | `name`, `value`, `checked`, `indeterminate`, `disabled`, `label` | `iktia-change` | Form-associated; supports submit, reset, `FormData`, and disabled fieldset propagation. |
-| `<iktia-toggle>` | `name`, `value`, `pressed`, `disabled`, `label` | `iktia-change` | Form-associated pressed/on-off control. |
-| `<iktia-switch>` | `name`, `value`, `checked`, `disabled`, `label` | `iktia-change` | Zag-backed switch with native form integration. |
-| `<iktia-number-input>` | `name`, `value`, `min`, `max`, `step`, `disabled`, `label` | `iktia-change` | Zag-backed spinbutton behavior with form integration. |
-| `<iktia-slider>` | `name`, `value`, `min`, `max`, `step`, `disabled`, `label` | `iktia-change` | Zag-backed single-value slider with pointer and keyboard behavior. |
-| `<iktia-pin-input>` | `name`, `value`, `count`, `otp`, `disabled`, `label` | `iktia-change`, `iktia-complete`, `iktia-invalid` | Multi-field code input with paste and keyboard behavior. |
-| `<iktia-tags-input>` | `name`, `value`, `delimiter`, `max`, `allow-duplicates`, `disabled`, `label` | `iktia-change`, `iktia-input`, `iktia-highlight-change`, `iktia-invalid` | Token input with delimiter entry, paste handling, and delete controls. |
-| `<iktia-file-upload>` | `name`, `accept`, `multiple`, `max-files`, `disabled`, `label` | `iktia-change`, `iktia-invalid` | File input with dropzone, picker trigger, list, delete, clear, and `FormData` support. |
-| `<iktia-rating-group>` | `name`, `value`, `count`, `disabled`, `label` | `iktia-change`, `iktia-hover-change` | Rating control with pointer and keyboard selection. |
-| `<iktia-date-picker>` | `name`, `value`, `locale`, `placeholder`, `disabled`, `read-only`, `required`, `label` | `iktia-change`, `iktia-focus-change`, `iktia-open-change` | Single-date picker; public value and `FormData` value use ISO `YYYY-MM-DD`. |
-| `<iktia-editable>` | `name`, `value`, `placeholder`, `max-length`, `submit-mode`, `disabled`, `read-only`, `required`, `label` | `iktia-change`, `iktia-edit-change`, `iktia-submit`, `iktia-cancel` | Inline editable text with preview/edit modes and form integration. |
+| `<naos-checkbox>` | `name`, `value`, `checked`, `indeterminate`, `disabled`, `label` | `naos-change` | Form-associated; supports submit, reset, `FormData`, and disabled fieldset propagation. |
+| `<naos-toggle>` | `name`, `value`, `pressed`, `disabled`, `label` | `naos-change` | Form-associated pressed/on-off control. |
+| `<naos-switch>` | `name`, `value`, `checked`, `disabled`, `label` | `naos-change` | Zag-backed switch with native form integration. |
+| `<naos-number-input>` | `name`, `value`, `min`, `max`, `step`, `disabled`, `label` | `naos-change` | Zag-backed spinbutton behavior with form integration. |
+| `<naos-slider>` | `name`, `value`, `min`, `max`, `step`, `disabled`, `label` | `naos-change` | Zag-backed single-value slider with pointer and keyboard behavior. |
+| `<naos-pin-input>` | `name`, `value`, `count`, `otp`, `disabled`, `label` | `naos-change`, `naos-complete`, `naos-invalid` | Multi-field code input with paste and keyboard behavior. |
+| `<naos-tags-input>` | `name`, `value`, `delimiter`, `max`, `allow-duplicates`, `disabled`, `label` | `naos-change`, `naos-input`, `naos-highlight-change`, `naos-invalid` | Token input with delimiter entry, paste handling, and delete controls. |
+| `<naos-file-upload>` | `name`, `accept`, `multiple`, `max-files`, `disabled`, `label` | `naos-change`, `naos-invalid` | File input with dropzone, picker trigger, list, delete, clear, and `FormData` support. |
+| `<naos-rating-group>` | `name`, `value`, `count`, `disabled`, `label` | `naos-change`, `naos-hover-change` | Rating control with pointer and keyboard selection. |
+| `<naos-date-picker>` | `name`, `value`, `locale`, `placeholder`, `disabled`, `read-only`, `required`, `label` | `naos-change`, `naos-focus-change`, `naos-open-change` | Single-date picker; public value and `FormData` value use ISO `YYYY-MM-DD`. |
+| `<naos-editable>` | `name`, `value`, `placeholder`, `max-length`, `submit-mode`, `disabled`, `read-only`, `required`, `label` | `naos-change`, `naos-edit-change`, `naos-submit`, `naos-cancel` | Inline editable text with preview/edit modes and form integration. |
 
 ### Collections
 
 | Element | Subcomponents | Events | Notes |
 | --- | --- | --- | --- |
-| `<iktia-tabs>` | `<iktia-tab>`, `<iktia-tab-panel>` | `iktia-change` | Zag-backed tab collection with roving focus and selected panel mapping. |
-| `<iktia-radio-group>` | `<iktia-radio>` | `iktia-change` | Form-associated radio collection with roving focus. |
-| `<iktia-segmented-control>` | `<iktia-segmented-item>` | `iktia-change` | Single-selection segmented control. |
-| `<iktia-toggle-group>` | `<iktia-toggle-item>` | `iktia-change` | Single or multiple toggle collection. |
-| `<iktia-select>` | `<iktia-select-item>` | `iktia-change`, `iktia-open-change` | Single-selection popup with typeahead and form integration. |
-| `<iktia-combobox>` | `<iktia-combobox-item>` | `iktia-change`, `iktia-input`, `iktia-open-change` | Autocomplete combobox with popup items and form integration. |
-| `<iktia-listbox>` | `<iktia-listbox-item>` | `iktia-change`, `iktia-highlight-change` | Selection listbox with typeahead, disabled items, and form integration. |
+| `<naos-tabs>` | `<naos-tab>`, `<naos-tab-panel>` | `naos-change` | Zag-backed tab collection with roving focus and selected panel mapping. |
+| `<naos-radio-group>` | `<naos-radio>` | `naos-change` | Form-associated radio collection with roving focus. |
+| `<naos-segmented-control>` | `<naos-segmented-item>` | `naos-change` | Single-selection segmented control. |
+| `<naos-toggle-group>` | `<naos-toggle-item>` | `naos-change` | Single or multiple toggle collection. |
+| `<naos-select>` | `<naos-select-item>` | `naos-change`, `naos-open-change` | Single-selection popup with typeahead and form integration. |
+| `<naos-combobox>` | `<naos-combobox-item>` | `naos-change`, `naos-input`, `naos-open-change` | Autocomplete combobox with popup items and form integration. |
+| `<naos-listbox>` | `<naos-listbox-item>` | `naos-change`, `naos-highlight-change` | Selection listbox with typeahead, disabled items, and form integration. |
 
 ### Overlays And Disclosure
 
 | Element | Subcomponents | Events | Notes |
 | --- | --- | --- | --- |
-| `<iktia-menu>` | `<iktia-menu-item>` | `iktia-select`, `iktia-open-change` | Flat action menu with dismiss behavior and focus return. |
-| `<iktia-context-menu>` | `<iktia-menu-item>` | `iktia-select`, `iktia-open-change` | Context-triggered menu region. |
-| `<iktia-dialog>` | None | `iktia-open-change` | Modal dialog with backdrop, focus trap, scroll lock, dismiss, and focus return. |
-| `<iktia-popover>` | None | `iktia-open-change` | Positioned popover with Escape/outside dismiss and close trigger. |
-| `<iktia-tooltip>` | None | `iktia-open-change` | Hover/focus tooltip with Escape close. |
-| `<iktia-hover-card>` | None | `iktia-open-change` | Hover/focus preview card with positioned content. |
-| `<iktia-accordion>` | `<iktia-accordion-item>` | `iktia-change` | Accordion collection with roving trigger focus and disabled item handling. |
-| `<iktia-collapsible>` | None | `iktia-open-change` | Disclosure primitive with trigger/content ARIA. |
+| `<naos-menu>` | `<naos-menu-item>` | `naos-select`, `naos-open-change` | Flat action menu with dismiss behavior and focus return. |
+| `<naos-context-menu>` | `<naos-menu-item>` | `naos-select`, `naos-open-change` | Context-triggered menu region. |
+| `<naos-dialog>` | None | `naos-open-change` | Modal dialog with backdrop, focus trap, scroll lock, dismiss, and focus return. |
+| `<naos-popover>` | None | `naos-open-change` | Positioned popover with Escape/outside dismiss and close trigger. |
+| `<naos-tooltip>` | None | `naos-open-change` | Hover/focus tooltip with Escape close. |
+| `<naos-hover-card>` | None | `naos-open-change` | Hover/focus preview card with positioned content. |
+| `<naos-accordion>` | `<naos-accordion-item>` | `naos-change` | Accordion collection with roving trigger focus and disabled item handling. |
+| `<naos-collapsible>` | None | `naos-open-change` | Disclosure primitive with trigger/content ARIA. |
 
 ### Feedback
 
 | Element | Key attributes | Events | Notes |
 | --- | --- | --- | --- |
-| `<iktia-progress>` | `value`, `min`, `max`, `indeterminate`, `orientation`, `label`, `locale` | `iktia-change` | ARIA progressbar with `part="track range value"` and CSS custom properties. |
-| `<iktia-avatar>` | `src`, `alt`, `fallback` | `iktia-status-change` | Image loading state with fallback content. |
-| `<iktia-toast>` | `title`, `description`, `type`, `duration`, `closable`, `label` | `iktia-create` | Declarative trigger that creates a toast in the package toast store. |
-| `<iktia-toast-root>` | `label`, `placement` | `iktia-status-change` | Minimal notification region that renders store toasts and owns their lifecycle cleanup. |
+| `<naos-progress>` | `value`, `min`, `max`, `indeterminate`, `orientation`, `label`, `locale` | `naos-change` | ARIA progressbar with `part="track range value"` and CSS custom properties. |
+| `<naos-avatar>` | `src`, `alt`, `fallback` | `naos-status-change` | Image loading state with fallback content. |
+| `<naos-toast>` | `title`, `description`, `type`, `duration`, `closable`, `label` | `naos-create` | Declarative trigger that creates a toast in the package toast store. |
+| `<naos-toast-root>` | `label`, `placement` | `naos-status-change` | Minimal notification region that renders store toasts and owns their lifecycle cleanup. |
 
 Each component exposes stable `part` names, `data-*` state attributes, and
-`--iktia-*` CSS custom properties for styling. Declarative Shadow DOM output is
+`--naos-*` CSS custom properties for styling. Declarative Shadow DOM output is
 covered by the package demo build, but the components are not marked stable
 until broader validation and documentation coverage are complete.
 
-## `@iktia/compiler`
+## `@naos-ui/compiler`
 
 ```ts
 type TransformResult = {
@@ -131,18 +131,18 @@ type TransformResult = {
 `transformComponent()` returns transformed code, optional source map data, and a
 change flag. Compiler failures throw structured errors with `diagnostics[]`.
 
-## `@iktia/vite`
+## `@naos-ui/vite`
 
-`iktia(options)` installs the Vite transform and emits prerender metadata by
+`naos(options)` installs the Vite transform and emits prerender metadata by
 default for DSD workflows. Set `prerender: false` to disable metadata emission.
 Vite owns module graph, chunks, CSS imports, assets, and invalidation.
 
-## `@iktia/cli`
+## `@naos-ui/cli`
 
-The `iktia` binary exposes:
+The `naos` binary exposes:
 
 | Command | Purpose |
 | --- | --- |
-| `iktia compile` | Transform a `.wc.tsx` component. |
-| `iktia prerender` | Emit explicit Declarative Shadow DOM host HTML. |
-| `iktia info` | Print compiler, package, native target, and platform details. |
+| `naos compile` | Transform a `.wc.tsx` component. |
+| `naos prerender` | Emit explicit Declarative Shadow DOM host HTML. |
+| `naos info` | Print compiler, package, native target, and platform details. |

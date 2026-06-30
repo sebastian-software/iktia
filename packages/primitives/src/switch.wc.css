@@ -6,8 +6,8 @@
 [part~="root"] {
   display: inline-flex;
   align-items: center;
-  gap: var(--iktia-switch-gap, 0.55rem);
-  color: var(--iktia-switch-fg, #17201b);
+  gap: var(--naos-switch-gap, 0.55rem);
+  color: var(--naos-switch-fg, #17201b);
   font: inherit;
   cursor: pointer;
 }
@@ -15,37 +15,37 @@
 [part~="track"] {
   display: inline-flex;
   align-items: center;
-  width: var(--iktia-switch-width, 2.5rem);
-  height: var(--iktia-switch-height, 1.35rem);
-  border: 1px solid var(--iktia-switch-border, #65736d);
+  width: var(--naos-switch-width, 2.5rem);
+  height: var(--naos-switch-height, 1.35rem);
+  border: 1px solid var(--naos-switch-border, #65736d);
   border-radius: 999px;
   padding: 0.12rem;
-  background: var(--iktia-switch-bg, #dbe4df);
+  background: var(--naos-switch-bg, #dbe4df);
   transition: background 120ms ease, border-color 120ms ease;
 }
 
 [part~="track"][data-state="checked"] {
-  border-color: var(--iktia-switch-checked-border, #0f766e);
-  background: var(--iktia-switch-checked-bg, #0f766e);
+  border-color: var(--naos-switch-checked-border, #0f766e);
+  background: var(--naos-switch-checked-bg, #0f766e);
 }
 
 [part~="thumb"] {
   display: block;
-  width: var(--iktia-switch-thumb-size, 1rem);
-  height: var(--iktia-switch-thumb-size, 1rem);
+  width: var(--naos-switch-thumb-size, 1rem);
+  height: var(--naos-switch-thumb-size, 1rem);
   border-radius: 999px;
-  background: var(--iktia-switch-thumb-bg, #ffffff);
-  box-shadow: var(--iktia-switch-thumb-shadow, 0 1px 3px rgb(15 23 42 / 0.22));
+  background: var(--naos-switch-thumb-bg, #ffffff);
+  box-shadow: var(--naos-switch-thumb-shadow, 0 1px 3px rgb(15 23 42 / 0.22));
   transform: translateX(0);
   transition: transform 120ms ease;
 }
 
 [part~="thumb"][data-state="checked"] {
-  transform: translateX(var(--iktia-switch-thumb-offset, 1.12rem));
+  transform: translateX(var(--naos-switch-thumb-offset, 1.12rem));
 }
 
 [part~="root"]:focus-within [part~="track"] {
-  outline: 2px solid var(--iktia-focus-ring, #0f766e);
+  outline: 2px solid var(--naos-focus-ring, #0f766e);
   outline-offset: 3px;
 }
 

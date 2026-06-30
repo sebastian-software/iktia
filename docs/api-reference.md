@@ -7,18 +7,18 @@ for v0.1 and are not published to crates.io.
 
 | Package | Public role |
 | --- | --- |
-| `@iktia/core` | Authoring primitives and JSX runtime types. |
-| `@iktia/data` | Optional fetch and subscription resources for Custom Element data loading. |
-| `@iktia/data-convex` | Optional Convex adapter for `@iktia/data` resources. |
-| `@iktia/motion` | Framework-free motion kernels used by generated output and primitives. |
-| `@iktia/runtime` | Tiny platform helpers for generated output. |
-| `@iktia/router` | Optional platform router for Custom Element app shells. |
-| `@iktia/compiler` | Node wrapper around the native compiler. |
-| `@iktia/compiler-*` | Platform-specific optional native compiler bindings. |
-| `@iktia/vite` | Vite transform and prerender metadata plugin. |
-| `@iktia/cli` | `iktia compile`, `iktia prerender`, and `iktia info`. |
+| `@naos-ui/core` | Authoring primitives and JSX runtime types. |
+| `@naos-ui/data` | Optional fetch and subscription resources for Custom Element data loading. |
+| `@naos-ui/data-convex` | Optional Convex adapter for `@naos-ui/data` resources. |
+| `@naos-ui/motion` | Framework-free motion kernels used by generated output and primitives. |
+| `@naos-ui/runtime` | Tiny platform helpers for generated output. |
+| `@naos-ui/router` | Optional platform router for Custom Element app shells. |
+| `@naos-ui/compiler` | Node wrapper around the native compiler. |
+| `@naos-ui/compiler-*` | Platform-specific optional native compiler bindings. |
+| `@naos-ui/vite` | Vite transform and prerender metadata plugin. |
+| `@naos-ui/cli` | `naos compile`, `naos prerender`, and `naos info`. |
 
-## `@iktia/motion`
+## `@naos-ui/motion`
 
 | Export | Stability | Purpose |
 | --- | --- | --- |
@@ -31,10 +31,10 @@ for v0.1 and are not published to crates.io.
 | `waitForAnimations(element, options?)` | Experimental | Wait for pending Web Animations API animations, with reduced-motion and timeout guards. |
 
 Motion token classes are intended for compiler or package-build CSS output. For
-example, primitives can share `--iktia-presence-motion-*` variables through a
+example, primitives can share `--naos-presence-motion-*` variables through a
 stable class without injecting inline `style` strings at render time.
 
-## `@iktia/core`
+## `@naos-ui/core`
 
 | Export | Stability | Purpose |
 | --- | --- | --- |
@@ -60,7 +60,7 @@ Use `host().flushSync()` when a handler must observe the updated DOM
 immediately after changing state. `host().update()` requests a batched update
 and resolves to an `AbortSignal` for work tied to that update pass.
 
-## `@iktia/data`
+## `@naos-ui/data`
 
 | Export | Stability | Purpose |
 | --- | --- | --- |
@@ -74,12 +74,12 @@ and resolves to an `AbortSignal` for work tied to that update pass.
 `AbortSignal`; equivalent in-flight keys are deduped; cached data is retained as
 stale while revalidation runs. Subscription resources share equivalent upstream
 subscriptions until the final consumer is disposed.
-`@iktia/data` intentionally has no provider SDK dependencies; provider-specific
+`@naos-ui/data` intentionally has no provider SDK dependencies; provider-specific
 adapters such as Convex should live in separate optional packages.
 
 See [Data Resources](data.md) for examples and the Convex adapter direction.
 
-## `@iktia/data-convex`
+## `@naos-ui/data-convex`
 
 | Export | Stability | Purpose |
 | --- | --- | --- |
@@ -87,12 +87,12 @@ See [Data Resources](data.md) for examples and the Convex adapter direction.
 | `convexMutation(client, mutation, options?)` | Experimental | Create a typed Convex mutation caller. |
 | `convexAction(client, action)` | Experimental | Create a typed Convex action caller. |
 | `convexConnectionResource(client, options?)` | Experimental | Create a resource from Convex connection state. |
-| `convexQueryKey(query, args)` | Experimental | Create the stable `@iktia/data` cache key for a Convex query. |
+| `convexQueryKey(query, args)` | Experimental | Create the stable `@naos-ui/data` cache key for a Convex query. |
 
-`@iktia/data-convex` depends on `@iktia/data` and declares `convex` as a peer
+`@naos-ui/data-convex` depends on `@naos-ui/data` and declares `convex` as a peer
 dependency. It should be installed only by apps that use Convex.
 
-## `@iktia/compiler`
+## `@naos-ui/compiler`
 
 ```ts
 type TransformComponentRequest = {
@@ -114,23 +114,23 @@ type RenderDeclarativeShadowDomRequest = {
 }
 ```
 
-Compiler failures throw `IktiaCompilerError` with structured `diagnostics[]`.
+Compiler failures throw `NaosCompilerError` with structured `diagnostics[]`.
 Diagnostics include code, severity, message, filename, optional span, and
 optional hint.
 
-## `@iktia/vite`
+## `@naos-ui/vite`
 
-`iktia(options)` transforms accepted `.wc.tsx` modules and emits prerender
+`naos(options)` transforms accepted `.wc.tsx` modules and emits prerender
 metadata by default for static HTML workflows. Set `prerender: false` only for
 builds that never need Declarative Shadow DOM metadata.
 
-## `@iktia/router`
+## `@naos-ui/router`
 
 `createRouter(options)` creates an optional browser-side router for Custom
 Element app shells. It maps route records to native element tags or explicit
 element factories, lazy-loads route modules, runs abortable route `loader`
-hooks, handles explicit `data-iktia-action` forms through route `action` hooks,
-exposes `iktiaRoute` with params, search params, loader data, action data, URL,
+hooks, handles explicit `data-naos-action` forms through route `action` hooks,
+exposes `naosRoute` with params, search params, loader data, action data, URL,
 navigation type, and `AbortSignal`, intercepts same-origin anchors, updates
 active-link attributes, restores scroll and focus after route commits, emits
 route/action events, and mounts not-found or error routes.
@@ -162,9 +162,9 @@ focus moves to a route `focusTarget` selector or callback, then `[autofocus]`,
 real page heading or primary landmark as the focus target so keyboard and screen
 reader users get a clear route-change point.
 
-The router emits `iktia:navigationstart`, `iktia:navigationcommit`,
-`iktia:navigationabort`, `iktia:navigationerror`, `iktia:routechange`,
-`iktia:actionstart`, `iktia:actioncommit`, and `iktia:actionerror` from the
+The router emits `naos:navigationstart`, `naos:navigationcommit`,
+`naos:navigationabort`, `naos:navigationerror`, `naos:routechange`,
+`naos:actionstart`, `naos:actioncommit`, and `naos:actionerror` from the
 router and the outlet.
 
 The package has no React, Next.js, TanStack Router, Angular, Lit, Vaadin Router,
@@ -172,12 +172,12 @@ Waku, or virtual DOM runtime dependency and is not used by generated components
 unless an app imports it. It does not own application caching, sessions,
 cookies, SSR, or backend routing.
 
-## `@iktia/cli`
+## `@naos-ui/cli`
 
 | Command | Purpose |
 | --- | --- |
-| `iktia compile <input>` | Transform one `.wc.tsx` module to JavaScript. |
-| `iktia prerender <input>` | Emit Declarative Shadow DOM host HTML. |
-| `iktia info` | Print platform and native compiler metadata. |
+| `naos compile <input>` | Transform one `.wc.tsx` module to JavaScript. |
+| `naos prerender <input>` | Emit Declarative Shadow DOM host HTML. |
+| `naos info` | Print platform and native compiler metadata. |
 
 See [CLI](cli.md) for options and examples.

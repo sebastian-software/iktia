@@ -7,19 +7,19 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  createIktiaZagAccordionService,
-  getIktiaZagAccordionApi,
-  parseIktiaAccordionValue,
-  serializeIktiaAccordionValue,
-  stopIktiaZagAccordionService,
-  syncIktiaAccordionItems,
+  createNaosZagAccordionService,
+  getNaosZagAccordionApi,
+  parseNaosAccordionValue,
+  serializeNaosAccordionValue,
+  stopNaosZagAccordionService,
+  syncNaosAccordionItems,
 } from "./internal/zag/accordion.js"
-import type { IktiaZagAccordionService } from "./internal/zag/accordion.js"
+import type { NaosZagAccordionService } from "./internal/zag/accordion.js"
 import css from "./accordion.wc.css?inline"
 
-export type IktiaAccordionProps = {
+export type NaosAccordionProps = {
   collapsible?: boolean
   disabled?: boolean
   label?: string
@@ -32,26 +32,26 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaAccordion({
+export function NaosAccordion({
   collapsible = true,
   disabled = false,
   label = "Sections",
   multiple = false,
   orientation = "vertical",
   value = "",
-}: IktiaAccordionProps = {}) {
-  const selected = state(parseIktiaAccordionValue(value))
+}: NaosAccordionProps = {}) {
+  const selected = state(parseNaosAccordionValue(value))
   const focused = state<string | null>(null)
-  const accordionService = state<IktiaZagAccordionService | null>(null)
-  const accordionApi = computed(() => getIktiaZagAccordionApi(accordionService()))
-  const changed = event<{ value: string[] }>("iktia-change")
+  const accordionService = state<NaosZagAccordionService | null>(null)
+  const accordionApi = computed(() => getNaosZagAccordionApi(accordionService()))
+  const changed = event<{ value: string[] }>("naos-change")
 
   onConnected(() => {
-    accordionService.set(createIktiaZagAccordionService({
+    accordionService.set(createNaosZagAccordionService({
       collapsible,
       disabled,
       host: host().element,
-      id: "iktia-accordion",
+      id: "naos-accordion",
       multiple,
       onFocusChange(nextValue) {
         focused.set(nextValue)
@@ -66,7 +66,7 @@ export function IktiaAccordion({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagAccordionService(accordionService())
+    stopNaosZagAccordionService(accordionService())
     accordionService.set(null)
   })
   effect(() => {
@@ -74,7 +74,7 @@ export function IktiaAccordion({
     void selected()
     void focused()
     if (api == null) return
-    return syncIktiaAccordionItems({
+    return syncNaosAccordionItems({
       api,
       disabled,
       host: host().element,
@@ -89,7 +89,7 @@ export function IktiaAccordion({
       aria-disabled={disabled || undefined}
       data-disabled={disabled || undefined}
       data-orientation={orientation}
-      data-state={serializeIktiaAccordionValue(selected()) || "none"}
+      data-state={serializeNaosAccordionValue(selected()) || "none"}
     >
       <span part="label">{label}</span>
       <div part="items">

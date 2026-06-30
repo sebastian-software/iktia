@@ -6,7 +6,7 @@ Date: 2026-06-20
 ## Summary
 
 Adopt a package-local implementation of the Web Components community
-`context-request` protocol for compound primitives in `@iktia/primitives`.
+`context-request` protocol for compound primitives in `@naos-ui/primitives`.
 
 The protocol lets child Custom Elements request parent-provided context through
 a composed bubbling DOM event. It gives compound primitives a DOM-native parent
@@ -15,7 +15,7 @@ framework runtime context.
 
 The first implementation slice keeps the helper private under
 `packages/primitives/src/internal/behavior/context.ts` and migrates
-`<iktia-radio-group>` / `<iktia-radio>` as the initial collection. Broader
+`<naos-radio-group>` / `<naos-radio>` as the initial collection. Broader
 primitive migrations should follow only after this contract survives review and
 browser validation.
 
@@ -25,7 +25,7 @@ browser validation.
 * Keep the contract DOM-native: `bubbles: true`, `composed: true`, and ordinary
   `CustomEvent` dispatch.
 * Keep provider and consumer helpers package-private.
-* Preserve Iktia's no-framework-runtime model.
+* Preserve Naos's no-framework-runtime model.
 * Support nearest-provider behavior through normal event bubbling and
   `stopPropagation()`.
 * Support subscriptions so parent updates can resynchronize consumers.
@@ -35,8 +35,8 @@ browser validation.
 ## Non-Goals
 
 * Do not add a compiler feature.
-* Do not add anything to `@iktia/runtime`.
-* Do not expose public context APIs from `@iktia/primitives`.
+* Do not add anything to `@naos-ui/runtime`.
+* Do not expose public context APIs from `@naos-ui/primitives`.
 * Do not implement Remix-style nearest live component instance lookup.
 * Do not migrate every compound primitive in the first slice.
 
@@ -70,13 +70,13 @@ introduced.
 ## First Migration: Radio Group
 
 Before this RFC, the radio-group adapter scanned the host with
-`querySelectorAll("iktia-radio")` and attached a `MutationObserver` to discover
+`querySelectorAll("naos-radio")` and attached a `MutationObserver` to discover
 child radios and prop changes.
 
 The first migration moves ownership to the child:
 
-* `<iktia-radio-group>` creates a package-private radio-group context provider.
-* `<iktia-radio>` consumes that context from its host element.
+* `<naos-radio-group>` creates a package-private radio-group context provider.
+* `<naos-radio>` consumes that context from its host element.
 * Each radio registers itself with the group context from an effect.
 * The group context keeps a DOM-order registry, updates ARIA/state/tabindex for
   all registered radios, and handles click/keyboard selection.
@@ -104,7 +104,7 @@ connected. No server-side component tree or context serialization is required.
 
 ## Follow-Ups
 
-* Migrate `<iktia-tabs>` / `<iktia-tab>` / `<iktia-tab-panel>`.
+* Migrate `<naos-tabs>` / `<naos-tab>` / `<naos-tab-panel>`.
 * Migrate radio-like collections: segmented control and toggle group.
 * Evaluate listbox/menu/select/combobox item registration after the simpler
   collections are stable.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import type { NativeBindings } from "./generated/iktia-node-types.js"
+import type { NativeBindings } from "./generated/naos-node-types.js"
 import {
   detectLinuxLibc,
   loadNativeBindingsWithContext,
@@ -33,14 +33,14 @@ describe("native compiler loader", () => {
         target.packageName,
       ])
     ).toEqual([
-      ["aarch64-apple-darwin", "@iktia/compiler-darwin-arm64"],
-      ["x86_64-apple-darwin", "@iktia/compiler-darwin-x64"],
-      ["aarch64-unknown-linux-gnu", "@iktia/compiler-linux-arm64-gnu"],
-      ["aarch64-unknown-linux-musl", "@iktia/compiler-linux-arm64-musl"],
-      ["x86_64-unknown-linux-gnu", "@iktia/compiler-linux-x64-gnu"],
-      ["x86_64-unknown-linux-musl", "@iktia/compiler-linux-x64-musl"],
-      ["aarch64-pc-windows-msvc", "@iktia/compiler-win32-arm64-msvc"],
-      ["x86_64-pc-windows-msvc", "@iktia/compiler-win32-x64-msvc"],
+      ["aarch64-apple-darwin", "@naos-ui/compiler-darwin-arm64"],
+      ["x86_64-apple-darwin", "@naos-ui/compiler-darwin-x64"],
+      ["aarch64-unknown-linux-gnu", "@naos-ui/compiler-linux-arm64-gnu"],
+      ["aarch64-unknown-linux-musl", "@naos-ui/compiler-linux-arm64-musl"],
+      ["x86_64-unknown-linux-gnu", "@naos-ui/compiler-linux-x64-gnu"],
+      ["x86_64-unknown-linux-musl", "@naos-ui/compiler-linux-x64-musl"],
+      ["aarch64-pc-windows-msvc", "@naos-ui/compiler-win32-arm64-msvc"],
+      ["x86_64-pc-windows-msvc", "@naos-ui/compiler-win32-x64-msvc"],
     ])
   })
 
@@ -58,22 +58,22 @@ describe("native compiler loader", () => {
         libc: "gnu",
         platform: "linux",
       })?.packageName
-    ).toBe("@iktia/compiler-linux-x64-gnu")
+    ).toBe("@naos-ui/compiler-linux-x64-gnu")
     expect(
       resolveNativeTarget({
         arch: "x64",
         libc: "musl",
         platform: "linux",
       })?.packageName
-    ).toBe("@iktia/compiler-linux-x64-musl")
+    ).toBe("@naos-ui/compiler-linux-x64-musl")
   })
 
   it("uses an explicit native binding path before package resolution", () => {
     const bindings = createBindings()
     const loaded = loadNativeBindingsWithContext({
-      env: { [NATIVE_BINDING_ENV]: "/tmp/custom-iktia.node" },
+      env: { [NATIVE_BINDING_ENV]: "/tmp/custom-naos.node" },
       requireBinding: (specifier) => {
-        expect(specifier).toBe("/tmp/custom-iktia.node")
+        expect(specifier).toBe("/tmp/custom-naos.node")
         return bindings
       },
     })
@@ -95,7 +95,7 @@ describe("native compiler loader", () => {
     })
 
     expect(loaded).toBe(bindings)
-    expect(attempts).toEqual(["@iktia/compiler-darwin-arm64"])
+    expect(attempts).toEqual(["@naos-ui/compiler-darwin-arm64"])
   })
 
   it("falls back to the workspace local binding after an optional package miss", () => {
@@ -119,7 +119,7 @@ describe("native compiler loader", () => {
     })
 
     expect(loaded).toBe(bindings)
-    expect(attempts).toEqual(["@iktia/compiler-darwin-x64", localBinding])
+    expect(attempts).toEqual(["@naos-ui/compiler-darwin-x64", localBinding])
   })
 
   it("reports unsupported platforms with the supported package list", () => {
@@ -129,7 +129,7 @@ describe("native compiler loader", () => {
         platform: "freebsd",
       })
     ).toThrow(
-      /No Iktia native compiler package is available for freebsd\/x64.*@iktia\/compiler-darwin-arm64/s
+      /No Naos native compiler package is available for freebsd\/x64.*@naos-ui\/compiler-darwin-arm64/s
     )
   })
 
@@ -145,7 +145,7 @@ describe("native compiler loader", () => {
         },
       })
     ).toThrow(
-      /x86_64-unknown-linux-gnu.*@iktia\/compiler-linux-x64-gnu.*pnpm -w build:native/s
+      /x86_64-unknown-linux-gnu.*@naos-ui\/compiler-linux-x64-gnu.*pnpm -w build:native/s
     )
   })
 })

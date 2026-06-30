@@ -1,4 +1,4 @@
-import { effect, host, on, state } from "@iktia/core"
+import { effect, host, on, state } from "@naos-ui/core"
 
 export function ReactivityProbe() {
   const primary = state(0)

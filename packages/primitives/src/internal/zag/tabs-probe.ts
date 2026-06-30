@@ -36,7 +36,7 @@ type FakeListElement = {
 
 export function createZagTabsProbe({
   composite = true,
-  id = "iktia-zag-tabs-spike",
+  id = "naos-zag-tabs-spike",
   orientation = "horizontal",
   value,
   values,

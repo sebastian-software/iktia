@@ -9,15 +9,15 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaMenuItem = {
+export type NaosMenuItem = {
   disabled: boolean
   label: string
   value: string
 }
 
-export type IktiaZagMenuService = ReturnType<typeof createZagService>
+export type NaosZagMenuService = ReturnType<typeof createZagService>
 
-type IktiaZagMenuServiceOptions = {
+type NaosZagMenuServiceOptions = {
   disabled: boolean
   host: HTMLElement
   id: string
@@ -28,13 +28,13 @@ type IktiaZagMenuServiceOptions = {
   root: ParentNode
 }
 
-type IktiaMenuItemElement = HTMLElement & {
+type NaosMenuItemElement = HTMLElement & {
   disabled?: boolean
   label?: string
   value?: string
 }
 
-type SyncIktiaMenuItemsOptions = {
+type SyncNaosMenuItemsOptions = {
   api: ZagMenuApi
   disabled: boolean
   host: HTMLElement
@@ -42,10 +42,10 @@ type SyncIktiaMenuItemsOptions = {
   onSelect(value: string): void
 }
 
-const menuItemSelector = "iktia-menu-item"
+const menuItemSelector = "naos-menu-item"
 
-export function collectIktiaMenuItems(host: HTMLElement): IktiaMenuItem[] {
-  return Array.from(host.querySelectorAll<IktiaMenuItemElement>(menuItemSelector))
+export function collectNaosMenuItems(host: HTMLElement): NaosMenuItem[] {
+  return Array.from(host.querySelectorAll<NaosMenuItemElement>(menuItemSelector))
     .map((element) => {
       const value = element.value ?? element.getAttribute("value") ?? ""
       const label =
@@ -62,7 +62,7 @@ export function collectIktiaMenuItems(host: HTMLElement): IktiaMenuItem[] {
     .filter((item) => item.value.length > 0)
 }
 
-export function createIktiaZagMenuService({
+export function createNaosZagMenuService({
   disabled,
   host,
   id,
@@ -71,7 +71,7 @@ export function createIktiaZagMenuService({
   onOpenChange,
   positioning = { placement: "bottom-start", sameWidth: true },
   root,
-}: IktiaZagMenuServiceOptions): IktiaZagMenuService {
+}: NaosZagMenuServiceOptions): NaosZagMenuService {
   return createZagService({
     machine: menuMachine as never,
     props: {
@@ -97,29 +97,29 @@ export function createIktiaZagMenuService({
   })
 }
 
-export function getIktiaZagMenuApi(
-  service: IktiaZagMenuService | null
+export function getNaosZagMenuApi(
+  service: NaosZagMenuService | null
 ): ZagMenuApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagMenuService(service: IktiaZagMenuService | null) {
+export function stopNaosZagMenuService(service: NaosZagMenuService | null) {
   service?.stop()
 }
 
-export function syncIktiaMenuItems({
+export function syncNaosMenuItems({
   api,
   disabled,
   host,
   onRequestUpdate,
   onSelect,
-}: SyncIktiaMenuItemsOptions) {
+}: SyncNaosMenuItemsOptions) {
   const cleanups: VoidFunction[] = []
-  const items = collectIktiaMenuItems(host)
+  const items = collectNaosMenuItems(host)
 
   for (const item of items) {
-    const element = host.querySelector<IktiaMenuItemElement>(
+    const element = host.querySelector<NaosMenuItemElement>(
       `${menuItemSelector}[value="${cssEscape(item.value)}"]`
     )
     if (element == null) continue
@@ -157,8 +157,8 @@ function syncMenuItem({
 }: {
   api: ZagMenuApi
   disabled: boolean
-  element: IktiaMenuItemElement
-  item: IktiaMenuItem
+  element: NaosMenuItemElement
+  item: NaosMenuItem
   onRequestUpdate(): void
   onSelect(value: string): void
 }) {

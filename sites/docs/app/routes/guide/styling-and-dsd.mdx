@@ -6,7 +6,7 @@ order: 3
 
 # Styling And DSD
 
-v0.1 keeps styling flat and bundler-owned. There is no Iktia CSS graph, Sass
+v0.1 keeps styling flat and bundler-owned. There is no Naos CSS graph, Sass
 contract, CSS Modules contract, PostCSS contract, or constructable stylesheet
 contract.
 
@@ -20,7 +20,7 @@ export const options = {
 }
 ```
 
-Vite resolves `?inline` CSS imports to strings. Iktia injects those strings into
+Vite resolves `?inline` CSS imports to strings. Naos injects those strings into
 imperative Shadow DOM and explicit Declarative Shadow DOM output as `<style>`.
 
 ## Theming
@@ -29,8 +29,8 @@ CSS custom properties are the v0.1 theming mechanism:
 
 ```css
 button {
-  border-color: var(--iktia-control-border, #2563eb);
-  background: var(--iktia-control-bg, #eff6ff);
+  border-color: var(--naos-control-border, #2563eb);
+  background: var(--naos-control-bg, #eff6ff);
 }
 ```
 
@@ -43,13 +43,13 @@ DSD is the standard output of the explicit prerender path. You opt into
 prerendering static HTML; you do not add a second component mode.
 
 ```sh
-iktia prerender src/counter.wc.tsx --props '{"label":"Static"}'
+naos prerender src/counter.wc.tsx --props '{"label":"Static"}'
 ```
 
 Prerendering emits `<template shadowrootmode="open">`. The Vite plugin emits
 build-time metadata by default for static site and demo workflows. Use
 `prerender: false` only for builds that intentionally do not need that metadata.
-Visible `data-iktia-*` markers are internal hydration markers and are not
+Visible `data-naos-*` markers are internal hydration markers and are not
 semver-protected.
 
 ## Hydration Mismatches

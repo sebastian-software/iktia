@@ -23,22 +23,22 @@ importers:
 
   examples/counter:
     dependencies:
-      '@iktia/core':
+      '@naos-ui/core':
         specifier: workspace:^
         version: link:../../packages/core
-      '@iktia/motion':
+      '@naos-ui/motion':
         specifier: workspace:^
         version: link:../../packages/motion
-      '@iktia/primitives':
+      '@naos-ui/primitives':
         specifier: workspace:^
         version: link:../../packages/primitives
-      '@iktia/router':
+      '@naos-ui/router':
         specifier: workspace:^
         version: link:../../packages/router
-      '@iktia/runtime':
+      '@naos-ui/runtime':
         specifier: workspace:^
         version: link:../../packages/runtime
-      '@iktia/vite':
+      '@naos-ui/vite':
         specifier: workspace:^
         version: link:../../packages/vite
     devDependencies:
@@ -54,7 +54,7 @@ importers:
 
   packages/cli:
     dependencies:
-      '@iktia/compiler':
+      '@naos-ui/compiler':
         specifier: workspace:^
         version: link:../compiler
     devDependencies:
@@ -86,28 +86,28 @@ importers:
         specifier: ^4.1.6
         version: 4.1.8(@types/node@25.9.3)(happy-dom@20.10.6)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.27.7)(jiti@2.7.0)(yaml@2.9.0))
     optionalDependencies:
-      '@iktia/compiler-darwin-arm64':
+      '@naos-ui/compiler-darwin-arm64':
         specifier: workspace:^
         version: link:../compiler-darwin-arm64
-      '@iktia/compiler-darwin-x64':
+      '@naos-ui/compiler-darwin-x64':
         specifier: workspace:^
         version: link:../compiler-darwin-x64
-      '@iktia/compiler-linux-arm64-gnu':
+      '@naos-ui/compiler-linux-arm64-gnu':
         specifier: workspace:^
         version: link:../compiler-linux-arm64-gnu
-      '@iktia/compiler-linux-arm64-musl':
+      '@naos-ui/compiler-linux-arm64-musl':
         specifier: workspace:^
         version: link:../compiler-linux-arm64-musl
-      '@iktia/compiler-linux-x64-gnu':
+      '@naos-ui/compiler-linux-x64-gnu':
         specifier: workspace:^
         version: link:../compiler-linux-x64-gnu
-      '@iktia/compiler-linux-x64-musl':
+      '@naos-ui/compiler-linux-x64-musl':
         specifier: workspace:^
         version: link:../compiler-linux-x64-musl
-      '@iktia/compiler-win32-arm64-msvc':
+      '@naos-ui/compiler-win32-arm64-msvc':
         specifier: workspace:^
         version: link:../compiler-win32-arm64-msvc
-      '@iktia/compiler-win32-x64-msvc':
+      '@naos-ui/compiler-win32-x64-msvc':
         specifier: workspace:^
         version: link:../compiler-win32-x64-msvc
 
@@ -159,7 +159,7 @@ importers:
 
   packages/data-convex:
     dependencies:
-      '@iktia/data':
+      '@naos-ui/data':
         specifier: workspace:^
         version: link:../data
     devDependencies:
@@ -196,18 +196,18 @@ importers:
 
   packages/primitives:
     dependencies:
-      '@iktia/core':
-        specifier: workspace:^
-        version: link:../core
-      '@iktia/motion':
-        specifier: workspace:^
-        version: link:../motion
-      '@iktia/runtime':
-        specifier: workspace:^
-        version: link:../runtime
       '@internationalized/date':
         specifier: 3.12.2
         version: 3.12.2
+      '@naos-ui/core':
+        specifier: workspace:^
+        version: link:../core
+      '@naos-ui/motion':
+        specifier: workspace:^
+        version: link:../motion
+      '@naos-ui/runtime':
+        specifier: workspace:^
+        version: link:../runtime
       '@zag-js/accordion':
         specifier: 1.41.2
         version: 1.41.2
@@ -290,7 +290,7 @@ importers:
         specifier: 1.41.2
         version: 1.41.2
     devDependencies:
-      '@iktia/compiler':
+      '@naos-ui/compiler':
         specifier: workspace:^
         version: link:../compiler
       '@types/node':
@@ -338,7 +338,7 @@ importers:
 
   packages/vite:
     dependencies:
-      '@iktia/compiler':
+      '@naos-ui/compiler':
         specifier: workspace:^
         version: link:../compiler
     devDependencies:

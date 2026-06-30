@@ -60,10 +60,10 @@ jobs:
         run: pnpm test
 
       - name: Check example types
-        run: pnpm --filter @iktia/example-counter type-check
+        run: pnpm --filter @naos-ui/example-counter type-check
 
       - name: Build example
-        run: pnpm --filter @iktia/example-counter build
+        run: pnpm --filter @naos-ui/example-counter build
 
       - name: Build docs
         run: pnpm build:docs
@@ -137,10 +137,10 @@ jobs:
         run: pnpm build
 
       - name: Prepare demo DSD
-        run: pnpm --filter @iktia/example-counter prepare:dsd
+        run: pnpm --filter @naos-ui/example-counter prepare:dsd
 
       - name: Install Playwright browser
-        run: pnpm --filter @iktia/example-counter exec playwright install --with-deps ${{ matrix.browser }}
+        run: pnpm --filter @naos-ui/example-counter exec playwright install --with-deps ${{ matrix.browser }}
 
       - name: Run example browser tests
-        run: pnpm --filter @iktia/example-counter exec playwright test --project=${{ matrix.browser }}
+        run: pnpm --filter @naos-ui/example-counter exec playwright test --project=${{ matrix.browser }}

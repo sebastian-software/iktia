@@ -8,17 +8,17 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  createIktiaZagToggleService,
-  getIktiaZagToggleApi,
-  stopIktiaZagToggleService,
-  withoutIktiaZagToggleClick,
+  createNaosZagToggleService,
+  getNaosZagToggleApi,
+  stopNaosZagToggleService,
+  withoutNaosZagToggleClick,
 } from "./internal/zag/toggle.js"
-import type { IktiaZagToggleService } from "./internal/zag/toggle.js"
+import type { NaosZagToggleService } from "./internal/zag/toggle.js"
 import css from "./toggle.wc.css?inline"
 
-export type IktiaToggleProps = {
+export type NaosToggleProps = {
   disabled?: boolean
   label?: string
   name?: string
@@ -30,20 +30,20 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaToggle({
+export function NaosToggle({
   disabled = false,
   label = "Toggle",
   name = "",
   pressed = false,
   value = "on",
-}: IktiaToggleProps = {}) {
+}: NaosToggleProps = {}) {
   const active = state(pressed)
-  const toggleService = state<IktiaZagToggleService | null>(null)
-  const toggleApi = computed(() => getIktiaZagToggleApi(toggleService()))
+  const toggleService = state<NaosZagToggleService | null>(null)
+  const toggleApi = computed(() => getNaosZagToggleApi(toggleService()))
   const rootProps = computed(() =>
-    withoutIktiaZagToggleClick(toggleApi()?.getRootProps() ?? {})
+    withoutNaosZagToggleClick(toggleApi()?.getRootProps() ?? {})
   )
-  const changed = event<{ pressed: boolean }>("iktia-change")
+  const changed = event<{ pressed: boolean }>("naos-change")
   const form = formControl({
     value: () => (active() ? value : null),
     reset: () => {
@@ -56,10 +56,10 @@ export function IktiaToggle({
   void name
 
   onConnected(() => {
-    toggleService.set(createIktiaZagToggleService({
+    toggleService.set(createNaosZagToggleService({
       disabled,
       host: host().element,
-      id: "iktia-toggle",
+      id: "naos-toggle",
       onPressedChange(nextPressed) {
         active.set(nextPressed)
         changed.emit({ pressed: nextPressed })
@@ -69,7 +69,7 @@ export function IktiaToggle({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagToggleService(toggleService())
+    stopNaosZagToggleService(toggleService())
     toggleService.set(null)
   })
 

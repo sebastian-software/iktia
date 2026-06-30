@@ -1,22 +1,22 @@
 {
-  "name": "@iktia/example-counter",
+  "name": "@naos-ui/example-counter",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "build": "pnpm build:deps && pnpm prepare:dsd && vite build",
-    "build:deps": "pnpm -w build:native && pnpm --filter @iktia/core build && pnpm --filter @iktia/runtime build && pnpm --filter @iktia/motion build && pnpm --filter @iktia/compiler build && pnpm --filter @iktia/router build && pnpm --filter @iktia/vite build && pnpm --filter @iktia/primitives build",
+    "build:deps": "pnpm -w build:native && pnpm --filter @naos-ui/core build && pnpm --filter @naos-ui/runtime build && pnpm --filter @naos-ui/motion build && pnpm --filter @naos-ui/compiler build && pnpm --filter @naos-ui/router build && pnpm --filter @naos-ui/vite build && pnpm --filter @naos-ui/primitives build",
     "prepare:dsd": "node scripts/build-dsd-html.mjs",
     "test": "pnpm build:deps && pnpm prepare:dsd && playwright test",
     "type-check": "pnpm build:deps && tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@iktia/core": "workspace:^",
-    "@iktia/motion": "workspace:^",
-    "@iktia/primitives": "workspace:^",
-    "@iktia/router": "workspace:^",
-    "@iktia/runtime": "workspace:^",
-    "@iktia/vite": "workspace:^"
+    "@naos-ui/core": "workspace:^",
+    "@naos-ui/motion": "workspace:^",
+    "@naos-ui/primitives": "workspace:^",
+    "@naos-ui/router": "workspace:^",
+    "@naos-ui/runtime": "workspace:^",
+    "@naos-ui/vite": "workspace:^"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",

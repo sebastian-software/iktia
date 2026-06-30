@@ -8,9 +8,9 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaZagTooltipService = ReturnType<typeof createZagService>
+export type NaosZagTooltipService = ReturnType<typeof createZagService>
 
-type IktiaZagTooltipServiceOptions = {
+type NaosZagTooltipServiceOptions = {
   closeDelay: number
   disabled: boolean
   host: HTMLElement
@@ -21,7 +21,7 @@ type IktiaZagTooltipServiceOptions = {
   root: ParentNode
 }
 
-export function createIktiaZagTooltipService({
+export function createNaosZagTooltipService({
   closeDelay,
   disabled,
   host,
@@ -30,7 +30,7 @@ export function createIktiaZagTooltipService({
   open,
   openDelay,
   root,
-}: IktiaZagTooltipServiceOptions): IktiaZagTooltipService {
+}: NaosZagTooltipServiceOptions): NaosZagTooltipService {
   return createZagService({
     machine: tooltipMachine as never,
     props: {
@@ -56,15 +56,15 @@ export function createIktiaZagTooltipService({
   })
 }
 
-export function getIktiaZagTooltipApi(
-  service: IktiaZagTooltipService | null
+export function getNaosZagTooltipApi(
+  service: NaosZagTooltipService | null
 ): ZagTooltipApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagTooltipService(
-  service: IktiaZagTooltipService | null
+export function stopNaosZagTooltipService(
+  service: NaosZagTooltipService | null
 ) {
   service?.stop()
 }

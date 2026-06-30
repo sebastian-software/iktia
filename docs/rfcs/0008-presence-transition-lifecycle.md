@@ -5,11 +5,11 @@ Date: 2026-06-30
 
 ## Summary
 
-Define the first CSS-first transition lifecycle for transient Iktia UI. This
+Define the first CSS-first transition lifecycle for transient Naos UI. This
 RFC follows issue #36 and the overlay foundation shipped in RFC 0007 / PR #80.
 
 The first implementation slice is intentionally package-private to
-`@iktia/primitives`. It gives overlays a shared presence vocabulary and a
+`@naos-ui/primitives`. It gives overlays a shared presence vocabulary and a
 small animation-aware teardown helper, without adding compiler-level transition
 syntax or FLIP list movement yet.
 
@@ -33,11 +33,11 @@ backdrop, popup, or equivalent parts:
 
 | Hook | Meaning |
 | --- | --- |
-| `data-iktia-presence="entering"` | Element is mounted and should render its starting style. |
-| `data-iktia-presence="open"` | Element is fully open. |
-| `data-iktia-presence="closing"` | Element is logically closed but still mounted for exit motion. |
-| `data-iktia-presence="closed"` | Element is closed and hidden. |
-| `data-iktia-presence="unmounted"` | Reserved for future helpers that physically remove a subtree. |
+| `data-naos-presence="entering"` | Element is mounted and should render its starting style. |
+| `data-naos-presence="open"` | Element is fully open. |
+| `data-naos-presence="closing"` | Element is logically closed but still mounted for exit motion. |
+| `data-naos-presence="closed"` | Element is closed and hidden. |
+| `data-naos-presence="unmounted"` | Reserved for future helpers that physically remove a subtree. |
 | `data-starting-style` | Present during the first rendered enter frame. |
 | `data-ending-style` | Present while close animations/transitions are running. |
 
@@ -59,7 +59,7 @@ The package-private helper in `src/internal/behavior/presence.ts` owns:
 The helper does not own rendering, CSS generation, compiler syntax, FLIP
 measurement, or portal movement.
 
-Shared spring timing is now coordinated through `@iktia/motion` token helpers:
+Shared spring timing is now coordinated through `@naos-ui/motion` token helpers:
 the runtime helper returns a stable class name and the primitives build emits
 the matching CSS custom-property rule into each component's Shadow DOM styles.
 This keeps the presence lifecycle free of inline `style` string generation while
@@ -67,29 +67,29 @@ still preserving browser-native CSS variables for component overrides.
 
 ## First Consumers
 
-`<iktia-dialog>` and `<iktia-popover>` use the helper first because both already
+`<naos-dialog>` and `<naos-popover>` use the helper first because both already
 share the overlay kernel from RFC 0007 and both need a mounted-while-closing
-state before physical portal work can be meaningful. `<iktia-tooltip>` and
-`<iktia-hover-card>` follow the same contract for non-modal transient overlays.
+state before physical portal work can be meaningful. `<naos-tooltip>` and
+`<naos-hover-card>` follow the same contract for non-modal transient overlays.
 
 Their default CSS uses opacity/transform transitions and CSS custom properties
 for duration and easing:
 
-* `--iktia-dialog-motion-duration`
-* `--iktia-dialog-motion-easing`
-* `--iktia-popover-motion-duration`
-* `--iktia-popover-motion-easing`
-* `--iktia-tooltip-motion-duration`
-* `--iktia-tooltip-motion-easing`
-* `--iktia-hover-card-motion-duration`
-* `--iktia-hover-card-motion-easing`
+* `--naos-dialog-motion-duration`
+* `--naos-dialog-motion-easing`
+* `--naos-popover-motion-duration`
+* `--naos-popover-motion-easing`
+* `--naos-tooltip-motion-duration`
+* `--naos-tooltip-motion-easing`
+* `--naos-hover-card-motion-duration`
+* `--naos-hover-card-motion-easing`
 
 The shared fallback variables are emitted by a deterministic generated class:
 
 ```css
-.iktia-motion-presence-spring-snappy {
-  --iktia-presence-motion-duration: 420ms;
-  --iktia-presence-motion-easing: linear(...);
+.naos-motion-presence-spring-snappy {
+  --naos-presence-motion-duration: 420ms;
+  --naos-presence-motion-easing: linear(...);
 }
 ```
 

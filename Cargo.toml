@@ -1,11 +1,11 @@
 [workspace]
-members = ["crates/iktia-core", "crates/iktia-node"]
+members = ["crates/naos-core", "crates/naos-node"]
 resolver = "2"
 
 [workspace.package]
 edition = "2024"
 license = "Apache-2.0"
-repository = "https://github.com/sebastian-software/iktia"
+repository = "https://github.com/sebastian-software/naos-ui"
 rust-version = "1.93"
 version = "0.0.0"
 

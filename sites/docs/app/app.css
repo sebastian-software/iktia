@@ -1,15 +1,15 @@
-.iktia-home {
+.naos-home {
   display: grid;
   gap: 2rem;
 }
 
-.iktia-hero {
+.naos-hero {
   display: grid;
   gap: 1.25rem;
   padding: 4rem 0 2rem;
 }
 
-.iktia-eyebrow {
+.naos-eyebrow {
   margin: 0;
   color: #0f766e;
   font-size: 0.78rem;
@@ -18,7 +18,7 @@
   text-transform: uppercase;
 }
 
-.iktia-hero h1 {
+.naos-hero h1 {
   max-width: 820px;
   margin: 0;
   color: #111827;
@@ -27,21 +27,21 @@
   line-height: 0.98;
 }
 
-.iktia-hero p {
+.naos-hero p {
   max-width: 760px;
   margin: 0;
   color: #475569;
   font-size: 1.08rem;
 }
 
-.iktia-actions,
-.iktia-grid {
+.naos-actions,
+.naos-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
 }
 
-.iktia-action {
+.naos-action {
   display: inline-flex;
   align-items: center;
   min-height: 2.5rem;
@@ -53,46 +53,46 @@
   text-decoration: none;
 }
 
-.iktia-action[data-primary="true"] {
+.naos-action[data-primary="true"] {
   background: #0f766e;
   color: white;
 }
 
-.iktia-grid {
+.naos-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
 }
 
-.iktia-card {
+.naos-card {
   border: 1px solid #d7dde5;
   border-radius: 0.5rem;
   padding: 1rem;
   background: #ffffff;
 }
 
-.iktia-card h2 {
+.naos-card h2 {
   margin: 0;
   color: #111827;
   font-size: 1.1rem;
   letter-spacing: 0;
 }
 
-.iktia-card p {
+.naos-card p {
   margin: 0.65rem 0 0;
   color: #475569;
 }
 
 @media (max-width: 780px) {
-  .iktia-hero {
+  .naos-hero {
     padding-top: 2rem;
   }
 
-  .iktia-hero h1 {
+  .naos-hero h1 {
     font-size: 2.45rem;
   }
 
-  .iktia-grid {
+  .naos-grid {
     grid-template-columns: 1fr;
   }
 }

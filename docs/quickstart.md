@@ -6,17 +6,17 @@ Element. Repository contributors should also run the local native build step.
 ## Install Packages
 
 ```sh
-pnpm add @iktia/core @iktia/runtime
-pnpm add -D @iktia/compiler @iktia/vite @iktia/cli
+pnpm add @naos-ui/core @naos-ui/runtime
+pnpm add -D @naos-ui/compiler @naos-ui/vite @naos-ui/cli
 ```
 
-`@iktia/compiler` resolves the matching optional native package for the current
+`@naos-ui/compiler` resolves the matching optional native package for the current
 platform. npm installs do not build native code from source.
 
 For browser app-shell routing, add the optional router package:
 
 ```sh
-pnpm add @iktia/router
+pnpm add @naos-ui/router
 ```
 
 For repository development, install dependencies and build the local native
@@ -29,13 +29,13 @@ pnpm build:native
 
 ## Configure TypeScript
 
-Use the automatic JSX runtime and point `jsxImportSource` at `@iktia/core`.
+Use the automatic JSX runtime and point `jsxImportSource` at `@naos-ui/core`.
 
 ```json
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "@iktia/core",
+    "jsxImportSource": "@naos-ui/core",
     "types": ["vite/client"]
   }
 }
@@ -45,10 +45,10 @@ Use the automatic JSX runtime and point `jsxImportSource` at `@iktia/core`.
 
 ```ts
 import { defineConfig } from "vite"
-import { iktia } from "@iktia/vite"
+import { naos } from "@naos-ui/vite"
 
 export default defineConfig({
-  plugins: [iktia()],
+  plugins: [naos()],
 })
 ```
 
@@ -61,7 +61,7 @@ cache invalidation.
 Create `src/counter.wc.tsx`:
 
 ```tsx
-import { computed, event, on, state } from "@iktia/core"
+import { computed, event, on, state } from "@naos-ui/core"
 
 export type CounterProps = {
   label?: string
@@ -105,17 +105,17 @@ For a package app, run your normal Vite build. In this repository, use the demo
 as the working proof:
 
 ```sh
-pnpm --filter @iktia/example-counter type-check
-pnpm --filter @iktia/example-counter build
-pnpm --filter @iktia/example-counter test
+pnpm --filter @naos-ui/example-counter type-check
+pnpm --filter @naos-ui/example-counter build
+pnpm --filter @naos-ui/example-counter test
 ```
 
 Use the CLI for standalone smoke tests:
 
 ```sh
-iktia compile src/counter.wc.tsx -o dist/counter.js
-iktia prerender src/counter.wc.tsx --props '{"label":"Static"}' -o dist/counter.html
-iktia info
+naos compile src/counter.wc.tsx -o dist/counter.js
+naos prerender src/counter.wc.tsx --props '{"label":"Static"}' -o dist/counter.html
+naos info
 ```
 
 Next, read [Authoring](authoring.md), then

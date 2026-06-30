@@ -1,15 +1,15 @@
 {
-  "name": "@iktia/motion",
+  "name": "@naos-ui/motion",
   "version": "0.0.0",
-  "description": "Framework-free motion primitives for Iktia components.",
+  "description": "Framework-free motion primitives for Naos components.",
   "license": "Apache-2.0",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sebastian-software/iktia.git",
+    "url": "git+https://github.com/sebastian-software/naos-ui.git",
     "directory": "packages/motion"
   },
-  "bugs": "https://github.com/sebastian-software/iktia/issues",
+  "bugs": "https://github.com/sebastian-software/naos-ui/issues",
   "exports": {
     ".": {
       "types": "./dist/index.d.mts",

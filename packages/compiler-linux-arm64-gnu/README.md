@@ -1,6 +1,6 @@
-# @iktia/compiler-linux-arm64-gnu
+# @naos-ui/compiler-linux-arm64-gnu
 
-Linux arm64 GNU native compiler binding for `@iktia/compiler`.
+Linux arm64 GNU native compiler binding for `@naos-ui/compiler`.
 
 This package is installed as an optional dependency. Users should import
-`@iktia/compiler`, not this package directly.
+`@naos-ui/compiler`, not this package directly.

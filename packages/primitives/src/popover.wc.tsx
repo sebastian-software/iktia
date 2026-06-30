@@ -7,31 +7,31 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  createIktiaZagPopoverService,
-  getIktiaZagPopoverApi,
-  stopIktiaZagPopoverService,
+  createNaosZagPopoverService,
+  getNaosZagPopoverApi,
+  stopNaosZagPopoverService,
 } from "./internal/zag/popover.js"
-import type { IktiaZagPopoverService } from "./internal/zag/popover.js"
+import type { NaosZagPopoverService } from "./internal/zag/popover.js"
 import {
-  getIktiaOverlayStateAttributes,
-  listenForIktiaOverlayEscape,
+  getNaosOverlayStateAttributes,
+  listenForNaosOverlayEscape,
 } from "./internal/behavior/overlay.js"
 import {
-  createIktiaPresenceSnapshot,
-  getIktiaPresenceAttributes,
-  getIktiaPresenceMotionAttributes,
-  isIktiaPresenceHidden,
-  isIktiaPresenceOpen,
-  nextIktiaPresenceSnapshot,
-  scheduleIktiaPresenceFrame,
-  settleIktiaPresenceSnapshot,
-  waitForIktiaPresenceExit,
+  createNaosPresenceSnapshot,
+  getNaosPresenceAttributes,
+  getNaosPresenceMotionAttributes,
+  isNaosPresenceHidden,
+  isNaosPresenceOpen,
+  nextNaosPresenceSnapshot,
+  scheduleNaosPresenceFrame,
+  settleNaosPresenceSnapshot,
+  waitForNaosPresenceExit,
 } from "./internal/behavior/presence.js"
 import css from "./popover.wc.css?inline"
 
-export type IktiaPopoverProps = {
+export type NaosPopoverProps = {
   label?: string
   modal?: boolean
   open?: boolean
@@ -42,22 +42,22 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaPopover({
+export function NaosPopover({
   label = "Open",
   modal = false,
   open = false,
   title = "Details",
-}: IktiaPopoverProps = {}) {
+}: NaosPopoverProps = {}) {
   const expanded = state(open)
-  const presence = state(createIktiaPresenceSnapshot(open))
-  const popoverService = state<IktiaZagPopoverService | null>(null)
-  const popoverApi = computed(() => getIktiaZagPopoverApi(popoverService()))
-  const changed = event<{ open: boolean }>("iktia-open-change")
+  const presence = state(createNaosPresenceSnapshot(open))
+  const popoverService = state<NaosZagPopoverService | null>(null)
+  const popoverApi = computed(() => getNaosZagPopoverApi(popoverService()))
+  const changed = event<{ open: boolean }>("naos-open-change")
 
   onConnected(() => {
-    popoverService.set(createIktiaZagPopoverService({
+    popoverService.set(createNaosZagPopoverService({
       host: host().element,
-      id: "iktia-popover",
+      id: "naos-popover",
       modal,
       onOpenChange(nextOpen) {
         expanded.set(nextOpen)
@@ -68,29 +68,29 @@ export function IktiaPopover({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagPopoverService(popoverService())
+    stopNaosZagPopoverService(popoverService())
     popoverService.set(null)
   })
   effect(() => {
-    const next = nextIktiaPresenceSnapshot(presence(), expanded())
+    const next = nextNaosPresenceSnapshot(presence(), expanded())
     if (next !== presence()) presence.set(next)
   })
   effect(() => {
     const snapshot = presence()
     if (snapshot.phase === "entering") {
-      return scheduleIktiaPresenceFrame(() => {
+      return scheduleNaosPresenceFrame(() => {
         if (expanded()) {
-          presence.set(settleIktiaPresenceSnapshot(presence(), true))
+          presence.set(settleNaosPresenceSnapshot(presence(), true))
         }
       })
     }
     if (snapshot.phase !== "closing") return
     const content = host().root.querySelector("[part~='content']")
-    return waitForIktiaPresenceExit(
+    return waitForNaosPresenceExit(
       content instanceof Element ? content : null,
       () => {
         if (!expanded()) {
-          presence.set(settleIktiaPresenceSnapshot(presence(), false))
+          presence.set(settleNaosPresenceSnapshot(presence(), false))
         }
       }
     )
@@ -99,7 +99,7 @@ export function IktiaPopover({
     const api = popoverApi()
     void expanded()
     if (api == null || !expanded()) return
-    return listenForIktiaOverlayEscape({
+    return listenForNaosOverlayEscape({
       onClose: () => api.setOpen(false),
       target: document,
     })
@@ -108,13 +108,13 @@ export function IktiaPopover({
   return (
     <div
       part="root"
-      {...getIktiaOverlayStateAttributes({
+      {...getNaosOverlayStateAttributes({
         kind: "popover",
         modal,
-        open: isIktiaPresenceOpen(presence()),
+        open: isNaosPresenceOpen(presence()),
       })}
-      {...getIktiaPresenceAttributes(presence())}
-      {...getIktiaPresenceMotionAttributes()}
+      {...getNaosPresenceAttributes(presence())}
+      {...getNaosPresenceMotionAttributes()}
     >
       <button
         {...(popoverApi()?.getTriggerProps() ?? {})}
@@ -127,24 +127,24 @@ export function IktiaPopover({
       <div
         {...(popoverApi()?.getPositionerProps() ?? {})}
         part="positioner"
-        {...getIktiaOverlayStateAttributes({
+        {...getNaosOverlayStateAttributes({
           kind: "popover",
           modal,
-          open: isIktiaPresenceOpen(presence()),
+          open: isNaosPresenceOpen(presence()),
         })}
-        {...getIktiaPresenceAttributes(presence())}
-        hidden={isIktiaPresenceHidden(presence())}
+        {...getNaosPresenceAttributes(presence())}
+        hidden={isNaosPresenceHidden(presence())}
       >
         <div
           {...(popoverApi()?.getContentProps() ?? {})}
           part="content"
-          {...getIktiaOverlayStateAttributes({
+          {...getNaosOverlayStateAttributes({
             kind: "popover",
             modal,
-            open: isIktiaPresenceOpen(presence()),
+            open: isNaosPresenceOpen(presence()),
           })}
-          {...getIktiaPresenceAttributes(presence())}
-          hidden={isIktiaPresenceHidden(presence())}
+          {...getNaosPresenceAttributes(presence())}
+          hidden={isNaosPresenceHidden(presence())}
         >
           <div part="header">
             <h2 {...(popoverApi()?.getTitleProps() ?? {})} part="title">

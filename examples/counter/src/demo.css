@@ -162,17 +162,17 @@ x-disclosure,
 x-field,
 x-toggle,
 x-toolbar,
-iktia-button,
-iktia-button-group,
-iktia-checkbox,
-iktia-dropdown,
-iktia-field,
-iktia-tabs,
+naos-button,
+naos-button-group,
+naos-checkbox,
+naos-dropdown,
+naos-field,
+naos-tabs,
 router-home-view,
 router-not-found-view,
 router-product-view,
 router-settings-view,
-iktia-toggle {
+naos-toggle {
   justify-self: start;
 }
 
@@ -186,9 +186,9 @@ iktia-toggle {
 
 .primitive-surface x-disclosure,
 .primitive-surface x-field,
-.primitive-surface iktia-field,
-.primitive-surface iktia-tabs,
-.primitive-surface iktia-dropdown {
+.primitive-surface naos-field,
+.primitive-surface naos-tabs,
+.primitive-surface naos-dropdown {
   width: 100%;
 }
 

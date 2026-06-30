@@ -11,9 +11,9 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaZagProgressService = ReturnType<typeof createZagService>
+export type NaosZagProgressService = ReturnType<typeof createZagService>
 
-type IktiaZagProgressServiceOptions = {
+type NaosZagProgressServiceOptions = {
   host: HTMLElement
   id: string
   label: string
@@ -37,7 +37,7 @@ export function progressValue(
   return Math.min(Math.max(value, min), max)
 }
 
-export function createIktiaZagProgressService({
+export function createNaosZagProgressService({
   host,
   id,
   label,
@@ -48,7 +48,7 @@ export function createIktiaZagProgressService({
   orientation,
   root,
   value,
-}: IktiaZagProgressServiceOptions): IktiaZagProgressService {
+}: NaosZagProgressServiceOptions): NaosZagProgressService {
   return createZagService({
     machine: progressMachine as never,
     props: {
@@ -77,15 +77,15 @@ export function createIktiaZagProgressService({
   })
 }
 
-export function getIktiaZagProgressApi(
-  service: IktiaZagProgressService | null
+export function getNaosZagProgressApi(
+  service: NaosZagProgressService | null
 ): ZagProgressApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagProgressService(
-  service: IktiaZagProgressService | null
+export function stopNaosZagProgressService(
+  service: NaosZagProgressService | null
 ) {
   service?.stop()
 }

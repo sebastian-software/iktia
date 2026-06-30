@@ -8,15 +8,15 @@
   align-items: center;
   justify-content: center;
   min-height: 2.35rem;
-  border: 1px solid var(--iktia-toast-trigger-border, #65736d);
+  border: 1px solid var(--naos-toast-trigger-border, #65736d);
   border-radius: 6px;
   padding: 0 0.75rem;
-  background: var(--iktia-toast-trigger-bg, #ffffff);
-  color: var(--iktia-toast-trigger-fg, #17201b);
+  background: var(--naos-toast-trigger-bg, #ffffff);
+  color: var(--naos-toast-trigger-fg, #17201b);
   font: inherit;
   cursor: pointer;
 }
 
 [part~="trigger"]:hover {
-  background: var(--iktia-toast-trigger-bg-hover, #f1f5f3);
+  background: var(--naos-toast-trigger-bg-hover, #f1f5f3);
 }

@@ -8,7 +8,7 @@ build/
 .tsbuildinfo/
 packages/core-node/native/*.node
 packages/compiler/native/*.node
-packages/compiler-*/iktia-node.node
+packages/compiler-*/naos-node.node
 test-results/
 *.log
 .DS_Store

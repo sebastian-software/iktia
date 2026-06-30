@@ -8,20 +8,20 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  collectIktiaComboboxItems,
-  createIktiaZagComboboxService,
-  getIktiaZagComboboxApi,
-  labelForIktiaComboboxValue,
-  stopIktiaZagComboboxService,
-  syncIktiaComboboxItems,
+  collectNaosComboboxItems,
+  createNaosZagComboboxService,
+  getNaosZagComboboxApi,
+  labelForNaosComboboxValue,
+  stopNaosZagComboboxService,
+  syncNaosComboboxItems,
 } from "./internal/zag/combobox.js"
-import type { IktiaZagComboboxService } from "./internal/zag/combobox.js"
-import { getIktiaOverlayStateAttributes } from "./internal/behavior/overlay.js"
+import type { NaosZagComboboxService } from "./internal/zag/combobox.js"
+import { getNaosOverlayStateAttributes } from "./internal/behavior/overlay.js"
 import css from "./combobox.wc.css?inline"
 
-export type IktiaComboboxProps = {
+export type NaosComboboxProps = {
   disabled?: boolean
   label?: string
   name?: string
@@ -33,26 +33,26 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaCombobox({
+export function NaosCombobox({
   disabled = false,
   label = "Options",
   name = "",
   placeholder = "Search options",
   value = "",
-}: IktiaComboboxProps = {}) {
+}: NaosComboboxProps = {}) {
   const selected = state(value)
   const input = state("")
   const open = state(false)
-  const comboboxService = state<IktiaZagComboboxService | null>(null)
-  const comboboxApi = computed(() => getIktiaZagComboboxApi(comboboxService()))
-  const changed = event<{ value: string }>("iktia-change")
-  const inputChanged = event<{ inputValue: string }>("iktia-input")
-  const opened = event<{ open: boolean }>("iktia-open-change")
+  const comboboxService = state<NaosZagComboboxService | null>(null)
+  const comboboxApi = computed(() => getNaosZagComboboxApi(comboboxService()))
+  const changed = event<{ value: string }>("naos-change")
+  const inputChanged = event<{ inputValue: string }>("naos-input")
+  const opened = event<{ open: boolean }>("naos-open-change")
   const form = formControl({
     value: () => selected() || null,
     reset: () => {
       const resetInputValue = value
-        ? labelForIktiaComboboxValue(host().element, value)
+        ? labelForNaosComboboxValue(host().element, value)
         : ""
       selected.set(value)
       input.set(resetInputValue)
@@ -66,14 +66,14 @@ export function IktiaCombobox({
 
   onConnected(() => {
     const hostElement = host().element
-    const initialInput = value ? labelForIktiaComboboxValue(hostElement, value) : ""
+    const initialInput = value ? labelForNaosComboboxValue(hostElement, value) : ""
     input.set(initialInput)
-    comboboxService.set(createIktiaZagComboboxService({
+    comboboxService.set(createNaosZagComboboxService({
       disabled,
       host: hostElement,
-      id: "iktia-combobox",
+      id: "naos-combobox",
       inputValue: initialInput,
-      items: collectIktiaComboboxItems(hostElement),
+      items: collectNaosComboboxItems(hostElement),
       name,
       onInputValueChange(nextValue) {
         input.set(nextValue)
@@ -93,7 +93,7 @@ export function IktiaCombobox({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagComboboxService(comboboxService())
+    stopNaosZagComboboxService(comboboxService())
     comboboxService.set(null)
   })
   effect(() => {
@@ -102,7 +102,7 @@ export function IktiaCombobox({
     void input()
     void open()
     if (api == null) return
-    return syncIktiaComboboxItems({
+    return syncNaosComboboxItems({
       api,
       disabled,
       host: host().element,
@@ -114,7 +114,7 @@ export function IktiaCombobox({
     <section
       {...(comboboxApi()?.getRootProps() ?? {})}
       part="root"
-      {...getIktiaOverlayStateAttributes({
+      {...getNaosOverlayStateAttributes({
         kind: "combobox",
         open: open(),
       })}
@@ -140,7 +140,7 @@ export function IktiaCombobox({
       <div
         {...(comboboxApi()?.getPositionerProps() ?? {})}
         part="positioner"
-        {...getIktiaOverlayStateAttributes({
+        {...getNaosOverlayStateAttributes({
           kind: "combobox",
           open: open(),
         })}
@@ -148,7 +148,7 @@ export function IktiaCombobox({
         <div
           {...(comboboxApi()?.getContentProps() ?? {})}
           part="content"
-          {...getIktiaOverlayStateAttributes({
+          {...getNaosOverlayStateAttributes({
             kind: "combobox",
             open: open(),
           })}

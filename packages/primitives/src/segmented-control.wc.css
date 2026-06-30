@@ -5,12 +5,12 @@
 
 [part~="root"] {
   display: grid;
-  gap: var(--iktia-segmented-control-gap, 0.55rem);
-  color: var(--iktia-segmented-control-fg, #17201b);
+  gap: var(--naos-segmented-control-gap, 0.55rem);
+  color: var(--naos-segmented-control-fg, #17201b);
 }
 
 [part~="label"] {
-  color: var(--iktia-segmented-control-label-fg, #17201b);
+  color: var(--naos-segmented-control-label-fg, #17201b);
   font-weight: 800;
 }
 
@@ -18,9 +18,9 @@
   display: inline-flex;
   width: max-content;
   overflow: hidden;
-  border: 1px solid var(--iktia-segmented-control-border, #65736d);
-  border-radius: var(--iktia-segmented-control-radius, 0.5rem);
-  background: var(--iktia-segmented-control-bg, #ffffff);
+  border: 1px solid var(--naos-segmented-control-border, #65736d);
+  border-radius: var(--naos-segmented-control-radius, 0.5rem);
+  background: var(--naos-segmented-control-bg, #ffffff);
 }
 
 [part~="root"][data-orientation="vertical"] [part~="items"] {

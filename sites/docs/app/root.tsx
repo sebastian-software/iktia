@@ -10,7 +10,7 @@ export const meta: MetaFunction = () => [
   {
     name: "description",
     content:
-      "Iktia documentation for React-like TSX authoring and native Custom Element output.",
+      "Naos documentation for React-like TSX authoring and native Custom Element output.",
   },
 ]
 

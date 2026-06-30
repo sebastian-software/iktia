@@ -7,7 +7,7 @@ import {
   on,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import css from "./toggle.wc.css?inline"
 
 export type ToggleProps = {

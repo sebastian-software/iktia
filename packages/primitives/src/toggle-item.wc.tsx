@@ -1,7 +1,7 @@
-import { type ComponentOptions } from "@iktia/core"
+import { type ComponentOptions } from "@naos-ui/core"
 import css from "./toggle-item.wc.css?inline"
 
-export type IktiaToggleItemProps = {
+export type NaosToggleItemProps = {
   disabled?: boolean
   label?: string
   value?: string
@@ -11,11 +11,11 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaToggleItem({
+export function NaosToggleItem({
   disabled = false,
   label = "",
   value = "",
-}: IktiaToggleItemProps = {}) {
+}: NaosToggleItemProps = {}) {
   void disabled
   void value
 

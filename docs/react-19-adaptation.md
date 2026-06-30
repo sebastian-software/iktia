@@ -3,7 +3,7 @@
 Status: 2026-06-16
 
 This note reviews useful ideas from the React 19 and 19.2 family and evaluates
-whether Iktia should adapt them. The current npm `latest` version for both
+whether Naos should adapt them. The current npm `latest` version for both
 `react` and `react-dom` was checked as `19.2.7` on 2026-06-16. The relevant
 feature baseline is React 19 plus React 19.2, not an unreleased React canary.
 
@@ -14,7 +14,7 @@ platform dependency?
 
 ## Executive Recommendation
 
-The strongest React 19 inspiration for Iktia is the Actions and forms model:
+The strongest React 19 inspiration for Naos is the Actions and forms model:
 HTML-first forms, async mutation state, pending status, optimistic updates,
 automatic cleanup, and progressive enhancement. This maps well to native forms,
 `FormData`, `SubmitEvent`, `AbortSignal`, `CustomEvent`, and form-associated
@@ -25,7 +25,7 @@ Recommended direction:
 1. Add a post-v2 form milestone around `formAction()` and action state.
 2. Keep the API signal-shaped instead of hook-shaped.
 3. Use native form semantics first; enhance them when JavaScript and the
-   Iktia runtime helper are present.
+   Naos runtime helper are present.
 4. Avoid adopting React Server Functions, the RSC transport protocol, or React
    Hook rules.
 5. Treat Activity, Effect Events, View Transitions, and cache abort signals as
@@ -33,7 +33,7 @@ Recommended direction:
 
 ## Adaptation Matrix
 
-| React concept | React value | Iktia fit | Recommendation |
+| React concept | React value | Naos fit | Recommendation |
 | --- | --- | --- | --- |
 | Actions | Groups async mutations with pending, errors, ordering, optimistic UI, and form integration. | High | Adapt as compiler-known `action()` and `formAction()` primitives. |
 | `<form action={fn}>` | Makes forms HTML-first while letting a function receive `FormData`. | High | Adapt with a native-first `formAction()` object accepted by `<form action={...}>`. |
@@ -47,17 +47,17 @@ Recommended direction:
 | `use()` and Suspense | Reads promises/context during render and coordinates fallback UI. | Low for MVP | Defer. Async rendering would widen the compiler and scheduler scope too much. |
 | `<ViewTransition>` | Wraps platform View Transition API in a component abstraction. | Medium but non-core | Consider a later Web API helper, not a form milestone. |
 | React Compiler | Removes manual memoization and relies on static analysis constraints. | Philosophical fit | Keep as validation of our static-analysis stance, not as an API to copy. |
-| Custom Element support | React 19 improves hosting Custom Elements from React apps. | Strategic fit | Document as interoperability upside for Iktia output. Nothing to implement in Iktia core. |
+| Custom Element support | React 19 improves hosting Custom Elements from React apps. | Strategic fit | Document as interoperability upside for Naos output. Nothing to implement in Naos core. |
 
 ## Form Actions As The Best Next API
 
 React 19's forms work is attractive because it moves form management back
 toward the browser. The browser already owns focus, labels, constraint
 validation, submit events, `FormData`, reset behavior, and progressive
-submission. Iktia should lean into that rather than inventing a full form
+submission. Naos should lean into that rather than inventing a full form
 library.
 
-The Iktia adaptation should be an action object, not a React-style hook:
+The Naos adaptation should be an action object, not a React-style hook:
 
 ```ts
 type ActionContext = {
@@ -88,7 +88,7 @@ function formAction<State>(
 Example authoring shape:
 
 ```tsx
-import { Show, formAction } from "@iktia/core"
+import { Show, formAction } from "@naos-ui/core"
 
 type ContactState = {
   ok: boolean
@@ -167,7 +167,7 @@ stays platform-native and compatible with Web Components.
 ## Action State Semantics
 
 React's `useActionState` queues calls and reduces previous state into next
-state. Iktia should adopt the reducer idea and be explicit about scheduling.
+state. Naos should adopt the reducer idea and be explicit about scheduling.
 
 Recommended MVP semantics:
 
@@ -189,7 +189,7 @@ React's `useFormStatus` is smart because a submit button or status label can be
 implemented as a child component without manually threading pending state. That
 is valuable for reusable primitives.
 
-Iktia has an extra complication: Shadow DOM creates boundaries, and native
+Naos has an extra complication: Shadow DOM creates boundaries, and native
 forms do not automatically see controls inside shadow roots unless custom
 elements participate through form-associated Custom Elements.
 
@@ -222,7 +222,7 @@ slots, form participation, and primitive authoring.
 ## Optimistic UI
 
 React's optimistic state is compelling, but it only becomes clean once actions
-exist. In Iktia, optimistic state should be tied to an action lifetime rather
+exist. In Naos, optimistic state should be tied to an action lifetime rather
 than global component scheduling.
 
 Recommended shape:
@@ -254,7 +254,7 @@ This should follow form actions, not precede them.
 ## Effect Events
 
 React's `useEffectEvent` separates effect subscription lifetime from logic that
-needs the latest state. Iktia already has `effect()` planned and now
+needs the latest state. Naos already has `effect()` planned and now
 implemented for basic lifecycle work, so this is a natural later refinement.
 
 The problem it solves:
@@ -272,7 +272,7 @@ effect(() => {
 If `theme()` changes, should the subscription restart? Usually no. The callback
 should see the latest theme while the subscription remains keyed to `roomId`.
 
-Possible Iktia adaptation:
+Possible Naos adaptation:
 
 ```ts
 const onConnected = effectEvent(() => {
@@ -304,7 +304,7 @@ Possible adaptation:
 </Activity>
 ```
 
-Iktia should not rush this into the MVP. It needs a clear answer for:
+Naos should not rush this into the MVP. It needs a clear answer for:
 
 * whether DOM nodes stay connected or are moved into an inert cache;
 * whether effects are cleaned up while hidden;
@@ -320,7 +320,7 @@ actions MVP.
 React Server Functions are tightly coupled to RSC-aware bundlers and framework
 transport. React documentation notes that the underlying framework APIs can
 change across React 19.x minor versions. That is not a good dependency shape
-for Iktia.
+for Naos.
 
 What to adapt:
 
@@ -338,7 +338,7 @@ What not to adapt:
 * action replay tied to React hydration;
 * a full-stack router or server framework.
 
-For Iktia, the progressive path should stay plain HTML:
+For Naos, the progressive path should stay plain HTML:
 
 ```tsx
 <form action="/contact" method="post">
@@ -352,7 +352,7 @@ is provided.
 
 ## Native Web Component Form Work
 
-React's form APIs are useful inspiration, but Iktia has a unique native
+React's form APIs are useful inspiration, but Naos has a unique native
 opportunity: form-associated Custom Elements.
 
 Future form-control components should explore:
@@ -367,7 +367,7 @@ Future form-control components should explore:
 
 This should be a separate milestone from form actions. Form actions handle
 submitting forms. Form-associated custom elements handle authoring custom
-controls that participate in forms. ADR 0018 documents the accepted Iktia
+controls that participate in forms. ADR 0018 documents the accepted Naos
 authoring and generated-output boundary for that custom-control work.
 
 ## Proposed Roadmap Extension

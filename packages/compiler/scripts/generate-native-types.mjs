@@ -7,14 +7,14 @@ import { fileURLToPath } from "node:url"
 const scriptDir = path.dirname(fileURLToPath(import.meta.url))
 const packageDir = path.resolve(scriptDir, "..")
 const repoRoot = path.resolve(packageDir, "../..")
-const outputPath = path.join(packageDir, "src/generated/iktia-node-types.ts")
+const outputPath = path.join(packageDir, "src/generated/naos-node-types.ts")
 const mode = process.argv.includes("--check") ? "check" : "write"
 
 function generateSource() {
-  const tempRoot = mkdtempSync(path.join(os.tmpdir(), "iktia-napi-types-"))
+  const tempRoot = mkdtempSync(path.join(os.tmpdir(), "naos-napi-types-"))
 
   try {
-    execFileSync("cargo", ["build", "--package", "iktia-node"], {
+    execFileSync("cargo", ["build", "--package", "naos-node"], {
       cwd: repoRoot,
       env: {
         ...process.env,
@@ -23,7 +23,7 @@ function generateSource() {
       stdio: "pipe",
     })
 
-    const typeDefPath = path.join(tempRoot, "iktia-node")
+    const typeDefPath = path.join(tempRoot, "naos-node")
     const entries = readFileSync(typeDefPath, "utf8")
       .split("\n")
       .map((line) => line.trim())
@@ -50,8 +50,8 @@ function generateSource() {
     }
 
     return [
-      "// This file is generated from crates/iktia-node via napi-rs typegen.",
-      "// Do not edit by hand. Run `pnpm --filter @iktia/compiler generate-native-types`.",
+      "// This file is generated from crates/naos-node via napi-rs typegen.",
+      "// Do not edit by hand. Run `pnpm --filter @naos-ui/compiler generate-native-types`.",
       "",
       ...interfaces,
       "",
@@ -112,7 +112,7 @@ if (mode === "check") {
   const existing = readFileSync(outputPath, "utf8")
   if (existing !== source) {
     console.error(
-      "Generated native type declarations are out of date. Run `pnpm --filter @iktia/compiler generate-native-types`."
+      "Generated native type declarations are out of date. Run `pnpm --filter @naos-ui/compiler generate-native-types`."
     )
     process.exit(1)
   }

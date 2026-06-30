@@ -14,15 +14,15 @@ The CLI should not become a second build system.
 
 ## Decision
 
-Publish `@iktia/cli` with the `iktia` binary.
+Publish `@naos-ui/cli` with the `naos` binary.
 
 v0.1 commands:
 
-* `iktia compile`
-* `iktia prerender`
-* `iktia info`
+* `naos compile`
+* `naos prerender`
+* `naos info`
 
-`compile` and `prerender` use the same `@iktia/compiler` workflows as the Vite
+`compile` and `prerender` use the same `@naos-ui/compiler` workflows as the Vite
 plugin. `info` reports package, native binding, platform, and version metadata.
 
 The v0.1 CLI does not include `init`, `create`, `watch`, project scaffolding,
@@ -30,18 +30,18 @@ docs serving, or an application build pipeline.
 
 ## Alternatives
 
-* Put the `iktia` binary in `@iktia/compiler`.
-* Publish an unscoped `iktia` package for v0.1.
+* Put the `naos` binary in `@naos-ui/compiler`.
+* Publish an unscoped `naos` package for v0.1.
 * Delay all CLI work until after v0.1.
 * Build a full project CLI immediately.
 
 ## Consequences
 
 * The CLI is useful for CI and users without taking ownership of bundling.
-* `@iktia/cli` joins the public release set.
+* `@naos-ui/cli` joins the public release set.
 * Command output and exit codes need test coverage.
 * Future project scaffolding can be added without overloading
-  `@iktia/compiler`.
+  `@naos-ui/compiler`.
 
 ## Related Milestones
 

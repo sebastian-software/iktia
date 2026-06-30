@@ -1,13 +1,13 @@
-export type IktiaReducedMotionPreference = boolean | "media"
+export type NaosReducedMotionPreference = boolean | "media"
 
-export type IktiaAnimationWaitOptions = {
-  reducedMotion?: IktiaReducedMotionPreference
+export type NaosAnimationWaitOptions = {
+  reducedMotion?: NaosReducedMotionPreference
   signal?: AbortSignal | null
   subtree?: boolean
   timeout?: false | number
 }
 
-export type IktiaSpringOptions = {
+export type NaosSpringOptions = {
   damping?: number
   initialVelocity?: number
   mass?: number
@@ -18,30 +18,30 @@ export type IktiaSpringOptions = {
   stiffness?: number
 }
 
-export type IktiaSpringPreset = keyof typeof motionTokens.springs
+export type NaosSpringPreset = keyof typeof motionTokens.springs
 
-export type IktiaSpringTiming = {
+export type NaosSpringTiming = {
   duration: number
   easing: string
 }
 
-export type IktiaMotionTokenKind = "layout" | "presence" | "transition"
+export type NaosMotionTokenKind = "layout" | "presence" | "transition"
 
-export type IktiaSpringMotionTokenOptions = {
-  kind?: IktiaMotionTokenKind
-  preset?: IktiaSpringPreset
-  options?: IktiaSpringOptions
+export type NaosSpringMotionTokenOptions = {
+  kind?: NaosMotionTokenKind
+  preset?: NaosSpringPreset
+  options?: NaosSpringOptions
 }
 
-export type IktiaSpringMotionToken = IktiaSpringTiming & {
+export type NaosSpringMotionToken = NaosSpringTiming & {
   className: string
   css: string
 }
 
-export type IktiaFlipOptions = {
+export type NaosFlipOptions = {
   duration?: number
   easing?: string
-  reducedMotion?: IktiaReducedMotionPreference
+  reducedMotion?: NaosReducedMotionPreference
 }
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)"
@@ -83,7 +83,7 @@ export function prefersReducedMotion(query = REDUCED_MOTION_QUERY) {
 
 export function waitForAnimations(
   element: Element | null | undefined,
-  options: IktiaAnimationWaitOptions = {}
+  options: NaosAnimationWaitOptions = {}
 ) {
   if (
     element == null ||
@@ -126,8 +126,8 @@ export function waitForAnimations(
 }
 
 export function spring(
-  options: IktiaSpringOptions | IktiaSpringPreset = "smooth"
-): IktiaSpringTiming {
+  options: NaosSpringOptions | NaosSpringPreset = "smooth"
+): NaosSpringTiming {
   const resolved = resolveSpringOptions(options)
   const duration = springDuration(resolved)
   const sampleCount = Math.max(
@@ -149,14 +149,14 @@ export function spring(
 }
 
 export function springEasing(
-  options: IktiaSpringOptions | IktiaSpringPreset = "smooth"
+  options: NaosSpringOptions | NaosSpringPreset = "smooth"
 ) {
   return spring(options).easing
 }
 
 export function springMotionToken(
-  options: IktiaSpringMotionTokenOptions | IktiaSpringPreset = "smooth"
-): IktiaSpringMotionToken {
+  options: NaosSpringMotionTokenOptions | NaosSpringPreset = "smooth"
+): NaosSpringMotionToken {
   const token = resolveSpringMotionTokenOptions(options)
   const timing = spring(token.preset ?? token.options ?? "smooth")
   const className = springMotionTokenClassName(token)
@@ -174,21 +174,21 @@ export function springMotionToken(
 }
 
 export function springMotionTokenClassName(
-  options: IktiaSpringMotionTokenOptions | IktiaSpringPreset = "smooth"
+  options: NaosSpringMotionTokenOptions | NaosSpringPreset = "smooth"
 ) {
   const token = resolveSpringMotionTokenOptions(options)
   if (token.preset != null) {
-    return `iktia-motion-${token.kind}-spring-${token.preset}`
+    return `naos-motion-${token.kind}-spring-${token.preset}`
   }
 
   const normalized = normalizeSpringOptions(token.options)
-  return `iktia-motion-${token.kind}-spring-${hashMotionTokenSignature(
+  return `naos-motion-${token.kind}-spring-${hashMotionTokenSignature(
     JSON.stringify(normalized)
   )}`
 }
 
 export function springMotionTokenCss(
-  options: IktiaSpringMotionTokenOptions | IktiaSpringPreset = "smooth"
+  options: NaosSpringMotionTokenOptions | NaosSpringPreset = "smooth"
 ) {
   const token = springMotionToken(options)
   return token.css
@@ -196,7 +196,7 @@ export function springMotionTokenCss(
 
 export function flipMovedElements(
   firstRects: ReadonlyMap<Element, DOMRectReadOnly>,
-  options: IktiaFlipOptions = {}
+  options: NaosFlipOptions = {}
 ): Animation[] {
   if (shouldSkipMotion(options.reducedMotion)) return []
 
@@ -249,14 +249,14 @@ function getPendingAnimations(element: Element, subtree: boolean) {
   }
 }
 
-function shouldSkipMotion(reducedMotion: IktiaReducedMotionPreference = "media") {
+function shouldSkipMotion(reducedMotion: NaosReducedMotionPreference = "media") {
   if (reducedMotion === true) return true
   if (reducedMotion === false) return false
   return prefersReducedMotion()
 }
 
-function resolveSpringOptions(options: IktiaSpringOptions | IktiaSpringPreset) {
-  const base: IktiaSpringOptions =
+function resolveSpringOptions(options: NaosSpringOptions | NaosSpringPreset) {
+  const base: NaosSpringOptions =
     typeof options === "string" ? motionTokens.springs[options] : options
   return {
     damping: base.damping ?? motionTokens.springs.smooth.damping,
@@ -271,11 +271,11 @@ function resolveSpringOptions(options: IktiaSpringOptions | IktiaSpringPreset) {
 }
 
 function resolveSpringMotionTokenOptions(
-  options: IktiaSpringMotionTokenOptions | IktiaSpringPreset
-): Required<Pick<IktiaSpringMotionTokenOptions, "kind">> &
+  options: NaosSpringMotionTokenOptions | NaosSpringPreset
+): Required<Pick<NaosSpringMotionTokenOptions, "kind">> &
   (
-    | { options: IktiaSpringOptions; preset?: undefined }
-    | { options?: undefined; preset: IktiaSpringPreset }
+    | { options: NaosSpringOptions; preset?: undefined }
+    | { options?: undefined; preset: NaosSpringPreset }
   ) {
   if (typeof options === "string") {
     return { kind: "transition", preset: options }
@@ -294,7 +294,7 @@ function resolveSpringMotionTokenOptions(
   }
 }
 
-function normalizeSpringOptions(options: IktiaSpringOptions) {
+function normalizeSpringOptions(options: NaosSpringOptions) {
   const resolved = resolveSpringOptions(options)
   return {
     damping: resolved.damping,
@@ -315,12 +315,12 @@ function formatSpringMotionTokenCss(options: {
   className: string
   duration: number
   easing: string
-  kind: IktiaMotionTokenKind
+  kind: NaosMotionTokenKind
 }) {
   return [
     `.${options.className} {`,
-    `  --iktia-${options.kind}-motion-duration: ${options.duration}ms;`,
-    `  --iktia-${options.kind}-motion-easing: ${options.easing};`,
+    `  --naos-${options.kind}-motion-duration: ${options.duration}ms;`,
+    `  --naos-${options.kind}-motion-easing: ${options.easing};`,
     `}`,
   ].join("\n")
 }
@@ -404,5 +404,5 @@ function transformWithOffset(
 }
 
 type RequiredSpringOptions = Required<
-  Omit<IktiaSpringOptions, "sampleCount">
-> & Pick<IktiaSpringOptions, "sampleCount">
+  Omit<NaosSpringOptions, "sampleCount">
+> & Pick<NaosSpringOptions, "sampleCount">

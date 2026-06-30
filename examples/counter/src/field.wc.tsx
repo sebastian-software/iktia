@@ -1,4 +1,4 @@
-import { event, on, state, type ComponentOptions } from "@iktia/core"
+import { event, on, state, type ComponentOptions } from "@naos-ui/core"
 import css from "./field.wc.css?inline"
 
 export type FieldProps = {
@@ -14,7 +14,7 @@ export function Field({
   invalid = false,
   label = "Project name",
 }: FieldProps = {}) {
-  const currentValue = state("@iktia")
+  const currentValue = state("@naos-ui")
   const changed = event<string>("field-change")
 
   return (
@@ -24,19 +24,19 @@ export function Field({
         part="control"
         value={currentValue()}
         aria-invalid={invalid}
-        aria-describedby="iktia-field-hint"
+        aria-describedby="naos-field-hint"
       />
       <button
         part="action"
         type="button"
         onClick={on("click", () => {
-          currentValue.set("@iktia/labs")
-          changed.emit("@iktia/labs")
+          currentValue.set("@naos-ui/labs")
+          changed.emit("@naos-ui/labs")
         })}
       >
         Use lab scope
       </button>
-      <span id="iktia-field-hint" part="hint">
+      <span id="naos-field-hint" part="hint">
         <slot />
       </span>
       <span part="status">Ready: {currentValue()}</span>

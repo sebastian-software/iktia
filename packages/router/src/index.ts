@@ -1,25 +1,25 @@
-export type IktiaNavigationType = "action" | "load" | "push" | "replace" | "traverse"
+export type NaosNavigationType = "action" | "load" | "push" | "replace" | "traverse"
 
-export type IktiaNavigation = {
+export type NaosNavigation = {
   readonly id: number
   readonly url: URL
   readonly from: URL | null
-  readonly type: IktiaNavigationType
+  readonly type: NaosNavigationType
   readonly signal: AbortSignal
 }
 
-export type IktiaRouteMatch<Route extends IktiaRoute = IktiaRoute> = {
+export type NaosRouteMatch<Route extends NaosRoute = NaosRoute> = {
   readonly actionData?: unknown
   readonly data?: unknown
   readonly route: Route
   readonly url: URL
   readonly params: Readonly<Record<string, string>>
   readonly search: URLSearchParams
-  readonly navigation: IktiaNavigation
+  readonly navigation: NaosNavigation
 }
 
-export type IktiaLoaderArgs<Route extends IktiaRoute = IktiaRoute> = {
-  readonly navigation: IktiaNavigation
+export type NaosLoaderArgs<Route extends NaosRoute = NaosRoute> = {
+  readonly navigation: NaosNavigation
   readonly params: Readonly<Record<string, string>>
   readonly request: Request
   readonly route: Route
@@ -27,87 +27,87 @@ export type IktiaLoaderArgs<Route extends IktiaRoute = IktiaRoute> = {
   readonly url: URL
 }
 
-export type IktiaActionSubmission = {
+export type NaosActionSubmission = {
   readonly form: HTMLFormElement | null
   readonly formData: FormData
   readonly method: string
   readonly submitter: HTMLElement | null
 }
 
-export type IktiaActionArgs<Route extends IktiaRoute = IktiaRoute> = IktiaLoaderArgs<Route> &
-  IktiaActionSubmission
+export type NaosActionArgs<Route extends NaosRoute = NaosRoute> = NaosLoaderArgs<Route> &
+  NaosActionSubmission
 
-export type IktiaRedirect = {
+export type NaosRedirect = {
   readonly replace?: boolean
   readonly to: string | URL
 }
 
-export type IktiaFocusTarget =
+export type NaosFocusTarget =
   | string
-  | ((match: IktiaRouteMatch) => Element | null | undefined)
+  | ((match: NaosRouteMatch) => Element | null | undefined)
 
-export type IktiaFocusRestorationOptions = {
-  readonly target?: IktiaFocusTarget
+export type NaosFocusRestorationOptions = {
+  readonly target?: NaosFocusTarget
 }
 
-export type IktiaScrollKeyArgs = {
-  readonly navigation: IktiaNavigation | null
+export type NaosScrollKeyArgs = {
+  readonly navigation: NaosNavigation | null
   readonly state: unknown
   readonly url: URL
 }
 
-export type IktiaScrollPosition = {
+export type NaosScrollPosition = {
   readonly x: number
   readonly y: number
 }
 
-export type IktiaScrollRestorationOptions = {
-  readonly getKey?: (args: IktiaScrollKeyArgs) => string
+export type NaosScrollRestorationOptions = {
+  readonly getKey?: (args: NaosScrollKeyArgs) => string
 }
 
-export type IktiaRouteBase = {
+export type NaosRouteBase = {
   readonly path: string
-  readonly action?: (args: IktiaActionArgs) => Promise<unknown> | unknown
-  readonly loader?: (args: IktiaLoaderArgs) => Promise<unknown> | unknown
-  readonly load?: (navigation: IktiaNavigation) => Promise<unknown> | unknown
-  readonly focusTarget?: IktiaFocusTarget
-  readonly props?: (match: IktiaRouteMatch) => Record<string, unknown>
-  readonly attrs?: (match: IktiaRouteMatch) => Record<string, string | null>
+  readonly action?: (args: NaosActionArgs) => Promise<unknown> | unknown
+  readonly loader?: (args: NaosLoaderArgs) => Promise<unknown> | unknown
+  readonly load?: (navigation: NaosNavigation) => Promise<unknown> | unknown
+  readonly focusTarget?: NaosFocusTarget
+  readonly props?: (match: NaosRouteMatch) => Record<string, unknown>
+  readonly attrs?: (match: NaosRouteMatch) => Record<string, string | null>
   readonly canEnter?: (
-    match: IktiaRouteMatch
+    match: NaosRouteMatch
   ) => boolean | string | URL | Promise<boolean | string | URL>
-  readonly title?: string | ((match: IktiaRouteMatch) => string)
+  readonly title?: string | ((match: NaosRouteMatch) => string)
 }
 
-export type IktiaTagRoute = IktiaRouteBase & {
+export type NaosTagRoute = NaosRouteBase & {
   readonly tag: string
   readonly createElement?: never
 }
 
-export type IktiaCreateElementRoute = IktiaRouteBase & {
+export type NaosCreateElementRoute = NaosRouteBase & {
   readonly tag?: never
-  readonly createElement: (match: IktiaRouteMatch) => HTMLElement
+  readonly createElement: (match: NaosRouteMatch) => HTMLElement
 }
 
-export type IktiaRoute = IktiaTagRoute | IktiaCreateElementRoute
+export type NaosRoute = NaosTagRoute | NaosCreateElementRoute
 
-export type IktiaFallbackRoute =
-  | Omit<IktiaTagRoute, "path"> & { readonly path?: string }
-  | Omit<IktiaCreateElementRoute, "path"> & { readonly path?: string }
+export type NaosFallbackRoute =
+  | Omit<NaosTagRoute, "path"> & { readonly path?: string }
+  | Omit<NaosCreateElementRoute, "path"> & { readonly path?: string }
 
-export type IktiaHrefOptions = {
+export type NaosHrefOptions = {
   readonly hash?: string
   readonly search?: URLSearchParams | Record<string, string | number | boolean | null | undefined> | string
 }
 
-export type IktiaNavigateOptions = {
+export type NaosNavigateOptions = {
   readonly focus?: boolean
   readonly replace?: boolean
   readonly scroll?: boolean
   readonly viewTransition?: boolean
 }
 
-export type IktiaSubmitOptions = {
+export type NaosSubmitOptions = {
   readonly focus?: boolean
   readonly form?: HTMLFormElement | null
   readonly formData?: FormData | URLSearchParams | Record<string, FormDataEntryValue | boolean | number | null | undefined>
@@ -118,60 +118,60 @@ export type IktiaSubmitOptions = {
   readonly viewTransition?: boolean
 }
 
-export type IktiaRouterOptions<Routes extends readonly IktiaRoute[]> = {
+export type NaosRouterOptions<Routes extends readonly NaosRoute[]> = {
   readonly basePath?: string
-  readonly focusRestoration?: boolean | IktiaFocusRestorationOptions
+  readonly focusRestoration?: boolean | NaosFocusRestorationOptions
   readonly linkRoot?: ParentNode & EventTarget
-  readonly notFound?: IktiaFallbackRoute
-  readonly error?: IktiaFallbackRoute
+  readonly notFound?: NaosFallbackRoute
+  readonly error?: NaosFallbackRoute
   readonly outlet: Element
   readonly routes: Routes
-  readonly scrollRestoration?: boolean | IktiaScrollRestorationOptions
+  readonly scrollRestoration?: boolean | NaosScrollRestorationOptions
 }
 
-export type IktiaRouterEventMap<Routes extends readonly IktiaRoute[]> = {
-  "iktia:actioncommit": {
+export type NaosRouterEventMap<Routes extends readonly NaosRoute[]> = {
+  "naos:actioncommit": {
     readonly data: unknown
-    readonly match: IktiaRouteMatch<Routes[number]>
-    readonly navigation: IktiaNavigation
-    readonly submission: IktiaActionSubmission
+    readonly match: NaosRouteMatch<Routes[number]>
+    readonly navigation: NaosNavigation
+    readonly submission: NaosActionSubmission
   }
-  "iktia:actionerror": {
+  "naos:actionerror": {
     readonly error: unknown
-    readonly navigation: IktiaNavigation
-    readonly submission: IktiaActionSubmission
+    readonly navigation: NaosNavigation
+    readonly submission: NaosActionSubmission
   }
-  "iktia:actionstart": {
-    readonly navigation: IktiaNavigation
-    readonly submission: IktiaActionSubmission
+  "naos:actionstart": {
+    readonly navigation: NaosNavigation
+    readonly submission: NaosActionSubmission
   }
-  "iktia:navigationabort": {
-    readonly navigation: IktiaNavigation
+  "naos:navigationabort": {
+    readonly navigation: NaosNavigation
   }
-  "iktia:navigationcommit": {
-    readonly match: IktiaRouteMatch<Routes[number]>
-    readonly navigation: IktiaNavigation
+  "naos:navigationcommit": {
+    readonly match: NaosRouteMatch<Routes[number]>
+    readonly navigation: NaosNavigation
   }
-  "iktia:navigationerror": {
+  "naos:navigationerror": {
     readonly error: unknown
-    readonly navigation: IktiaNavigation
+    readonly navigation: NaosNavigation
   }
-  "iktia:navigationstart": {
-    readonly navigation: IktiaNavigation
+  "naos:navigationstart": {
+    readonly navigation: NaosNavigation
   }
-  "iktia:routechange": {
-    readonly match: IktiaRouteMatch<Routes[number]>
-    readonly navigation: IktiaNavigation
+  "naos:routechange": {
+    readonly match: NaosRouteMatch<Routes[number]>
+    readonly navigation: NaosNavigation
   }
 }
 
-export type IktiaRouterEventName = keyof IktiaRouterEventMap<readonly IktiaRoute[]>
+export type NaosRouterEventName = keyof NaosRouterEventMap<readonly NaosRoute[]>
 
-type InternalRouterOptions<Routes extends readonly IktiaRoute[]> = IktiaRouterOptions<Routes> & {
+type InternalRouterOptions<Routes extends readonly NaosRoute[]> = NaosRouterOptions<Routes> & {
   readonly platform?: RouterPlatform
 }
 
-type RoutePath<Routes extends readonly IktiaRoute[]> = Routes[number]["path"]
+type RoutePath<Routes extends readonly NaosRoute[]> = Routes[number]["path"]
 
 type SplitPathParam<Param extends string> = Param extends `${infer Name}?`
   ? Name
@@ -187,17 +187,17 @@ type PathParamNames<Path extends string> = string extends Path
       ? SplitPathParam<Param>
       : never
 
-export type IktiaPathParams<Path extends string> = [PathParamNames<Path>] extends [never]
+export type NaosPathParams<Path extends string> = [PathParamNames<Path>] extends [never]
   ? Record<string, never>
   : Record<PathParamNames<Path>, string | number | boolean>
 
 type RouteMatcher = {
-  readonly route: IktiaRoute
+  readonly route: NaosRoute
   exec(pathname: string): Readonly<Record<string, string>> | null
 }
 
 type RouteElement = HTMLElement & {
-  iktiaRoute?: IktiaRouteMatch
+  naosRoute?: NaosRouteMatch
 }
 
 type RouterPlatform = {
@@ -205,9 +205,9 @@ type RouterPlatform = {
   readonly history: History
   readonly location: Location
   addEventListener(name: "popstate", listener: EventListener): void
-  getScrollPosition(): IktiaScrollPosition
+  getScrollPosition(): NaosScrollPosition
   removeEventListener(name: "popstate", listener: EventListener): void
-  scrollTo(position: IktiaScrollPosition): void
+  scrollTo(position: NaosScrollPosition): void
 }
 
 type ViewTransitionDocument = Document & {
@@ -215,56 +215,56 @@ type ViewTransitionDocument = Document & {
 }
 
 const ROUTER_EVENT_NAMES = new Set<string>([
-  "iktia:actioncommit",
-  "iktia:actionerror",
-  "iktia:actionstart",
-  "iktia:navigationabort",
-  "iktia:navigationcommit",
-  "iktia:navigationerror",
-  "iktia:navigationstart",
-  "iktia:routechange",
+  "naos:actioncommit",
+  "naos:actionerror",
+  "naos:actionstart",
+  "naos:navigationabort",
+  "naos:navigationcommit",
+  "naos:navigationerror",
+  "naos:navigationstart",
+  "naos:routechange",
 ])
 
 const MAX_REDIRECTS = 10
-const SCROLL_STATE_KEY = "__iktiaScrollKey"
+const SCROLL_STATE_KEY = "__naosScrollKey"
 
-export function defineRoutes<const Routes extends readonly IktiaRoute[]>(
+export function defineRoutes<const Routes extends readonly NaosRoute[]>(
   routes: Routes
 ): Routes {
   return routes
 }
 
-export function createRouter<const Routes extends readonly IktiaRoute[]>(
-  options: IktiaRouterOptions<Routes>
-): IktiaRouter<Routes> {
-  return new IktiaRouter(options)
+export function createRouter<const Routes extends readonly NaosRoute[]>(
+  options: NaosRouterOptions<Routes>
+): NaosRouter<Routes> {
+  return new NaosRouter(options)
 }
 
-export function redirect(to: string | URL, options: { readonly replace?: boolean } = {}): IktiaRedirect {
+export function redirect(to: string | URL, options: { readonly replace?: boolean } = {}): NaosRedirect {
   return { replace: options.replace, to }
 }
 
-export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRoute[]> extends EventTarget {
+export class NaosRouter<Routes extends readonly NaosRoute[] = readonly NaosRoute[]> extends EventTarget {
   readonly basePath: string
   readonly outlet: Element
   readonly routes: Routes
 
   #activeController: AbortController | null = null
-  #activeNavigation: IktiaNavigation | null = null
-  #currentMatch: IktiaRouteMatch<Routes[number]> | null = null
+  #activeNavigation: NaosNavigation | null = null
+  #currentMatch: NaosRouteMatch<Routes[number]> | null = null
   #currentScrollKey: string | null = null
-  #focusRestoration: IktiaFocusRestorationOptions | false
+  #focusRestoration: NaosFocusRestorationOptions | false
   #linkRoot: (ParentNode & EventTarget) | null
-  #loadPromises = new WeakMap<IktiaRoute | IktiaFallbackRoute, Promise<unknown>>()
+  #loadPromises = new WeakMap<NaosRoute | NaosFallbackRoute, Promise<unknown>>()
   #matchers: RouteMatcher[]
   #navigationId = 0
-  #notFound: IktiaFallbackRoute | null
-  #error: IktiaFallbackRoute | null
+  #notFound: NaosFallbackRoute | null
+  #error: NaosFallbackRoute | null
   #platform: RouterPlatform
   #previousNativeScrollRestoration: History["scrollRestoration"] | null = null
   #scrollKeyId = 0
-  #scrollPositions = new Map<string, IktiaScrollPosition>()
-  #scrollRestoration: IktiaScrollRestorationOptions | false
+  #scrollPositions = new Map<string, NaosScrollPosition>()
+  #scrollRestoration: NaosScrollRestorationOptions | false
   #started = false
 
   constructor(options: InternalRouterOptions<Routes>) {
@@ -284,7 +284,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     }))
   }
 
-  get currentMatch(): IktiaRouteMatch<Routes[number]> | null {
+  get currentMatch(): NaosRouteMatch<Routes[number]> | null {
     return this.#currentMatch
   }
 
@@ -318,15 +318,15 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
 
   href<Path extends RoutePath<Routes>>(
     path: Path,
-    params?: IktiaPathParams<Path>,
-    options?: IktiaHrefOptions
+    params?: NaosPathParams<Path>,
+    options?: NaosHrefOptions
   ): string {
     const resolvedPath = interpolatePath(String(path), params ?? {})
     const pathname = joinBasePath(this.basePath, resolvedPath)
     return appendUrlParts(pathname, options)
   }
 
-  match(to: string | URL): IktiaRouteMatch<Routes[number]> | null {
+  match(to: string | URL): NaosRouteMatch<Routes[number]> | null {
     const url = this.#resolveUrl(to)
     const matched = this.#findRoute(url)
     if (!matched) return null
@@ -339,7 +339,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     }
   }
 
-  navigate(to: string | URL, options: IktiaNavigateOptions = {}): Promise<IktiaRouteMatch<Routes[number]> | null> {
+  navigate(to: string | URL, options: NaosNavigateOptions = {}): Promise<NaosRouteMatch<Routes[number]> | null> {
     return this.#navigateToUrl(this.#resolveUrl(to), {
       focus: options.focus ?? true,
       history: options.replace ? "replace" : "push",
@@ -349,7 +349,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     })
   }
 
-  replace(to: string | URL, options: Omit<IktiaNavigateOptions, "replace"> = {}): Promise<IktiaRouteMatch<Routes[number]> | null> {
+  replace(to: string | URL, options: Omit<NaosNavigateOptions, "replace"> = {}): Promise<NaosRouteMatch<Routes[number]> | null> {
     return this.navigate(to, { ...options, replace: true })
   }
 
@@ -361,7 +361,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     this.#platform.history.forward()
   }
 
-  reload(options: Omit<IktiaNavigateOptions, "replace"> = {}): Promise<IktiaRouteMatch<Routes[number]> | null> {
+  reload(options: Omit<NaosNavigateOptions, "replace"> = {}): Promise<NaosRouteMatch<Routes[number]> | null> {
     return this.replace(this.#currentUrl(), options)
   }
 
@@ -380,7 +380,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     })
   }
 
-  submit(to: string | URL, options: IktiaSubmitOptions = {}): Promise<IktiaRouteMatch<Routes[number]> | null> {
+  submit(to: string | URL, options: NaosSubmitOptions = {}): Promise<NaosRouteMatch<Routes[number]> | null> {
     const url = this.#resolveUrl(to)
     const submission = normalizeSubmission(options)
     if (submission.method === "GET") {
@@ -419,7 +419,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
 
     event.preventDefault()
     void this.navigate(url, {
-      viewTransition: anchor.hasAttribute("data-iktia-view-transition"),
+      viewTransition: anchor.hasAttribute("data-naos-view-transition"),
     })
   }
 
@@ -447,7 +447,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
         formData,
         method,
         submitter,
-        viewTransition: form.hasAttribute("data-iktia-view-transition"),
+        viewTransition: form.hasAttribute("data-naos-view-transition"),
       })
       return
     }
@@ -457,7 +457,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
       formData,
       method,
       submitter,
-      viewTransition: form.hasAttribute("data-iktia-view-transition"),
+      viewTransition: form.hasAttribute("data-naos-view-transition"),
     })
   }
 
@@ -478,21 +478,21 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
       readonly focus: boolean
       readonly redirectCount?: number
       readonly scroll: boolean
-      readonly type: IktiaNavigationType
+      readonly type: NaosNavigationType
       readonly viewTransition: boolean
     }
-  ): Promise<IktiaRouteMatch<Routes[number]> | null> {
+  ): Promise<NaosRouteMatch<Routes[number]> | null> {
     this.#saveCurrentScrollPosition()
     if (this.#activeController && this.#activeNavigation) {
       const previousNavigation = this.#activeNavigation
       this.#activeController.abort()
-      this.#dispatchRouterEvent("iktia:navigationabort", {
+      this.#dispatchRouterEvent("naos:navigationabort", {
         navigation: previousNavigation,
       })
     }
 
     const controller = new AbortController()
-    const navigation: IktiaNavigation = {
+    const navigation: NaosNavigation = {
       id: ++this.#navigationId,
       url,
       from: this.#currentMatch?.url ?? null,
@@ -502,7 +502,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
 
     this.#activeController = controller
     this.#activeNavigation = navigation
-    this.#dispatchRouterEvent("iktia:navigationstart", { navigation })
+    this.#dispatchRouterEvent("naos:navigationstart", { navigation })
 
     try {
       const matched = this.#findRoute(url)
@@ -516,7 +516,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
         params: matched?.params ?? {},
         search: url.searchParams,
         navigation,
-      } satisfies IktiaRouteMatch<Routes[number]>
+      } satisfies NaosRouteMatch<Routes[number]>
 
       const guard = "canEnter" in route && route.canEnter ? await route.canEnter(matchWithoutData) : true
       if (!this.#isCurrent(navigation)) return null
@@ -542,7 +542,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
       const data = await this.#runLoader(route, matchWithoutData)
       if (!this.#isCurrent(navigation)) return null
 
-      const match = { ...matchWithoutData, data } satisfies IktiaRouteMatch<Routes[number]>
+      const match = { ...matchWithoutData, data } satisfies NaosRouteMatch<Routes[number]>
 
       if (options.history === "push") {
         this.#platform.history.pushState(this.#historyStateFor(url, navigation, "push"), "", url)
@@ -558,7 +558,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
       return match
     } catch (error) {
       if (!this.#isCurrent(navigation)) return null
-      this.#dispatchRouterEvent("iktia:navigationerror", { error, navigation })
+      this.#dispatchRouterEvent("naos:navigationerror", { error, navigation })
       if (this.#error) {
         const errorRoute = normalizeFallbackRoute(this.#error)
         const match = {
@@ -567,7 +567,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
           params: {},
           search: url.searchParams,
           navigation,
-        } satisfies IktiaRouteMatch<Routes[number]>
+        } satisfies NaosRouteMatch<Routes[number]>
         await this.#commit(match, this.#error, {
           focus: options.focus,
           scroll: options.scroll,
@@ -586,25 +586,25 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
 
   async #submitToUrl(
     url: URL,
-    submission: IktiaActionSubmission,
+    submission: NaosActionSubmission,
     options: {
       readonly focus: boolean
       readonly replace: boolean
       readonly scroll: boolean
       readonly viewTransition: boolean
     }
-  ): Promise<IktiaRouteMatch<Routes[number]> | null> {
+  ): Promise<NaosRouteMatch<Routes[number]> | null> {
     this.#saveCurrentScrollPosition()
     if (this.#activeController && this.#activeNavigation) {
       const previousNavigation = this.#activeNavigation
       this.#activeController.abort()
-      this.#dispatchRouterEvent("iktia:navigationabort", {
+      this.#dispatchRouterEvent("naos:navigationabort", {
         navigation: previousNavigation,
       })
     }
 
     const controller = new AbortController()
-    const navigation: IktiaNavigation = {
+    const navigation: NaosNavigation = {
       id: ++this.#navigationId,
       url,
       from: this.#currentMatch?.url ?? null,
@@ -614,8 +614,8 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
 
     this.#activeController = controller
     this.#activeNavigation = navigation
-    this.#dispatchRouterEvent("iktia:navigationstart", { navigation })
-    this.#dispatchRouterEvent("iktia:actionstart", { navigation, submission })
+    this.#dispatchRouterEvent("naos:navigationstart", { navigation })
+    this.#dispatchRouterEvent("naos:actionstart", { navigation, submission })
 
     try {
       const matched = this.#findRoute(url)
@@ -628,7 +628,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
         params: matched.params,
         search: url.searchParams,
         navigation,
-      } satisfies IktiaRouteMatch<Routes[number]>
+      } satisfies NaosRouteMatch<Routes[number]>
 
       await this.#loadRoute(route, navigation)
       if (!this.#isCurrent(navigation)) return null
@@ -646,7 +646,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
 
       if (isRedirect(actionData)) {
         this.#clearActiveNavigation(navigation)
-        this.#dispatchRouterEvent("iktia:actioncommit", {
+        this.#dispatchRouterEvent("naos:actioncommit", {
           data: actionData,
           match: matchWithoutData,
           navigation,
@@ -673,7 +673,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
         ...matchWithoutData,
         actionData,
         data,
-      } satisfies IktiaRouteMatch<Routes[number]>
+      } satisfies NaosRouteMatch<Routes[number]>
 
       const currentUrl = this.#currentUrl()
       if (options.replace) {
@@ -687,7 +687,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
         scroll: options.scroll,
         viewTransition: options.viewTransition,
       })
-      this.#dispatchRouterEvent("iktia:actioncommit", {
+      this.#dispatchRouterEvent("naos:actioncommit", {
         data: actionData,
         match,
         navigation,
@@ -696,8 +696,8 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
       return match
     } catch (error) {
       if (!this.#isCurrent(navigation)) return null
-      this.#dispatchRouterEvent("iktia:actionerror", { error, navigation, submission })
-      this.#dispatchRouterEvent("iktia:navigationerror", { error, navigation })
+      this.#dispatchRouterEvent("naos:actionerror", { error, navigation, submission })
+      this.#dispatchRouterEvent("naos:navigationerror", { error, navigation })
       if (this.#error) {
         const errorRoute = normalizeFallbackRoute(this.#error)
         const match = {
@@ -706,7 +706,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
           params: {},
           search: url.searchParams,
           navigation,
-        } satisfies IktiaRouteMatch<Routes[number]>
+        } satisfies NaosRouteMatch<Routes[number]>
         await this.#commit(match, this.#error, {
           focus: options.focus,
           scroll: options.scroll,
@@ -721,8 +721,8 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
   }
 
   async #commit(
-    match: IktiaRouteMatch<Routes[number]>,
-    route: IktiaRoute | IktiaFallbackRoute,
+    match: NaosRouteMatch<Routes[number]>,
+    route: NaosRoute | NaosFallbackRoute,
     options: {
       readonly focus: boolean
       readonly scroll: boolean
@@ -734,11 +734,11 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
       this.#currentMatch = match
       this.#updateTitle(match, route)
       this.#updateActiveLinks(match.url)
-      this.#dispatchRouterEvent("iktia:navigationcommit", {
+      this.#dispatchRouterEvent("naos:navigationcommit", {
         match,
         navigation: match.navigation,
       })
-      this.#dispatchRouterEvent("iktia:routechange", {
+      this.#dispatchRouterEvent("naos:routechange", {
         match,
         navigation: match.navigation,
       })
@@ -757,14 +757,14 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     if (options.focus) this.#restoreFocus(match, route)
   }
 
-  #mount(match: IktiaRouteMatch<Routes[number]>, route: IktiaRoute | IktiaFallbackRoute): void {
+  #mount(match: NaosRouteMatch<Routes[number]>, route: NaosRoute | NaosFallbackRoute): void {
     const element = createRouteElement(this.#platform.document, route, match)
     const props = route.props?.(match) ?? {}
     for (const [name, value] of Object.entries(props)) {
       ;(element as unknown as Record<string, unknown>)[name] = value
     }
 
-    element.iktiaRoute = match
+    element.naosRoute = match
 
     const attrs = route.attrs?.(match) ?? {}
     for (const [name, value] of Object.entries(attrs)) {
@@ -778,7 +778,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     this.outlet.replaceChildren(element)
   }
 
-  #findRoute(url: URL): { readonly params: Readonly<Record<string, string>>; readonly route: IktiaRoute } | null {
+  #findRoute(url: URL): { readonly params: Readonly<Record<string, string>>; readonly route: NaosRoute } | null {
     const pathname = this.#toInternalPath(url)
     if (pathname === null) return null
     for (const matcher of this.#matchers) {
@@ -788,7 +788,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     return null
   }
 
-  #loadRoute(route: IktiaRoute | IktiaFallbackRoute, navigation: IktiaNavigation): Promise<unknown> {
+  #loadRoute(route: NaosRoute | NaosFallbackRoute, navigation: NaosNavigation): Promise<unknown> {
     if (!route.load) return Promise.resolve()
     const cached = this.#loadPromises.get(route)
     if (cached) return cached
@@ -800,18 +800,18 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     return promise
   }
 
-  async #runLoader<Route extends IktiaRoute | IktiaFallbackRoute>(
+  async #runLoader<Route extends NaosRoute | NaosFallbackRoute>(
     route: Route,
-    match: IktiaRouteMatch
+    match: NaosRouteMatch
   ): Promise<unknown> {
     if (!route.loader) return undefined
     return route.loader(this.#loaderArgs(route, match))
   }
 
-  #loaderArgs<Route extends IktiaRoute | IktiaFallbackRoute>(
+  #loaderArgs<Route extends NaosRoute | NaosFallbackRoute>(
     route: Route,
-    match: IktiaRouteMatch
-  ): IktiaLoaderArgs {
+    match: NaosRouteMatch
+  ): NaosLoaderArgs {
     return {
       navigation: match.navigation,
       params: match.params,
@@ -822,9 +822,9 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     }
   }
 
-  #dispatchRouterEvent<Name extends IktiaRouterEventName>(
+  #dispatchRouterEvent<Name extends NaosRouterEventName>(
     name: Name,
-    detail: IktiaRouterEventMap<Routes>[Name]
+    detail: NaosRouterEventMap<Routes>[Name]
   ): void {
     if (!ROUTER_EVENT_NAMES.has(name)) return
     const event = new CustomEvent(name, {
@@ -857,7 +857,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
       const linkPath = this.#toInternalPath(linkUrl)
       if (linkPath === null) continue
 
-      const matchMode = anchor.getAttribute("data-iktia-active-match") === "prefix" ? "prefix" : "exact"
+      const matchMode = anchor.getAttribute("data-naos-active-match") === "prefix" ? "prefix" : "exact"
       const active =
         matchMode === "prefix"
           ? currentPath === linkPath || currentPath.startsWith(`${removeTrailingSlash(linkPath)}/`)
@@ -875,7 +875,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     }
   }
 
-  #updateTitle(match: IktiaRouteMatch<Routes[number]>, route: IktiaRoute | IktiaFallbackRoute): void {
+  #updateTitle(match: NaosRouteMatch<Routes[number]>, route: NaosRoute | NaosFallbackRoute): void {
     if (!route.title) return
     this.#platform.document.title = typeof route.title === "function" ? route.title(match) : route.title
   }
@@ -903,7 +903,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     return new URL(this.#platform.location.href)
   }
 
-  #createNavigation(url: URL, type: IktiaNavigationType): IktiaNavigation {
+  #createNavigation(url: URL, type: NaosNavigationType): NaosNavigation {
     return {
       id: this.#navigationId,
       url,
@@ -913,11 +913,11 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     }
   }
 
-  #isCurrent(navigation: IktiaNavigation): boolean {
+  #isCurrent(navigation: NaosNavigation): boolean {
     return this.#activeNavigation?.id === navigation.id && !navigation.signal.aborted
   }
 
-  #clearActiveNavigation(navigation: IktiaNavigation): void {
+  #clearActiveNavigation(navigation: NaosNavigation): void {
     if (this.#activeNavigation?.id === navigation.id) {
       this.#activeController = null
       this.#activeNavigation = null
@@ -926,7 +926,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
 
   #historyStateFor(
     url: URL,
-    navigation: IktiaNavigation,
+    navigation: NaosNavigation,
     mode: "push" | "replace"
   ): unknown {
     if (this.#scrollRestoration === false || this.#scrollRestoration.getKey) {
@@ -939,15 +939,15 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
   }
 
   #restoreFocus(
-    match: IktiaRouteMatch<Routes[number]>,
-    route: IktiaRoute | IktiaFallbackRoute
+    match: NaosRouteMatch<Routes[number]>,
+    route: NaosRoute | NaosFallbackRoute
   ): void {
     if (this.#focusRestoration === false) return
     const target = findFocusTarget(this.outlet, match, route, this.#focusRestoration)
     focusElement(target)
   }
 
-  #restoreScroll(match: IktiaRouteMatch<Routes[number]>): void {
+  #restoreScroll(match: NaosRouteMatch<Routes[number]>): void {
     if (this.#scrollRestoration === false) return
 
     if (match.navigation.type === "traverse") {
@@ -966,7 +966,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     this.#platform.scrollTo({ x: 0, y: 0 })
   }
 
-  #resolveScrollKey(url: URL, navigation: IktiaNavigation | null): string {
+  #resolveScrollKey(url: URL, navigation: NaosNavigation | null): string {
     if (this.#scrollRestoration && this.#scrollRestoration.getKey) {
       return this.#scrollRestoration.getKey({
         navigation,
@@ -988,7 +988,7 @@ export class IktiaRouter<Routes extends readonly IktiaRoute[] = readonly IktiaRo
     this.#scrollPositions.set(key, this.#platform.getScrollPosition())
   }
 
-  #createScrollKey(url: URL, navigation: IktiaNavigation | null): string {
+  #createScrollKey(url: URL, navigation: NaosNavigation | null): string {
     if (this.#scrollRestoration && this.#scrollRestoration.getKey) {
       return this.#scrollRestoration.getKey({
         navigation,
@@ -1049,16 +1049,16 @@ function defaultLinkRoot(): (ParentNode & EventTarget) | null {
 }
 
 function normalizeFocusRestoration(
-  value: boolean | IktiaFocusRestorationOptions | undefined
-): IktiaFocusRestorationOptions | false {
+  value: boolean | NaosFocusRestorationOptions | undefined
+): NaosFocusRestorationOptions | false {
   if (value === false) return false
   if (value === true || value === undefined) return {}
   return value
 }
 
 function normalizeScrollRestoration(
-  value: boolean | IktiaScrollRestorationOptions | undefined
-): IktiaScrollRestorationOptions | false {
+  value: boolean | NaosScrollRestorationOptions | undefined
+): NaosScrollRestorationOptions | false {
   if (value === false) return false
   if (value === true || value === undefined) return {}
   return value
@@ -1091,9 +1091,9 @@ function decodeHash(hash: string): string {
 
 function findFocusTarget(
   outlet: Element,
-  match: IktiaRouteMatch,
-  route: IktiaRoute | IktiaFallbackRoute,
-  options: IktiaFocusRestorationOptions
+  match: NaosRouteMatch,
+  route: NaosRoute | NaosFallbackRoute,
+  options: NaosFocusRestorationOptions
 ): Element | null {
   const routeElement = outlet.firstElementChild ?? outlet
   return (
@@ -1107,8 +1107,8 @@ function findFocusTarget(
 }
 
 function resolveFocusTarget(
-  target: IktiaFocusTarget | undefined,
-  match: IktiaRouteMatch,
+  target: NaosFocusTarget | undefined,
+  match: NaosRouteMatch,
   root: Element
 ): Element | null {
   if (!target) return null
@@ -1148,8 +1148,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function createRouteElement(
   document: Document,
-  route: IktiaRoute | IktiaFallbackRoute,
-  match: IktiaRouteMatch
+  route: NaosRoute | NaosFallbackRoute,
+  match: NaosRouteMatch
 ): RouteElement {
   if ("createElement" in route && route.createElement) {
     return route.createElement(match) as RouteElement
@@ -1161,11 +1161,11 @@ function createRouteElement(
 }
 
 function normalizeFallbackRoute(
-  route: IktiaRoute | IktiaFallbackRoute,
-  matchedRoute?: IktiaRoute
-): IktiaRoute {
+  route: NaosRoute | NaosFallbackRoute,
+  matchedRoute?: NaosRoute
+): NaosRoute {
   if (matchedRoute) return matchedRoute
-  return { ...route, path: route.path ?? "*" } as IktiaRoute
+  return { ...route, path: route.path ?? "*" } as NaosRoute
 }
 
 function isPlainLeftClick(event: Event): boolean {
@@ -1187,10 +1187,10 @@ function isRoutableAnchor(anchor: HTMLAnchorElement): boolean {
 }
 
 function isRoutableForm(form: HTMLFormElement): boolean {
-  return form.hasAttribute("data-iktia-action") && !form.target && normalizeMethod(form.method || "get") !== "DIALOG"
+  return form.hasAttribute("data-naos-action") && !form.target && normalizeMethod(form.method || "get") !== "DIALOG"
 }
 
-function normalizeSubmission(options: IktiaSubmitOptions): IktiaActionSubmission {
+function normalizeSubmission(options: NaosSubmitOptions): NaosActionSubmission {
   return {
     form: options.form ?? null,
     formData: normalizeFormData(options.formData ?? options.form ?? new FormData()),
@@ -1200,7 +1200,7 @@ function normalizeSubmission(options: IktiaSubmitOptions): IktiaActionSubmission
 }
 
 function normalizeFormData(
-  value: NonNullable<IktiaSubmitOptions["formData"]> | HTMLFormElement
+  value: NonNullable<NaosSubmitOptions["formData"]> | HTMLFormElement
 ): FormData {
   if (typeof HTMLFormElement !== "undefined" && value instanceof HTMLFormElement) return formDataFromForm(value, null)
   if (value instanceof FormData) return value
@@ -1244,14 +1244,14 @@ function appendFormDataToUrl(url: URL, formData: FormData): URL {
   return next
 }
 
-function createLoaderRequest(url: URL, navigation: IktiaNavigation): Request {
+function createLoaderRequest(url: URL, navigation: NaosNavigation): Request {
   return new Request(url, {
     method: "GET",
     signal: navigation.signal,
   })
 }
 
-function createActionRequest(url: URL, navigation: IktiaNavigation, submission: IktiaActionSubmission): Request {
+function createActionRequest(url: URL, navigation: NaosNavigation, submission: NaosActionSubmission): Request {
   return new Request(url, {
     body: submission.method === "GET" || submission.method === "HEAD" ? undefined : submission.formData,
     method: submission.method,
@@ -1259,7 +1259,7 @@ function createActionRequest(url: URL, navigation: IktiaNavigation, submission: 
   })
 }
 
-function isRedirect(value: unknown): value is IktiaRedirect {
+function isRedirect(value: unknown): value is NaosRedirect {
   return Boolean(value && typeof value === "object" && "to" in value)
 }
 
@@ -1267,9 +1267,9 @@ function compileRoutePath(path: string): (pathname: string) => Readonly<Record<s
   const normalizedPath = normalizeRoutePath(path)
   if (typeof URLPattern === "function" && normalizedPath !== "*") {
     try {
-      const pattern = new URLPattern({ pathname: normalizedPath }, "https://iktia.local")
+      const pattern = new URLPattern({ pathname: normalizedPath }, "https://naos.local")
       return (pathname) => {
-        const result = pattern.exec(new URL(pathname, "https://iktia.local"))
+        const result = pattern.exec(new URL(pathname, "https://naos.local"))
         return result?.pathname.groups ? normalizeGroups(result.pathname.groups) : null
       }
     } catch {
@@ -1335,14 +1335,14 @@ function joinBasePath(basePath: string, path: string): string {
   return basePath === "/" ? normalizedPath : `${basePath}${normalizedPath}`
 }
 
-function appendUrlParts(pathname: string, options: IktiaHrefOptions | undefined): string {
+function appendUrlParts(pathname: string, options: NaosHrefOptions | undefined): string {
   if (!options) return pathname
   const search = formatSearch(options.search)
   const hash = options.hash ? (options.hash.startsWith("#") ? options.hash : `#${options.hash}`) : ""
   return `${pathname}${search}${hash}`
 }
 
-function formatSearch(search: IktiaHrefOptions["search"]): string {
+function formatSearch(search: NaosHrefOptions["search"]): string {
   if (!search) return ""
   if (typeof search === "string") return search.startsWith("?") ? search : `?${search}`
   const params = search instanceof URLSearchParams ? search : objectToSearchParams(search)

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 
-import { createRouter, defineRoutes, redirect, type IktiaRouteMatch } from "./index.js"
+import { createRouter, defineRoutes, redirect, type NaosRouteMatch } from "./index.js"
 
 type TestPlatform = {
   readonly history: History
@@ -14,8 +14,8 @@ type TestPlatform = {
 function setupRouter() {
   document.body.innerHTML = `
     <nav>
-      <a href="/" data-home data-iktia-active-match="exact">Home</a>
-      <a href="/products/42?tab=details" data-product data-iktia-active-match="prefix">Product</a>
+      <a href="/" data-home data-naos-active-match="exact">Home</a>
+      <a href="/products/42?tab=details" data-product data-naos-active-match="prefix">Product</a>
     </nav>
     <main data-outlet></main>
   `
@@ -66,7 +66,7 @@ function setupRouter() {
   return { outlet, router }
 }
 
-function setupPlatform(initialUrl = "https://iktia.test/"): TestPlatform {
+function setupPlatform(initialUrl = "https://naos.test/"): TestPlatform {
   let currentScroll = { x: 0, y: 0 }
   const listeners = new Set<EventListener>()
   const scrollToCalls: Array<{ x: number; y: number }> = []
@@ -146,7 +146,7 @@ async function waitForRouterWork(): Promise<void> {
   await Promise.resolve()
 }
 
-describe("IktiaRouter", () => {
+describe("NaosRouter", () => {
   it("matches route params and builds typed hrefs", () => {
     const { router } = setupRouter()
 
@@ -183,21 +183,21 @@ describe("IktiaRouter", () => {
 
   it("mounts custom element route views and updates active anchors", async () => {
     const { outlet, router } = setupRouter()
-    const commits: IktiaRouteMatch[] = []
-    router.addEventListener("iktia:navigationcommit", (event) => {
-      commits.push((event as CustomEvent<{ match: IktiaRouteMatch }>).detail.match)
+    const commits: NaosRouteMatch[] = []
+    router.addEventListener("naos:navigationcommit", (event) => {
+      commits.push((event as CustomEvent<{ match: NaosRouteMatch }>).detail.match)
     })
 
     await router.navigate("/products/42?tab=details")
 
     const element = outlet.firstElementChild as HTMLElement & {
-      iktiaRoute?: IktiaRouteMatch
+      naosRoute?: NaosRouteMatch
       productId?: string
     }
     expect(element.tagName.toLowerCase()).toBe("app-product")
     expect(element.productId).toBe("42")
     expect(element.getAttribute("data-product-id")).toBe("42")
-    expect(element.iktiaRoute?.params).toEqual({ id: "42" })
+    expect(element.naosRoute?.params).toEqual({ id: "42" })
     expect(document.title).toBe("Product 42")
     expect(document.querySelector("[data-product]")?.hasAttribute("data-active")).toBe(true)
     expect(commits).toHaveLength(1)
@@ -239,11 +239,11 @@ describe("IktiaRouter", () => {
     })
 
     const match = await router.navigate("/loaded/42?tab=details")
-    const element = outlet.firstElementChild as AppLoaded & { iktiaRoute?: IktiaRouteMatch }
+    const element = outlet.firstElementChild as AppLoaded & { naosRoute?: NaosRouteMatch }
 
     expect(match?.data).toEqual({ id: "42", tab: "details" })
     expect(element.routeData).toEqual({ id: "42", tab: "details" })
-    expect(element.iktiaRoute?.data).toEqual({ id: "42", tab: "details" })
+    expect(element.naosRoute?.data).toEqual({ id: "42", tab: "details" })
     expect(document.title).toBe("Loaded 42")
   })
 
@@ -257,7 +257,7 @@ describe("IktiaRouter", () => {
     if (!outlet) throw new Error("Missing test outlet.")
 
     let loaderRuns = 0
-    const actionCommits: IktiaRouteMatch[] = []
+    const actionCommits: NaosRouteMatch[] = []
     const router = createRouter({
       outlet,
       routes: defineRoutes([
@@ -278,8 +278,8 @@ describe("IktiaRouter", () => {
         },
       ] as const),
     })
-    router.addEventListener("iktia:actioncommit", (event) => {
-      actionCommits.push((event as CustomEvent<{ match: IktiaRouteMatch }>).detail.match)
+    router.addEventListener("naos:actioncommit", (event) => {
+      actionCommits.push((event as CustomEvent<{ match: NaosRouteMatch }>).detail.match)
     })
 
     const match = await router.submit("/actions/42", {
@@ -287,10 +287,10 @@ describe("IktiaRouter", () => {
       method: "post",
     })
 
-    const element = outlet.firstElementChild as HTMLElement & { iktiaRoute?: IktiaRouteMatch }
+    const element = outlet.firstElementChild as HTMLElement & { naosRoute?: NaosRouteMatch }
     expect(match?.actionData).toEqual({ id: "42", note: "ship faster" })
     expect(match?.data).toEqual({ id: "42", loaderRuns: 1 })
-    expect(element.iktiaRoute?.actionData).toEqual({ id: "42", note: "ship faster" })
+    expect(element.naosRoute?.actionData).toEqual({ id: "42", note: "ship faster" })
     expect(actionCommits).toHaveLength(1)
     expect(actionCommits[0]?.actionData).toEqual({ id: "42", note: "ship faster" })
   })
@@ -329,7 +329,7 @@ describe("IktiaRouter", () => {
   it("intercepts explicit data action forms", async () => {
     document.body.innerHTML = `
       <section data-root>
-        <form data-iktia-action action="/forms/42" method="post">
+        <form data-naos-action action="/forms/42" method="post">
           <input name="note" value="from form">
           <button>Save</button>
         </form>
@@ -362,9 +362,9 @@ describe("IktiaRouter", () => {
       ] as const),
     })
 
-    const actionCommit = new Promise<IktiaRouteMatch>((resolve) => {
-      router.addEventListener("iktia:actioncommit", (event) => {
-        resolve((event as CustomEvent<{ match: IktiaRouteMatch }>).detail.match)
+    const actionCommit = new Promise<NaosRouteMatch>((resolve) => {
+      router.addEventListener("naos:actioncommit", (event) => {
+        resolve((event as CustomEvent<{ match: NaosRouteMatch }>).detail.match)
       }, { once: true })
     })
     router.start()
@@ -417,7 +417,7 @@ describe("IktiaRouter", () => {
     const outlet = document.querySelector("[data-outlet]")
     if (!outlet) throw new Error("Missing test outlet.")
 
-    const platform = setupPlatform("https://iktia.test/a")
+    const platform = setupPlatform("https://naos.test/a")
     const router = createRouter({
       outlet,
       routes: defineRoutes([
@@ -458,7 +458,7 @@ describe("IktiaRouter", () => {
     if (!outlet) throw new Error("Missing test outlet.")
 
     const getKey = vi.fn(({ url }: { url: URL }) => `${url.pathname}${url.search}`)
-    const platform = setupPlatform("https://iktia.test/a?tab=one")
+    const platform = setupPlatform("https://naos.test/a?tab=one")
     const router = createRouter({
       outlet,
       routes: defineRoutes([
@@ -639,8 +639,8 @@ describe("IktiaRouter", () => {
   it("does not abort a committed navigation when navigating again", async () => {
     const { router } = setupRouter()
     const aborts: number[] = []
-    router.addEventListener("iktia:navigationabort", (event) => {
-      const navigation = (event as CustomEvent<{ navigation: IktiaRouteMatch["navigation"] }>).detail.navigation
+    router.addEventListener("naos:navigationabort", (event) => {
+      const navigation = (event as CustomEvent<{ navigation: NaosRouteMatch["navigation"] }>).detail.navigation
       aborts.push(navigation.id)
     })
 

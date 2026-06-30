@@ -12,13 +12,13 @@ type PresenceRecord = {
 
 declare global {
   interface Window {
-    __iktiaPresenceObservers?: Record<string, MutationObserver>
-    __iktiaPresenceRecords?: Record<string, PresenceRecord[]>
-    __iktiaPrimitiveEvents?: PrimitiveEventRecord[]
-    __iktiaProbeSecondaryMutationCount?: () => number
-    __iktiaProbeSecondaryMutationObserver?: MutationObserver
-    __iktiaSelectorMutationCounts?: Record<string, number>
-    __iktiaSelectorMutationObserver?: MutationObserver
+    __naosPresenceObservers?: Record<string, MutationObserver>
+    __naosPresenceRecords?: Record<string, PresenceRecord[]>
+    __naosPrimitiveEvents?: PrimitiveEventRecord[]
+    __naosProbeSecondaryMutationCount?: () => number
+    __naosProbeSecondaryMutationObserver?: MutationObserver
+    __naosSelectorMutationCounts?: Record<string, number>
+    __naosSelectorMutationObserver?: MutationObserver
   }
 }
 
@@ -32,7 +32,7 @@ async function expectPrimitiveEvent(
     .poll(async () =>
       page.evaluate(
         ({ expectedDetail, type }) =>
-          window.__iktiaPrimitiveEvents?.some(
+          window.__naosPrimitiveEvents?.some(
             (event) =>
               event.type === type &&
               JSON.stringify(event.detail) === expectedDetail
@@ -48,7 +48,7 @@ async function expectPrimitiveEventType(page: Page, type: string) {
     .poll(async () =>
       page.evaluate(
         (type) =>
-          window.__iktiaPrimitiveEvents?.some((event) => event.type === type) ??
+          window.__naosPrimitiveEvents?.some((event) => event.type === type) ??
           false,
         type
       )
@@ -91,32 +91,32 @@ async function observePresenceAttributes(
   key: string
 ) {
   await locator.evaluate((element, key) => {
-    window.__iktiaPresenceObservers ??= {}
-    window.__iktiaPresenceRecords ??= {}
-    window.__iktiaPresenceObservers[key]?.disconnect()
+    window.__naosPresenceObservers ??= {}
+    window.__naosPresenceRecords ??= {}
+    window.__naosPresenceObservers[key]?.disconnect()
 
     const records: PresenceRecord[] = []
     const capture = () => {
       records.push({
         endingStyle: element.hasAttribute("data-ending-style"),
-        phase: element.getAttribute("data-iktia-presence"),
+        phase: element.getAttribute("data-naos-presence"),
       })
     }
     const observer = new MutationObserver(capture)
     capture()
     observer.observe(element, {
-      attributeFilter: ["data-ending-style", "data-iktia-presence"],
+      attributeFilter: ["data-ending-style", "data-naos-presence"],
       attributes: true,
     })
 
-    window.__iktiaPresenceObservers[key] = observer
-    window.__iktiaPresenceRecords[key] = records
+    window.__naosPresenceObservers[key] = observer
+    window.__naosPresenceRecords[key] = records
   }, key)
 }
 
 async function expectObservedClosingPresence(page: Page, key: string) {
   const records = await page.evaluate(
-    (key) => window.__iktiaPresenceRecords?.[key] ?? [],
+    (key) => window.__naosPresenceRecords?.[key] ?? [],
     key
   )
   expect(records.some((record) => record.phase === "closing")).toBe(true)
@@ -161,7 +161,7 @@ test("compiled reactive output batches and gates DOM updates", async ({
     const target = root.querySelector("[data-probe-secondary]")
     if (!target) throw new Error("Missing secondary probe target.")
     let mutations = 0
-    window.__iktiaProbeSecondaryMutationObserver?.disconnect()
+    window.__naosProbeSecondaryMutationObserver?.disconnect()
     const observer = new MutationObserver(() => {
       mutations += 1
     })
@@ -170,15 +170,15 @@ test("compiled reactive output batches and gates DOM updates", async ({
       childList: true,
       subtree: true,
     })
-    window.__iktiaProbeSecondaryMutationCount = () => mutations
-    window.__iktiaProbeSecondaryMutationObserver = observer
+    window.__naosProbeSecondaryMutationCount = () => mutations
+    window.__naosProbeSecondaryMutationObserver = observer
   })
 
   await secondaryButton.click()
   await expect(secondary).toHaveText("1")
   await expect(body).toHaveAttribute("data-probe-effect-runs", "1")
   const secondaryMutationsAfterSecondaryClick = await page.evaluate(
-    () => window.__iktiaProbeSecondaryMutationCount?.() ?? -1
+    () => window.__naosProbeSecondaryMutationCount?.() ?? -1
   )
 
   await primaryButton.click()
@@ -186,7 +186,7 @@ test("compiled reactive output batches and gates DOM updates", async ({
   await expect(body).toHaveAttribute("data-probe-effect-runs", "2")
   await expect
     .poll(() =>
-      page.evaluate(() => window.__iktiaProbeSecondaryMutationCount?.() ?? -1)
+      page.evaluate(() => window.__naosProbeSecondaryMutationCount?.() ?? -1)
     )
     .toBe(secondaryMutationsAfterSecondaryClick)
 
@@ -270,7 +270,7 @@ test("compiled list reconcilers preserve keyed and indexed row nodes", async ({
       const id = row.getAttribute("data-id")
       if (id) counts[id] = 0
     }
-    window.__iktiaSelectorMutationObserver?.disconnect()
+    window.__naosSelectorMutationObserver?.disconnect()
     const observer = new MutationObserver((records) => {
       for (const record of records) {
         if (!(record.target instanceof Element)) continue
@@ -284,8 +284,8 @@ test("compiled list reconcilers preserve keyed and indexed row nodes", async ({
       attributes: true,
       subtree: true,
     })
-    window.__iktiaSelectorMutationCounts = counts
-    window.__iktiaSelectorMutationObserver = observer
+    window.__naosSelectorMutationCounts = counts
+    window.__naosSelectorMutationObserver = observer
   })
 
   await forRows.nth(2).click()
@@ -296,7 +296,7 @@ test("compiled list reconcilers preserve keyed and indexed row nodes", async ({
     "c"
   )
   const selectorMutationCounts = await page.evaluate(
-    () => window.__iktiaSelectorMutationCounts ?? {}
+    () => window.__naosSelectorMutationCounts ?? {}
   )
   expect(selectorMutationCounts.a).toBeGreaterThan(0)
   expect(selectorMutationCounts.b).toBe(0)
@@ -517,160 +517,160 @@ test("compiled design-system primitives expose native contracts", async ({
   await expect(field).toContainText(
     "Used by generated package names"
   )
-  await expect(field.locator("[part~='status']")).toHaveText("Ready: @iktia")
+  await expect(field.locator("[part~='status']")).toHaveText("Ready: @naos-ui")
   await expect(input).toHaveAttribute("aria-invalid", "false")
-  await expect(input).toHaveValue("@iktia")
+  await expect(input).toHaveValue("@naos-ui")
   await expect(input).toHaveCSS("border-color", "rgb(15, 118, 110)")
   await expect(fieldAction).toHaveAttribute("part", "action")
 
   await fieldAction.click()
 
-  await expect(field.locator("[part~='status']")).toHaveText("Ready: @iktia/labs")
-  await expect(input).toHaveValue("@iktia/labs")
-  await expect(page.locator("body")).toHaveAttribute("data-last-field", "@iktia/labs")
+  await expect(field.locator("[part~='status']")).toHaveText("Ready: @naos-ui/labs")
+  await expect(input).toHaveValue("@naos-ui/labs")
+  await expect(page.locator("body")).toHaveAttribute("data-last-field", "@naos-ui/labs")
   await expect(page.locator("#field-event")).toHaveText(
-    "Last field event: @iktia/labs"
+    "Last field event: @naos-ui/labs"
   )
 })
 
 test("packaged primitives render and dispatch package events", async ({ page }) => {
   await page.goto("/")
   await page.evaluate(() => {
-    window.__iktiaPrimitiveEvents = []
+    window.__naosPrimitiveEvents = []
     for (const type of [
-      "iktia-cancel",
-      "iktia-change",
-      "iktia-create",
-      "iktia-edit-change",
-      "iktia-open-change",
-      "iktia-press",
-      "iktia-select",
-      "iktia-status-change",
-      "iktia-submit",
+      "naos-cancel",
+      "naos-change",
+      "naos-create",
+      "naos-edit-change",
+      "naos-open-change",
+      "naos-press",
+      "naos-select",
+      "naos-status-change",
+      "naos-submit",
     ]) {
       document.addEventListener(type, (event) => {
         if (event instanceof CustomEvent) {
-          window.__iktiaPrimitiveEvents?.push({ detail: event.detail, type })
+          window.__naosPrimitiveEvents?.push({ detail: event.detail, type })
         }
       })
     }
   })
 
   const section = page.locator("#primitive-package-case")
-  const checkbox = section.locator("iktia-checkbox")
+  const checkbox = section.locator("naos-checkbox")
   const checkboxButton = checkbox.locator("button")
-  const toggle = section.locator("iktia-toggle")
+  const toggle = section.locator("naos-toggle")
   const toggleButton = toggle.locator("button")
-  const switchControl = section.locator("iktia-switch")
+  const switchControl = section.locator("naos-switch")
   const switchTrack = switchControl.locator("[part~='track']")
-  const primaryButton = section.locator("iktia-button[variant='primary']")
-  const radioGroup = section.locator("iktia-radio-group")
-  const radios = radioGroup.locator("iktia-radio")
-  const toggleGroup = section.locator("iktia-toggle-group")
-  const toggleItems = toggleGroup.locator("iktia-toggle-item")
-  const segmentedControl = section.locator("iktia-segmented-control")
-  const segments = segmentedControl.locator("iktia-segmented-item")
-  const select = section.locator("iktia-select")
+  const primaryButton = section.locator("naos-button[variant='primary']")
+  const radioGroup = section.locator("naos-radio-group")
+  const radios = radioGroup.locator("naos-radio")
+  const toggleGroup = section.locator("naos-toggle-group")
+  const toggleItems = toggleGroup.locator("naos-toggle-item")
+  const segmentedControl = section.locator("naos-segmented-control")
+  const segments = segmentedControl.locator("naos-segmented-item")
+  const select = section.locator("naos-select")
   const selectTrigger = select.locator("button")
-  const selectItems = select.locator("iktia-select-item")
+  const selectItems = select.locator("naos-select-item")
   const selectContent = select.locator("[part~='content']")
-  const listbox = section.locator("iktia-listbox")
+  const listbox = section.locator("naos-listbox")
   const listboxContent = listbox.locator("[role='listbox']")
-  const listboxItems = listbox.locator("iktia-listbox-item")
-  const combobox = section.locator("iktia-combobox")
+  const listboxItems = listbox.locator("naos-listbox-item")
+  const combobox = section.locator("naos-combobox")
   const comboboxInput = combobox.locator("input")
   const comboboxTrigger = combobox.locator("button")
   const comboboxContent = combobox.locator("[part~='content']")
-  const comboboxItems = combobox.locator("iktia-combobox-item")
-  const numberInput = section.locator("iktia-number-input")
+  const comboboxItems = combobox.locator("naos-combobox-item")
+  const numberInput = section.locator("naos-number-input")
   const numberInputField = numberInput.locator("[part~='input']")
   const numberInputDecrement = numberInput.locator("[part~='decrement']")
   const numberInputIncrement = numberInput.locator("[part~='increment']")
-  const pinInput = section.locator("iktia-pin-input")
+  const pinInput = section.locator("naos-pin-input")
   const pinInputRoot = pinInput.locator("[part~='root']")
   const pinInputFields = pinInput.locator("[part~='input']")
-  const tagsInput = section.locator("iktia-tags-input")
+  const tagsInput = section.locator("naos-tags-input")
   const tagsInputRoot = tagsInput.locator("[part~='root']")
   const tagsInputField = tagsInput.locator("[part~='input']")
   const tagItems = tagsInput.locator("[part~='item-preview']")
   const tagDeleteTriggers = tagsInput.locator("[part~='item-delete']")
-  const fileUpload = section.locator("iktia-file-upload")
+  const fileUpload = section.locator("naos-file-upload")
   const fileUploadRoot = fileUpload.locator("[part~='root']")
   const fileUploadDropzone = fileUpload.locator("[part~='dropzone']")
   const fileUploadInput = fileUpload.locator("[part~='input']")
   const fileUploadItems = fileUpload.locator("[part~='item']")
   const fileUploadClear = fileUpload.locator("[part~='clear']")
-  const datePicker = section.locator("iktia-date-picker")
+  const datePicker = section.locator("naos-date-picker")
   const datePickerRoot = datePicker.locator("[part~='root']")
   const datePickerInput = datePicker.locator("[part~='input']")
   const datePickerTrigger = datePicker.locator("[part~='trigger']")
   const datePickerContent = datePicker.locator("[part~='content']")
   const datePickerTable = datePicker.locator("[part~='table']")
   const datePickerCells = datePicker.locator("[part~='cell-trigger']")
-  const editable = section.locator("iktia-editable")
+  const editable = section.locator("naos-editable")
   const editableRoot = editable.locator("[part~='root']")
   const editablePreview = editable.locator("[part~='preview']")
   const editableInput = editable.locator("[part~='input']")
   const editableEdit = editable.locator("[part~='edit']")
   const editableSubmit = editable.locator("[part~='submit']")
   const editableCancel = editable.locator("[part~='cancel']")
-  const ratingGroup = section.locator("iktia-rating-group")
+  const ratingGroup = section.locator("naos-rating-group")
   const ratingRoot = ratingGroup.locator("[part~='root']")
   const ratingControl = ratingGroup.locator("[part~='control']")
   const ratingItems = ratingGroup.locator("[part~='item']")
   const ratingInput = ratingGroup.locator("[part~='input']")
-  const slider = section.locator("iktia-slider")
+  const slider = section.locator("naos-slider")
   const sliderControl = slider.locator("[part~='control']")
   const sliderThumb = slider.locator("[part~='thumb']")
-  const menu = section.locator("iktia-menu")
+  const menu = section.locator("naos-menu")
   const menuTrigger = menu.locator("button")
   const menuContent = menu.locator("[part~='content']")
-  const menuItems = menu.locator("iktia-menu-item")
-  const contextMenu = section.locator("iktia-context-menu")
+  const menuItems = menu.locator("naos-menu-item")
+  const contextMenu = section.locator("naos-context-menu")
   const contextMenuTrigger = contextMenu.locator("[part~='trigger']")
   const contextMenuContent = contextMenu.locator("[part~='content']")
-  const contextMenuItems = contextMenu.locator("iktia-menu-item")
-  const collapsible = section.locator("iktia-collapsible")
+  const contextMenuItems = contextMenu.locator("naos-menu-item")
+  const collapsible = section.locator("naos-collapsible")
   const collapsibleTrigger = collapsible.locator("button")
   const collapsibleContent = collapsible.locator("[part~='content']")
-  const accordion = section.locator("iktia-accordion")
+  const accordion = section.locator("naos-accordion")
   const accordionRoot = accordion.locator("section[part~='root']")
-  const accordionItems = accordion.locator("iktia-accordion-item")
-  const popover = section.locator("iktia-popover")
+  const accordionItems = accordion.locator("naos-accordion-item")
+  const popover = section.locator("naos-popover")
   const popoverTrigger = popover.locator("[part~='trigger']")
   const popoverContent = popover.locator("[part~='content']")
   const popoverClose = popover.locator("[part~='close']")
-  const dialog = section.locator("iktia-dialog")
+  const dialog = section.locator("naos-dialog")
   const dialogTrigger = dialog.locator("[part~='trigger']")
   const dialogBackdrop = dialog.locator("[part~='backdrop']")
   const dialogContent = dialog.locator("[part~='content']")
   const dialogClose = dialog.locator("[part~='close']")
-  const tooltip = section.locator("iktia-tooltip")
+  const tooltip = section.locator("naos-tooltip")
   const tooltipTrigger = tooltip.locator("[part~='trigger']")
   const tooltipContent = tooltip.locator("[part~='content']")
-  const hoverCard = section.locator("iktia-hover-card")
+  const hoverCard = section.locator("naos-hover-card")
   const hoverCardTrigger = hoverCard.locator("[part~='trigger']")
   const hoverCardContent = hoverCard.locator("[part~='content']")
-  const progress = section.locator("iktia-progress")
+  const progress = section.locator("naos-progress")
   const progressRoot = progress.locator("[part~='root']")
   const progressTrack = progress.locator("[part~='track']")
   const progressRange = progress.locator("[part~='range']")
   const progressValue = progress.locator("[part~='value']")
-  const avatar = section.locator("iktia-avatar")
+  const avatar = section.locator("naos-avatar")
   const avatarRoot = avatar.locator("[part~='root']")
   const avatarImage = avatar.locator("[part~='image']")
   const avatarFallback = avatar.locator("[part~='fallback']")
-  const toast = section.locator("iktia-toast")
+  const toast = section.locator("naos-toast")
   const toastTrigger = toast.locator("[part~='trigger']")
-  const toastRoot = section.locator("iktia-toast-root")
+  const toastRoot = section.locator("naos-toast-root")
   const toastRegion = toastRoot.locator("[part~='root']")
   const toastItems = toastRoot.locator("[part~='toast']")
-  const tabs = section.locator("iktia-tabs")
-  const tabItems = tabs.locator("iktia-tab")
-  const tabPanels = tabs.locator("iktia-tab-panel")
+  const tabs = section.locator("naos-tabs")
+  const tabItems = tabs.locator("naos-tab")
+  const tabPanels = tabs.locator("naos-tab-panel")
   const contractPanel = tabPanels.filter({ hasText: "Parts, slots" })
   const behaviorPanel = tabPanels.filter({ hasText: "Behavior stays" })
-  const dropdown = section.locator("iktia-dropdown")
+  const dropdown = section.locator("naos-dropdown")
   const form = section.locator("#primitive-form")
 
   await expect(primaryButton.locator("button")).toHaveAttribute(
@@ -815,11 +815,11 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(dialogContent).toBeHidden()
   await expect(tooltipTrigger).toHaveAttribute("data-state", "closed")
   await expect(tooltipContent).toHaveAttribute("role", "tooltip")
-  await expect(tooltipContent).toHaveAttribute("data-iktia-presence", "closed")
+  await expect(tooltipContent).toHaveAttribute("data-naos-presence", "closed")
   await expect(tooltipContent).toBeHidden()
   await expect(hoverCardTrigger).toHaveAttribute("data-state", "closed")
   await expect(hoverCardContent).toHaveAttribute("data-scope", "hover-card")
-  await expect(hoverCardContent).toHaveAttribute("data-iktia-presence", "closed")
+  await expect(hoverCardContent).toHaveAttribute("data-naos-presence", "closed")
   await expect(hoverCardContent).toBeHidden()
   await expect(progressRoot).toHaveAttribute("data-state", "loading")
   await expect(progressRoot).toHaveAttribute("data-value", "80")
@@ -967,22 +967,22 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await datePickerTable.press("ArrowRight")
   await datePickerTable.press("Enter")
   await expect(datePickerRoot).toHaveAttribute("data-value", "2026-06-19")
-  await expectPrimitiveEvent(page, "iktia-change", { value: "2026-06-19" })
+  await expectPrimitiveEvent(page, "naos-change", { value: "2026-06-19" })
   await datePickerTrigger.click()
   await datePicker.locator("[part~='cell-trigger'][data-value='2026-06-20']").click()
   await expect(datePickerRoot).toHaveAttribute("data-value", "2026-06-20")
-  await expectPrimitiveEvent(page, "iktia-change", { value: "2026-06-20" })
+  await expectPrimitiveEvent(page, "naos-change", { value: "2026-06-20" })
 
   await editableEdit.click()
   await expect(editableRoot).toHaveAttribute("data-state", "edit")
   await expect(editableInput).toBeVisible()
   await editableInput.fill("Launch approved")
   await expect(editableRoot).toHaveAttribute("data-value", "Launch approved")
-  await expectPrimitiveEvent(page, "iktia-change", { value: "Launch approved" })
+  await expectPrimitiveEvent(page, "naos-change", { value: "Launch approved" })
   await editableSubmit.click()
   await expect(editableRoot).toHaveAttribute("data-state", "preview")
   await expect(editablePreview).toContainText("Launch approved")
-  await expectPrimitiveEvent(page, "iktia-submit", { value: "Launch approved" })
+  await expectPrimitiveEvent(page, "naos-submit", { value: "Launch approved" })
 
   await ratingItems.nth(3).click()
   await expect(ratingRoot).toHaveAttribute("data-value", "4")
@@ -1071,7 +1071,7 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(fileUploadItems).toHaveCount(0)
 
   await combobox.evaluate((element) => {
-    const item = document.createElement("iktia-combobox-item")
+    const item = document.createElement("naos-combobox-item")
     item.setAttribute("value", "support")
     item.setAttribute("label", "Support")
     element.append(item)
@@ -1083,7 +1083,7 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(comboboxInput).toHaveValue("Support")
 
   await select.evaluate((element) => {
-    const item = document.createElement("iktia-select-item")
+    const item = document.createElement("naos-select-item")
     item.setAttribute("value", "latam")
     item.setAttribute("label", "LATAM")
     element.append(item)
@@ -1096,7 +1096,7 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(page.locator("#primitive-event")).toContainText('"value":"latam"')
 
   await listbox.evaluate((element) => {
-    const item = document.createElement("iktia-listbox-item")
+    const item = document.createElement("naos-listbox-item")
     item.setAttribute("value", "hotfix")
     item.setAttribute("label", "Hotfix")
     element.append(item)
@@ -1107,7 +1107,7 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(page.locator("#primitive-event")).toContainText('"value":["hotfix"]')
 
   await segmentedControl.evaluate((element) => {
-    const item = document.createElement("iktia-segmented-item")
+    const item = document.createElement("naos-segmented-item")
     item.setAttribute("value", "quarterly")
     item.setAttribute("label", "Quarterly")
     element.append(item)
@@ -1142,11 +1142,11 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(tabItems.nth(0)).toBeFocused()
 
   await tabs.evaluate((element) => {
-    const disabledTab = document.createElement("iktia-tab")
+    const disabledTab = document.createElement("naos-tab")
     disabledTab.setAttribute("value", "audit")
     disabledTab.setAttribute("label", "Audit")
     disabledTab.setAttribute("disabled", "")
-    const disabledPanel = document.createElement("iktia-tab-panel")
+    const disabledPanel = document.createElement("naos-tab-panel")
     disabledPanel.setAttribute("value", "audit")
     disabledPanel.textContent = "Disabled audit panel."
     element.append(disabledTab, disabledPanel)
@@ -1158,10 +1158,10 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(tabItems.nth(2)).toBeFocused()
 
   await tabs.evaluate((element) => {
-    const tab = document.createElement("iktia-tab")
+    const tab = document.createElement("naos-tab")
     tab.setAttribute("value", "metrics")
     tab.setAttribute("label", "Metrics")
-    const panel = document.createElement("iktia-tab-panel")
+    const panel = document.createElement("naos-tab-panel")
     panel.setAttribute("value", "metrics")
     panel.textContent = "Runtime metrics panel."
     element.append(tab, panel)
@@ -1208,7 +1208,7 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(menuTrigger).toBeFocused()
 
   await menu.evaluate((element) => {
-    const item = document.createElement("iktia-menu-item")
+    const item = document.createElement("naos-menu-item")
     item.setAttribute("value", "audit")
     item.setAttribute("label", "Audit release")
     element.append(item)
@@ -1248,12 +1248,12 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(page.locator("#primitive-event")).toContainText('"open":false')
 
   await page.evaluate(() => {
-    const collapsible = document.createElement("iktia-collapsible")
+    const collapsible = document.createElement("naos-collapsible")
     collapsible.setAttribute("label", "Disabled notes")
     collapsible.setAttribute("disabled", "")
     document.querySelector("#primitive-package-case .primitive-stack")?.append(collapsible)
   })
-  const disabledCollapsible = section.locator("iktia-collapsible").nth(1)
+  const disabledCollapsible = section.locator("naos-collapsible").nth(1)
   await expect(disabledCollapsible.locator("button")).toBeDisabled()
   await expect(disabledCollapsible.locator("[part~='content']")).toBeHidden()
 
@@ -1268,7 +1268,7 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(accordionItems.nth(0).locator("[part~='trigger']")).toBeFocused()
 
   await accordion.evaluate((element) => {
-    const item = document.createElement("iktia-accordion-item")
+    const item = document.createElement("naos-accordion-item")
     item.setAttribute("value", "audit")
     item.setAttribute("label", "Audit notes")
     item.textContent = "Audit notes can be expanded after dynamic sync."
@@ -1334,10 +1334,10 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await expect(tooltipTrigger).toHaveAttribute("data-state", "open")
   await expect(tooltipTrigger).toHaveAttribute("aria-describedby", /.+/)
   await expect(tooltipContent).toBeVisible()
-  await expect(tooltipContent).toHaveAttribute("data-iktia-presence", "open")
+  await expect(tooltipContent).toHaveAttribute("data-naos-presence", "open")
   await tooltipContent.evaluate((content) => {
     (content as HTMLElement).style.setProperty(
-      "--iktia-tooltip-motion-duration",
+      "--naos-tooltip-motion-duration",
       "250ms"
     )
   })
@@ -1345,7 +1345,7 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await observePresenceAttributes(tooltipContent, "tooltip")
   await page.keyboard.press("Escape")
   await expect(tooltipContent).toBeHidden()
-  await expect(tooltipContent).toHaveAttribute("data-iktia-presence", "closed")
+  await expect(tooltipContent).toHaveAttribute("data-naos-presence", "closed")
   await expectObservedClosingPresence(page, "tooltip")
   await expect(page.locator("#primitive-event")).toContainText('"open":false')
 
@@ -1356,7 +1356,7 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
     }))
   })
   await expect(tooltipContent).toBeVisible()
-  await expect(tooltipContent).toHaveAttribute("data-iktia-presence", "open")
+  await expect(tooltipContent).toHaveAttribute("data-naos-presence", "open")
   await tooltipTrigger.evaluate((trigger) => {
     trigger.dispatchEvent(new PointerEvent("pointerleave", {
       bubbles: true,
@@ -1364,7 +1364,7 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
     }))
   })
   await expect(tooltipContent).toBeHidden()
-  await expect(tooltipContent).toHaveAttribute("data-iktia-presence", "closed")
+  await expect(tooltipContent).toHaveAttribute("data-naos-presence", "closed")
 
   await hoverCardTrigger.evaluate((trigger) => {
     trigger.dispatchEvent(new PointerEvent("pointermove", {
@@ -1374,10 +1374,10 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   })
   await expect(hoverCardTrigger).toHaveAttribute("data-state", "open")
   await expect(hoverCardContent).toBeVisible()
-  await expect(hoverCardContent).toHaveAttribute("data-iktia-presence", "open")
+  await expect(hoverCardContent).toHaveAttribute("data-naos-presence", "open")
   await hoverCardContent.evaluate((content) => {
     (content as HTMLElement).style.setProperty(
-      "--iktia-hover-card-motion-duration",
+      "--naos-hover-card-motion-duration",
       "250ms"
     )
   })
@@ -1385,7 +1385,7 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
   await observePresenceAttributes(hoverCardContent, "hover-card")
   await page.keyboard.press("Escape")
   await expect(hoverCardContent).toBeHidden()
-  await expect(hoverCardContent).toHaveAttribute("data-iktia-presence", "closed")
+  await expect(hoverCardContent).toHaveAttribute("data-naos-presence", "closed")
   await expectObservedClosingPresence(page, "hover-card")
   await expect(page.locator("#primitive-event")).toContainText('"open":false')
 
@@ -1396,7 +1396,7 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
     }))
   })
   await expect(hoverCardContent).toBeVisible()
-  await expect(hoverCardContent).toHaveAttribute("data-iktia-presence", "open")
+  await expect(hoverCardContent).toHaveAttribute("data-naos-presence", "open")
   await hoverCardContent.evaluate((content) => {
     content.dispatchEvent(new PointerEvent("pointerleave", {
       bubbles: true,
@@ -1404,10 +1404,10 @@ test("packaged primitives render and dispatch package events", async ({ page }) 
     }))
   })
   await expect(hoverCardContent).toBeHidden()
-  await expect(hoverCardContent).toHaveAttribute("data-iktia-presence", "closed")
+  await expect(hoverCardContent).toHaveAttribute("data-naos-presence", "closed")
 
   await toastTrigger.click()
-  await expectPrimitiveEventType(page, "iktia-create")
+  await expectPrimitiveEventType(page, "naos-create")
   await expect(toastRegion).toHaveAttribute("data-count", "1")
   await expect(toastItems).toHaveCount(1)
   await expect(toastItems.nth(0)).toHaveAttribute("data-type", "success")
@@ -1430,65 +1430,65 @@ test("form-associated primitive controls receive disabled fieldset state", async
     const form = document.createElement("form")
     form.innerHTML = `
       <fieldset disabled>
-        <iktia-checkbox name="blocked" value="yes" label="Blocked"></iktia-checkbox>
-        <iktia-toggle name="blocked-toggle" value="yes" label="Blocked toggle"></iktia-toggle>
-        <iktia-switch name="blocked-switch" value="yes" label="Blocked switch"></iktia-switch>
-        <iktia-radio-group name="blocked-radio" label="Blocked radio">
-          <iktia-radio value="yes" label="Yes"></iktia-radio>
-        </iktia-radio-group>
-        <iktia-toggle-group name="blocked-toggle-group" label="Blocked toggles" multiple>
-          <iktia-toggle-item value="yes" label="Yes"></iktia-toggle-item>
-        </iktia-toggle-group>
-        <iktia-segmented-control name="blocked-segmented" label="Blocked segmented">
-          <iktia-segmented-item value="yes" label="Yes"></iktia-segmented-item>
-        </iktia-segmented-control>
-        <iktia-select name="blocked-select" label="Blocked select">
-          <iktia-select-item value="yes" label="Yes"></iktia-select-item>
-        </iktia-select>
-        <iktia-listbox name="blocked-listbox" label="Blocked listbox">
-          <iktia-listbox-item value="yes" label="Yes"></iktia-listbox-item>
-        </iktia-listbox>
-        <iktia-combobox name="blocked-combobox" label="Blocked combobox">
-          <iktia-combobox-item value="yes" label="Yes"></iktia-combobox-item>
-        </iktia-combobox>
-        <iktia-number-input name="blocked-number" label="Blocked number" value="2"></iktia-number-input>
-        <iktia-pin-input name="blocked-pin" label="Blocked pin" value="12"></iktia-pin-input>
-        <iktia-tags-input name="blocked-tags" label="Blocked tags" value="docs,preview"></iktia-tags-input>
-        <iktia-file-upload name="blocked-file" label="Blocked file"></iktia-file-upload>
-        <iktia-date-picker name="blocked-date" label="Blocked date" value="2026-06-18"></iktia-date-picker>
-        <iktia-editable name="blocked-note" label="Blocked note" value="Blocked note"></iktia-editable>
-        <iktia-rating-group name="blocked-rating" label="Blocked rating" value="3"></iktia-rating-group>
-        <iktia-slider name="blocked-slider" label="Blocked slider" value="40"></iktia-slider>
+        <naos-checkbox name="blocked" value="yes" label="Blocked"></naos-checkbox>
+        <naos-toggle name="blocked-toggle" value="yes" label="Blocked toggle"></naos-toggle>
+        <naos-switch name="blocked-switch" value="yes" label="Blocked switch"></naos-switch>
+        <naos-radio-group name="blocked-radio" label="Blocked radio">
+          <naos-radio value="yes" label="Yes"></naos-radio>
+        </naos-radio-group>
+        <naos-toggle-group name="blocked-toggle-group" label="Blocked toggles" multiple>
+          <naos-toggle-item value="yes" label="Yes"></naos-toggle-item>
+        </naos-toggle-group>
+        <naos-segmented-control name="blocked-segmented" label="Blocked segmented">
+          <naos-segmented-item value="yes" label="Yes"></naos-segmented-item>
+        </naos-segmented-control>
+        <naos-select name="blocked-select" label="Blocked select">
+          <naos-select-item value="yes" label="Yes"></naos-select-item>
+        </naos-select>
+        <naos-listbox name="blocked-listbox" label="Blocked listbox">
+          <naos-listbox-item value="yes" label="Yes"></naos-listbox-item>
+        </naos-listbox>
+        <naos-combobox name="blocked-combobox" label="Blocked combobox">
+          <naos-combobox-item value="yes" label="Yes"></naos-combobox-item>
+        </naos-combobox>
+        <naos-number-input name="blocked-number" label="Blocked number" value="2"></naos-number-input>
+        <naos-pin-input name="blocked-pin" label="Blocked pin" value="12"></naos-pin-input>
+        <naos-tags-input name="blocked-tags" label="Blocked tags" value="docs,preview"></naos-tags-input>
+        <naos-file-upload name="blocked-file" label="Blocked file"></naos-file-upload>
+        <naos-date-picker name="blocked-date" label="Blocked date" value="2026-06-18"></naos-date-picker>
+        <naos-editable name="blocked-note" label="Blocked note" value="Blocked note"></naos-editable>
+        <naos-rating-group name="blocked-rating" label="Blocked rating" value="3"></naos-rating-group>
+        <naos-slider name="blocked-slider" label="Blocked slider" value="40"></naos-slider>
       </fieldset>
     `
     document.body.append(form)
   })
 
-  const checkboxButton = page.locator("form fieldset iktia-checkbox button")
-  const radio = page.locator("form fieldset iktia-radio")
-  const toggleButton = page.locator("form fieldset iktia-toggle button")
-  const switchInput = page.locator("form fieldset iktia-switch input")
-  const toggleItem = page.locator("form fieldset iktia-toggle-item")
-  const segmentedItem = page.locator("form fieldset iktia-segmented-item")
-  const selectButton = page.locator("form fieldset iktia-select button")
-  const selectItem = page.locator("form fieldset iktia-select-item")
-  const listboxItem = page.locator("form fieldset iktia-listbox-item")
-  const comboboxInput = page.locator("form fieldset iktia-combobox input")
-  const comboboxButton = page.locator("form fieldset iktia-combobox button")
-  const comboboxItem = page.locator("form fieldset iktia-combobox-item")
-  const numberInput = page.locator("form fieldset iktia-number-input input")
-  const numberIncrement = page.locator("form fieldset iktia-number-input [part~='increment']")
-  const pinInputField = page.locator("form fieldset iktia-pin-input [part~='input']").first()
-  const tagsInputField = page.locator("form fieldset iktia-tags-input [part~='input']")
-  const fileUploadInput = page.locator("form fieldset iktia-file-upload [part~='input']")
-  const fileUploadTrigger = page.locator("form fieldset iktia-file-upload [part~='trigger']")
-  const datePickerInput = page.locator("form fieldset iktia-date-picker [part~='input']")
-  const datePickerTrigger = page.locator("form fieldset iktia-date-picker [part~='trigger']")
-  const editableInput = page.locator("form fieldset iktia-editable [part~='input']")
-  const editableEdit = page.locator("form fieldset iktia-editable [part~='edit']")
-  const ratingRoot = page.locator("form fieldset iktia-rating-group [part~='root']")
-  const ratingItem = page.locator("form fieldset iktia-rating-group [part~='item']").nth(3)
-  const sliderThumb = page.locator("form fieldset iktia-slider [part~='thumb']")
+  const checkboxButton = page.locator("form fieldset naos-checkbox button")
+  const radio = page.locator("form fieldset naos-radio")
+  const toggleButton = page.locator("form fieldset naos-toggle button")
+  const switchInput = page.locator("form fieldset naos-switch input")
+  const toggleItem = page.locator("form fieldset naos-toggle-item")
+  const segmentedItem = page.locator("form fieldset naos-segmented-item")
+  const selectButton = page.locator("form fieldset naos-select button")
+  const selectItem = page.locator("form fieldset naos-select-item")
+  const listboxItem = page.locator("form fieldset naos-listbox-item")
+  const comboboxInput = page.locator("form fieldset naos-combobox input")
+  const comboboxButton = page.locator("form fieldset naos-combobox button")
+  const comboboxItem = page.locator("form fieldset naos-combobox-item")
+  const numberInput = page.locator("form fieldset naos-number-input input")
+  const numberIncrement = page.locator("form fieldset naos-number-input [part~='increment']")
+  const pinInputField = page.locator("form fieldset naos-pin-input [part~='input']").first()
+  const tagsInputField = page.locator("form fieldset naos-tags-input [part~='input']")
+  const fileUploadInput = page.locator("form fieldset naos-file-upload [part~='input']")
+  const fileUploadTrigger = page.locator("form fieldset naos-file-upload [part~='trigger']")
+  const datePickerInput = page.locator("form fieldset naos-date-picker [part~='input']")
+  const datePickerTrigger = page.locator("form fieldset naos-date-picker [part~='trigger']")
+  const editableInput = page.locator("form fieldset naos-editable [part~='input']")
+  const editableEdit = page.locator("form fieldset naos-editable [part~='edit']")
+  const ratingRoot = page.locator("form fieldset naos-rating-group [part~='root']")
+  const ratingItem = page.locator("form fieldset naos-rating-group [part~='item']").nth(3)
+  const sliderThumb = page.locator("form fieldset naos-slider [part~='thumb']")
 
   await expect(checkboxButton).toBeDisabled()
   await expect(toggleButton).toBeDisabled()
@@ -1569,8 +1569,8 @@ test("declarative shadow dom renders useful DOM before upgrade and hydrates afte
   await expect(
     counter.evaluate(
       (element) =>
-        Boolean(element.shadowRoot?.querySelector("[data-iktia-root]")) &&
-        Boolean(element.shadowRoot?.querySelector("[data-iktia-text='text0']"))
+        Boolean(element.shadowRoot?.querySelector("[data-naos-root]")) &&
+        Boolean(element.shadowRoot?.querySelector("[data-naos-text='text0']"))
     )
   ).resolves.toBe(true)
 
@@ -1585,9 +1585,9 @@ test("declarative shadow dom renders useful DOM before upgrade and hydrates afte
   await page.evaluate(() =>
     (
       window as unknown as Window & {
-        __iktiaUpgrade(): Promise<unknown>
+        __naosUpgrade(): Promise<unknown>
       }
-    ).__iktiaUpgrade()
+    ).__naosUpgrade()
   )
   await expect
     .poll(() => page.evaluate(() => customElements.get("x-counter") !== undefined))
@@ -1618,22 +1618,22 @@ test("declarative shadow dom reports development hydration mismatches", async ({
   await page.goto("/dsd.html?delayUpgrade=1")
   await page.locator("#dsd-counter-case x-counter").evaluate((element) => {
     element.shadowRoot
-      ?.querySelector("[data-iktia-node='node0']")
-      ?.removeAttribute("data-iktia-node")
+      ?.querySelector("[data-naos-node='node0']")
+      ?.removeAttribute("data-naos-node")
   })
 
   await page.evaluate(() =>
     (
       window as unknown as Window & {
-        __iktiaUpgrade(): Promise<unknown>
+        __naosUpgrade(): Promise<unknown>
       }
     )
-      .__iktiaUpgrade()
+      .__naosUpgrade()
       .catch(() => undefined)
   )
 
   await expect
-    .poll(() => pageErrors.some((message) => message.includes("Iktia hydration mismatch")))
+    .poll(() => pageErrors.some((message) => message.includes("Naos hydration mismatch")))
     .toBe(true)
 })
 
@@ -1649,8 +1649,8 @@ test("declarative shadow dom remounts on production hydration mismatches", async
   const counter = page.locator("#dsd-counter-case x-counter")
   await counter.evaluate((element) => {
     element.shadowRoot
-      ?.querySelector("[data-iktia-node='node0']")
-      ?.removeAttribute("data-iktia-node")
+      ?.querySelector("[data-naos-node='node0']")
+      ?.removeAttribute("data-naos-node")
   })
 
   await page.evaluate(async () => {
@@ -1680,7 +1680,7 @@ test("declarative shadow dom remounts on production hydration mismatches", async
   await expect(counterButton).toHaveText("Count: 0")
   await expect(
     counter.evaluate((element) =>
-      Boolean(element.shadowRoot?.querySelector("[data-iktia-root]"))
+      Boolean(element.shadowRoot?.querySelector("[data-naos-root]"))
     )
   ).resolves.toBe(false)
 

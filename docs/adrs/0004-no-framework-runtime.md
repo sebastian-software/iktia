@@ -6,7 +6,7 @@ Weight: P0
 
 ## Context
 
-Iktia is inspired by React, Solid, Signals, Remix v3, and Web Component
+Naos is inspired by React, Solid, Signals, Remix v3, and Web Component
 libraries, but the project exists to compile TSX authoring into native elements.
 Shipping another framework runtime would weaken that position.
 
@@ -21,7 +21,7 @@ event dispatch, style injection, and lifecycle cleanup.
 
 * Wrap a Solid or Preact component in a Custom Element.
 * Generate LitElement subclasses.
-* Ship a Iktia runtime that performs reconciliation in the browser.
+* Ship a Naos runtime that performs reconciliation in the browser.
 
 ## Consequences
 

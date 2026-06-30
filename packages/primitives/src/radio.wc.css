@@ -6,8 +6,8 @@
 [part~="root"] {
   display: inline-flex;
   align-items: center;
-  gap: var(--iktia-radio-gap, 0.55rem);
-  color: var(--iktia-radio-fg, #17201b);
+  gap: var(--naos-radio-gap, 0.55rem);
+  color: var(--naos-radio-fg, #17201b);
   font: inherit;
   cursor: pointer;
 }
@@ -18,33 +18,33 @@
 }
 
 :host(:focus-visible) {
-  outline: 2px solid var(--iktia-focus-ring, #0f766e);
+  outline: 2px solid var(--naos-focus-ring, #0f766e);
   outline-offset: 3px;
 }
 
 [part~="control"] {
   display: inline-grid;
   place-items: center;
-  width: var(--iktia-radio-size, 1.15rem);
-  height: var(--iktia-radio-size, 1.15rem);
-  border: 1px solid var(--iktia-radio-border, #65736d);
+  width: var(--naos-radio-size, 1.15rem);
+  height: var(--naos-radio-size, 1.15rem);
+  border: 1px solid var(--naos-radio-border, #65736d);
   border-radius: 999px;
-  background: var(--iktia-radio-bg, #ffffff);
+  background: var(--naos-radio-bg, #ffffff);
 }
 
 [part~="indicator"] {
-  width: calc(var(--iktia-radio-size, 1.15rem) * 0.5);
-  height: calc(var(--iktia-radio-size, 1.15rem) * 0.5);
+  width: calc(var(--naos-radio-size, 1.15rem) * 0.5);
+  height: calc(var(--naos-radio-size, 1.15rem) * 0.5);
   border-radius: 999px;
   background: transparent;
 }
 
 :host([data-state="checked"]) [part~="control"] {
-  border-color: var(--iktia-radio-checked-border, #0f766e);
+  border-color: var(--naos-radio-checked-border, #0f766e);
 }
 
 :host([data-state="checked"]) [part~="indicator"] {
-  background: var(--iktia-radio-checked-bg, #0f766e);
+  background: var(--naos-radio-checked-bg, #0f766e);
 }
 
 [part~="label"] {

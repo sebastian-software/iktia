@@ -1,4 +1,4 @@
-import { Show, event, on, state, type ComponentOptions } from "@iktia/core"
+import { Show, event, on, state, type ComponentOptions } from "@naos-ui/core"
 import css from "./disclosure.wc.css?inline"
 
 export type DisclosureProps = {
@@ -18,7 +18,7 @@ export function Disclosure({ label = "Details" }: DisclosureProps = {}) {
       <button
         part="trigger"
         aria-expanded={open()}
-        aria-controls="iktia-disclosure-panel"
+        aria-controls="naos-disclosure-panel"
         onClick={on("click", () => {
           open.update((value) => !value)
           changed.emit(open())
@@ -28,7 +28,7 @@ export function Disclosure({ label = "Details" }: DisclosureProps = {}) {
         {label}
       </button>
       <Show when={open()}>
-        <div id="iktia-disclosure-panel" part="panel">
+        <div id="naos-disclosure-panel" part="panel">
           <slot />
         </div>
       </Show>

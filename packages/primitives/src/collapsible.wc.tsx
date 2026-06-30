@@ -6,16 +6,16 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  createIktiaZagCollapsibleService,
-  getIktiaZagCollapsibleApi,
-  stopIktiaZagCollapsibleService,
+  createNaosZagCollapsibleService,
+  getNaosZagCollapsibleApi,
+  stopNaosZagCollapsibleService,
 } from "./internal/zag/collapsible.js"
-import type { IktiaZagCollapsibleService } from "./internal/zag/collapsible.js"
+import type { NaosZagCollapsibleService } from "./internal/zag/collapsible.js"
 import css from "./collapsible.wc.css?inline"
 
-export type IktiaCollapsibleProps = {
+export type NaosCollapsibleProps = {
   disabled?: boolean
   label?: string
   open?: boolean
@@ -25,23 +25,23 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaCollapsible({
+export function NaosCollapsible({
   disabled = false,
   label = "Details",
   open = false,
-}: IktiaCollapsibleProps = {}) {
+}: NaosCollapsibleProps = {}) {
   const expanded = state(open)
-  const collapsibleService = state<IktiaZagCollapsibleService | null>(null)
+  const collapsibleService = state<NaosZagCollapsibleService | null>(null)
   const collapsibleApi = computed(() =>
-    getIktiaZagCollapsibleApi(collapsibleService())
+    getNaosZagCollapsibleApi(collapsibleService())
   )
-  const changed = event<{ open: boolean }>("iktia-open-change")
+  const changed = event<{ open: boolean }>("naos-open-change")
 
   onConnected(() => {
-    collapsibleService.set(createIktiaZagCollapsibleService({
+    collapsibleService.set(createNaosZagCollapsibleService({
       disabled,
       host: host().element,
-      id: "iktia-collapsible",
+      id: "naos-collapsible",
       onOpenChange(nextOpen) {
         expanded.set(nextOpen)
         changed.emit({ open: nextOpen })
@@ -51,7 +51,7 @@ export function IktiaCollapsible({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagCollapsibleService(collapsibleService())
+    stopNaosZagCollapsibleService(collapsibleService())
     collapsibleService.set(null)
   })
 

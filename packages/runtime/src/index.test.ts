@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
 
-import { createIktiaEvent, scheduleIktiaUpdate } from "./runtime.js"
+import { createNaosEvent, scheduleNaosUpdate } from "./runtime.js"
 
 describe("runtime helpers", () => {
-  it("creates custom events with Iktia defaults", () => {
-    const customEvent = createIktiaEvent("change", 1)
+  it("creates custom events with Naos defaults", () => {
+    const customEvent = createNaosEvent("change", 1)
 
     expect(customEvent.type).toBe("change")
     expect(customEvent.detail).toBe(1)
@@ -14,13 +14,13 @@ describe("runtime helpers", () => {
   })
 
   it("respects explicit custom event options", () => {
-    const customEvent = createIktiaEvent("iktia-select", { id: "a" }, {
+    const customEvent = createNaosEvent("naos-select", { id: "a" }, {
       bubbles: false,
       cancelable: true,
       composed: false,
     })
 
-    expect(customEvent.type).toBe("iktia-select")
+    expect(customEvent.type).toBe("naos-select")
     expect(customEvent.detail).toEqual({ id: "a" })
     expect(customEvent.bubbles).toBe(false)
     expect(customEvent.composed).toBe(false)
@@ -30,7 +30,7 @@ describe("runtime helpers", () => {
   it("does not mutate event options", () => {
     const options = { bubbles: false, cancelable: true, composed: false }
 
-    createIktiaEvent("change", undefined, options)
+    createNaosEvent("change", undefined, options)
 
     expect(options).toEqual({ bubbles: false, cancelable: true, composed: false })
   })
@@ -38,7 +38,7 @@ describe("runtime helpers", () => {
   it("schedules generated updates in a microtask", async () => {
     const calls: string[] = []
 
-    scheduleIktiaUpdate(() => calls.push("flush"))
+    scheduleNaosUpdate(() => calls.push("flush"))
     calls.push("sync")
 
     expect(calls).toEqual(["sync"])

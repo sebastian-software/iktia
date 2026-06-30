@@ -12,9 +12,9 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaZagTagsInputService = ReturnType<typeof createZagService>
+export type NaosZagTagsInputService = ReturnType<typeof createZagService>
 
-type IktiaZagTagsInputServiceOptions = {
+type NaosZagTagsInputServiceOptions = {
   allowDuplicates: boolean
   delimiter: string
   disabled: boolean
@@ -42,7 +42,7 @@ export function tagsInputFormValue(value: string[]): string {
   return value.join(",")
 }
 
-export function createIktiaZagTagsInputService({
+export function createNaosZagTagsInputService({
   allowDuplicates,
   delimiter,
   disabled,
@@ -57,7 +57,7 @@ export function createIktiaZagTagsInputService({
   placeholder,
   root,
   value,
-}: IktiaZagTagsInputServiceOptions): IktiaZagTagsInputService {
+}: NaosZagTagsInputServiceOptions): NaosZagTagsInputService {
   return createZagService({
     machine: tagsInputMachine as never,
     props: {
@@ -87,15 +87,15 @@ export function createIktiaZagTagsInputService({
   })
 }
 
-export function getIktiaZagTagsInputApi(
-  service: IktiaZagTagsInputService | null
+export function getNaosZagTagsInputApi(
+  service: NaosZagTagsInputService | null
 ): ZagTagsInputApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagTagsInputService(
-  service: IktiaZagTagsInputService | null
+export function stopNaosZagTagsInputService(
+  service: NaosZagTagsInputService | null
 ) {
   service?.stop()
 }

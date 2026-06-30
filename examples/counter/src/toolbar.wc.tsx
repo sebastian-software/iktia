@@ -1,4 +1,4 @@
-import { type ComponentOptions } from "@iktia/core"
+import { type ComponentOptions } from "@naos-ui/core"
 
 import { Counter } from "./counter.wc.tsx"
 import css from "./toolbar.wc.css?inline"

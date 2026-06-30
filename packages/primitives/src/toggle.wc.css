@@ -7,35 +7,35 @@ button {
   display: inline-grid;
   grid-template-columns: 1fr auto;
   align-items: center;
-  gap: var(--iktia-toggle-gap, 0.65rem);
-  min-height: var(--iktia-toggle-min-height, 2.35rem);
-  border: 1px solid var(--iktia-toggle-border, #65736d);
-  border-radius: var(--iktia-toggle-radius, 999px);
-  padding: var(--iktia-toggle-padding, 0.42rem 0.52rem 0.42rem 0.8rem);
-  background: var(--iktia-toggle-bg, #ffffff);
-  color: var(--iktia-toggle-fg, #17201b);
+  gap: var(--naos-toggle-gap, 0.65rem);
+  min-height: var(--naos-toggle-min-height, 2.35rem);
+  border: 1px solid var(--naos-toggle-border, #65736d);
+  border-radius: var(--naos-toggle-radius, 999px);
+  padding: var(--naos-toggle-padding, 0.42rem 0.52rem 0.42rem 0.8rem);
+  background: var(--naos-toggle-bg, #ffffff);
+  color: var(--naos-toggle-fg, #17201b);
   font: inherit;
   cursor: pointer;
 }
 
 button[data-state="on"] {
-  border-color: var(--iktia-toggle-on-border, #0f766e);
-  background: var(--iktia-toggle-on-bg, #e2f3ea);
+  border-color: var(--naos-toggle-on-border, #0f766e);
+  background: var(--naos-toggle-on-bg, #e2f3ea);
 }
 
 [part~="indicator"] {
   min-width: 2.4rem;
   border-radius: 999px;
   padding: 0.2rem 0.45rem;
-  background: var(--iktia-toggle-indicator-bg, #dbe4df);
-  color: var(--iktia-toggle-indicator-fg, #28443a);
+  background: var(--naos-toggle-indicator-bg, #dbe4df);
+  color: var(--naos-toggle-indicator-fg, #28443a);
   font-size: 0.78rem;
   font-weight: 800;
   text-align: center;
 }
 
 button:focus-visible {
-  outline: 2px solid var(--iktia-focus-ring, #0f766e);
+  outline: 2px solid var(--naos-focus-ring, #0f766e);
   outline-offset: 2px;
 }
 

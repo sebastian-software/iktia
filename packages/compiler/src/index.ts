@@ -6,7 +6,7 @@ import type {
   NativeSourceMap,
   NativeTransformRequest,
   NativeTransformResult,
-} from "./generated/iktia-node-types.js"
+} from "./generated/naos-node-types.js"
 import {
   loadNativeBindings,
   setNativeBindingsForTesting,
@@ -15,32 +15,32 @@ import {
 export type NativeInfo = GeneratedNativeInfo
 export type SourceMap = NativeSourceMap
 
-export type IktiaDiagnosticSeverity = "info" | "warning" | "error"
+export type NaosDiagnosticSeverity = "info" | "warning" | "error"
 
-export type IktiaDiagnosticSpan = {
+export type NaosDiagnosticSpan = {
   start: number
   end: number
 }
 
-export type IktiaDiagnostic = {
+export type NaosDiagnostic = {
   code: string
-  severity: IktiaDiagnosticSeverity
+  severity: NaosDiagnosticSeverity
   message: string
   filename: string
-  span?: IktiaDiagnosticSpan | null
+  span?: NaosDiagnosticSpan | null
   hint?: string | null
 }
 
-export class IktiaCompilerError extends Error {
-  readonly diagnostics: IktiaDiagnostic[]
+export class NaosCompilerError extends Error {
+  readonly diagnostics: NaosDiagnostic[]
 
   constructor(
     message: string,
-    diagnostics: IktiaDiagnostic[],
+    diagnostics: NaosDiagnostic[],
     options?: ErrorOptions
   ) {
     super(message, options)
-    this.name = "IktiaCompilerError"
+    this.name = "NaosCompilerError"
     this.diagnostics = diagnostics
   }
 }
@@ -90,11 +90,11 @@ export function renderDeclarativeShadowDom(
 }
 export { setNativeBindingsForTesting }
 
-export function isIktiaCompilerError(error: unknown): error is IktiaCompilerError {
-  return error instanceof IktiaCompilerError
+export function isNaosCompilerError(error: unknown): error is NaosCompilerError {
+  return error instanceof NaosCompilerError
 }
 
-const DIAGNOSTIC_REASON_PREFIX = "IKTIA_COMPILER_DIAGNOSTICS:"
+const DIAGNOSTIC_REASON_PREFIX = "NAOS_COMPILER_DIAGNOSTICS:"
 
 function withNativeDiagnostics<T>(operation: () => T): T {
   try {
@@ -117,14 +117,14 @@ function normalizeNativeError(error: unknown): Error {
     return error instanceof Error ? error : new Error(message)
   }
 
-  return new IktiaCompilerError(payload.message, payload.diagnostics, {
+  return new NaosCompilerError(payload.message, payload.diagnostics, {
     cause: error,
   })
 }
 
 function parseDiagnosticPayload(
   source: string
-): { message: string; diagnostics: IktiaDiagnostic[] } | null {
+): { message: string; diagnostics: NaosDiagnostic[] } | null {
   let payload: unknown
   try {
     payload = JSON.parse(source)
@@ -136,7 +136,7 @@ function parseDiagnosticPayload(
     return null
   }
 
-  const diagnostics = payload.diagnostics.filter(isIktiaDiagnostic)
+  const diagnostics = payload.diagnostics.filter(isNaosDiagnostic)
   if (diagnostics.length === 0) {
     return null
   }
@@ -146,11 +146,11 @@ function parseDiagnosticPayload(
     message:
       typeof payload.message === "string"
         ? payload.message
-        : diagnostics[0]?.message ?? "Iktia compiler failed",
+        : diagnostics[0]?.message ?? "Naos compiler failed",
   }
 }
 
-function isIktiaDiagnostic(value: unknown): value is IktiaDiagnostic {
+function isNaosDiagnostic(value: unknown): value is NaosDiagnostic {
   if (!isRecord(value)) {
     return false
   }
@@ -162,11 +162,11 @@ function isIktiaDiagnostic(value: unknown): value is IktiaDiagnostic {
     typeof value.message === "string" &&
     (severity === "error" || severity === "warning" || severity === "info") &&
     (value.hint === undefined || value.hint === null || typeof value.hint === "string") &&
-    (value.span === undefined || value.span === null || isIktiaDiagnosticSpan(value.span))
+    (value.span === undefined || value.span === null || isNaosDiagnosticSpan(value.span))
   )
 }
 
-function isIktiaDiagnosticSpan(value: unknown): value is IktiaDiagnosticSpan {
+function isNaosDiagnosticSpan(value: unknown): value is NaosDiagnosticSpan {
   return (
     isRecord(value) &&
     typeof value.start === "number" &&

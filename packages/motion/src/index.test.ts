@@ -9,7 +9,7 @@ import {
   waitForAnimations,
 } from "./index.js"
 
-describe("@iktia/motion", () => {
+describe("@naos-ui/motion", () => {
   it("resolves animation waits without DOM animation support", async () => {
     await expect(waitForAnimations(null)).resolves.toBeUndefined()
     await expect(waitForAnimations({} as Element)).resolves.toBeUndefined()
@@ -124,10 +124,10 @@ describe("@iktia/motion", () => {
       options: { maxDuration: 420, stiffness: 420, damping: 22, mass: 1 },
     })
 
-    expect(preset.className).toBe("iktia-motion-presence-spring-snappy")
-    expect(preset.css).toContain(".iktia-motion-presence-spring-snappy")
-    expect(preset.css).toContain("--iktia-presence-motion-duration: ")
-    expect(preset.css).toContain("--iktia-presence-motion-easing: linear(")
+    expect(preset.className).toBe("naos-motion-presence-spring-snappy")
+    expect(preset.css).toContain(".naos-motion-presence-spring-snappy")
+    expect(preset.css).toContain("--naos-presence-motion-duration: ")
+    expect(preset.css).toContain("--naos-presence-motion-easing: linear(")
     expect(custom.className).toBe(sameCustom.className)
     expect(custom.css).toBe(sameCustom.css)
   })

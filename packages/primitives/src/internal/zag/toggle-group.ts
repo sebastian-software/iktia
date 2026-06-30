@@ -8,9 +8,9 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaZagToggleGroupService = ReturnType<typeof createZagService>
+export type NaosZagToggleGroupService = ReturnType<typeof createZagService>
 
-type IktiaZagToggleGroupServiceOptions = {
+type NaosZagToggleGroupServiceOptions = {
   disabled: boolean
   host: HTMLElement
   id: string
@@ -21,12 +21,12 @@ type IktiaZagToggleGroupServiceOptions = {
   value: string[]
 }
 
-type IktiaToggleItemElement = HTMLElement & {
+type NaosToggleItemElement = HTMLElement & {
   disabled?: boolean
   value?: string
 }
 
-type SyncIktiaToggleGroupItemsOptions = {
+type SyncNaosToggleGroupItemsOptions = {
   api: ZagToggleGroupApi
   disabled: boolean
   host: HTMLElement
@@ -37,17 +37,17 @@ type SyncIktiaToggleGroupItemsOptions = {
 
 type ToggleItem = {
   disabled: boolean
-  element: IktiaToggleItemElement
+  element: NaosToggleItemElement
   value: string
 }
 
-const toggleSelector = "iktia-toggle-item"
+const toggleSelector = "naos-toggle-item"
 
-export function parseIktiaToggleGroupValue(value: string): string[] {
+export function parseNaosToggleGroupValue(value: string): string[] {
   return value.split(/\s+/).filter(Boolean)
 }
 
-export function serializeIktiaToggleGroupValue(value: string[]): string {
+export function serializeNaosToggleGroupValue(value: string[]): string {
   return value.join(" ")
 }
 
@@ -68,7 +68,7 @@ export function toggleGroupFormValue({
   return data
 }
 
-export function createIktiaZagToggleGroupService({
+export function createNaosZagToggleGroupService({
   disabled,
   host,
   id,
@@ -77,7 +77,7 @@ export function createIktiaZagToggleGroupService({
   orientation,
   root,
   value,
-}: IktiaZagToggleGroupServiceOptions): IktiaZagToggleGroupService {
+}: NaosZagToggleGroupServiceOptions): NaosZagToggleGroupService {
   return createZagService({
     machine: toggleGroupMachine as never,
     props: {
@@ -98,27 +98,27 @@ export function createIktiaZagToggleGroupService({
   })
 }
 
-export function getIktiaZagToggleGroupApi(
-  service: IktiaZagToggleGroupService | null
+export function getNaosZagToggleGroupApi(
+  service: NaosZagToggleGroupService | null
 ): ZagToggleGroupApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagToggleGroupService(
-  service: IktiaZagToggleGroupService | null
+export function stopNaosZagToggleGroupService(
+  service: NaosZagToggleGroupService | null
 ) {
   service?.stop()
 }
 
-export function syncIktiaToggleGroupItems({
+export function syncNaosToggleGroupItems({
   api,
   disabled,
   host,
   multiple,
   onRequestUpdate,
   orientation,
-}: SyncIktiaToggleGroupItemsOptions) {
+}: SyncNaosToggleGroupItemsOptions) {
   const cleanups: VoidFunction[] = []
   const items = toggleItemsFor(host, disabled)
 
@@ -218,7 +218,7 @@ function nextToggleGroupValue(
 }
 
 function toggleItemsFor(host: HTMLElement, groupDisabled: boolean): ToggleItem[] {
-  return Array.from(host.querySelectorAll<IktiaToggleItemElement>(toggleSelector))
+  return Array.from(host.querySelectorAll<NaosToggleItemElement>(toggleSelector))
     .map((element) => {
       const value = element.value ?? element.getAttribute("value") ?? ""
       return {

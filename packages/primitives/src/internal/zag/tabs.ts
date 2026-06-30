@@ -8,9 +8,9 @@ import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 import { normalizeZagProps } from "./props.js"
 
-export type IktiaZagTabsService = ReturnType<typeof createZagService>
+export type NaosZagTabsService = ReturnType<typeof createZagService>
 
-type IktiaZagTabsServiceOptions = {
+type NaosZagTabsServiceOptions = {
   host: HTMLElement
   id: string
   onValueChange(value: string | null): void
@@ -19,16 +19,16 @@ type IktiaZagTabsServiceOptions = {
   value: string
 }
 
-type IktiaTabElement = HTMLElement & {
+type NaosTabElement = HTMLElement & {
   disabled?: boolean
   value?: string
 }
 
-type IktiaTabPanelElement = HTMLElement & {
+type NaosTabPanelElement = HTMLElement & {
   value?: string
 }
 
-type SyncIktiaTabsItemsOptions = {
+type SyncNaosTabsItemsOptions = {
   api: ZagTabsApi
   host: HTMLElement
   onRequestUpdate(): void
@@ -37,21 +37,21 @@ type SyncIktiaTabsItemsOptions = {
 
 type TabItem = {
   disabled: boolean
-  element: IktiaTabElement
+  element: NaosTabElement
   value: string
 }
 
-const tabSelector = "iktia-tab"
-const panelSelector = "iktia-tab-panel"
+const tabSelector = "naos-tab"
+const panelSelector = "naos-tab-panel"
 
-export function createIktiaZagTabsService({
+export function createNaosZagTabsService({
   host,
   id,
   onValueChange,
   orientation,
   root,
   value,
-}: IktiaZagTabsServiceOptions): IktiaZagTabsService {
+}: NaosZagTabsServiceOptions): NaosZagTabsService {
   return createZagService({
     machine: tabsMachine as never,
     props: {
@@ -73,25 +73,25 @@ export function createIktiaZagTabsService({
   })
 }
 
-export function getIktiaZagTabsApi(
-  service: IktiaZagTabsService | null
+export function getNaosZagTabsApi(
+  service: NaosZagTabsService | null
 ): ZagTabsApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagTabsService(
-  service: IktiaZagTabsService | null
+export function stopNaosZagTabsService(
+  service: NaosZagTabsService | null
 ) {
   service?.stop()
 }
 
-export function syncIktiaTabsItems({
+export function syncNaosTabsItems({
   api,
   host,
   onRequestUpdate,
   orientation,
-}: SyncIktiaTabsItemsOptions) {
+}: SyncNaosTabsItemsOptions) {
   const cleanups: VoidFunction[] = []
   const items = tabItemsFor(host)
   const panels = tabPanelsFor(host)
@@ -178,7 +178,7 @@ function syncTabPanel({
   panel,
 }: {
   api: ZagTabsApi
-  panel: IktiaTabPanelElement
+  panel: NaosTabPanelElement
 }) {
   const value = panel.value ?? panel.getAttribute("value") ?? ""
   if (!value) return
@@ -192,7 +192,7 @@ function syncTabPanel({
 }
 
 function tabItemsFor(host: HTMLElement): TabItem[] {
-  return Array.from(host.querySelectorAll<IktiaTabElement>(tabSelector))
+  return Array.from(host.querySelectorAll<NaosTabElement>(tabSelector))
     .map((element) => {
       const value = element.value ?? element.getAttribute("value") ?? ""
       return {
@@ -204,8 +204,8 @@ function tabItemsFor(host: HTMLElement): TabItem[] {
     .filter((item) => item.value.length > 0)
 }
 
-function tabPanelsFor(host: HTMLElement): IktiaTabPanelElement[] {
-  return Array.from(host.querySelectorAll<IktiaTabPanelElement>(panelSelector))
+function tabPanelsFor(host: HTMLElement): NaosTabPanelElement[] {
+  return Array.from(host.querySelectorAll<NaosTabPanelElement>(panelSelector))
 }
 
 function firstEnabledItem(items: TabItem[]) {

@@ -38,7 +38,7 @@ for future async handlers:
 ## Scope Boundary
 
 Spread event attributes remain plain DOM listener assignments. They do not get
-Iktia re-entry signals because they are not `on()` calls and may come from
+Naos re-entry signals because they are not `on()` calls and may come from
 foreign object shapes. If those need lifecycle-aware cancellation later, they
 should become an explicit spread-event policy rather than implicit magic.
 

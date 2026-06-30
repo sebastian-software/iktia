@@ -4,92 +4,92 @@
   "packages": {
     "packages/core": {
       "component": "core",
-      "package-name": "@iktia/core",
+      "package-name": "@naos-ui/core",
       "release-type": "node"
     },
     "packages/data": {
       "component": "data",
-      "package-name": "@iktia/data",
+      "package-name": "@naos-ui/data",
       "release-type": "node"
     },
     "packages/data-convex": {
       "component": "data-convex",
-      "package-name": "@iktia/data-convex",
+      "package-name": "@naos-ui/data-convex",
       "release-type": "node"
     },
     "packages/motion": {
       "component": "motion",
-      "package-name": "@iktia/motion",
+      "package-name": "@naos-ui/motion",
       "release-type": "node"
     },
     "packages/runtime": {
       "component": "runtime",
-      "package-name": "@iktia/runtime",
+      "package-name": "@naos-ui/runtime",
       "release-type": "node"
     },
     "packages/primitives": {
       "component": "primitives",
-      "package-name": "@iktia/primitives",
+      "package-name": "@naos-ui/primitives",
       "release-type": "node"
     },
     "packages/router": {
       "component": "router",
-      "package-name": "@iktia/router",
+      "package-name": "@naos-ui/router",
       "release-type": "node"
     },
     "packages/compiler": {
       "component": "compiler",
-      "package-name": "@iktia/compiler",
+      "package-name": "@naos-ui/compiler",
       "release-type": "node"
     },
     "packages/vite": {
       "component": "vite",
-      "package-name": "@iktia/vite",
+      "package-name": "@naos-ui/vite",
       "release-type": "node"
     },
     "packages/cli": {
       "component": "cli",
-      "package-name": "@iktia/cli",
+      "package-name": "@naos-ui/cli",
       "release-type": "node"
     },
     "packages/compiler-darwin-arm64": {
       "component": "compiler-darwin-arm64",
-      "package-name": "@iktia/compiler-darwin-arm64",
+      "package-name": "@naos-ui/compiler-darwin-arm64",
       "release-type": "node"
     },
     "packages/compiler-darwin-x64": {
       "component": "compiler-darwin-x64",
-      "package-name": "@iktia/compiler-darwin-x64",
+      "package-name": "@naos-ui/compiler-darwin-x64",
       "release-type": "node"
     },
     "packages/compiler-linux-arm64-gnu": {
       "component": "compiler-linux-arm64-gnu",
-      "package-name": "@iktia/compiler-linux-arm64-gnu",
+      "package-name": "@naos-ui/compiler-linux-arm64-gnu",
       "release-type": "node"
     },
     "packages/compiler-linux-arm64-musl": {
       "component": "compiler-linux-arm64-musl",
-      "package-name": "@iktia/compiler-linux-arm64-musl",
+      "package-name": "@naos-ui/compiler-linux-arm64-musl",
       "release-type": "node"
     },
     "packages/compiler-linux-x64-gnu": {
       "component": "compiler-linux-x64-gnu",
-      "package-name": "@iktia/compiler-linux-x64-gnu",
+      "package-name": "@naos-ui/compiler-linux-x64-gnu",
       "release-type": "node"
     },
     "packages/compiler-linux-x64-musl": {
       "component": "compiler-linux-x64-musl",
-      "package-name": "@iktia/compiler-linux-x64-musl",
+      "package-name": "@naos-ui/compiler-linux-x64-musl",
       "release-type": "node"
     },
     "packages/compiler-win32-arm64-msvc": {
       "component": "compiler-win32-arm64-msvc",
-      "package-name": "@iktia/compiler-win32-arm64-msvc",
+      "package-name": "@naos-ui/compiler-win32-arm64-msvc",
       "release-type": "node"
     },
     "packages/compiler-win32-x64-msvc": {
       "component": "compiler-win32-x64-msvc",
-      "package-name": "@iktia/compiler-win32-x64-msvc",
+      "package-name": "@naos-ui/compiler-win32-x64-msvc",
       "release-type": "node"
     }
   }

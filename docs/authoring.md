@@ -1,9 +1,9 @@
-# Iktia Authoring Guide
+# Naos Authoring Guide
 
-Iktia is a Rust/OXC-powered TSX compiler for native Web Components. The
+Naos is a Rust/OXC-powered TSX compiler for native Web Components. The
 TypeScript packages provide authoring types, JSX runtime types, runtime helpers,
 and Vite integration. Compiler semantics live in Rust and are exposed to Node
-through the native `@iktia/compiler` wrapper.
+through the native `@naos-ui/compiler` wrapper.
 
 This guide describes the v0.1 authoring model. The authoring functions are
 compile-time APIs. They throw if a `.wc.tsx` source file is executed without the
@@ -20,7 +20,7 @@ Component source files should use the `.wc.tsx` extension so the Vite plugin can
 select them with its default include filter.
 
 ```tsx
-import { computed, event, on, state } from "@iktia/core"
+import { computed, event, on, state } from "@naos-ui/core"
 
 export type CounterProps = {
   label?: string
@@ -52,13 +52,13 @@ function component name plus a default export.
 
 ## TypeScript Setup
 
-Use the automatic JSX runtime and point `jsxImportSource` at `@iktia/core`.
+Use the automatic JSX runtime and point `jsxImportSource` at `@naos-ui/core`.
 
 ```json
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "@iktia/core",
+    "jsxImportSource": "@naos-ui/core",
     "types": ["vite/client"]
   }
 }
@@ -66,13 +66,13 @@ Use the automatic JSX runtime and point `jsxImportSource` at `@iktia/core`.
 
 The package exposes:
 
-* `@iktia/core`: authoring functions and JSX types.
-* `@iktia/runtime`: runtime helpers.
-* `@iktia/router`: optional Custom Element app-shell router.
-* `@iktia/compiler`: native compiler wrapper.
-* `@iktia/compiler-*`: platform-specific optional native packages.
-* `@iktia/cli`: `iktia compile`, `iktia prerender`, and `iktia info`.
-* `@iktia/vite`: Vite transform plugin.
+* `@naos-ui/core`: authoring functions and JSX types.
+* `@naos-ui/runtime`: runtime helpers.
+* `@naos-ui/router`: optional Custom Element app-shell router.
+* `@naos-ui/compiler`: native compiler wrapper.
+* `@naos-ui/compiler-*`: platform-specific optional native packages.
+* `@naos-ui/cli`: `naos compile`, `naos prerender`, and `naos info`.
+* `@naos-ui/vite`: Vite transform plugin.
 
 The runtime package is intentionally limited to small browser platform helpers;
 it is not where component state, effects, control flow, or list rendering live.
@@ -91,17 +91,17 @@ Add the plugin before normal framework or app plugins.
 
 ```ts
 import { defineConfig } from "vite"
-import { iktia } from "@iktia/vite"
+import { naos } from "@naos-ui/vite"
 
 export default defineConfig({
-  plugins: [iktia()],
+  plugins: [naos()],
 })
 ```
 
 The default filter transforms `.wc.tsx` files and excludes `node_modules`.
 
 ```ts
-iktia({
+naos({
   include: /\.wc\.tsx$/,
   exclude: /node_modules/,
 })
@@ -109,12 +109,12 @@ iktia({
 
 Declarative Shadow DOM is a prerender/static-HTML path, not a component
 authoring option. The Vite plugin emits prerender metadata by default so static
-site builds can discover compiled Iktia components.
+site builds can discover compiled Naos components.
 
 ```ts
-iktia({
+naos({
   prerender: {
-    manifestFile: "iktia-manifest.json",
+    manifestFile: "naos-manifest.json",
   },
 })
 ```
@@ -128,7 +128,7 @@ component enters the prerender path, the Rust core serializes it as host HTML
 with `<template shadowrootmode="open">`.
 
 ```ts
-import { renderDeclarativeShadowDom } from "@iktia/compiler"
+import { renderDeclarativeShadowDom } from "@naos-ui/compiler"
 
 const rendered = renderDeclarativeShadowDom({
   filename: "counter.wc.tsx",
@@ -166,7 +166,7 @@ Element tag names must contain a hyphen.
 Function props use normal TypeScript types and destructuring defaults. The
 compiler turns those destructured names into observed properties and attributes.
 
-Iktia function components are instance setup declarations. The component body is
+Naos function components are instance setup declarations. The component body is
 analyzed and lowered into a generated Custom Element class; it is not called
 again as a React-style render function during updates. Use `state()`,
 `computed()`, prop reads, `effect()`, and `host().update()` to participate in
@@ -222,7 +222,7 @@ export const options = {
   Declarative Shadow DOM prerender serializes resolved inline CSS text into the
   declarative shadow template.
 
-CSS stays flat in v0.1: no Iktia CSS graph, CSS Modules contract, Sass
+CSS stays flat in v0.1: no Naos CSS graph, CSS Modules contract, Sass
 contract, or CSS helper. Use CSS custom properties for theming across component
 boundaries.
 
@@ -455,7 +455,7 @@ when={...}>` arm and supports one trailing `<Match>` without `when` as an
 explicit default. `<For>` is item-keyed and preserves row nodes by the returned
 element's `key`. It can opt into FLIP move animation with `motion="flip"`;
 the compiler measures preserved row positions around its keyed reorder and
-uses `@iktia/motion` to play a transform-only Web Animations API transition.
+uses `@naos-ui/motion` to play a transform-only Web Animations API transition.
 Reduced-motion users get the same DOM update without animation. `<Index>` is
 position-keyed and passes each item as an accessor so row nodes can stay mounted
 while their values rebind. The narrow typed `.map()` form remains supported as
@@ -583,9 +583,9 @@ pnpm install
 pnpm build:native
 pnpm check-types
 pnpm test
-pnpm --filter @iktia/example-counter type-check
-pnpm --filter @iktia/example-counter build
-pnpm --filter @iktia/example-counter test
+pnpm --filter @naos-ui/example-counter type-check
+pnpm --filter @naos-ui/example-counter build
+pnpm --filter @naos-ui/example-counter test
 cargo fmt --check
 cargo clippy --all-targets --all-features -- -D warnings
 cargo test --workspace

@@ -6,17 +6,17 @@
 [part~="root"] {
   display: flex;
   align-items: center;
-  min-height: var(--iktia-menu-item-min-height, 2rem);
-  border-radius: var(--iktia-menu-item-radius, 0.25rem);
-  padding: var(--iktia-menu-item-padding, 0.4rem 0.55rem);
-  color: var(--iktia-menu-item-fg, #17201b);
+  min-height: var(--naos-menu-item-min-height, 2rem);
+  border-radius: var(--naos-menu-item-radius, 0.25rem);
+  padding: var(--naos-menu-item-padding, 0.4rem 0.55rem);
+  color: var(--naos-menu-item-fg, #17201b);
   font: inherit;
   cursor: pointer;
 }
 
 :host([data-highlighted]) [part~="root"] {
-  background: var(--iktia-menu-item-active-bg, #e2f3ea);
-  color: var(--iktia-menu-item-active-fg, #0f3f35);
+  background: var(--naos-menu-item-active-bg, #e2f3ea);
+  color: var(--naos-menu-item-active-fg, #0f3f35);
 }
 
 :host([data-disabled]) [part~="root"] {

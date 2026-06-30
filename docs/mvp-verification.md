@@ -15,9 +15,9 @@ cargo clippy --all-targets --all-features -- -D warnings
 cargo test --workspace
 pnpm check-types
 pnpm test
-pnpm --filter @iktia/example-counter type-check
-pnpm --filter @iktia/example-counter build
-pnpm --filter @iktia/example-counter test
+pnpm --filter @naos-ui/example-counter type-check
+pnpm --filter @naos-ui/example-counter build
+pnpm --filter @naos-ui/example-counter test
 pnpm verify:fresh-project
 ```
 
@@ -49,7 +49,7 @@ Rust core:
 * Generated classes reuse existing declarative shadow roots before any
   `attachShadow()` fallback.
 * DSD prerender emits `<template shadowrootmode="open">`, supported initial
-  values, scoped styles, slots, and DSD-only `data-iktia-*` hydration markers.
+  values, scoped styles, slots, and DSD-only `data-naos-*` hydration markers.
 * DSD hydration binds existing nodes, installs event listeners, reports
   development mismatches, and preserves the imperative remount path.
 * PascalCase child component JSX rewrites to inferred kebab-case Custom Element
@@ -83,7 +83,7 @@ Example app:
 Fresh project smoke:
 
 * Local package artifacts pack successfully from the workspace.
-* A temporary project outside the monorepo installs the packed Iktia packages.
+* A temporary project outside the monorepo installs the packed Naos packages.
 * The installed compiler package resolves the current-platform native binding.
 * A minimal `.wc.tsx` component compiles through the installed Vite plugin.
 * The built output contains the generated Custom Element registration and

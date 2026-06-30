@@ -7,20 +7,20 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  createIktiaZagDatePickerService,
+  createNaosZagDatePickerService,
   datePickerDays,
   datePickerFormValue,
   datePickerValueArray,
   datePickerValueString,
-  getIktiaZagDatePickerApi,
-  stopIktiaZagDatePickerService,
+  getNaosZagDatePickerApi,
+  stopNaosZagDatePickerService,
 } from "./internal/zag/date-picker.js"
-import type { IktiaZagDatePickerService } from "./internal/zag/date-picker.js"
+import type { NaosZagDatePickerService } from "./internal/zag/date-picker.js"
 import css from "./date-picker.wc.css?inline"
 
-export type IktiaDatePickerProps = {
+export type NaosDatePickerProps = {
   disabled?: boolean
   label?: string
   locale?: string
@@ -35,7 +35,7 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaDatePicker({
+export function NaosDatePicker({
   disabled = false,
   label = "Date",
   locale = "en-US",
@@ -44,15 +44,15 @@ export function IktiaDatePicker({
   readOnly = false,
   required = false,
   value = "",
-}: IktiaDatePickerProps = {}) {
+}: NaosDatePickerProps = {}) {
   const current = state(datePickerValueString(datePickerValueArray(value)))
   const focused = state("")
   const opened = state(false)
-  const datePickerService = state<IktiaZagDatePickerService | null>(null)
-  const datePickerApi = computed(() => getIktiaZagDatePickerApi(datePickerService()))
-  const changed = event<{ value: string }>("iktia-change")
-  const focusChanged = event<{ focusedValue: string }>("iktia-focus-change")
-  const openChanged = event<{ open: boolean }>("iktia-open-change")
+  const datePickerService = state<NaosZagDatePickerService | null>(null)
+  const datePickerApi = computed(() => getNaosZagDatePickerApi(datePickerService()))
+  const changed = event<{ value: string }>("naos-change")
+  const focusChanged = event<{ focusedValue: string }>("naos-focus-change")
+  const openChanged = event<{ open: boolean }>("naos-open-change")
   const form = formControl({
     value: () => datePickerFormValue(current()),
     reset: () => {
@@ -66,10 +66,10 @@ export function IktiaDatePicker({
   void name
 
   onConnected(() => {
-    datePickerService.set(createIktiaZagDatePickerService({
+    datePickerService.set(createNaosZagDatePickerService({
       disabled,
       host: host().element,
-      id: "iktia-date-picker",
+      id: "naos-date-picker",
       label,
       locale,
       name,
@@ -95,7 +95,7 @@ export function IktiaDatePicker({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagDatePickerService(datePickerService())
+    stopNaosZagDatePickerService(datePickerService())
     datePickerService.set(null)
   })
 

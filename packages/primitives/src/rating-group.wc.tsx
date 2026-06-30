@@ -8,19 +8,19 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  createIktiaZagRatingGroupService,
-  getIktiaZagRatingGroupApi,
+  createNaosZagRatingGroupService,
+  getNaosZagRatingGroupApi,
   normalizeRatingGroupValue,
   ratingGroupFormValue,
   ratingGroupKeyboardValue,
-  stopIktiaZagRatingGroupService,
+  stopNaosZagRatingGroupService,
 } from "./internal/zag/rating-group.js"
-import type { IktiaZagRatingGroupService } from "./internal/zag/rating-group.js"
+import type { NaosZagRatingGroupService } from "./internal/zag/rating-group.js"
 import css from "./rating-group.wc.css?inline"
 
-export type IktiaRatingGroupProps = {
+export type NaosRatingGroupProps = {
   allowHalf?: boolean
   count?: number
   disabled?: boolean
@@ -35,7 +35,7 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaRatingGroup({
+export function NaosRatingGroup({
   allowHalf = false,
   count = 5,
   disabled = false,
@@ -44,12 +44,12 @@ export function IktiaRatingGroup({
   readOnly = false,
   required = false,
   value = 0,
-}: IktiaRatingGroupProps = {}) {
+}: NaosRatingGroupProps = {}) {
   const current = state(normalizeRatingGroupValue(value))
-  const ratingGroupService = state<IktiaZagRatingGroupService | null>(null)
-  const ratingGroupApi = computed(() => getIktiaZagRatingGroupApi(ratingGroupService()))
-  const changed = event<{ value: number }>("iktia-change")
-  const hoverChanged = event<{ hoveredValue: number }>("iktia-hover-change")
+  const ratingGroupService = state<NaosZagRatingGroupService | null>(null)
+  const ratingGroupApi = computed(() => getNaosZagRatingGroupApi(ratingGroupService()))
+  const changed = event<{ value: number }>("naos-change")
+  const hoverChanged = event<{ hoveredValue: number }>("naos-hover-change")
   const form = formControl({
     value: () => ratingGroupFormValue(current()),
     reset: () => {
@@ -66,12 +66,12 @@ export function IktiaRatingGroup({
   void name
 
   onConnected(() => {
-    ratingGroupService.set(createIktiaZagRatingGroupService({
+    ratingGroupService.set(createNaosZagRatingGroupService({
       allowHalf,
       count,
       disabled,
       host: host().element,
-      id: "iktia-rating-group",
+      id: "naos-rating-group",
       label,
       name,
       onHoverChange(details) {
@@ -88,7 +88,7 @@ export function IktiaRatingGroup({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagRatingGroupService(ratingGroupService())
+    stopNaosZagRatingGroupService(ratingGroupService())
     ratingGroupService.set(null)
   })
 

@@ -58,35 +58,35 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - package: "@iktia/compiler-linux-x64-gnu"
+          - package: "@naos-ui/compiler-linux-x64-gnu"
             path: packages/compiler-linux-x64-gnu
             os: ubuntu-latest
             rust_target: x86_64-unknown-linux-gnu
-          - package: "@iktia/compiler-linux-arm64-gnu"
+          - package: "@naos-ui/compiler-linux-arm64-gnu"
             path: packages/compiler-linux-arm64-gnu
             os: ubuntu-24.04-arm
             rust_target: aarch64-unknown-linux-gnu
-          - package: "@iktia/compiler-linux-x64-musl"
+          - package: "@naos-ui/compiler-linux-x64-musl"
             path: packages/compiler-linux-x64-musl
             os: ubuntu-latest
             rust_target: x86_64-unknown-linux-musl
-          - package: "@iktia/compiler-linux-arm64-musl"
+          - package: "@naos-ui/compiler-linux-arm64-musl"
             path: packages/compiler-linux-arm64-musl
             os: ubuntu-24.04-arm
             rust_target: aarch64-unknown-linux-musl
-          - package: "@iktia/compiler-darwin-x64"
+          - package: "@naos-ui/compiler-darwin-x64"
             path: packages/compiler-darwin-x64
             os: macos-13
             rust_target: x86_64-apple-darwin
-          - package: "@iktia/compiler-darwin-arm64"
+          - package: "@naos-ui/compiler-darwin-arm64"
             path: packages/compiler-darwin-arm64
             os: macos-14
             rust_target: aarch64-apple-darwin
-          - package: "@iktia/compiler-win32-x64-msvc"
+          - package: "@naos-ui/compiler-win32-x64-msvc"
             path: packages/compiler-win32-x64-msvc
             os: windows-latest
             rust_target: x86_64-pc-windows-msvc
-          - package: "@iktia/compiler-win32-arm64-msvc"
+          - package: "@naos-ui/compiler-win32-arm64-msvc"
             path: packages/compiler-win32-arm64-msvc
             os: windows-11-arm
             rust_target: aarch64-pc-windows-msvc
@@ -123,8 +123,8 @@ jobs:
       - name: Build native package
         run: pnpm --filter ${{ matrix.package }} build
         env:
-          IKTIA_CARGO_TARGET: ${{ matrix.rust_target }}
-          IKTIA_RUST_PROFILE: release
+          NAOS_CARGO_TARGET: ${{ matrix.rust_target }}
+          NAOS_RUST_PROFILE: release
 
       - name: Smoke test native package
         run: node -e "const native = require('./${{ matrix.path }}'); console.log(native.getNativeInfo())"

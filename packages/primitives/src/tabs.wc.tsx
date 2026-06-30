@@ -7,17 +7,17 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  createIktiaZagTabsService,
-  getIktiaZagTabsApi,
-  stopIktiaZagTabsService,
-  syncIktiaTabsItems,
+  createNaosZagTabsService,
+  getNaosZagTabsApi,
+  stopNaosZagTabsService,
+  syncNaosTabsItems,
 } from "./internal/zag/tabs.js"
-import type { IktiaZagTabsService } from "./internal/zag/tabs.js"
+import type { NaosZagTabsService } from "./internal/zag/tabs.js"
 import css from "./tabs.wc.css?inline"
 
-export type IktiaTabsProps = {
+export type NaosTabsProps = {
   firstLabel?: string
   orientation?: "horizontal" | "vertical"
   secondLabel?: string
@@ -29,24 +29,24 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaTabs({
+export function NaosTabs({
   firstLabel = "First",
   orientation = "horizontal",
   secondLabel = "Second",
   thirdLabel = "Third",
   value = "",
-}: IktiaTabsProps = {}) {
+}: NaosTabsProps = {}) {
   const selected = state(value || "first")
   const hasCustomTabs = state(false)
   const childObserver = state<MutationObserver | null>(null)
-  const tabsService = state<IktiaZagTabsService | null>(null)
-  const tabsApi = computed(() => getIktiaZagTabsApi(tabsService()))
-  const changed = event<{ value: string }>("iktia-change")
+  const tabsService = state<NaosZagTabsService | null>(null)
+  const tabsApi = computed(() => getNaosZagTabsApi(tabsService()))
+  const changed = event<{ value: string }>("naos-change")
 
   onConnected(() => {
     const hostElement = host().element
     const updateHasCustomTabs = () => {
-      hasCustomTabs.set(Boolean(hostElement.querySelector("iktia-tab")))
+      hasCustomTabs.set(Boolean(hostElement.querySelector("naos-tab")))
     }
     const initialValue = value || firstCustomTabValue(hostElement) || "first"
     selected.set(initialValue)
@@ -54,9 +54,9 @@ export function IktiaTabs({
     const observer = new MutationObserver(updateHasCustomTabs)
     observer.observe(hostElement, { childList: true, subtree: true })
     childObserver.set(observer)
-    tabsService.set(createIktiaZagTabsService({
+    tabsService.set(createNaosZagTabsService({
       host: hostElement,
-      id: "iktia-tabs",
+      id: "naos-tabs",
       onValueChange(value) {
         if (value == null) return
         selected.set(value)
@@ -70,14 +70,14 @@ export function IktiaTabs({
   onDisconnected(() => {
     childObserver()?.disconnect()
     childObserver.set(null)
-    stopIktiaZagTabsService(tabsService())
+    stopNaosZagTabsService(tabsService())
     tabsService.set(null)
   })
   effect(() => {
     const api = tabsApi()
     void selected()
     if (api == null || !hasCustomTabs()) return
-    return syncIktiaTabsItems({
+    return syncNaosTabsItems({
       api,
       host: host().element,
       onRequestUpdate: () => host().update(),
@@ -156,6 +156,6 @@ export function IktiaTabs({
 }
 
 function firstCustomTabValue(hostElement: HTMLElement) {
-  const tab = hostElement.querySelector<HTMLElement>("iktia-tab")
+  const tab = hostElement.querySelector<HTMLElement>("naos-tab")
   return tab?.getAttribute("value") ?? ""
 }

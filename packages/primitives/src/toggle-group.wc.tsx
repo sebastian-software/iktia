@@ -8,20 +8,20 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  createIktiaZagToggleGroupService,
-  getIktiaZagToggleGroupApi,
-  parseIktiaToggleGroupValue,
-  serializeIktiaToggleGroupValue,
-  stopIktiaZagToggleGroupService,
-  syncIktiaToggleGroupItems,
+  createNaosZagToggleGroupService,
+  getNaosZagToggleGroupApi,
+  parseNaosToggleGroupValue,
+  serializeNaosToggleGroupValue,
+  stopNaosZagToggleGroupService,
+  syncNaosToggleGroupItems,
   toggleGroupFormValue,
 } from "./internal/zag/toggle-group.js"
-import type { IktiaZagToggleGroupService } from "./internal/zag/toggle-group.js"
+import type { NaosZagToggleGroupService } from "./internal/zag/toggle-group.js"
 import css from "./toggle-group.wc.css?inline"
 
-export type IktiaToggleGroupProps = {
+export type NaosToggleGroupProps = {
   disabled?: boolean
   label?: string
   multiple?: boolean
@@ -34,18 +34,18 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaToggleGroup({
+export function NaosToggleGroup({
   disabled = false,
   label = "Options",
   multiple = false,
   name = "",
   orientation = "horizontal",
   value = "",
-}: IktiaToggleGroupProps = {}) {
-  const selected = state(parseIktiaToggleGroupValue(value))
-  const toggleGroupService = state<IktiaZagToggleGroupService | null>(null)
-  const toggleGroupApi = computed(() => getIktiaZagToggleGroupApi(toggleGroupService()))
-  const changed = event<{ value: string[] }>("iktia-change")
+}: NaosToggleGroupProps = {}) {
+  const selected = state(parseNaosToggleGroupValue(value))
+  const toggleGroupService = state<NaosZagToggleGroupService | null>(null)
+  const toggleGroupApi = computed(() => getNaosZagToggleGroupApi(toggleGroupService()))
+  const changed = event<{ value: string[] }>("naos-change")
   const form = formControl({
     value: () =>
       toggleGroupFormValue({
@@ -54,7 +54,7 @@ export function IktiaToggleGroup({
         value: selected(),
       }),
     reset: () => {
-      const nextValue = parseIktiaToggleGroupValue(value)
+      const nextValue = parseNaosToggleGroupValue(value)
       selected.set(nextValue)
       toggleGroupApi()?.setValue(nextValue)
     },
@@ -64,10 +64,10 @@ export function IktiaToggleGroup({
   void name
 
   onConnected(() => {
-    toggleGroupService.set(createIktiaZagToggleGroupService({
+    toggleGroupService.set(createNaosZagToggleGroupService({
       disabled,
       host: host().element,
-      id: "iktia-toggle-group",
+      id: "naos-toggle-group",
       multiple,
       onValueChange(nextValue) {
         selected.set(nextValue)
@@ -79,13 +79,13 @@ export function IktiaToggleGroup({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagToggleGroupService(toggleGroupService())
+    stopNaosZagToggleGroupService(toggleGroupService())
     toggleGroupService.set(null)
   })
   effect(() => {
     const api = toggleGroupApi()
     if (api == null) return
-    return syncIktiaToggleGroupItems({
+    return syncNaosToggleGroupItems({
       api,
       disabled,
       host: host().element,
@@ -100,7 +100,7 @@ export function IktiaToggleGroup({
       {...(toggleGroupApi()?.getRootProps() ?? {})}
       part="root"
       aria-disabled={disabled || undefined}
-      data-state={serializeIktiaToggleGroupValue(selected()) || "none"}
+      data-state={serializeNaosToggleGroupValue(selected()) || "none"}
       data-disabled={disabled || undefined}
       data-orientation={orientation}
     >

@@ -10,9 +10,9 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaZagFileUploadService = ReturnType<typeof createZagService>
+export type NaosZagFileUploadService = ReturnType<typeof createZagService>
 
-type IktiaZagFileUploadServiceOptions = {
+type NaosZagFileUploadServiceOptions = {
   accept: string
   disabled: boolean
   host: HTMLElement
@@ -46,7 +46,7 @@ export function fileUploadFormValue({
   return data
 }
 
-export function createIktiaZagFileUploadService({
+export function createNaosZagFileUploadService({
   accept,
   disabled,
   host,
@@ -57,7 +57,7 @@ export function createIktiaZagFileUploadService({
   onFileChange,
   onFileReject,
   root,
-}: IktiaZagFileUploadServiceOptions): IktiaZagFileUploadService {
+}: NaosZagFileUploadServiceOptions): NaosZagFileUploadService {
   return createZagService({
     machine: fileUploadMachine as never,
     props: {
@@ -84,15 +84,15 @@ export function createIktiaZagFileUploadService({
   })
 }
 
-export function getIktiaZagFileUploadApi(
-  service: IktiaZagFileUploadService | null
+export function getNaosZagFileUploadApi(
+  service: NaosZagFileUploadService | null
 ): ZagFileUploadApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagFileUploadService(
-  service: IktiaZagFileUploadService | null
+export function stopNaosZagFileUploadService(
+  service: NaosZagFileUploadService | null
 ) {
   service?.stop()
 }

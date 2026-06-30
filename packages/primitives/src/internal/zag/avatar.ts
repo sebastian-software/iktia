@@ -9,9 +9,9 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaZagAvatarService = ReturnType<typeof createZagService>
+export type NaosZagAvatarService = ReturnType<typeof createZagService>
 
-type IktiaZagAvatarServiceOptions = {
+type NaosZagAvatarServiceOptions = {
   host: HTMLElement
   id: string
   onStatusChange(details: StatusChangeDetails): void
@@ -22,12 +22,12 @@ export function avatarImageProps(src: string, alt: string) {
   return { alt, src }
 }
 
-export function createIktiaZagAvatarService({
+export function createNaosZagAvatarService({
   host,
   id,
   onStatusChange,
   root,
-}: IktiaZagAvatarServiceOptions): IktiaZagAvatarService {
+}: NaosZagAvatarServiceOptions): NaosZagAvatarService {
   return createZagService({
     machine: avatarMachine as never,
     props: {
@@ -42,15 +42,15 @@ export function createIktiaZagAvatarService({
   })
 }
 
-export function getIktiaZagAvatarApi(
-  service: IktiaZagAvatarService | null
+export function getNaosZagAvatarApi(
+  service: NaosZagAvatarService | null
 ): ZagAvatarApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagAvatarService(
-  service: IktiaZagAvatarService | null
+export function stopNaosZagAvatarService(
+  service: NaosZagAvatarService | null
 ) {
   service?.stop()
 }

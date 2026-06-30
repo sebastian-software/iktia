@@ -1,30 +1,30 @@
 # npm Publishing
 
-This runbook prepares the first public npm publish for the Iktia package set.
-Use it when bootstrapping the `@iktia` packages and when validating later
+This runbook prepares the first public npm publish for the Naos package set.
+Use it when bootstrapping the `@naos-ui` packages and when validating later
 manual release runs.
 
 ## Package Set
 
 The public npm release set is:
 
-* `@iktia/core`
-* `@iktia/runtime`
-* `@iktia/router`
-* `@iktia/compiler`
-* `@iktia/vite`
-* `@iktia/cli`
-* `@iktia/compiler-darwin-arm64`
-* `@iktia/compiler-darwin-x64`
-* `@iktia/compiler-linux-arm64-gnu`
-* `@iktia/compiler-linux-arm64-musl`
-* `@iktia/compiler-linux-x64-gnu`
-* `@iktia/compiler-linux-x64-musl`
-* `@iktia/compiler-win32-arm64-msvc`
-* `@iktia/compiler-win32-x64-msvc`
+* `@naos-ui/core`
+* `@naos-ui/runtime`
+* `@naos-ui/router`
+* `@naos-ui/compiler`
+* `@naos-ui/vite`
+* `@naos-ui/cli`
+* `@naos-ui/compiler-darwin-arm64`
+* `@naos-ui/compiler-darwin-x64`
+* `@naos-ui/compiler-linux-arm64-gnu`
+* `@naos-ui/compiler-linux-arm64-musl`
+* `@naos-ui/compiler-linux-x64-gnu`
+* `@naos-ui/compiler-linux-x64-musl`
+* `@naos-ui/compiler-win32-arm64-msvc`
+* `@naos-ui/compiler-win32-x64-msvc`
 
-The native packages must be published before `@iktia/compiler`, because
-`@iktia/compiler` declares them as optional dependencies.
+The native packages must be published before `@naos-ui/compiler`, because
+`@naos-ui/compiler` declares them as optional dependencies.
 
 ## First Publish
 
@@ -37,11 +37,11 @@ builds the complete native matrix on the matching hosted runners.
 
 Prerequisites:
 
-* The npm organization `iktia` exists.
-* The publisher is an owner of the `iktia` npm organization.
+* The npm organization `naos` exists.
+* The publisher is an owner of the `naos` npm organization.
 * The GitHub repository is public.
 * The GitHub repository has a temporary `NPM_TOKEN` secret with publish access.
-  Use a granular access token with read/write access for the `iktia` scope and
+  Use a granular access token with read/write access for the `naos` scope and
   `Bypass 2FA` enabled for this bootstrap run. GitHub Actions cannot answer an
   interactive one-time-password prompt during the native matrix publish.
 * The release workflow uses GitHub-hosted runners, `id-token: write`, and Node
@@ -51,7 +51,7 @@ Local preflight:
 
 ```sh
 npm whoami
-npm org ls iktia
+npm org ls naos
 pnpm install --frozen-lockfile
 pnpm check-release-set
 pnpm check-native-types
@@ -96,7 +96,7 @@ package:
 
 * Provider: GitHub Actions
 * Organization or user: `sebastian-software`
-* Repository: `iktia`
+* Repository: `naos`
 * Workflow filename: `release.yml`
 * Allowed actions: `npm publish`
 * Environment name: empty, unless the release workflow starts using a protected

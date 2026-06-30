@@ -1,31 +1,31 @@
 :host {
   display: block;
-  color: var(--iktia-field-fg, #17201b);
+  color: var(--naos-field-fg, #17201b);
   font: inherit;
 }
 
 [part~="root"] {
   display: grid;
-  gap: var(--iktia-field-gap, 0.4rem);
+  gap: var(--naos-field-gap, 0.4rem);
 }
 
 [part~="label"] {
-  color: var(--iktia-field-label-fg, #17201b);
-  font-size: var(--iktia-field-label-size, 0.92rem);
-  font-weight: var(--iktia-field-label-weight, 800);
+  color: var(--naos-field-label-fg, #17201b);
+  font-size: var(--naos-field-label-size, 0.92rem);
+  font-weight: var(--naos-field-label-weight, 800);
 }
 
 [part~="hint"],
 [part~="error"] {
-  font-size: var(--iktia-field-note-size, 0.84rem);
+  font-size: var(--naos-field-note-size, 0.84rem);
 }
 
 [part~="hint"] {
-  color: var(--iktia-field-hint-fg, #58665f);
+  color: var(--naos-field-hint-fg, #58665f);
 }
 
 [part~="error"] {
-  color: var(--iktia-field-error-fg, #b42318);
+  color: var(--naos-field-error-fg, #b42318);
 }
 
 [data-state="valid"] [part~="error"] {

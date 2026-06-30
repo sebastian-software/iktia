@@ -9,19 +9,19 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaListboxItem = {
+export type NaosListboxItem = {
   disabled: boolean
   label: string
   value: string
 }
 
-export type IktiaZagListboxService = ReturnType<typeof createZagService>
+export type NaosZagListboxService = ReturnType<typeof createZagService>
 
-type IktiaZagListboxServiceOptions = {
+type NaosZagListboxServiceOptions = {
   disabled: boolean
   host: HTMLElement
   id: string
-  items: IktiaListboxItem[]
+  items: NaosListboxItem[]
   multiple: boolean
   onHighlightChange(value: string): void
   onValueChange(value: string[]): void
@@ -30,26 +30,26 @@ type IktiaZagListboxServiceOptions = {
   value: string[]
 }
 
-type IktiaListboxItemElement = HTMLElement & {
+type NaosListboxItemElement = HTMLElement & {
   disabled?: boolean
   label?: string
   value?: string
 }
 
-type SyncIktiaListboxItemsOptions = {
+type SyncNaosListboxItemsOptions = {
   api: ZagListboxApi
   disabled: boolean
   host: HTMLElement
   onRequestUpdate(): void
 }
 
-const listboxItemSelector = "iktia-listbox-item"
+const listboxItemSelector = "naos-listbox-item"
 
-export function parseIktiaListboxValue(value: string): string[] {
+export function parseNaosListboxValue(value: string): string[] {
   return value.split(/\s+/).filter(Boolean)
 }
 
-export function serializeIktiaListboxValue(value: string[]): string {
+export function serializeNaosListboxValue(value: string[]): string {
   return value.join(" ")
 }
 
@@ -70,8 +70,8 @@ export function listboxFormValue({
   return data
 }
 
-export function collectIktiaListboxItems(host: HTMLElement): IktiaListboxItem[] {
-  return Array.from(host.querySelectorAll<IktiaListboxItemElement>(listboxItemSelector))
+export function collectNaosListboxItems(host: HTMLElement): NaosListboxItem[] {
+  return Array.from(host.querySelectorAll<NaosListboxItemElement>(listboxItemSelector))
     .map((element) => {
       const value = element.value ?? element.getAttribute("value") ?? ""
       const label =
@@ -88,7 +88,7 @@ export function collectIktiaListboxItems(host: HTMLElement): IktiaListboxItem[] 
     .filter((item) => item.value.length > 0)
 }
 
-export function createIktiaZagListboxService({
+export function createNaosZagListboxService({
   disabled,
   host,
   id,
@@ -99,7 +99,7 @@ export function createIktiaZagListboxService({
   orientation,
   root,
   value,
-}: IktiaZagListboxServiceOptions): IktiaZagListboxService {
+}: NaosZagListboxServiceOptions): NaosZagListboxService {
   return createZagService({
     machine: listboxMachine as never,
     props: {
@@ -126,30 +126,30 @@ export function createIktiaZagListboxService({
   })
 }
 
-export function getIktiaZagListboxApi(
-  service: IktiaZagListboxService | null
+export function getNaosZagListboxApi(
+  service: NaosZagListboxService | null
 ): ZagListboxApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagListboxService(
-  service: IktiaZagListboxService | null
+export function stopNaosZagListboxService(
+  service: NaosZagListboxService | null
 ) {
   service?.stop()
 }
 
-export function syncIktiaListboxItems({
+export function syncNaosListboxItems({
   api,
   disabled,
   host,
   onRequestUpdate,
-}: SyncIktiaListboxItemsOptions) {
+}: SyncNaosListboxItemsOptions) {
   const cleanups: VoidFunction[] = []
-  const items = collectIktiaListboxItems(host)
+  const items = collectNaosListboxItems(host)
 
   for (const item of items) {
-    const element = host.querySelector<IktiaListboxItemElement>(
+    const element = host.querySelector<NaosListboxItemElement>(
       `${listboxItemSelector}[value="${cssEscape(item.value)}"]`
     )
     if (element == null) continue
@@ -170,7 +170,7 @@ export function syncIktiaListboxItems({
   }
 }
 
-function createListboxCollection(items: IktiaListboxItem[]) {
+function createListboxCollection(items: NaosListboxItem[]) {
   return listboxCollection({
     items,
     isItemDisabled: (item) => item.disabled,
@@ -188,8 +188,8 @@ function syncListboxItem({
 }: {
   api: ZagListboxApi
   disabled: boolean
-  element: IktiaListboxItemElement
-  item: IktiaListboxItem
+  element: NaosListboxItemElement
+  item: NaosListboxItem
   onRequestUpdate(): void
 }) {
   const itemState = api.getItemState({ item, highlightOnHover: true })

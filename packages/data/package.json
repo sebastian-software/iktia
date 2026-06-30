@@ -1,15 +1,15 @@
 {
-  "name": "@iktia/data",
+  "name": "@naos-ui/data",
   "version": "0.0.0",
-  "description": "Platform-native data resources for Iktia and Custom Element applications.",
+  "description": "Platform-native data resources for Naos and Custom Element applications.",
   "license": "Apache-2.0",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sebastian-software/iktia.git",
+    "url": "git+https://github.com/sebastian-software/naos-ui.git",
     "directory": "packages/data"
   },
-  "bugs": "https://github.com/sebastian-software/iktia/issues",
+  "bugs": "https://github.com/sebastian-software/naos-ui/issues",
   "exports": {
     ".": {
       "types": "./dist/index.d.mts",

@@ -5,13 +5,13 @@
 
 [part~="root"] {
   display: grid;
-  gap: var(--iktia-editable-gap, 0.4rem);
-  width: min(var(--iktia-editable-width, 24rem), 100%);
-  color: var(--iktia-editable-fg, #17201b);
+  gap: var(--naos-editable-gap, 0.4rem);
+  width: min(var(--naos-editable-width, 24rem), 100%);
+  color: var(--naos-editable-fg, #17201b);
 }
 
 [part~="label"] {
-  color: var(--iktia-editable-label-fg, #283c35);
+  color: var(--naos-editable-label-fg, #283c35);
   font-size: 0.9rem;
   font-weight: 700;
 }
@@ -25,11 +25,11 @@
   box-sizing: border-box;
   width: 100%;
   min-height: 2.35rem;
-  border: 1px solid var(--iktia-editable-border, #65736d);
+  border: 1px solid var(--naos-editable-border, #65736d);
   border-radius: 6px;
   padding: 0.5rem 0.65rem;
-  background: var(--iktia-editable-bg, #ffffff);
-  color: var(--iktia-editable-fg, #17201b);
+  background: var(--naos-editable-bg, #ffffff);
+  color: var(--naos-editable-fg, #17201b);
   font: inherit;
 }
 
@@ -42,7 +42,7 @@
 }
 
 [part~="preview"][data-placeholder-shown] {
-  color: var(--iktia-editable-placeholder-fg, #64748b);
+  color: var(--naos-editable-placeholder-fg, #64748b);
 }
 
 [part~="input"] {
@@ -62,7 +62,7 @@
 [part~="edit"]:focus-visible,
 [part~="submit"]:focus-visible,
 [part~="cancel"]:focus-visible {
-  outline: 2px solid var(--iktia-focus-ring, #0f766e);
+  outline: 2px solid var(--naos-focus-ring, #0f766e);
   outline-offset: 2px;
 }
 
@@ -79,11 +79,11 @@
   align-items: center;
   justify-content: center;
   min-height: 2.25rem;
-  border: 1px solid var(--iktia-editable-button-border, #65736d);
+  border: 1px solid var(--naos-editable-button-border, #65736d);
   border-radius: 6px;
   padding: 0 0.7rem;
-  background: var(--iktia-editable-button-bg, #ffffff);
-  color: var(--iktia-editable-button-fg, #17201b);
+  background: var(--naos-editable-button-bg, #ffffff);
+  color: var(--naos-editable-button-fg, #17201b);
   font: inherit;
   cursor: pointer;
 }
@@ -91,7 +91,7 @@
 [part~="edit"]:hover,
 [part~="submit"]:hover,
 [part~="cancel"]:hover {
-  background: var(--iktia-editable-button-bg-hover, #f1f5f3);
+  background: var(--naos-editable-button-bg-hover, #f1f5f3);
 }
 
 [part~="edit"]:disabled,

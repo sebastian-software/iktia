@@ -7,17 +7,17 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  createIktiaZagEditableService,
+  createNaosZagEditableService,
   editableFormValue,
-  getIktiaZagEditableApi,
-  stopIktiaZagEditableService,
+  getNaosZagEditableApi,
+  stopNaosZagEditableService,
 } from "./internal/zag/editable.js"
-import type { IktiaZagEditableService } from "./internal/zag/editable.js"
+import type { NaosZagEditableService } from "./internal/zag/editable.js"
 import css from "./editable.wc.css?inline"
 
-export type IktiaEditableProps = {
+export type NaosEditableProps = {
   disabled?: boolean
   label?: string
   maxLength?: number
@@ -33,7 +33,7 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaEditable({
+export function NaosEditable({
   disabled = false,
   label = "Editable",
   maxLength = 120,
@@ -43,15 +43,15 @@ export function IktiaEditable({
   required = false,
   submitMode = "both",
   value = "",
-}: IktiaEditableProps = {}) {
+}: NaosEditableProps = {}) {
   const current = state(value)
   const editing = state(false)
-  const editableService = state<IktiaZagEditableService | null>(null)
-  const editableApi = computed(() => getIktiaZagEditableApi(editableService()))
-  const changed = event<{ value: string }>("iktia-change")
-  const editChanged = event<{ edit: boolean }>("iktia-edit-change")
-  const submitted = event<{ value: string }>("iktia-submit")
-  const canceled = event<{ value: string }>("iktia-cancel")
+  const editableService = state<NaosZagEditableService | null>(null)
+  const editableApi = computed(() => getNaosZagEditableApi(editableService()))
+  const changed = event<{ value: string }>("naos-change")
+  const editChanged = event<{ edit: boolean }>("naos-edit-change")
+  const submitted = event<{ value: string }>("naos-submit")
+  const canceled = event<{ value: string }>("naos-cancel")
   const form = formControl({
     value: () => editableFormValue(current()),
     reset: () => {
@@ -66,10 +66,10 @@ export function IktiaEditable({
   void name
 
   onConnected(() => {
-    editableService.set(createIktiaZagEditableService({
+    editableService.set(createNaosZagEditableService({
       disabled,
       host: host().element,
-      id: "iktia-editable",
+      id: "naos-editable",
       label,
       maxLength,
       name,
@@ -97,7 +97,7 @@ export function IktiaEditable({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagEditableService(editableService())
+    stopNaosZagEditableService(editableService())
     editableService.set(null)
   })
 

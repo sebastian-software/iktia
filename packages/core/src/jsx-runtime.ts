@@ -3,7 +3,7 @@ type PrimitiveChild = string | number | boolean | null | undefined
 export type JsxChild = JsxElement | PrimitiveChild | readonly JsxChild[]
 
 export type JsxElement = {
-  readonly kind: "iktia.jsx"
+  readonly kind: "naos.jsx"
 }
 
 export type AttributeValue = string | number | boolean | null | undefined
@@ -74,6 +74,6 @@ export function Fragment(): never {
 
 function jsxRuntimeError(): never {
   throw new Error(
-    "Iktia JSX can only be used in source files transformed by the Iktia compiler."
+    "Naos JSX can only be used in source files transformed by the Naos compiler."
   )
 }

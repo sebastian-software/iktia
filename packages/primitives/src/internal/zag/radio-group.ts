@@ -8,14 +8,14 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 import {
-  createIktiaContext,
-  provideIktiaContext,
-  type IktiaContextProvider,
+  createNaosContext,
+  provideNaosContext,
+  type NaosContextProvider,
 } from "../behavior/context.js"
 
-export type IktiaZagRadioGroupService = ReturnType<typeof createZagService>
+export type NaosZagRadioGroupService = ReturnType<typeof createZagService>
 
-type IktiaZagRadioGroupServiceOptions = {
+type NaosZagRadioGroupServiceOptions = {
   disabled: boolean
   host: HTMLElement
   id: string
@@ -26,33 +26,33 @@ type IktiaZagRadioGroupServiceOptions = {
   value: string
 }
 
-type IktiaRadioItemElement = HTMLElement & {
+type NaosRadioItemElement = HTMLElement & {
   disabled?: boolean
   value?: string
 }
 
-export type IktiaRadioGroupContext = {
-  syncRadio(options: SyncIktiaRadioOptions): VoidFunction
+export type NaosRadioGroupContext = {
+  syncRadio(options: SyncNaosRadioOptions): VoidFunction
 }
 
 type RadioItem = {
   disabled: boolean
-  element: IktiaRadioItemElement
+  element: NaosRadioItemElement
   value: string
 }
 
-type SyncIktiaRadioOptions = {
+type SyncNaosRadioOptions = {
   disabled: boolean
-  element: IktiaRadioItemElement
+  element: NaosRadioItemElement
   value: string
 }
 
-export type IktiaRadioGroupContextController = {
+export type NaosRadioGroupContextController = {
   destroy(): void
-  update(options: IktiaRadioGroupContextUpdate): void
+  update(options: NaosRadioGroupContextUpdate): void
 }
 
-type IktiaRadioGroupContextUpdate = {
+type NaosRadioGroupContextUpdate = {
   api: ZagRadioGroupApi
   disabled: boolean
   orientation: "horizontal" | "vertical"
@@ -61,10 +61,10 @@ type IktiaRadioGroupContextUpdate = {
 const documentPositionPreceding = 2
 const documentPositionFollowing = 4
 
-export const IKTIA_RADIO_GROUP_CONTEXT =
-  createIktiaContext<IktiaRadioGroupContext>("iktia-radio-group")
+export const NAOS_RADIO_GROUP_CONTEXT =
+  createNaosContext<NaosRadioGroupContext>("naos-radio-group")
 
-export function createIktiaZagRadioGroupService({
+export function createNaosZagRadioGroupService({
   disabled,
   host,
   id,
@@ -73,7 +73,7 @@ export function createIktiaZagRadioGroupService({
   orientation,
   root,
   value,
-}: IktiaZagRadioGroupServiceOptions): IktiaZagRadioGroupService {
+}: NaosZagRadioGroupServiceOptions): NaosZagRadioGroupService {
   return createZagService({
     machine: radioGroupMachine as never,
     props: {
@@ -94,30 +94,30 @@ export function createIktiaZagRadioGroupService({
   })
 }
 
-export function getIktiaZagRadioGroupApi(
-  service: IktiaZagRadioGroupService | null
+export function getNaosZagRadioGroupApi(
+  service: NaosZagRadioGroupService | null
 ): ZagRadioGroupApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagRadioGroupService(
-  service: IktiaZagRadioGroupService | null
+export function stopNaosZagRadioGroupService(
+  service: NaosZagRadioGroupService | null
 ) {
   service?.stop()
 }
 
-export function createIktiaRadioGroupContextController({
+export function createNaosRadioGroupContextController({
   host,
   onRequestUpdate,
 }: {
   host: HTMLElement
   onRequestUpdate(): void
-}): IktiaRadioGroupContextController {
-  let current: IktiaRadioGroupContextUpdate | null = null
-  const radios = new Map<IktiaRadioItemElement, RadioItem>()
+}): NaosRadioGroupContextController {
+  let current: NaosRadioGroupContextUpdate | null = null
+  const radios = new Map<NaosRadioItemElement, RadioItem>()
 
-  const context: IktiaRadioGroupContext = {
+  const context: NaosRadioGroupContext = {
     syncRadio({ disabled, element, value }) {
       if (!value) return () => undefined
       const item = { disabled, element, value }
@@ -164,14 +164,14 @@ export function createIktiaRadioGroupContextController({
       }
     },
   }
-  const provider: IktiaContextProvider<IktiaRadioGroupContext> =
-    provideIktiaContext({
-      context: IKTIA_RADIO_GROUP_CONTEXT,
+  const provider: NaosContextProvider<NaosRadioGroupContext> =
+    provideNaosContext({
+      context: NAOS_RADIO_GROUP_CONTEXT,
       host,
       value: context,
     })
 
-  const currentItems = (active: IktiaRadioGroupContextUpdate | null = current) => {
+  const currentItems = (active: NaosRadioGroupContextUpdate | null = current) => {
     const items = Array.from(radios.values())
       .filter((item) => item.value.length > 0)
       .sort(compareRadioItems)

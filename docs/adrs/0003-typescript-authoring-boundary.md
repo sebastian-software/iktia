@@ -6,7 +6,7 @@ Weight: P0
 
 ## Context
 
-The value of Iktia depends on a strong authoring interface. Authors should get
+The value of Naos depends on a strong authoring interface. Authors should get
 typed props, events, JSX attributes, component options, and compiler-only API
 feedback before code reaches the native transform.
 

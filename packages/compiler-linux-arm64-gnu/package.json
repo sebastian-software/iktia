@@ -1,11 +1,11 @@
 {
-  "name": "@iktia/compiler-linux-arm64-gnu",
+  "name": "@naos-ui/compiler-linux-arm64-gnu",
   "version": "0.0.0",
-  "description": "Linux arm64 GNU native bindings for @iktia/compiler.",
+  "description": "Linux arm64 GNU native bindings for @naos-ui/compiler.",
   "license": "Apache-2.0",
   "type": "commonjs",
-  "main": "./iktia-node.node",
-  "files": ["README.md", "iktia-node.node"],
+  "main": "./naos-node.node",
+  "files": ["README.md", "naos-node.node"],
   "scripts": {
     "build": "node ../compiler/scripts/build-native.mjs"
   },
@@ -14,10 +14,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sebastian-software/iktia.git",
+    "url": "git+https://github.com/sebastian-software/naos-ui.git",
     "directory": "packages/compiler-linux-arm64-gnu"
   },
-  "bugs": "https://github.com/sebastian-software/iktia/issues",
+  "bugs": "https://github.com/sebastian-software/naos-ui/issues",
   "publishConfig": {
     "access": "public"
   },

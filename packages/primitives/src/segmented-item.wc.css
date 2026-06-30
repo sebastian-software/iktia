@@ -7,28 +7,28 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: var(--iktia-segmented-item-min-height, 2.1rem);
-  min-width: var(--iktia-segmented-item-min-width, 3.25rem);
-  padding: var(--iktia-segmented-item-padding, 0.4rem 0.7rem);
-  background: var(--iktia-segmented-item-bg, transparent);
-  color: var(--iktia-segmented-item-fg, #17201b);
+  min-height: var(--naos-segmented-item-min-height, 2.1rem);
+  min-width: var(--naos-segmented-item-min-width, 3.25rem);
+  padding: var(--naos-segmented-item-padding, 0.4rem 0.7rem);
+  background: var(--naos-segmented-item-bg, transparent);
+  color: var(--naos-segmented-item-fg, #17201b);
   font: inherit;
   font-weight: 750;
   cursor: pointer;
 }
 
 :host(:not(:last-child)) [part~="root"] {
-  border-right: 1px solid var(--iktia-segmented-control-border, #65736d);
+  border-right: 1px solid var(--naos-segmented-control-border, #65736d);
 }
 
 :host([data-orientation="vertical"]:not(:last-child)) [part~="root"] {
   border-right: 0;
-  border-bottom: 1px solid var(--iktia-segmented-control-border, #65736d);
+  border-bottom: 1px solid var(--naos-segmented-control-border, #65736d);
 }
 
 :host([data-state="selected"]) [part~="root"] {
-  background: var(--iktia-segmented-item-selected-bg, #e2f3ea);
-  color: var(--iktia-segmented-item-selected-fg, #0f3f35);
+  background: var(--naos-segmented-item-selected-bg, #e2f3ea);
+  color: var(--naos-segmented-item-selected-fg, #0f3f35);
 }
 
 :host([data-disabled]) [part~="root"] {
@@ -37,6 +37,6 @@
 }
 
 :host(:focus-visible) {
-  outline: 2px solid var(--iktia-focus-ring, #0f766e);
+  outline: 2px solid var(--naos-focus-ring, #0f766e);
   outline-offset: 3px;
 }

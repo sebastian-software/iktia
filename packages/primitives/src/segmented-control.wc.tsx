@@ -8,17 +8,17 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  createIktiaZagSegmentedControlService,
-  getIktiaZagSegmentedControlApi,
-  stopIktiaZagSegmentedControlService,
-  syncIktiaSegmentedItems,
+  createNaosZagSegmentedControlService,
+  getNaosZagSegmentedControlApi,
+  stopNaosZagSegmentedControlService,
+  syncNaosSegmentedItems,
 } from "./internal/zag/segmented-control.js"
-import type { IktiaZagSegmentedControlService } from "./internal/zag/segmented-control.js"
+import type { NaosZagSegmentedControlService } from "./internal/zag/segmented-control.js"
 import css from "./segmented-control.wc.css?inline"
 
-export type IktiaSegmentedControlProps = {
+export type NaosSegmentedControlProps = {
   disabled?: boolean
   label?: string
   name?: string
@@ -30,19 +30,19 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaSegmentedControl({
+export function NaosSegmentedControl({
   disabled = false,
   label = "Options",
   name = "",
   orientation = "horizontal",
   value = "",
-}: IktiaSegmentedControlProps = {}) {
+}: NaosSegmentedControlProps = {}) {
   const selected = state(value)
-  const segmentedService = state<IktiaZagSegmentedControlService | null>(null)
+  const segmentedService = state<NaosZagSegmentedControlService | null>(null)
   const segmentedApi = computed(() =>
-    getIktiaZagSegmentedControlApi(segmentedService())
+    getNaosZagSegmentedControlApi(segmentedService())
   )
-  const changed = event<{ value: string }>("iktia-change")
+  const changed = event<{ value: string }>("naos-change")
   const form = formControl({
     value: () => selected() || null,
     reset: () => {
@@ -55,10 +55,10 @@ export function IktiaSegmentedControl({
   void name
 
   onConnected(() => {
-    segmentedService.set(createIktiaZagSegmentedControlService({
+    segmentedService.set(createNaosZagSegmentedControlService({
       disabled,
       host: host().element,
-      id: "iktia-segmented-control",
+      id: "naos-segmented-control",
       onValueChange(nextValue) {
         selected.set(nextValue)
         changed.emit({ value: nextValue })
@@ -69,13 +69,13 @@ export function IktiaSegmentedControl({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagSegmentedControlService(segmentedService())
+    stopNaosZagSegmentedControlService(segmentedService())
     segmentedService.set(null)
   })
   effect(() => {
     const api = segmentedApi()
     if (api == null) return
-    return syncIktiaSegmentedItems({
+    return syncNaosSegmentedItems({
       api,
       disabled,
       host: host().element,

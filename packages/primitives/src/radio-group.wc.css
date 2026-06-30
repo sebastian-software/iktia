@@ -5,19 +5,19 @@
 
 [part~="root"] {
   display: grid;
-  gap: var(--iktia-radio-group-gap, 0.65rem);
-  color: var(--iktia-radio-group-fg, #17201b);
+  gap: var(--naos-radio-group-gap, 0.65rem);
+  color: var(--naos-radio-group-fg, #17201b);
 }
 
 [part~="label"] {
-  color: var(--iktia-radio-group-label-fg, #17201b);
+  color: var(--naos-radio-group-label-fg, #17201b);
   font-weight: 800;
 }
 
 [part~="items"] {
   display: flex;
   flex-direction: column;
-  gap: var(--iktia-radio-group-item-gap, 0.55rem);
+  gap: var(--naos-radio-group-item-gap, 0.55rem);
 }
 
 [part~="root"][data-orientation="horizontal"] [part~="items"] {

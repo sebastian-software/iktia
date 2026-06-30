@@ -1,6 +1,6 @@
 :host {
   display: inline-flex;
-  color: var(--iktia-button-group-fg, inherit);
+  color: var(--naos-button-group-fg, inherit);
 }
 
 :host([hidden]) {
@@ -10,7 +10,7 @@
 [part~="root"] {
   display: inline-flex;
   flex-direction: row;
-  gap: var(--iktia-button-group-gap, 0.35rem);
+  gap: var(--naos-button-group-gap, 0.35rem);
   align-items: center;
 }
 

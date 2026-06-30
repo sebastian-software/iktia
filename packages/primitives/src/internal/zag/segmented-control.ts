@@ -1,15 +1,15 @@
 import type { Api as ZagToggleGroupApi } from "@zag-js/toggle-group"
 
 import {
-  createIktiaZagToggleGroupService,
-  getIktiaZagToggleGroupApi,
-  stopIktiaZagToggleGroupService,
-  type IktiaZagToggleGroupService,
+  createNaosZagToggleGroupService,
+  getNaosZagToggleGroupApi,
+  stopNaosZagToggleGroupService,
+  type NaosZagToggleGroupService,
 } from "./toggle-group.js"
 
-export type IktiaZagSegmentedControlService = IktiaZagToggleGroupService
+export type NaosZagSegmentedControlService = NaosZagToggleGroupService
 
-type IktiaSegmentedControlServiceOptions = {
+type NaosSegmentedControlServiceOptions = {
   disabled: boolean
   host: HTMLElement
   id: string
@@ -19,12 +19,12 @@ type IktiaSegmentedControlServiceOptions = {
   value: string
 }
 
-type IktiaSegmentedItemElement = HTMLElement & {
+type NaosSegmentedItemElement = HTMLElement & {
   disabled?: boolean
   value?: string
 }
 
-type SyncIktiaSegmentedItemsOptions = {
+type SyncNaosSegmentedItemsOptions = {
   api: ZagToggleGroupApi
   disabled: boolean
   host: HTMLElement
@@ -34,13 +34,13 @@ type SyncIktiaSegmentedItemsOptions = {
 
 type SegmentedItem = {
   disabled: boolean
-  element: IktiaSegmentedItemElement
+  element: NaosSegmentedItemElement
   value: string
 }
 
-const segmentedSelector = "iktia-segmented-item"
+const segmentedSelector = "naos-segmented-item"
 
-export function createIktiaZagSegmentedControlService({
+export function createNaosZagSegmentedControlService({
   disabled,
   host,
   id,
@@ -48,8 +48,8 @@ export function createIktiaZagSegmentedControlService({
   orientation,
   root,
   value,
-}: IktiaSegmentedControlServiceOptions): IktiaZagSegmentedControlService {
-  return createIktiaZagToggleGroupService({
+}: NaosSegmentedControlServiceOptions): NaosZagSegmentedControlService {
+  return createNaosZagToggleGroupService({
     disabled,
     host,
     id,
@@ -63,25 +63,25 @@ export function createIktiaZagSegmentedControlService({
   })
 }
 
-export function getIktiaZagSegmentedControlApi(
-  service: IktiaZagSegmentedControlService | null
+export function getNaosZagSegmentedControlApi(
+  service: NaosZagSegmentedControlService | null
 ): ZagToggleGroupApi | null {
-  return getIktiaZagToggleGroupApi(service)
+  return getNaosZagToggleGroupApi(service)
 }
 
-export function stopIktiaZagSegmentedControlService(
-  service: IktiaZagSegmentedControlService | null
+export function stopNaosZagSegmentedControlService(
+  service: NaosZagSegmentedControlService | null
 ) {
-  stopIktiaZagToggleGroupService(service)
+  stopNaosZagToggleGroupService(service)
 }
 
-export function syncIktiaSegmentedItems({
+export function syncNaosSegmentedItems({
   api,
   disabled,
   host,
   onRequestUpdate,
   orientation,
-}: SyncIktiaSegmentedItemsOptions) {
+}: SyncNaosSegmentedItemsOptions) {
   const cleanups: VoidFunction[] = []
   const items = segmentedItemsFor(host, disabled)
 
@@ -170,7 +170,7 @@ function segmentedItemsFor(
   host: HTMLElement,
   groupDisabled: boolean
 ): SegmentedItem[] {
-  return Array.from(host.querySelectorAll<IktiaSegmentedItemElement>(segmentedSelector))
+  return Array.from(host.querySelectorAll<NaosSegmentedItemElement>(segmentedSelector))
     .map((element) => {
       const value = element.value ?? element.getAttribute("value") ?? ""
       return {

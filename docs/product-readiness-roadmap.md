@@ -1,8 +1,8 @@
-# Iktia Product Readiness Roadmap
+# Naos Product Readiness Roadmap
 
 Status: 2026-06-16
 
-This roadmap describes the work needed to move Iktia from a strong compiler MVP
+This roadmap describes the work needed to move Naos from a strong compiler MVP
 to a product-grade public tool. It extends `docs/v0.1-milestone-plan.md` and
 `docs/mvp-verification.md`; it does not replace them.
 
@@ -17,13 +17,13 @@ and demo story before larger implementation work starts.
 
 ## Current Baseline
 
-Iktia already proves the core vertical slice:
+Naos already proves the core vertical slice:
 
 * TypeScript authoring APIs for function components, state, computed values,
   effects, events, host helpers, slots, parts, and explicit control flow.
 * Rust/OXC analysis and native Custom Element code generation.
 * Declarative Shadow DOM prerendering and hydration.
-* A typed N-API boundary exposed through `@iktia/compiler`.
+* A typed N-API boundary exposed through `@naos-ui/compiler`.
 * A Vite plugin and a browser-tested counter/toggle example.
 * ADRs covering the major compiler and platform decisions.
 
@@ -62,7 +62,7 @@ useful patterns are:
 ### Palamedes
 
 Palamedes is the closest internal reference for the Node/N-API distribution
-layer. Iktia should adapt these patterns directly:
+layer. Naos should adapt these patterns directly:
 
 * One Rust semantic core crate, one Rust `napi-rs` binding crate, one
   platform-aware TypeScript wrapper package, and platform-specific native npm
@@ -108,7 +108,7 @@ Deliverables:
   `docs/mvp-verification.md` as one user journey.
 * Create an API inventory that classifies every public surface as stable,
   legacy-compatible, experimental, or internal.
-* Normalize naming around Iktia, native interface elements, Custom Elements,
+* Normalize naming around Naos, native interface elements, Custom Elements,
   Declarative Shadow DOM, and the compiler boundary.
 * Remove stale previous-name references from docs, scripts, and workflows.
 * Convert documentation mismatches into explicit issues or follow-up entries.
@@ -125,7 +125,7 @@ Acceptance criteria:
 
 ### R2: Public API Contract Pass
 
-Purpose: Decide what API shape Iktia wants before the binary distribution layer
+Purpose: Decide what API shape Naos wants before the binary distribution layer
 turns it into a published contract.
 
 Deliverables:
@@ -142,7 +142,7 @@ Deliverables:
 * Define the public DSD API boundary for `renderDeclarativeShadowDom()` and Vite
   prerender metadata.
 * Define semver expectations for generated output markers such as
-  `data-iktia-*`.
+  `data-naos-*`.
 
 Acceptance criteria:
 
@@ -163,7 +163,7 @@ Deliverables:
   checks, Rust tests, package tests, example build/tests, and docs checks.
 * Add macOS and Windows test matrix jobs for the Rust workspace and native
   binding build.
-* Fix the existing Pages workflow to use `@iktia/example-counter` and Iktia env
+* Fix the existing Pages workflow to use `@naos-ui/example-counter` and Naos env
   names.
 * Add Dependabot, issue templates, and a pull request template.
 * Add a coverage job after a realistic Rust baseline is measured.
@@ -182,35 +182,35 @@ Purpose: Design multi-native distribution before writing release scripts.
 
 Recommended package topology:
 
-* `@iktia/compiler`: pure TypeScript loader, public API, and optional
+* `@naos-ui/compiler`: pure TypeScript loader, public API, and optional
   dependencies on native packages.
-* `@iktia/compiler-darwin-arm64`
-* `@iktia/compiler-darwin-x64`
-* `@iktia/compiler-linux-arm64-gnu`
-* `@iktia/compiler-linux-arm64-musl`
-* `@iktia/compiler-linux-x64-gnu`
-* `@iktia/compiler-linux-x64-musl`
-* `@iktia/compiler-win32-arm64-msvc`
-* `@iktia/compiler-win32-x64-msvc`
+* `@naos-ui/compiler-darwin-arm64`
+* `@naos-ui/compiler-darwin-x64`
+* `@naos-ui/compiler-linux-arm64-gnu`
+* `@naos-ui/compiler-linux-arm64-musl`
+* `@naos-ui/compiler-linux-x64-gnu`
+* `@naos-ui/compiler-linux-x64-musl`
+* `@naos-ui/compiler-win32-arm64-msvc`
+* `@naos-ui/compiler-win32-x64-msvc`
 
 Deliverables:
 
 * Write `docs/native-distribution.md` with target triples, package names,
   artifact names, Node version, N-API version, and fallback behavior.
-* Write an Iktia ADR equivalent to the relevant Palamedes native-boundary ADRs:
+* Write an Naos ADR equivalent to the relevant Palamedes native-boundary ADRs:
   one semantic Rust core, one N-API crate, one platform-aware TS wrapper, and
   platform native packages.
-* Confirm that Iktia keeps the current coarse workflow boundary:
+* Confirm that Naos keeps the current coarse workflow boundary:
   `transformComponent()` and `renderDeclarativeShadowDom()` are native workflow
   operations, not collections of small helper calls.
 * Define loader resolution order: explicit environment override, installed
   optional package, workspace local binding, then source-build guidance.
 * Decide whether source builds are supported during package install or only for
   repository contributors.
-* Define how native package versions stay locked to `@iktia/compiler`.
+* Define how native package versions stay locked to `@naos-ui/compiler`.
 * Define the minimum Tier 1 platform set for the first prerelease.
-* Define generated native TypeScript declarations from `iktia-node` as the
-  source of truth for `@iktia/compiler` boundary types.
+* Define generated native TypeScript declarations from `naos-node` as the
+  source of truth for `@naos-ui/compiler` boundary types.
 
 Acceptance criteria:
 
@@ -233,15 +233,15 @@ Deliverables:
   Linux `libc`, `main`, `files`, `engines`, `publishConfig`, and license
   metadata.
 * Use CommonJS native packages whose `main` points directly at
-  `./iktia-node.node`.
-* Add an Iktia equivalent of Palamedes' native package build script with:
+  `./naos-node.node`.
+* Add an Naos equivalent of Palamedes' native package build script with:
   debug/release profile selection, optional Cargo target override, optional
   Cargo subcommand override, musl support through `cargo-zigbuild`, and macOS
   ad-hoc codesigning.
 * Replace the single hard-coded native path with the loader resolution strategy.
 * Detect Linux libc through `process.report.getReport()` and choose GNU or musl
   native packages accordingly.
-* Generate `@iktia/compiler` TypeScript boundary types from `crates/iktia-node`
+* Generate `@naos-ui/compiler` TypeScript boundary types from `crates/naos-node`
   via `napi-rs` type metadata, commit the generated file, and add a
   `check-native-types` command.
 * Add tests for successful loading, missing binary errors, explicit native path
@@ -250,7 +250,7 @@ Deliverables:
 
 Acceptance criteria:
 
-* `@iktia/compiler` works from an installed package on each Tier 1 platform
+* `@naos-ui/compiler` works from an installed package on each Tier 1 platform
   without requiring a Rust toolchain.
 * Repository development still supports `pnpm build:native`.
 * The native binding exposes version metadata that can be checked against the JS
@@ -274,9 +274,9 @@ Deliverables:
   `.node` artifact on each runner, then publish JavaScript packages.
 * Add GitHub release artifact uploads for native binaries if they are useful for
   debugging or non-npm consumers.
-* Decide whether `iktia-core` is published to crates.io immediately or kept
+* Decide whether `naos-core` is published to crates.io immediately or kept
   repository-internal until the Rust API is stable.
-* Keep `iktia-node` unpublished as a crate unless there is a direct Rust use
+* Keep `naos-node` unpublished as a crate unless there is a direct Rust use
   case for the Node binding.
 * Add package-level changelogs if Release-Please needs them for clean release
   notes.
@@ -309,7 +309,7 @@ Deliverables:
 Acceptance criteria:
 
 * Unsupported JSX patterns point to the relevant source range and recommended
-  Iktia construct.
+  Naos construct.
 * Vite users see actionable errors without opening generated output.
 * Source maps make browser stack traces refer back to `.wc.tsx` modules.
 
@@ -320,7 +320,7 @@ Purpose: Treat generated Custom Elements as a public product surface.
 Deliverables:
 
 * Document the generated element contract: tag inference, attributes, props,
-  events, slots, parts, `data-iktia-*` markers, and DSD hydration behavior.
+  events, slots, parts, `data-naos-*` markers, and DSD hydration behavior.
 * Add snapshot or golden tests for generated output where output stability
   matters.
 * Add browser tests for event payloads, attribute reflection, DSD delayed
@@ -361,7 +361,7 @@ Acceptance criteria:
 
 ### R10: Demo And Interop Suite
 
-Purpose: Prove that Iktia outputs native elements that work as static,
+Purpose: Prove that Naos outputs native elements that work as static,
 framework-free interface units before expanding into broader host-framework
 interop.
 
@@ -385,7 +385,7 @@ Deliverables:
 Acceptance criteria:
 
 * Demos show why native Custom Elements are the output target.
-* Static demo pages consume Iktia elements through DOM APIs, not framework
+* Static demo pages consume Naos elements through DOM APIs, not framework
   adapters.
 * Demo tests run in CI and fail on broken bundling, events, or hydration.
 
@@ -418,9 +418,9 @@ Purpose: Define the quality bar for a credible public prerelease.
 
 Deliverables:
 
-* Add an `iktia-conformance` test area or crate for accepted/rejected syntax
+* Add an `naos-conformance` test area or crate for accepted/rejected syntax
   fixtures and generated output contracts.
-* Add an `iktia-bench` area or crate for transform performance and selected
+* Add an `naos-bench` area or crate for transform performance and selected
   generated-output benchmarks.
 * Define benchmark budgets for representative component sizes.
 * Add a release-candidate checklist that combines CI, docs, demos, package
@@ -446,7 +446,7 @@ Acceptance criteria:
    candidate gates.
 
 This sequence intentionally puts release mechanics before broad feature
-expansion. Iktia already has enough compiler capability to reveal packaging,
+expansion. Naos already has enough compiler capability to reveal packaging,
 documentation, and API-contract problems.
 
 ## Resolved v0.1 Decisions
@@ -459,9 +459,9 @@ questions. The accepted decisions are recorded in
 * `event()` owns `CustomEvent` options; `on()` owns listener options.
 * Native distribution uses the full Palamedes-style Tier 1 matrix.
 * Source builds are contributor-only, not npm install fallbacks.
-* `data-iktia-*` markers are internal generated markup.
+* `data-naos-*` markers are internal generated markup.
 * Rust crates remain unpublished to crates.io for v0.1.
-* v0.1 demos are linked static Iktia demos, not a React/Vue/Angular host
+* v0.1 demos are linked static Naos demos, not a React/Vue/Angular host
   matrix.
 
 ## Commit Discipline

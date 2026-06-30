@@ -6,7 +6,7 @@ Weight: P1
 
 ## Context
 
-Iktia currently generates imperative Custom Element modules that attach an open
+Naos currently generates imperative Custom Element modules that attach an open
 shadow root in JavaScript and then create DOM nodes during upgrade. That is a
 reasonable client-side MVP, but it means the browser cannot see the component's
 shadow DOM structure or scoped styles during initial HTML parsing.
@@ -14,14 +14,14 @@ shadow DOM structure or scoped styles during initial HTML parsing.
 Declarative Shadow DOM allows a server, static generator, or prerender tool to
 emit `<template shadowrootmode="open">` inside the host element. Modern browsers
 can parse that template into a shadow root before the custom element JavaScript
-loads. This is aligned with Iktia's platform-native output goal, but it also
+loads. This is aligned with Naos's platform-native output goal, but it also
 changes the hydration contract: generated code must reuse existing declarative
 roots instead of blindly calling `attachShadow()`.
 
 ## Decision
 
 Treat Declarative Shadow DOM as a first-class prerender output and hydration
-direction for Iktia components.
+direction for Naos components.
 
 The first implementation must:
 
@@ -32,7 +32,7 @@ The first implementation must:
 * use prerender include/exclude filters for opt-out;
 * adopt existing declarative shadow roots before any `attachShadow()` fallback;
 * emit only `shadowrootmode="open"` in v1;
-* emit visible `data-iktia-*` hydration markers only in DSD HTML;
+* emit visible `data-naos-*` hydration markers only in DSD HTML;
 * evaluate only prop defaults, signal/state initializers, literal
   arrays/objects, and simple template strings over those supported values;
 * never execute arbitrary JavaScript or TypeScript during DSD prerender;

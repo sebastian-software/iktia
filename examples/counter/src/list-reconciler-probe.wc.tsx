@@ -1,4 +1,4 @@
-import { For, Index, on, state } from "@iktia/core"
+import { For, Index, on, state } from "@naos-ui/core"
 
 type Row = {
   id: string

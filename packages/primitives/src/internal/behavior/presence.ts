@@ -1,40 +1,40 @@
 import {
   springMotionTokenClassName,
   waitForAnimations,
-} from "@iktia/motion"
+} from "@naos-ui/motion"
 
-export type IktiaPresencePhase =
+export type NaosPresencePhase =
   | "closed"
   | "closing"
   | "entering"
   | "open"
   | "unmounted"
 
-export type IktiaPresenceSnapshot = {
-  phase: IktiaPresencePhase
+export type NaosPresenceSnapshot = {
+  phase: NaosPresencePhase
 }
 
-export type IktiaPresenceMotionAttributes = {
+export type NaosPresenceMotionAttributes = {
   class: string
 }
 
-export const IKTIA_PRESENCE_MOTION_CLASS = springMotionTokenClassName({
+export const NAOS_PRESENCE_MOTION_CLASS = springMotionTokenClassName({
   kind: "presence",
   preset: "snappy",
 })
 
-const IKTIA_PRESENCE_MOTION_ATTRIBUTES = {
-  class: IKTIA_PRESENCE_MOTION_CLASS,
+const NAOS_PRESENCE_MOTION_ATTRIBUTES = {
+  class: NAOS_PRESENCE_MOTION_CLASS,
 }
 
-export function createIktiaPresenceSnapshot(open: boolean): IktiaPresenceSnapshot {
+export function createNaosPresenceSnapshot(open: boolean): NaosPresenceSnapshot {
   return { phase: open ? "open" : "closed" }
 }
 
-export function nextIktiaPresenceSnapshot(
-  current: IktiaPresenceSnapshot,
+export function nextNaosPresenceSnapshot(
+  current: NaosPresenceSnapshot,
   open: boolean
-): IktiaPresenceSnapshot {
+): NaosPresenceSnapshot {
   if (open) {
     if (current.phase === "entering" || current.phase === "open") return current
     return { phase: "entering" }
@@ -44,38 +44,38 @@ export function nextIktiaPresenceSnapshot(
   return { phase: "closing" }
 }
 
-export function settleIktiaPresenceSnapshot(
-  current: IktiaPresenceSnapshot,
+export function settleNaosPresenceSnapshot(
+  current: NaosPresenceSnapshot,
   open: boolean
-): IktiaPresenceSnapshot {
+): NaosPresenceSnapshot {
   if (open && current.phase === "entering") return { phase: "open" }
   if (!open && current.phase === "closing") return { phase: "closed" }
   return current
 }
 
-export function isIktiaPresenceOpen({ phase }: IktiaPresenceSnapshot) {
+export function isNaosPresenceOpen({ phase }: NaosPresenceSnapshot) {
   return phase === "entering" || phase === "open"
 }
 
-export function isIktiaPresenceHidden({ phase }: IktiaPresenceSnapshot) {
+export function isNaosPresenceHidden({ phase }: NaosPresenceSnapshot) {
   return phase === "closed" || phase === "unmounted"
 }
 
-export function getIktiaPresenceAttributes({
+export function getNaosPresenceAttributes({
   phase,
-}: IktiaPresenceSnapshot): Record<string, string | undefined> {
+}: NaosPresenceSnapshot): Record<string, string | undefined> {
   return {
     "data-ending-style": phase === "closing" ? "" : undefined,
-    "data-iktia-presence": phase,
+    "data-naos-presence": phase,
     "data-starting-style": phase === "entering" ? "" : undefined,
   }
 }
 
-export function getIktiaPresenceMotionAttributes(): IktiaPresenceMotionAttributes {
-  return IKTIA_PRESENCE_MOTION_ATTRIBUTES
+export function getNaosPresenceMotionAttributes(): NaosPresenceMotionAttributes {
+  return NAOS_PRESENCE_MOTION_ATTRIBUTES
 }
 
-export function scheduleIktiaPresenceFrame(callback: () => void) {
+export function scheduleNaosPresenceFrame(callback: () => void) {
   if (typeof globalThis.requestAnimationFrame === "function") {
     const frame = globalThis.requestAnimationFrame(callback)
     return () => globalThis.cancelAnimationFrame?.(frame)
@@ -84,7 +84,7 @@ export function scheduleIktiaPresenceFrame(callback: () => void) {
   return () => globalThis.clearTimeout(timeout)
 }
 
-export function waitForIktiaPresenceExit(
+export function waitForNaosPresenceExit(
   element: Element | null | undefined,
   callback: () => void
 ) {
@@ -94,7 +94,7 @@ export function waitForIktiaPresenceExit(
     if (!cancelled) callback()
   }
 
-  const cancelFrame = scheduleIktiaPresenceFrame(() => {
+  const cancelFrame = scheduleNaosPresenceFrame(() => {
     if (cancelled) return
     void waitForAnimations(element, {
       reducedMotion: "media",

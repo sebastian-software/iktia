@@ -27,14 +27,14 @@ const publicPackages = [
 ]
 
 const nativePackageNames = [
-  "@iktia/compiler-darwin-arm64",
-  "@iktia/compiler-darwin-x64",
-  "@iktia/compiler-linux-arm64-gnu",
-  "@iktia/compiler-linux-arm64-musl",
-  "@iktia/compiler-linux-x64-gnu",
-  "@iktia/compiler-linux-x64-musl",
-  "@iktia/compiler-win32-arm64-msvc",
-  "@iktia/compiler-win32-x64-msvc",
+  "@naos-ui/compiler-darwin-arm64",
+  "@naos-ui/compiler-darwin-x64",
+  "@naos-ui/compiler-linux-arm64-gnu",
+  "@naos-ui/compiler-linux-arm64-musl",
+  "@naos-ui/compiler-linux-x64-gnu",
+  "@naos-ui/compiler-linux-x64-musl",
+  "@naos-ui/compiler-win32-arm64-msvc",
+  "@naos-ui/compiler-win32-x64-msvc",
 ]
 
 const thirdPartyVersions = {
@@ -42,7 +42,7 @@ const thirdPartyVersions = {
   vite: "^8.0.16",
 }
 
-const workspace = await mkdtemp(join(tmpdir(), "iktia-fresh-project-"))
+const workspace = await mkdtemp(join(tmpdir(), "naos-fresh-project-"))
 const artifactsDir = join(workspace, "artifacts")
 const appDir = join(workspace, "app")
 
@@ -88,7 +88,7 @@ try {
   })
 
   await phase("verify CLI package bin", async () => {
-    await run("pnpm", ["exec", "iktia", "info", "--json"], { cwd: appDir })
+    await run("pnpm", ["exec", "naos", "info", "--json"], { cwd: appDir })
   })
 
   await phase("build temporary Vite project", async () => {
@@ -101,11 +101,11 @@ try {
     assertIncludes(assetText, "CustomEvent")
     assertIncludes(assetText, 'new CustomEvent("change"')
     assertIncludes(assetText, 'setAttribute("data-count"')
-    assertIncludes(assetText, 'customElements.define("iktia-button"')
-    assertIncludes(assetText, "--iktia-button-bg")
+    assertIncludes(assetText, 'customElements.define("naos-button"')
+    assertIncludes(assetText, "--naos-button-bg")
     const indexHtml = await readFile(join(appDir, "dist", "index.html"), "utf8")
     assertIncludes(indexHtml, "smoke-counter")
-    assertIncludes(indexHtml, "iktia-button")
+    assertIncludes(indexHtml, "naos-button")
   })
 
   console.log(`[fresh-project] ok: temporary project built successfully at ${appDir}`)
@@ -133,16 +133,16 @@ async function phase(name, action) {
 
 async function writeProjectFiles(projectDir, tarballs) {
   const packageJson = {
-    name: "iktia-fresh-project-smoke",
+    name: "naos-fresh-project-smoke",
     private: true,
     type: "module",
     dependencies: {
-      "@iktia/cli": fileSpec(tarballs.get("@iktia/cli")),
-      "@iktia/compiler": fileSpec(tarballs.get("@iktia/compiler")),
-      "@iktia/core": fileSpec(tarballs.get("@iktia/core")),
-      "@iktia/primitives": fileSpec(tarballs.get("@iktia/primitives")),
-      "@iktia/runtime": fileSpec(tarballs.get("@iktia/runtime")),
-      "@iktia/vite": fileSpec(tarballs.get("@iktia/vite")),
+      "@naos-ui/cli": fileSpec(tarballs.get("@naos-ui/cli")),
+      "@naos-ui/compiler": fileSpec(tarballs.get("@naos-ui/compiler")),
+      "@naos-ui/core": fileSpec(tarballs.get("@naos-ui/core")),
+      "@naos-ui/primitives": fileSpec(tarballs.get("@naos-ui/primitives")),
+      "@naos-ui/runtime": fileSpec(tarballs.get("@naos-ui/runtime")),
+      "@naos-ui/vite": fileSpec(tarballs.get("@naos-ui/vite")),
       [currentNativePackageName()]: fileSpec(tarballs.get(currentNativePackageName())),
       typescript: thirdPartyVersions.typescript,
       vite: thirdPartyVersions.vite,
@@ -161,7 +161,7 @@ async function writeProjectFiles(projectDir, tarballs) {
       {
         compilerOptions: {
           jsx: "react-jsx",
-          jsxImportSource: "@iktia/core",
+          jsxImportSource: "@naos-ui/core",
           module: "ESNext",
           moduleResolution: "Bundler",
           strict: true,
@@ -176,29 +176,29 @@ async function writeProjectFiles(projectDir, tarballs) {
   )
   await writeFile(
     join(projectDir, "vite.config.ts"),
-    `import { defineConfig } from "vite"\nimport { iktia } from "@iktia/vite"\n\nexport default defineConfig({\n  plugins: [iktia()],\n})\n`
+    `import { defineConfig } from "vite"\nimport { naos } from "@naos-ui/vite"\n\nexport default defineConfig({\n  plugins: [naos()],\n})\n`
   )
   await writeFile(
     join(projectDir, "index.html"),
-    `<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>Iktia fresh project smoke</title>\n  </head>\n  <body>\n    <smoke-counter label="Smoke"></smoke-counter>\n    <iktia-button label="Primitive smoke" variant="primary"></iktia-button>\n    <script type="module" src="/src/main.ts"></script>\n  </body>\n</html>\n`
+    `<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>Naos fresh project smoke</title>\n  </head>\n  <body>\n    <smoke-counter label="Smoke"></smoke-counter>\n    <naos-button label="Primitive smoke" variant="primary"></naos-button>\n    <script type="module" src="/src/main.ts"></script>\n  </body>\n</html>\n`
   )
   await writeFile(
     join(projectDir, "src", "main.ts"),
-    `import "@iktia/primitives/button"\nimport "./smoke-counter.wc.tsx"\n\ndocument.addEventListener("change", (event) => {\n  if (event instanceof CustomEvent) {\n    document.body.dataset.lastChange = String(event.detail)\n  }\n})\n`
+    `import "@naos-ui/primitives/button"\nimport "./smoke-counter.wc.tsx"\n\ndocument.addEventListener("change", (event) => {\n  if (event instanceof CustomEvent) {\n    document.body.dataset.lastChange = String(event.detail)\n  }\n})\n`
   )
   await writeFile(
     join(projectDir, "src", "smoke-counter.wc.tsx"),
-    `import { event, state } from "@iktia/core"\n\nexport type SmokeCounterProps = {\n  label?: string\n}\n\nexport function SmokeCounter({ label = "Smoke" }: SmokeCounterProps = {}) {\n  const count = state(0)\n  const change = event<number>("change")\n\n  return (\n    <button\n      part="button"\n      data-count={count()}\n      aria-label={\`\${label}: \${count()}\`}\n      onClick={() => {\n        count.set(count() + 1)\n        change.emit(count())\n      }}\n    >\n      {\`\${label}: \${count()}\`}\n    </button>\n  )\n}\n`
+    `import { event, state } from "@naos-ui/core"\n\nexport type SmokeCounterProps = {\n  label?: string\n}\n\nexport function SmokeCounter({ label = "Smoke" }: SmokeCounterProps = {}) {\n  const count = state(0)\n  const change = event<number>("change")\n\n  return (\n    <button\n      part="button"\n      data-count={count()}\n      aria-label={\`\${label}: \${count()}\`}\n      onClick={() => {\n        count.set(count() + 1)\n        change.emit(count())\n      }}\n    >\n      {\`\${label}: \${count()}\`}\n    </button>\n  )\n}\n`
   )
   await writeFile(
     join(projectDir, "verify-native.mjs"),
-    `import { getNativeInfo, transformComponent } from "@iktia/compiler"\n\nconst info = getNativeInfo()\nif (!info || typeof info.coreVersion !== "string") {\n  throw new Error("native compiler info did not expose a coreVersion")\n}\n\nconst source = await import("node:fs/promises").then((fs) => fs.readFile("src/smoke-counter.wc.tsx", "utf8"))\nconst result = transformComponent({ filename: "src/smoke-counter.wc.tsx", source })\nif (!result.code.includes("customElements.define(\\\"smoke-counter\\\"")) {\n  throw new Error("native compiler transform did not generate smoke-counter")\n}\n`
+    `import { getNativeInfo, transformComponent } from "@naos-ui/compiler"\n\nconst info = getNativeInfo()\nif (!info || typeof info.coreVersion !== "string") {\n  throw new Error("native compiler info did not expose a coreVersion")\n}\n\nconst source = await import("node:fs/promises").then((fs) => fs.readFile("src/smoke-counter.wc.tsx", "utf8"))\nconst result = transformComponent({ filename: "src/smoke-counter.wc.tsx", source })\nif (!result.code.includes("customElements.define(\\\"smoke-counter\\\"")) {\n  throw new Error("native compiler transform did not generate smoke-counter")\n}\n`
   )
 }
 
 function pnpmWorkspaceYaml(tarballs) {
   const overrideLines = [
-    ["@iktia/compiler", fileSpec(tarballs.get("@iktia/compiler"))],
+    ["@naos-ui/compiler", fileSpec(tarballs.get("@naos-ui/compiler"))],
     ...nativePackageNames.map((packageName) => [packageName, fileSpec(tarballs.get(packageName))]),
   ].map(([name, spec]) => `  ${JSON.stringify(name)}: ${JSON.stringify(spec)}`)
 
@@ -240,20 +240,20 @@ async function files(dir) {
 function currentNativePackageName() {
   if (process.platform === "darwin") {
     return process.arch === "arm64"
-      ? "@iktia/compiler-darwin-arm64"
-      : "@iktia/compiler-darwin-x64"
+      ? "@naos-ui/compiler-darwin-arm64"
+      : "@naos-ui/compiler-darwin-x64"
   }
   if (process.platform === "win32") {
     return process.arch === "arm64"
-      ? "@iktia/compiler-win32-arm64-msvc"
-      : "@iktia/compiler-win32-x64-msvc"
+      ? "@naos-ui/compiler-win32-arm64-msvc"
+      : "@naos-ui/compiler-win32-x64-msvc"
   }
   if (process.platform === "linux") {
     const isGnu = typeof process.report?.getReport?.().header?.glibcVersionRuntime === "string"
     const libc = isGnu ? "gnu" : "musl"
     return process.arch === "arm64"
-      ? `@iktia/compiler-linux-arm64-${libc}`
-      : `@iktia/compiler-linux-x64-${libc}`
+      ? `@naos-ui/compiler-linux-arm64-${libc}`
+      : `@naos-ui/compiler-linux-x64-${libc}`
   }
   throw new Error(`Unsupported native smoke-test platform: ${process.platform}/${process.arch}`)
 }

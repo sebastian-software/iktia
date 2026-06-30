@@ -1,6 +1,6 @@
-# @iktia/compiler-win32-x64-msvc
+# @naos-ui/compiler-win32-x64-msvc
 
-Windows x64 MSVC native compiler binding for `@iktia/compiler`.
+Windows x64 MSVC native compiler binding for `@naos-ui/compiler`.
 
 This package is installed as an optional dependency. Users should import
-`@iktia/compiler`, not this package directly.
+`@naos-ui/compiler`, not this package directly.

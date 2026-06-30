@@ -8,20 +8,20 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  createIktiaZagRadioGroupService,
-  createIktiaRadioGroupContextController,
-  getIktiaZagRadioGroupApi,
-  stopIktiaZagRadioGroupService,
+  createNaosZagRadioGroupService,
+  createNaosRadioGroupContextController,
+  getNaosZagRadioGroupApi,
+  stopNaosZagRadioGroupService,
 } from "./internal/zag/radio-group.js"
 import type {
-  IktiaZagRadioGroupService,
-  IktiaRadioGroupContextController,
+  NaosZagRadioGroupService,
+  NaosRadioGroupContextController,
 } from "./internal/zag/radio-group.js"
 import css from "./radio-group.wc.css?inline"
 
-export type IktiaRadioGroupProps = {
+export type NaosRadioGroupProps = {
   disabled?: boolean
   label?: string
   name?: string
@@ -33,18 +33,18 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaRadioGroup({
+export function NaosRadioGroup({
   disabled = false,
   label = "Options",
   name = "",
   orientation = "vertical",
   value = "",
-}: IktiaRadioGroupProps = {}) {
+}: NaosRadioGroupProps = {}) {
   const selected = state(value)
-  const radioContext = state<IktiaRadioGroupContextController | null>(null)
-  const radioService = state<IktiaZagRadioGroupService | null>(null)
-  const radioApi = computed(() => getIktiaZagRadioGroupApi(radioService()))
-  const changed = event<{ value: string }>("iktia-change")
+  const radioContext = state<NaosRadioGroupContextController | null>(null)
+  const radioService = state<NaosZagRadioGroupService | null>(null)
+  const radioApi = computed(() => getNaosZagRadioGroupApi(radioService()))
+  const changed = event<{ value: string }>("naos-change")
   const form = formControl({
     value: () => selected() || null,
     reset: () => {
@@ -58,10 +58,10 @@ export function IktiaRadioGroup({
   void name
 
   onConnected(() => {
-    radioService.set(createIktiaZagRadioGroupService({
+    radioService.set(createNaosZagRadioGroupService({
       disabled,
       host: host().element,
-      id: "iktia-radio-group",
+      id: "naos-radio-group",
       name,
       onValueChange(nextValue) {
         selected.set(nextValue)
@@ -71,7 +71,7 @@ export function IktiaRadioGroup({
       root: host().root,
       value: selected(),
     }))
-    radioContext.set(createIktiaRadioGroupContextController({
+    radioContext.set(createNaosRadioGroupContextController({
       host: host().element,
       onRequestUpdate: () => host().update(),
     }))
@@ -79,7 +79,7 @@ export function IktiaRadioGroup({
   onDisconnected(() => {
     radioContext()?.destroy()
     radioContext.set(null)
-    stopIktiaZagRadioGroupService(radioService())
+    stopNaosZagRadioGroupService(radioService())
     radioService.set(null)
   })
   effect(() => {

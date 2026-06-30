@@ -7,18 +7,18 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  createIktiaZagTagsInputService,
-  getIktiaZagTagsInputApi,
-  stopIktiaZagTagsInputService,
+  createNaosZagTagsInputService,
+  getNaosZagTagsInputApi,
+  stopNaosZagTagsInputService,
   tagsInputFormValue,
   tagsInputValueArray,
 } from "./internal/zag/tags-input.js"
-import type { IktiaZagTagsInputService } from "./internal/zag/tags-input.js"
+import type { NaosZagTagsInputService } from "./internal/zag/tags-input.js"
 import css from "./tags-input.wc.css?inline"
 
-export type IktiaTagsInputProps = {
+export type NaosTagsInputProps = {
   allowDuplicates?: boolean
   delimiter?: string
   disabled?: boolean
@@ -33,7 +33,7 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaTagsInput({
+export function NaosTagsInput({
   allowDuplicates = false,
   delimiter = ",",
   disabled = false,
@@ -42,17 +42,17 @@ export function IktiaTagsInput({
   name = "",
   placeholder = "Add tag",
   value = "",
-}: IktiaTagsInputProps = {}) {
+}: NaosTagsInputProps = {}) {
   const current = state(tagsInputValueArray(value, delimiter))
   const input = state("")
-  const tagsInputService = state<IktiaZagTagsInputService | null>(null)
-  const tagsInputApi = computed(() => getIktiaZagTagsInputApi(tagsInputService()))
-  const changed = event<{ value: string[]; valueAsString: string }>("iktia-change")
-  const inputChanged = event<{ inputValue: string }>("iktia-input")
+  const tagsInputService = state<NaosZagTagsInputService | null>(null)
+  const tagsInputApi = computed(() => getNaosZagTagsInputApi(tagsInputService()))
+  const changed = event<{ value: string[]; valueAsString: string }>("naos-change")
+  const inputChanged = event<{ inputValue: string }>("naos-input")
   const highlightedChanged = event<{ highlightedValue: string | null }>(
-    "iktia-highlight-change"
+    "naos-highlight-change"
   )
-  const invalid = event<{ reason: string }>("iktia-invalid")
+  const invalid = event<{ reason: string }>("naos-invalid")
   const form = formControl({
     value: () => tagsInputFormValue(current()),
     reset: () => {
@@ -68,12 +68,12 @@ export function IktiaTagsInput({
   void name
 
   onConnected(() => {
-    tagsInputService.set(createIktiaZagTagsInputService({
+    tagsInputService.set(createNaosZagTagsInputService({
       allowDuplicates,
       delimiter,
       disabled,
       host: host().element,
-      id: "iktia-tags-input",
+      id: "naos-tags-input",
       max,
       name,
       onHighlightChange(details) {
@@ -102,7 +102,7 @@ export function IktiaTagsInput({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagTagsInputService(tagsInputService())
+    stopNaosZagTagsInputService(tagsInputService())
     tagsInputService.set(null)
   })
 

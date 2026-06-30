@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Iktia Declarative Shadow DOM demo with delayed custom element upgrade."
+      content="Naos Declarative Shadow DOM demo with delayed custom element upgrade."
     />
-    <title>Iktia Declarative Shadow DOM demo</title>
+    <title>Naos Declarative Shadow DOM demo</title>
     <link rel="stylesheet" href="/src/demo.css" />
   </head>
   <body data-demo-mode="dsd">
     <header class="site-header">
-      <p class="eyebrow">Iktia DSD demo</p>
+      <p class="eyebrow">Naos DSD demo</p>
       <h1>Declarative Shadow DOM before JavaScript upgrade.</h1>
       <p class="intro">
         This page is generated from the same <code>.wc.tsx</code> sources as the
@@ -38,9 +38,9 @@
         </div>
         <div class="case-surface">
           <x-counter label="Count"><template shadowrootmode="open"><style>:host { display: inline-block; font-family: system-ui, sans-serif; }
-button { display: inline-flex; align-items: center; border: 1px solid var(--iktia-control-border, #2563eb); border-radius: 0.375rem; padding: 0.5rem 0.75rem; background: var(--iktia-control-bg, #eff6ff); color: var(--iktia-control-fg, #172554); font: inherit; }
-button:hover { background: var(--iktia-control-bg-hover, #dbeafe); }
-</style><button data-iktia-node="node0" data-iktia-root="" part="button" data-count="0"><span style="display: contents" data-iktia-text="text0">Count: 0</span></button></template></x-counter>
+button { display: inline-flex; align-items: center; border: 1px solid var(--naos-control-border, #2563eb); border-radius: 0.375rem; padding: 0.5rem 0.75rem; background: var(--naos-control-bg, #eff6ff); color: var(--naos-control-fg, #172554); font: inherit; }
+button:hover { background: var(--naos-control-bg-hover, #dbeafe); }
+</style><button data-naos-node="node0" data-naos-root="" part="button" data-count="0"><span style="display: contents" data-naos-text="text0">Count: 0</span></button></template></x-counter>
           <output id="counter-event">Last counter event: none</output>
         </div>
       </section>
@@ -56,10 +56,10 @@ button:hover { background: var(--iktia-control-bg-hover, #dbeafe); }
         </div>
         <div class="case-surface">
           <x-toggle label="Power"><template shadowrootmode="open"><style>:host { display: inline-block; font-family: system-ui, sans-serif; }
-button { display: inline-flex; align-items: center; gap: 0.5rem; border: 1px solid var(--iktia-toggle-border, #888); border-radius: 0.375rem; padding: 0.5rem 0.75rem; background: var(--iktia-toggle-bg, white); color: var(--iktia-toggle-fg, #111); }
-button[data-state='on'] { border-color: var(--iktia-toggle-on-border, #0f766e); background: var(--iktia-toggle-on-bg, #ecfdf5); }
-[part~='indicator'] { font-size: 0.75rem; color: var(--iktia-toggle-muted, #475569); }
-</style><button data-iktia-node="node0" data-iktia-root="" part="root control" data-state="off" aria-pressed="false"><span data-iktia-node="node1" part="label"><span style="display: contents" data-iktia-text="text0">Power</span></span><span style="display: contents" data-iktia-control="show" data-iktia-node="node2"><span style="display: contents" data-iktia-node="node2Content" hidden><span data-iktia-node="node3" part="indicator"><span style="display: contents" data-iktia-text="text1"></span></span></span><span style="display: contents" data-iktia-node="node2Fallback"><span data-iktia-node="node4" part="indicator"><span style="display: contents" data-iktia-text="text2">Off</span></span></span></span><span style="display: contents" data-iktia-control="for" data-iktia-node="node5"></span><slot data-iktia-node="node6"></slot></button></template>manual slot content</x-toggle>
+button { display: inline-flex; align-items: center; gap: 0.5rem; border: 1px solid var(--naos-toggle-border, #888); border-radius: 0.375rem; padding: 0.5rem 0.75rem; background: var(--naos-toggle-bg, white); color: var(--naos-toggle-fg, #111); }
+button[data-state='on'] { border-color: var(--naos-toggle-on-border, #0f766e); background: var(--naos-toggle-on-bg, #ecfdf5); }
+[part~='indicator'] { font-size: 0.75rem; color: var(--naos-toggle-muted, #475569); }
+</style><button data-naos-node="node0" data-naos-root="" part="root control" data-state="off" aria-pressed="false"><span data-naos-node="node1" part="label"><span style="display: contents" data-naos-text="text0">Power</span></span><span style="display: contents" data-naos-control="show" data-naos-node="node2"><span style="display: contents" data-naos-node="node2Content" hidden><span data-naos-node="node3" part="indicator"><span style="display: contents" data-naos-text="text1"></span></span></span><span style="display: contents" data-naos-node="node2Fallback"><span data-naos-node="node4" part="indicator"><span style="display: contents" data-naos-text="text2">Off</span></span></span></span><span style="display: contents" data-naos-control="for" data-naos-node="node5"></span><slot data-naos-node="node6"></slot></button></template>manual slot content</x-toggle>
           <output id="toggle-event">Last toggle event: none</output>
         </div>
       </section>
@@ -67,9 +67,9 @@ button[data-state='on'] { border-color: var(--iktia-toggle-on-border, #0f766e); 
 
     <script type="module">
       const params = new URLSearchParams(window.location.search)
-      window.__iktiaUpgrade = () => import("/src/main.ts")
+      window.__naosUpgrade = () => import("/src/main.ts")
       if (!params.has("delayUpgrade")) {
-        window.__iktiaUpgrade()
+        window.__naosUpgrade()
       }
     </script>
   </body>

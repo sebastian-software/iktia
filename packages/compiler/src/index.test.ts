@@ -2,13 +2,13 @@ import { afterEach, describe, expect, it } from "vitest"
 
 import {
   getNativeInfo,
-  IktiaCompilerError,
+  NaosCompilerError,
   renderDeclarativeShadowDom,
   setNativeBindingsForTesting,
   transformComponent,
 } from "./index.js"
 
-describe("@iktia/compiler wrapper", () => {
+describe("@naos-ui/compiler wrapper", () => {
   afterEach(() => {
     setNativeBindingsForTesting(null)
   })
@@ -81,7 +81,7 @@ describe("@iktia/compiler wrapper", () => {
       getNativeInfo: () => ({ coreVersion: "1.2.3" }),
       transformComponent: () => {
         throw new Error(
-          'IKTIA_COMPILER_DIAGNOSTICS:{"message":"Unsupported JSX","diagnostics":[{"code":"IKTIA_UNSUPPORTED_SYNTAX","severity":"error","message":"Unsupported JSX","filename":"counter.wc.tsx","span":null,"hint":"Use supported syntax."}]}'
+          'NAOS_COMPILER_DIAGNOSTICS:{"message":"Unsupported JSX","diagnostics":[{"code":"NAOS_UNSUPPORTED_SYNTAX","severity":"error","message":"Unsupported JSX","filename":"counter.wc.tsx","span":null,"hint":"Use supported syntax."}]}'
         )
       },
       renderDeclarativeShadowDom: () => ({
@@ -100,7 +100,7 @@ describe("@iktia/compiler wrapper", () => {
         filename: "counter.wc.tsx",
         source: "source",
       })
-    ).toThrow(IktiaCompilerError)
+    ).toThrow(NaosCompilerError)
 
     try {
       transformComponent({
@@ -108,10 +108,10 @@ describe("@iktia/compiler wrapper", () => {
         source: "source",
       })
     } catch (error) {
-      expect(error).toBeInstanceOf(IktiaCompilerError)
-      expect((error as IktiaCompilerError).diagnostics).toEqual([
+      expect(error).toBeInstanceOf(NaosCompilerError)
+      expect((error as NaosCompilerError).diagnostics).toEqual([
         {
-          code: "IKTIA_UNSUPPORTED_SYNTAX",
+          code: "NAOS_UNSUPPORTED_SYNTAX",
           filename: "counter.wc.tsx",
           hint: "Use supported syntax.",
           message: "Unsupported JSX",

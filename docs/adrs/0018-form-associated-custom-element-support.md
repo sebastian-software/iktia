@@ -6,7 +6,7 @@ Weight: P1
 
 ## Context
 
-Iktia targets platform-native Custom Elements. That makes native form
+Naos targets platform-native Custom Elements. That makes native form
 participation a product direction, not only a convenience feature. A primitive
 such as a text field, checkbox, toggle, select trigger, or segmented control
 should eventually be able to submit values with a surrounding `<form>`, reset
@@ -20,7 +20,7 @@ they do not make a custom control behave like a browser form control.
 
 The browser-facing feature for this is Form-Associated Custom Elements through
 `static formAssociated = true`, `attachInternals()`, `ElementInternals`, and
-the form lifecycle callbacks. Iktia needs to expose that capability without
+the form lifecycle callbacks. Naos needs to expose that capability without
 leaking the full browser API into ordinary component authoring.
 
 ## Decision
@@ -39,7 +39,7 @@ The first shipped authoring shape has one explicit body helper:
 The current experimental shape is:
 
 ```tsx
-import { formControl, state } from "@iktia/core"
+import { formControl, state } from "@naos-ui/core"
 
 export type TextFieldProps = {
   disabled?: boolean
@@ -108,7 +108,7 @@ Generated output responsibilities:
 
 Runtime responsibilities:
 
-* Keep `@iktia/runtime` out of validation policy.
+* Keep `@naos-ui/runtime` out of validation policy.
 * Add only tiny platform helpers if generated code would otherwise duplicate
   low-level `ElementInternals` plumbing.
 * Do not introduce a broad forms library as part of this capability.
@@ -142,7 +142,7 @@ pipeline before stabilizing broader forms and validation API.
 
 ## Consequences
 
-* Iktia can support real custom controls without hiding native form semantics.
+* Naos can support real custom controls without hiding native form semantics.
 * The compiler must grow a new component option and a new compiler-known
   authoring primitive.
 * Form-associated controls become a generated-output responsibility, not a
@@ -164,7 +164,7 @@ pipeline before stabilizing broader forms and validation API.
   placement?
 * How should `readonly` relate to `disabled` for generated custom controls?
 * Should labels be documented as external `<label for>` usage first, or should
-  Iktia add helper guidance for slotted labels?
+  Naos add helper guidance for slotted labels?
 * Should the eventual TypeScript type expose the associated `HTMLFormElement`
   through a helper, or keep form references internal?
 

@@ -11,14 +11,14 @@ The published Pages artifact has two parts:
 | Path | Source | Purpose |
 | --- | --- | --- |
 | `/` | `sites/docs` | Ardo-rendered documentation and API content. |
-| `/demos/` | `examples/counter` | Static Vite demo site with compiled Iktia elements. |
+| `/demos/` | `examples/counter` | Static Vite demo site with compiled Naos elements. |
 
 `sites/docs` is a private Ardo workspace package. It documents install,
 authoring, styling, DSD, packages, and API shape. Demo links point to static
 pages under `/demos/`.
 
 `examples/counter` is a Vite app that imports `.wc.tsx` modules through the
-Iktia Vite plugin, imports compiled `@iktia/primitives` and `@iktia/router`
+Naos Vite plugin, imports compiled `@naos-ui/primitives` and `@naos-ui/router`
 package modules, and renders the generated native Custom Elements in a normal
 browser page.
 
@@ -29,8 +29,8 @@ browser page.
 | PascalCase composition | `Toolbar` / `x-toolbar` | TypeScript component imports, PascalCase JSX nesting, compiler-owned kebab-case Custom Element output |
 | CSS variable theming | `Counter` and `Toggle` | Host-provided CSS custom properties crossing Shadow DOM, with parts and state attributes as styling hooks |
 | Design-system primitives | `Disclosure` / `x-disclosure`, `Field` / `x-field` | Framework-free primitives with slots, parts, ARIA, `data-state`, typed events, and CSS custom properties |
-| Packaged primitives | `@iktia/primitives` / `iktia-*` | First package-built primitive elements compiled from `.wc.tsx` sources, imported through package exports |
-| Custom Element router | `@iktia/router` / `router-*` | URL-to-Custom-Element routing, lazy route hooks, loaders, actions, params/search exposure, active links, scroll/focus restoration, and not-found fallback |
+| Packaged primitives | `@naos-ui/primitives` / `naos-*` | First package-built primitive elements compiled from `.wc.tsx` sources, imported through package exports |
+| Custom Element router | `@naos-ui/router` / `router-*` | URL-to-Custom-Element routing, lazy route hooks, loaders, actions, params/search exposure, active links, scroll/focus restoration, and not-found fallback |
 | Declarative Shadow DOM | `Counter` and `Toggle` | Prerendered static HTML, `<template shadowrootmode="open">`, DSD-only hydration markers, delayed custom-element upgrade, post-upgrade interactivity |
 
 The examples intentionally use the generated Custom Elements from regular
@@ -52,24 +52,24 @@ Run these commands from the workspace root.
 ```sh
 pnpm install
 pnpm build:native
-pnpm --filter @iktia/router build
+pnpm --filter @naos-ui/router build
 pnpm build:docs
-pnpm --filter @iktia/example-counter prepare:dsd
-pnpm --filter @iktia/example-counter type-check
-pnpm --filter @iktia/example-counter build
-pnpm --filter @iktia/example-counter test
+pnpm --filter @naos-ui/example-counter prepare:dsd
+pnpm --filter @naos-ui/example-counter type-check
+pnpm --filter @naos-ui/example-counter build
+pnpm --filter @naos-ui/example-counter test
 ```
 
 Use the Vite dev server when iterating on the demo copy or visual structure.
 
 ```sh
-pnpm --filter @iktia/example-counter vite --host 127.0.0.1
+pnpm --filter @naos-ui/example-counter vite --host 127.0.0.1
 ```
 
 Use the Ardo dev server when iterating on documentation content.
 
 ```sh
-pnpm --filter @iktia/docs dev
+pnpm --filter @naos-ui/docs dev
 ```
 
 ## GitHub Pages Deployment
@@ -91,10 +91,10 @@ pnpm --filter @iktia/docs dev
 GitHub Pages must use the `GitHub Actions` source. This repository is already
 configured that way. No generated `dist` files are committed to the repository.
 
-The Ardo docs config reads `IKTIA_GITHUB_PAGES=true` and derives the public
+The Ardo docs config reads `NAOS_GITHUB_PAGES=true` and derives the public
 base path from the git remote. The demo Vite config reads the same environment
 and serves assets from `/<repository>/demos/`. Local development keeps `/`,
-unless `IKTIA_DEMO_BASE` is set explicitly.
+unless `NAOS_DEMO_BASE` is set explicitly.
 
 ## Demo Expansion Rules
 

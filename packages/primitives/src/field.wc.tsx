@@ -1,7 +1,7 @@
-import { type ComponentOptions } from "@iktia/core"
+import { type ComponentOptions } from "@naos-ui/core"
 import css from "./field.wc.css?inline"
 
-export type IktiaFieldProps = {
+export type NaosFieldProps = {
   disabled?: boolean
   invalid?: boolean
   label?: string
@@ -11,11 +11,11 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaField({
+export function NaosField({
   disabled = false,
   invalid = false,
   label = "Field",
-}: IktiaFieldProps = {}) {
+}: NaosFieldProps = {}) {
   return (
     <section
       part="root"

@@ -5,19 +5,19 @@
 
 [part~="root"] {
   display: grid;
-  gap: var(--iktia-toggle-group-gap, 0.55rem);
-  color: var(--iktia-toggle-group-fg, #17201b);
+  gap: var(--naos-toggle-group-gap, 0.55rem);
+  color: var(--naos-toggle-group-fg, #17201b);
 }
 
 [part~="label"] {
-  color: var(--iktia-toggle-group-label-fg, #17201b);
+  color: var(--naos-toggle-group-label-fg, #17201b);
   font-weight: 800;
 }
 
 [part~="items"] {
   display: flex;
   flex-direction: column;
-  gap: var(--iktia-toggle-group-item-gap, 0.45rem);
+  gap: var(--naos-toggle-group-item-gap, 0.45rem);
 }
 
 [part~="root"][data-orientation="horizontal"] [part~="items"] {

@@ -8,9 +8,9 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaZagSwitchService = ReturnType<typeof createZagService>
+export type NaosZagSwitchService = ReturnType<typeof createZagService>
 
-type IktiaZagSwitchServiceOptions = {
+type NaosZagSwitchServiceOptions = {
   checked: boolean
   disabled: boolean
   host: HTMLElement
@@ -21,7 +21,7 @@ type IktiaZagSwitchServiceOptions = {
   value: string
 }
 
-export function createIktiaZagSwitchService({
+export function createNaosZagSwitchService({
   checked,
   disabled,
   host,
@@ -30,7 +30,7 @@ export function createIktiaZagSwitchService({
   onCheckedChange,
   root,
   value,
-}: IktiaZagSwitchServiceOptions): IktiaZagSwitchService {
+}: NaosZagSwitchServiceOptions): NaosZagSwitchService {
   return createZagService({
     machine: switchMachine as never,
     props: {
@@ -51,15 +51,15 @@ export function createIktiaZagSwitchService({
   })
 }
 
-export function getIktiaZagSwitchApi(
-  service: IktiaZagSwitchService | null
+export function getNaosZagSwitchApi(
+  service: NaosZagSwitchService | null
 ): ZagSwitchApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagSwitchService(
-  service: IktiaZagSwitchService | null
+export function stopNaosZagSwitchService(
+  service: NaosZagSwitchService | null
 ) {
   service?.stop()
 }

@@ -14,9 +14,9 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaZagDatePickerService = ReturnType<typeof createZagService>
+export type NaosZagDatePickerService = ReturnType<typeof createZagService>
 
-type IktiaZagDatePickerServiceOptions = {
+type NaosZagDatePickerServiceOptions = {
   disabled: boolean
   host: HTMLElement
   id: string
@@ -62,7 +62,7 @@ export function datePickerDays(weeks: DateValue[][]): DateValue[] {
   return weeks.flat()
 }
 
-export function createIktiaZagDatePickerService({
+export function createNaosZagDatePickerService({
   disabled,
   host,
   id,
@@ -77,7 +77,7 @@ export function createIktiaZagDatePickerService({
   required,
   root,
   value,
-}: IktiaZagDatePickerServiceOptions): IktiaZagDatePickerService {
+}: NaosZagDatePickerServiceOptions): NaosZagDatePickerService {
   const defaultValue = datePickerValueArray(value)
 
   return createZagService({
@@ -137,15 +137,15 @@ export function createIktiaZagDatePickerService({
   })
 }
 
-export function getIktiaZagDatePickerApi(
-  service: IktiaZagDatePickerService | null
+export function getNaosZagDatePickerApi(
+  service: NaosZagDatePickerService | null
 ): ZagDatePickerApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagDatePickerService(
-  service: IktiaZagDatePickerService | null
+export function stopNaosZagDatePickerService(
+  service: NaosZagDatePickerService | null
 ) {
   service?.stop()
 }

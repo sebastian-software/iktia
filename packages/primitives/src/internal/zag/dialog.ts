@@ -8,9 +8,9 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaZagDialogService = ReturnType<typeof createZagService>
+export type NaosZagDialogService = ReturnType<typeof createZagService>
 
-type IktiaZagDialogServiceOptions = {
+type NaosZagDialogServiceOptions = {
   host: HTMLElement
   id: string
   label: string
@@ -20,7 +20,7 @@ type IktiaZagDialogServiceOptions = {
   root: ParentNode
 }
 
-export function createIktiaZagDialogService({
+export function createNaosZagDialogService({
   host,
   id,
   label,
@@ -28,7 +28,7 @@ export function createIktiaZagDialogService({
   onOpenChange,
   open,
   root,
-}: IktiaZagDialogServiceOptions): IktiaZagDialogService {
+}: NaosZagDialogServiceOptions): NaosZagDialogService {
   return createZagService({
     machine: dialogMachine as never,
     props: {
@@ -56,15 +56,15 @@ export function createIktiaZagDialogService({
   })
 }
 
-export function getIktiaZagDialogApi(
-  service: IktiaZagDialogService | null
+export function getNaosZagDialogApi(
+  service: NaosZagDialogService | null
 ): ZagDialogApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagDialogService(
-  service: IktiaZagDialogService | null
+export function stopNaosZagDialogService(
+  service: NaosZagDialogService | null
 ) {
   service?.stop()
 }

@@ -4,13 +4,13 @@
 }
 
 :host(:not(:last-child)) [part~="root"] {
-  border-bottom: 1px solid var(--iktia-accordion-border, #65736d);
+  border-bottom: 1px solid var(--naos-accordion-border, #65736d);
 }
 
 [part~="root"] {
   display: grid;
-  color: var(--iktia-accordion-item-fg, #17201b);
-  background: var(--iktia-accordion-item-bg, #ffffff);
+  color: var(--naos-accordion-item-fg, #17201b);
+  background: var(--naos-accordion-item-bg, #ffffff);
 }
 
 [part~="trigger"] {
@@ -19,8 +19,8 @@
   align-items: center;
   gap: 0.5rem;
   border: 0;
-  padding: var(--iktia-accordion-trigger-padding, 0.65rem 0.75rem);
-  background: var(--iktia-accordion-trigger-bg, #f8fafc);
+  padding: var(--naos-accordion-trigger-padding, 0.65rem 0.75rem);
+  background: var(--naos-accordion-trigger-bg, #f8fafc);
   color: inherit;
   font: inherit;
   text-align: left;
@@ -28,11 +28,11 @@
 }
 
 [part~="trigger"]:hover {
-  background: var(--iktia-accordion-trigger-bg-hover, #eef2f7);
+  background: var(--naos-accordion-trigger-bg-hover, #eef2f7);
 }
 
 [part~="trigger"]:focus-visible {
-  outline: 2px solid var(--iktia-focus-ring, #0f766e);
+  outline: 2px solid var(--naos-focus-ring, #0f766e);
   outline-offset: -2px;
 }
 
@@ -49,8 +49,8 @@
   flex: 0 0 auto;
   place-items: center;
   border-radius: 999px;
-  background: var(--iktia-accordion-indicator-bg, #e2f3ea);
-  color: var(--iktia-accordion-indicator-fg, #0f3f35);
+  background: var(--naos-accordion-indicator-bg, #e2f3ea);
+  color: var(--naos-accordion-indicator-fg, #0f3f35);
   line-height: 1;
 }
 
@@ -59,8 +59,8 @@
 }
 
 [part~="content"] {
-  padding: var(--iktia-accordion-content-padding, 0.75rem);
-  background: var(--iktia-accordion-content-bg, #ffffff);
+  padding: var(--naos-accordion-content-padding, 0.75rem);
+  background: var(--naos-accordion-content-bg, #ffffff);
 }
 
 [part~="content"][hidden],

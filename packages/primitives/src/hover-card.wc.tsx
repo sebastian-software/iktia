@@ -7,31 +7,31 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  createIktiaZagHoverCardService,
-  getIktiaZagHoverCardApi,
-  stopIktiaZagHoverCardService,
+  createNaosZagHoverCardService,
+  getNaosZagHoverCardApi,
+  stopNaosZagHoverCardService,
 } from "./internal/zag/hover-card.js"
-import type { IktiaZagHoverCardService } from "./internal/zag/hover-card.js"
+import type { NaosZagHoverCardService } from "./internal/zag/hover-card.js"
 import {
-  getIktiaOverlayStateAttributes,
-  listenForIktiaOverlayEscape,
+  getNaosOverlayStateAttributes,
+  listenForNaosOverlayEscape,
 } from "./internal/behavior/overlay.js"
 import {
-  createIktiaPresenceSnapshot,
-  getIktiaPresenceAttributes,
-  getIktiaPresenceMotionAttributes,
-  isIktiaPresenceHidden,
-  isIktiaPresenceOpen,
-  nextIktiaPresenceSnapshot,
-  scheduleIktiaPresenceFrame,
-  settleIktiaPresenceSnapshot,
-  waitForIktiaPresenceExit,
+  createNaosPresenceSnapshot,
+  getNaosPresenceAttributes,
+  getNaosPresenceMotionAttributes,
+  isNaosPresenceHidden,
+  isNaosPresenceOpen,
+  nextNaosPresenceSnapshot,
+  scheduleNaosPresenceFrame,
+  settleNaosPresenceSnapshot,
+  waitForNaosPresenceExit,
 } from "./internal/behavior/presence.js"
 import css from "./hover-card.wc.css?inline"
 
-export type IktiaHoverCardProps = {
+export type NaosHoverCardProps = {
   closeDelay?: number
   disabled?: boolean
   label?: string
@@ -45,7 +45,7 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaHoverCard({
+export function NaosHoverCard({
   closeDelay = 0,
   disabled = false,
   label = "Preview",
@@ -53,19 +53,19 @@ export function IktiaHoverCard({
   openDelay = 0,
   text = "Additional details",
   title = "Details",
-}: IktiaHoverCardProps = {}) {
+}: NaosHoverCardProps = {}) {
   const expanded = state(open)
-  const presence = state(createIktiaPresenceSnapshot(open))
-  const hoverCardService = state<IktiaZagHoverCardService | null>(null)
-  const hoverCardApi = computed(() => getIktiaZagHoverCardApi(hoverCardService()))
-  const changed = event<{ open: boolean }>("iktia-open-change")
+  const presence = state(createNaosPresenceSnapshot(open))
+  const hoverCardService = state<NaosZagHoverCardService | null>(null)
+  const hoverCardApi = computed(() => getNaosZagHoverCardApi(hoverCardService()))
+  const changed = event<{ open: boolean }>("naos-open-change")
 
   onConnected(() => {
-    hoverCardService.set(createIktiaZagHoverCardService({
+    hoverCardService.set(createNaosZagHoverCardService({
       closeDelay,
       disabled,
       host: host().element,
-      id: "iktia-hover-card",
+      id: "naos-hover-card",
       onOpenChange(nextOpen) {
         expanded.set(nextOpen)
         changed.emit({ open: nextOpen })
@@ -76,29 +76,29 @@ export function IktiaHoverCard({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagHoverCardService(hoverCardService())
+    stopNaosZagHoverCardService(hoverCardService())
     hoverCardService.set(null)
   })
   effect(() => {
-    const next = nextIktiaPresenceSnapshot(presence(), expanded())
+    const next = nextNaosPresenceSnapshot(presence(), expanded())
     if (next !== presence()) presence.set(next)
   })
   effect(() => {
     const snapshot = presence()
     if (snapshot.phase === "entering") {
-      return scheduleIktiaPresenceFrame(() => {
+      return scheduleNaosPresenceFrame(() => {
         if (expanded()) {
-          presence.set(settleIktiaPresenceSnapshot(presence(), true))
+          presence.set(settleNaosPresenceSnapshot(presence(), true))
         }
       })
     }
     if (snapshot.phase !== "closing") return
     const content = host().root.querySelector("[part~='content']")
-    return waitForIktiaPresenceExit(
+    return waitForNaosPresenceExit(
       content instanceof Element ? content : null,
       () => {
         if (!expanded()) {
-          presence.set(settleIktiaPresenceSnapshot(presence(), false))
+          presence.set(settleNaosPresenceSnapshot(presence(), false))
         }
       }
     )
@@ -107,7 +107,7 @@ export function IktiaHoverCard({
     const api = hoverCardApi()
     void expanded()
     if (api == null || !expanded()) return
-    return listenForIktiaOverlayEscape({
+    return listenForNaosOverlayEscape({
       onClose: () => api.setOpen(false),
       target: document,
     })
@@ -145,12 +145,12 @@ export function IktiaHoverCard({
   return (
     <span
       part="root"
-      {...getIktiaOverlayStateAttributes({
+      {...getNaosOverlayStateAttributes({
         kind: "hover-card",
-        open: isIktiaPresenceOpen(presence()),
+        open: isNaosPresenceOpen(presence()),
       })}
-      {...getIktiaPresenceAttributes(presence())}
-      {...getIktiaPresenceMotionAttributes()}
+      {...getNaosPresenceAttributes(presence())}
+      {...getNaosPresenceMotionAttributes()}
     >
       <button
         {...(hoverCardApi()?.getTriggerProps() ?? {})}
@@ -165,22 +165,22 @@ export function IktiaHoverCard({
       <span
         {...(hoverCardApi()?.getPositionerProps() ?? {})}
         part="positioner"
-        {...getIktiaOverlayStateAttributes({
+        {...getNaosOverlayStateAttributes({
           kind: "hover-card",
-          open: isIktiaPresenceOpen(presence()),
+          open: isNaosPresenceOpen(presence()),
         })}
-        {...getIktiaPresenceAttributes(presence())}
-        hidden={isIktiaPresenceHidden(presence())}
+        {...getNaosPresenceAttributes(presence())}
+        hidden={isNaosPresenceHidden(presence())}
       >
         <section
           {...(hoverCardApi()?.getContentProps() ?? {})}
           part="content"
-          {...getIktiaOverlayStateAttributes({
+          {...getNaosOverlayStateAttributes({
             kind: "hover-card",
-            open: isIktiaPresenceOpen(presence()),
+            open: isNaosPresenceOpen(presence()),
           })}
-          {...getIktiaPresenceAttributes(presence())}
-          hidden={isIktiaPresenceHidden(presence())}
+          {...getNaosPresenceAttributes(presence())}
+          hidden={isNaosPresenceHidden(presence())}
         >
           <h2 part="title">
             <slot name="title">{title}</slot>

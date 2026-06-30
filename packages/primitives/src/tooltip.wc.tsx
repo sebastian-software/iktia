@@ -7,31 +7,31 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  createIktiaZagTooltipService,
-  getIktiaZagTooltipApi,
-  stopIktiaZagTooltipService,
+  createNaosZagTooltipService,
+  getNaosZagTooltipApi,
+  stopNaosZagTooltipService,
 } from "./internal/zag/tooltip.js"
-import type { IktiaZagTooltipService } from "./internal/zag/tooltip.js"
+import type { NaosZagTooltipService } from "./internal/zag/tooltip.js"
 import {
-  getIktiaOverlayStateAttributes,
-  listenForIktiaOverlayEscape,
+  getNaosOverlayStateAttributes,
+  listenForNaosOverlayEscape,
 } from "./internal/behavior/overlay.js"
 import {
-  createIktiaPresenceSnapshot,
-  getIktiaPresenceAttributes,
-  getIktiaPresenceMotionAttributes,
-  isIktiaPresenceHidden,
-  isIktiaPresenceOpen,
-  nextIktiaPresenceSnapshot,
-  scheduleIktiaPresenceFrame,
-  settleIktiaPresenceSnapshot,
-  waitForIktiaPresenceExit,
+  createNaosPresenceSnapshot,
+  getNaosPresenceAttributes,
+  getNaosPresenceMotionAttributes,
+  isNaosPresenceHidden,
+  isNaosPresenceOpen,
+  nextNaosPresenceSnapshot,
+  scheduleNaosPresenceFrame,
+  settleNaosPresenceSnapshot,
+  waitForNaosPresenceExit,
 } from "./internal/behavior/presence.js"
 import css from "./tooltip.wc.css?inline"
 
-export type IktiaTooltipProps = {
+export type NaosTooltipProps = {
   closeDelay?: number
   disabled?: boolean
   label?: string
@@ -44,26 +44,26 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaTooltip({
+export function NaosTooltip({
   closeDelay = 0,
   disabled = false,
   label = "Help",
   open = false,
   openDelay = 0,
   text = "More information",
-}: IktiaTooltipProps = {}) {
+}: NaosTooltipProps = {}) {
   const expanded = state(open)
-  const presence = state(createIktiaPresenceSnapshot(open))
-  const tooltipService = state<IktiaZagTooltipService | null>(null)
-  const tooltipApi = computed(() => getIktiaZagTooltipApi(tooltipService()))
-  const changed = event<{ open: boolean }>("iktia-open-change")
+  const presence = state(createNaosPresenceSnapshot(open))
+  const tooltipService = state<NaosZagTooltipService | null>(null)
+  const tooltipApi = computed(() => getNaosZagTooltipApi(tooltipService()))
+  const changed = event<{ open: boolean }>("naos-open-change")
 
   onConnected(() => {
-    tooltipService.set(createIktiaZagTooltipService({
+    tooltipService.set(createNaosZagTooltipService({
       closeDelay,
       disabled,
       host: host().element,
-      id: "iktia-tooltip",
+      id: "naos-tooltip",
       onOpenChange(nextOpen) {
         expanded.set(nextOpen)
         changed.emit({ open: nextOpen })
@@ -74,29 +74,29 @@ export function IktiaTooltip({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagTooltipService(tooltipService())
+    stopNaosZagTooltipService(tooltipService())
     tooltipService.set(null)
   })
   effect(() => {
-    const next = nextIktiaPresenceSnapshot(presence(), expanded())
+    const next = nextNaosPresenceSnapshot(presence(), expanded())
     if (next !== presence()) presence.set(next)
   })
   effect(() => {
     const snapshot = presence()
     if (snapshot.phase === "entering") {
-      return scheduleIktiaPresenceFrame(() => {
+      return scheduleNaosPresenceFrame(() => {
         if (expanded()) {
-          presence.set(settleIktiaPresenceSnapshot(presence(), true))
+          presence.set(settleNaosPresenceSnapshot(presence(), true))
         }
       })
     }
     if (snapshot.phase !== "closing") return
     const content = host().root.querySelector("[part~='content']")
-    return waitForIktiaPresenceExit(
+    return waitForNaosPresenceExit(
       content instanceof Element ? content : null,
       () => {
         if (!expanded()) {
-          presence.set(settleIktiaPresenceSnapshot(presence(), false))
+          presence.set(settleNaosPresenceSnapshot(presence(), false))
         }
       }
     )
@@ -105,7 +105,7 @@ export function IktiaTooltip({
     const api = tooltipApi()
     void expanded()
     if (api == null || !expanded()) return
-    return listenForIktiaOverlayEscape({
+    return listenForNaosOverlayEscape({
       onClose: () => api.setOpen(false),
       target: document,
     })
@@ -137,12 +137,12 @@ export function IktiaTooltip({
   return (
     <span
       part="root"
-      {...getIktiaOverlayStateAttributes({
+      {...getNaosOverlayStateAttributes({
         kind: "tooltip",
-        open: isIktiaPresenceOpen(presence()),
+        open: isNaosPresenceOpen(presence()),
       })}
-      {...getIktiaPresenceAttributes(presence())}
-      {...getIktiaPresenceMotionAttributes()}
+      {...getNaosPresenceAttributes(presence())}
+      {...getNaosPresenceMotionAttributes()}
     >
       <button
         {...(tooltipApi()?.getTriggerProps() ?? {})}
@@ -157,22 +157,22 @@ export function IktiaTooltip({
       <span
         {...(tooltipApi()?.getPositionerProps() ?? {})}
         part="positioner"
-        {...getIktiaOverlayStateAttributes({
+        {...getNaosOverlayStateAttributes({
           kind: "tooltip",
-          open: isIktiaPresenceOpen(presence()),
+          open: isNaosPresenceOpen(presence()),
         })}
-        {...getIktiaPresenceAttributes(presence())}
-        hidden={isIktiaPresenceHidden(presence())}
+        {...getNaosPresenceAttributes(presence())}
+        hidden={isNaosPresenceHidden(presence())}
       >
         <span
           {...(tooltipApi()?.getContentProps() ?? {})}
           part="content"
-          {...getIktiaOverlayStateAttributes({
+          {...getNaosOverlayStateAttributes({
             kind: "tooltip",
-            open: isIktiaPresenceOpen(presence()),
+            open: isNaosPresenceOpen(presence()),
           })}
-          {...getIktiaPresenceAttributes(presence())}
-          hidden={isIktiaPresenceHidden(presence())}
+          {...getNaosPresenceAttributes(presence())}
+          hidden={isNaosPresenceHidden(presence())}
         >
           <slot>{text}</slot>
         </span>

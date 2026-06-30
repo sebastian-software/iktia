@@ -1,4 +1,4 @@
-export type IktiaOverlayKind =
+export type NaosOverlayKind =
   | "combobox"
   | "context-menu"
   | "dialog"
@@ -8,25 +8,25 @@ export type IktiaOverlayKind =
   | "select"
   | "tooltip"
 
-export type IktiaOverlaySide = "bottom" | "left" | "none" | "right" | "top"
-export type IktiaOverlayAlign = "center" | "end" | "start"
-export type IktiaOverlayCloseReason =
+export type NaosOverlaySide = "bottom" | "left" | "none" | "right" | "top"
+export type NaosOverlayAlign = "center" | "end" | "start"
+export type NaosOverlayCloseReason =
   | "disconnect"
   | "escape"
   | "interact-outside"
   | "programmatic"
 
-export type IktiaOverlayState = {
-  align?: IktiaOverlayAlign | null
+export type NaosOverlayState = {
+  align?: NaosOverlayAlign | null
   anchorHidden?: boolean
-  kind: IktiaOverlayKind
+  kind: NaosOverlayKind
   layer?: number | string | null
   modal?: boolean
   open: boolean
-  side?: IktiaOverlaySide | null
+  side?: NaosOverlaySide | null
 }
 
-export type IktiaOverlayGeometry = {
+export type NaosOverlayGeometry = {
   anchorHeight?: number | string | null
   anchorWidth?: number | string | null
   availableHeight?: number | string | null
@@ -38,25 +38,25 @@ export type IktiaOverlayGeometry = {
   transformOrigin?: string | null
 }
 
-export type IktiaOverlayLayer = {
-  close(reason: IktiaOverlayCloseReason): void
+export type NaosOverlayLayer = {
+  close(reason: NaosOverlayCloseReason): void
   id: string
   modal?: boolean
 }
 
-export const iktiaOverlayCssVariableNames = [
-  "--iktia-anchor-width",
-  "--iktia-anchor-height",
-  "--iktia-available-width",
-  "--iktia-available-height",
-  "--iktia-popup-width",
-  "--iktia-popup-height",
-  "--iktia-positioner-width",
-  "--iktia-positioner-height",
-  "--iktia-transform-origin",
+export const naosOverlayCssVariableNames = [
+  "--naos-anchor-width",
+  "--naos-anchor-height",
+  "--naos-available-width",
+  "--naos-available-height",
+  "--naos-popup-width",
+  "--naos-popup-height",
+  "--naos-positioner-width",
+  "--naos-positioner-height",
+  "--naos-transform-origin",
 ] as const
 
-export function getIktiaOverlayStateAttributes({
+export function getNaosOverlayStateAttributes({
   align,
   anchorHidden = false,
   kind,
@@ -64,11 +64,11 @@ export function getIktiaOverlayStateAttributes({
   modal = false,
   open,
   side,
-}: IktiaOverlayState): Record<string, string | undefined> {
+}: NaosOverlayState): Record<string, string | undefined> {
   return {
     "data-align": align ?? undefined,
     "data-anchor-hidden": anchorHidden ? "" : undefined,
-    "data-iktia-overlay": kind,
+    "data-naos-overlay": kind,
     "data-layer": layer == null ? undefined : String(layer),
     "data-modal": modal ? "" : undefined,
     "data-side": side ?? undefined,
@@ -76,29 +76,29 @@ export function getIktiaOverlayStateAttributes({
   }
 }
 
-export function getIktiaOverlayGeometryStyle(
-  geometry: IktiaOverlayGeometry
+export function getNaosOverlayGeometryStyle(
+  geometry: NaosOverlayGeometry
 ): Record<string, string> {
   const style: Record<string, string> = {}
-  setCssDimension(style, "--iktia-anchor-width", geometry.anchorWidth)
-  setCssDimension(style, "--iktia-anchor-height", geometry.anchorHeight)
-  setCssDimension(style, "--iktia-available-width", geometry.availableWidth)
-  setCssDimension(style, "--iktia-available-height", geometry.availableHeight)
-  setCssDimension(style, "--iktia-popup-width", geometry.popupWidth)
-  setCssDimension(style, "--iktia-popup-height", geometry.popupHeight)
-  setCssDimension(style, "--iktia-positioner-width", geometry.positionerWidth)
-  setCssDimension(style, "--iktia-positioner-height", geometry.positionerHeight)
+  setCssDimension(style, "--naos-anchor-width", geometry.anchorWidth)
+  setCssDimension(style, "--naos-anchor-height", geometry.anchorHeight)
+  setCssDimension(style, "--naos-available-width", geometry.availableWidth)
+  setCssDimension(style, "--naos-available-height", geometry.availableHeight)
+  setCssDimension(style, "--naos-popup-width", geometry.popupWidth)
+  setCssDimension(style, "--naos-popup-height", geometry.popupHeight)
+  setCssDimension(style, "--naos-positioner-width", geometry.positionerWidth)
+  setCssDimension(style, "--naos-positioner-height", geometry.positionerHeight)
   if (geometry.transformOrigin != null) {
-    style["--iktia-transform-origin"] = geometry.transformOrigin
+    style["--naos-transform-origin"] = geometry.transformOrigin
   }
   return style
 }
 
-export function createIktiaOverlayLayerStack() {
-  const layers: IktiaOverlayLayer[] = []
+export function createNaosOverlayLayerStack() {
+  const layers: NaosOverlayLayer[] = []
 
   return {
-    closeTop(reason: IktiaOverlayCloseReason) {
+    closeTop(reason: NaosOverlayCloseReason) {
       const layer = layers.at(-1)
       if (layer == null) return false
       layer.close(reason)
@@ -107,7 +107,7 @@ export function createIktiaOverlayLayerStack() {
     isTopLayer(id: string) {
       return layers.at(-1)?.id === id
     },
-    register(layer: IktiaOverlayLayer) {
+    register(layer: NaosOverlayLayer) {
       const duplicateIndex = layers.findIndex((candidate) => candidate.id === layer.id)
       if (duplicateIndex !== -1) layers.splice(duplicateIndex, 1)
       layers.push(layer)
@@ -125,21 +125,21 @@ export function createIktiaOverlayLayerStack() {
   }
 }
 
-export function shouldCloseIktiaOverlayForKey(event: {
+export function shouldCloseNaosOverlayForKey(event: {
   defaultPrevented?: boolean
   key: string
 }) {
   return event.key === "Escape" && event.defaultPrevented !== true
 }
 
-export function isIktiaOverlayOutsideEventPath(
+export function isNaosOverlayOutsideEventPath(
   path: readonly EventTarget[],
   protectedTargets: readonly (EventTarget | null | undefined)[]
 ) {
   return protectedTargets.every((target) => target == null || !path.includes(target))
 }
 
-export function listenForIktiaOverlayEscape({
+export function listenForNaosOverlayEscape({
   onClose,
   target,
 }: {
@@ -149,7 +149,7 @@ export function listenForIktiaOverlayEscape({
   const abort = new AbortController()
   target.addEventListener("keydown", (event) => {
     if (!(event instanceof KeyboardEvent)) return
-    if (!shouldCloseIktiaOverlayForKey(event)) return
+    if (!shouldCloseNaosOverlayForKey(event)) return
     event.preventDefault()
     onClose(event)
   }, { signal: abort.signal })
@@ -158,7 +158,7 @@ export function listenForIktiaOverlayEscape({
 
 function setCssDimension(
   style: Record<string, string>,
-  name: (typeof iktiaOverlayCssVariableNames)[number],
+  name: (typeof naosOverlayCssVariableNames)[number],
   value: number | string | null | undefined
 ) {
   if (value == null) return

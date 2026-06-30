@@ -6,17 +6,17 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  createIktiaZagProgressService,
-  getIktiaZagProgressApi,
+  createNaosZagProgressService,
+  getNaosZagProgressApi,
   progressValue,
-  stopIktiaZagProgressService,
+  stopNaosZagProgressService,
 } from "./internal/zag/progress.js"
-import type { IktiaZagProgressService } from "./internal/zag/progress.js"
+import type { NaosZagProgressService } from "./internal/zag/progress.js"
 import css from "./progress.wc.css?inline"
 
-export type IktiaProgressProps = {
+export type NaosProgressProps = {
   indeterminate?: boolean
   label?: string
   locale?: string
@@ -30,7 +30,7 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaProgress({
+export function NaosProgress({
   indeterminate = false,
   label = "Progress",
   locale = "en-US",
@@ -38,16 +38,16 @@ export function IktiaProgress({
   min = 0,
   orientation = "horizontal",
   value = 0,
-}: IktiaProgressProps = {}) {
+}: NaosProgressProps = {}) {
   const current = state(progressValue(indeterminate, value, min, max))
-  const progressService = state<IktiaZagProgressService | null>(null)
-  const progressApi = computed(() => getIktiaZagProgressApi(progressService()))
-  const changed = event<{ value: number | null }>("iktia-change")
+  const progressService = state<NaosZagProgressService | null>(null)
+  const progressApi = computed(() => getNaosZagProgressApi(progressService()))
+  const changed = event<{ value: number | null }>("naos-change")
 
   onConnected(() => {
-    progressService.set(createIktiaZagProgressService({
+    progressService.set(createNaosZagProgressService({
       host: host().element,
-      id: "iktia-progress",
+      id: "naos-progress",
       label,
       locale,
       max,
@@ -62,7 +62,7 @@ export function IktiaProgress({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagProgressService(progressService())
+    stopNaosZagProgressService(progressService())
     progressService.set(null)
   })
 

@@ -5,7 +5,7 @@ Date: 2026-06-29
 
 ## Summary
 
-Define the shared overlay contract for `@iktia/primitives` and the later
+Define the shared overlay contract for `@naos-ui/primitives` and the later
 compiler-level `<Portal>` lowering. This RFC follows issue #35 and the Base UI
 audit in issue #77 / PR #79.
 
@@ -17,14 +17,14 @@ stable.
 
 ## Existing Constraints
 
-* Iktia output is platform-native Custom Elements.
-* `@iktia/primitives` owns component behavior, parts, slots, state attributes,
+* Naos output is platform-native Custom Elements.
+* `@naos-ui/primitives` owns component behavior, parts, slots, state attributes,
   accessibility behavior, and primitive-specific CSS variables.
-* `@iktia/runtime` must remain a tiny generated-code helper package.
+* `@naos-ui/runtime` must remain a tiny generated-code helper package.
 * Primitive CSS is currently delivered through flat `ComponentOptions.styles`
   and Shadow DOM style injection.
 * The theme package owns semantic CSS custom properties; primitive-specific
-  overlay geometry variables belong to `@iktia/primitives`.
+  overlay geometry variables belong to `@naos-ui/primitives`.
 * DSD is a static HTML path, so physical portal movement cannot be required for
   initial prerender output.
 
@@ -33,7 +33,7 @@ stable.
 Split overlay work into two layers:
 
 1. **Primitive overlay kernel**: package-private helpers in
-   `@iktia/primitives` for state attributes, geometry CSS variables,
+   `@naos-ui/primitives` for state attributes, geometry CSS variables,
    Escape/outside-dismiss routing, layer stack ownership, and disconnect
    cleanup.
 2. **Physical portal lowering**: later compiler/runtime work that can move a
@@ -50,7 +50,7 @@ popup/content, backdrop, or equivalent parts when applicable:
 
 | Hook | Meaning |
 | --- | --- |
-| `data-iktia-overlay` | Overlay family, such as `dialog`, `popover`, `menu`, `select`, or `tooltip`. |
+| `data-naos-overlay` | Overlay family, such as `dialog`, `popover`, `menu`, `select`, or `tooltip`. |
 | `data-state="open|closed"` | Logical open state. |
 | `data-modal` | Present for modal overlays. |
 | `data-side="top|right|bottom|left|none"` | Resolved popup side once positioning reports it. |
@@ -62,15 +62,15 @@ Overlay-capable primitives reserve these CSS variables:
 
 | Variable | Meaning |
 | --- | --- |
-| `--iktia-anchor-width` | Anchor border-box width. |
-| `--iktia-anchor-height` | Anchor border-box height. |
-| `--iktia-available-width` | Collision-aware available width. |
-| `--iktia-available-height` | Collision-aware available height. |
-| `--iktia-popup-width` | Resolved popup width. |
-| `--iktia-popup-height` | Resolved popup height. |
-| `--iktia-positioner-width` | Positioner width, when the positioner is distinct. |
-| `--iktia-positioner-height` | Positioner height, when the positioner is distinct. |
-| `--iktia-transform-origin` | Transform origin for scale/opacity transitions. |
+| `--naos-anchor-width` | Anchor border-box width. |
+| `--naos-anchor-height` | Anchor border-box height. |
+| `--naos-available-width` | Collision-aware available width. |
+| `--naos-available-height` | Collision-aware available height. |
+| `--naos-popup-width` | Resolved popup width. |
+| `--naos-popup-height` | Resolved popup height. |
+| `--naos-positioner-width` | Positioner width, when the positioner is distinct. |
+| `--naos-positioner-height` | Positioner height, when the positioner is distinct. |
+| `--naos-transform-origin` | Transform origin for scale/opacity transitions. |
 
 The first implementation does not guarantee that every variable is populated by
 every primitive. The guarantee is naming, ownership, and compatibility: once a
@@ -88,9 +88,9 @@ The accepted first strategy is:
 
 1. Keep current overlay DOM inside the primitive Shadow DOM until the public
    overlay contract and tests are stable.
-2. Use `part`, `data-*`, ARIA, and `--iktia-*` CSS variables as the public
+2. Use `part`, `data-*`, ARIA, and `--naos-*` CSS variables as the public
    styling surface.
-3. For future physical portals, move an overlay subtree only through an Iktia
+3. For future physical portals, move an overlay subtree only through an Naos
    portal host that can carry component styles and a theme-variable bridge.
 
 The later compiler portal lowering must choose one of these delivery modes per
@@ -130,12 +130,12 @@ The kernel does not own:
 This RFC's first implementation adds `packages/primitives/src/internal/behavior/overlay.ts`
 with:
 
-* `getIktiaOverlayStateAttributes(...)`;
-* `getIktiaOverlayGeometryStyle(...)`;
-* `createIktiaOverlayLayerStack()`;
-* `shouldCloseIktiaOverlayForKey(...)`;
-* `isIktiaOverlayOutsideEventPath(...)`;
-* `listenForIktiaOverlayEscape(...)`.
+* `getNaosOverlayStateAttributes(...)`;
+* `getNaosOverlayGeometryStyle(...)`;
+* `createNaosOverlayLayerStack()`;
+* `shouldCloseNaosOverlayForKey(...)`;
+* `isNaosOverlayOutsideEventPath(...)`;
+* `listenForNaosOverlayEscape(...)`.
 
 The existing combobox, context menu, dialog, hover card, menu, popover, select,
 and tooltip primitives use the shared state attributes. Context menu, dialog,
@@ -157,8 +157,8 @@ instead of local one-off listeners.
 ## Acceptance Criteria
 
 * Overlay primitives expose a shared state vocabulary.
-* The first overlay helper is package-private to `@iktia/primitives`.
+* The first overlay helper is package-private to `@naos-ui/primitives`.
 * No React, Base UI, Radix, MUI, Lit, or framework runtime dependency is added.
-* `@iktia/runtime` does not gain component or overlay semantics.
+* `@naos-ui/runtime` does not gain component or overlay semantics.
 * Physical portal movement remains deferred until style, theme, and DSD
   behavior have their own implementation slice.

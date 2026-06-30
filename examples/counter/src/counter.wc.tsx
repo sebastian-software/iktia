@@ -1,4 +1,4 @@
-import { computed, effect, event, state, type ComponentOptions } from "@iktia/core"
+import { computed, effect, event, state, type ComponentOptions } from "@naos-ui/core"
 import css from "./counter.wc.css?inline"
 
 export type CounterProps = {

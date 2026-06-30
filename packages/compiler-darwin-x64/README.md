@@ -1,6 +1,6 @@
-# @iktia/compiler-darwin-x64
+# @naos-ui/compiler-darwin-x64
 
-macOS x64 native compiler binding for `@iktia/compiler`.
+macOS x64 native compiler binding for `@naos-ui/compiler`.
 
 This package is installed as an optional dependency. Users should import
-`@iktia/compiler`, not this package directly.
+`@naos-ui/compiler`, not this package directly.

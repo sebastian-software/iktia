@@ -6,17 +6,17 @@ Date: 2026-06-19
 ## Summary
 
 Adopt the architectural lesson behind Remix v3's UI component model without
-copying its public `return () => JSX` component shape as Iktia's default
+copying its public `return () => JSX` component shape as Naos's default
 authoring syntax.
 
-The stronger comparison class for Iktia is not runtime-first Remix. It is the
+The stronger comparison class for Naos is not runtime-first Remix. It is the
 setup-once, compiler-oriented family represented by Solid, Svelte 5, and Marko
 6: component setup is not the repeated render path, reactivity is explicit or
 compiler-visible, and the implementation tries to update only the affected
 work. Remix is still useful as a source of host-handle and abortability ideas,
-but it is the wrong baseline for Iktia's component shape.
+but it is the wrong baseline for Naos's component shape.
 
-Iktia components should be specified as instance setup functions: the exported
+Naos components should be specified as instance setup functions: the exported
 component function defines per-instance state, effects, events, host access,
 and the declarative view for one generated Custom Element instance. The
 function body is not a React-style render body that runs on every update. State
@@ -47,7 +47,7 @@ The architectural contract should be clarified as:
 * `host()` should evolve toward a stable instance handle with platform-native
   cleanup and explicit update scheduling;
 * abortable async work should become a first-class authoring concern;
-* public authoring syntax should not imply that Iktia has a runtime component
+* public authoring syntax should not imply that Naos has a runtime component
   renderer, virtual DOM, hook runtime, or Remix compatibility target.
 
 ## Context
@@ -103,24 +103,24 @@ is the lifecycle separation:
 * behavior composition can stay close to platform DOM APIs;
 * the source shape is easy for humans and model-assisted tools to follow.
 
-Iktia already shares several of those goals. ADR 0007 says Remix v3 is design
+Naos already shares several of those goals. ADR 0007 says Remix v3 is design
 inspiration for Web composition, platform types, dependency restraint,
-model-friendly source, and cohesive package surfaces. It also says Iktia should
-not adopt Remix v3's runtime-first principle. Iktia remains a compiler for
+model-friendly source, and cohesive package surfaces. It also says Naos should
+not adopt Remix v3's runtime-first principle. Naos remains a compiler for
 native Web Components.
 
 For the component shape decision, Remix is therefore mostly a contrast case.
-Its inner render function runs after `update()`, while Iktia's source component
+Its inner render function runs after `update()`, while Naos's source component
 body is transformed into a generated Custom Element class. Solid's documented
 model that components run once, Svelte 5's move from implicit `let` reactivity
 to explicit `$state()`, and Marko's compiled fine-grained output are stronger
-evidence for Iktia's current direction than Remix's returned render function.
+evidence for Naos's current direction than Remix's returned render function.
 
-## Existing Iktia Constraints
+## Existing Naos Constraints
 
-This RFC must fit the accepted Iktia architecture:
+This RFC must fit the accepted Naos architecture:
 
-* Iktia is a Rust/OXC-powered compiler for native Custom Elements.
+* Naos is a Rust/OXC-powered compiler for native Custom Elements.
 * Component source files use `.wc.tsx` and are transformed by the compiler.
 * Authoring APIs are compile-time APIs with TypeScript stubs that throw when
   executed without the transform.
@@ -138,7 +138,7 @@ This RFC must fit the accepted Iktia architecture:
   hydration.
 * ADR 0005 prefers explicit, statically analyzable authoring constructs over
   general JavaScript rendering patterns.
-* ADR 0013 keeps `@iktia/runtime` as a tiny platform-helper runtime and rejects
+* ADR 0013 keeps `@naos-ui/runtime` as a tiny platform-helper runtime and rejects
   a virtual DOM, reconciler, hook runtime, framework adapter, or component
   lifecycle runtime.
 
@@ -159,7 +159,7 @@ to decide what the public authoring model promises before v0.1 hardens.
 
 ## Design Question
 
-Should Iktia expose Remix-style factory components as the canonical public
+Should Naos expose Remix-style factory components as the canonical public
 authoring shape?
 
 In source form, that would look like this:
@@ -182,24 +182,24 @@ export function Counter(handle: ComponentHandle<CounterProps>) {
 ```
 
 This question is separate from compiler effort. The question is whether the
-shape gives Iktia a better long-term architecture than the current single JSX
+shape gives Naos a better long-term architecture than the current single JSX
 return shape.
 
 ## Goals
 
 * Make the component lifecycle model explicit before the authoring API freezes.
-* Capture the useful Remix v3 lesson while preserving Iktia's compiler-first
+* Capture the useful Remix v3 lesson while preserving Naos's compiler-first
   product boundary.
 * Avoid future churn caused by vague "function component" semantics.
 * Preserve a model-friendly source shape for humans and AI agents.
 * Keep generated Custom Element output platform-native.
 * Keep DSD prerendering and hydration compatible with the source model.
 * Keep room for explicit update scheduling and abortable async work.
-* Keep primitive behavior kernels ergonomic for `@iktia/primitives`.
+* Keep primitive behavior kernels ergonomic for `@naos-ui/primitives`.
 
 ## Non-Goals
 
-* Do not make Iktia compatible with Remix UI components.
+* Do not make Naos compatible with Remix UI components.
 * Do not copy Remix APIs, package names, source code, JSX runtime, mixin
   system, router, frame model, server model, or documentation.
 * Do not adopt Remix's runtime-first principle.
@@ -233,7 +233,7 @@ The decision should be judged by these criteria:
 
 ## Option A: Adopt Remix-Style Factory Components Publicly
 
-Iktia could make `function Component(handle) { return () => JSX }` the canonical
+Naos could make `function Component(handle) { return () => JSX }` the canonical
 authoring shape.
 
 ```tsx
@@ -286,7 +286,7 @@ The handle gives a natural home for host-level capabilities:
 * root and element access;
 * cleanup signal;
 * explicit update scheduling;
-* context or frame-like future APIs if Iktia ever needs them.
+* context or frame-like future APIs if Naos ever needs them.
 
 The model is easy to explain in runtime terms. One setup function creates a
 render function. Updates call the render function again. Effects and async work
@@ -300,11 +300,11 @@ express every intermediate value as `state()` and `computed()`.
 ### Disadvantages
 
 The source shape suggests a runtime component renderer. A function returning a
-function that returns JSX naturally implies that Iktia stores and calls that
-render function. That is Remix's model, but it is not Iktia's core product.
-Iktia's product is generated Custom Element output.
+function that returns JSX naturally implies that Naos stores and calls that
+render function. That is Remix's model, but it is not Naos's core product.
+Naos's product is generated Custom Element output.
 
-Plain local variables create a second state model. Iktia already chose
+Plain local variables create a second state model. Naos already chose
 `state()` as the public writable local state primitive. If both `let value`
 plus `handle.update()` and `state()` are first-class, authors must learn when
 each should be used. The compiler must also define which values are observable
@@ -314,7 +314,7 @@ The plain-`let` argument is also weaker than it first appears. Svelte 3 and 4
 made assignments to local `let` variables reactive inside components; Svelte 5
 introduced explicit `$state()` runes because implicit component-only
 reactivity did not scale cleanly across files, helper functions, and normal
-JavaScript modules. Iktia's explicit `state()` is closer to that newer
+JavaScript modules. Naos's explicit `state()` is closer to that newer
 direction than to Svelte's older magic assignment model.
 
 Render functions weaken the static syntax boundary. Even if the compiler can
@@ -324,27 +324,27 @@ template construction. That fights ADR 0005's preference for explicit,
 statically analyzable constructs.
 
 Render functions also introduce a mental-model divergence. An author sees code
-that appears to run on every render, but Iktia wants generated fine-grained DOM
+that appears to run on every render, but Naos wants generated fine-grained DOM
 updates, not source-level render re-execution. Code that depends on genuine
-render re-execution would either be wrong or would force Iktia toward a real
+render re-execution would either be wrong or would force Naos toward a real
 runtime renderer.
 
-The divergence is stronger for Iktia than for Solid or Remix. Solid actually
+The divergence is stronger for Naos than for Solid or Remix. Solid actually
 runs setup code once at runtime. Remix actually calls the returned render
-function. Iktia authoring APIs are compile-time stubs, and `.wc.tsx` source is
+function. Naos authoring APIs are compile-time stubs, and `.wc.tsx` source is
 not the runtime artifact. A returned render function therefore suggests a
-runtime level that Iktia intentionally does not have.
+runtime level that Naos intentionally does not have.
 
 The handle becomes a large public API too early. Stable props, update-scoped
 AbortSignals, context, IDs, queueing, frame access, and task scheduling are all
 useful, but exposing them through a required first parameter makes the handle
-the center of every component. Iktia currently keeps host access explicit
+the center of every component. Naos currently keeps host access explicit
 through `host()`, so simple components do not need a handle at all.
 
 DSD prerendering becomes harder to reason about. If the outer setup function is
 treated as real runtime code, it may read `navigator`, `window`, `document`,
 clipboard APIs, timers, random IDs, dates, observers, or external stores before
-returning a view. Iktia can forbid those patterns, but then the ergonomic
+returning a view. Naos can forbid those patterns, but then the ergonomic
 benefit of "plain JavaScript setup" is reduced.
 
 The syntax increases v0.1 migration risk. Current docs, examples, type tests,
@@ -356,17 +356,17 @@ surface feel provisional.
 
 This option adopts the Remix lesson too literally. It maximizes explicit
 setup/render separation, but it also imports runtime-first signals into a
-compiler-first project. It is powerful, but it makes Iktia look like a UI
+compiler-first project. It is powerful, but it makes Naos look like a UI
 runtime that happens to compile, rather than a compiler that emits native Web
 Components.
 
 More importantly, it imports a render-repeated mental model into a setup-once
-compiler. That is the wrong direction for Iktia even before considering
+compiler. That is the wrong direction for Naos even before considering
 implementation cost.
 
 ## Option B: Keep Single JSX Return, Define Instance Factory Semantics
 
-Iktia can keep the current public shape and explicitly define what it means.
+Naos can keep the current public shape and explicitly define what it means.
 
 ```tsx
 export function ClipboardButton({
@@ -402,7 +402,7 @@ export function ClipboardButton({
 
 The public rule:
 
-> An exported Iktia component function is an instance setup declaration for one
+> An exported Naos component function is an instance setup declaration for one
 > generated Custom Element instance. Its JSX return declares the view. The
 > function body is not a render loop.
 
@@ -412,7 +412,7 @@ write a returned render function to get instance-lifetime behavior.
 
 ### Advantages
 
-This keeps Iktia's source model compact. Most components have props, a few
+This keeps Naos's source model compact. Most components have props, a few
 state values, computed values, events, and a view. The single-return shape keeps
 that code direct.
 
@@ -436,7 +436,7 @@ The model fits DSD. The prerenderer can evaluate prop defaults, static
 structure, CSS, supported state initializers, and supported expressions without
 executing a runtime setup function.
 
-The model is honest about generated output. Iktia does not need to preserve the
+The model is honest about generated output. Naos does not need to preserve the
 source function as a callable runtime component. The source function is a
 declaration that the compiler lowers to a Custom Element class.
 
@@ -461,22 +461,22 @@ less "just JavaScript" than Remix's model.
 Async work needs stronger API design. Today `host().signal` covers disconnect
 cleanup, and effects clean up across update passes. Event-handler async work
 does not yet have a first-class update-scoped signal like Remix's `update()`
-promise. If Iktia wants the same robustness, it must design that explicitly.
+promise. If Naos wants the same robustness, it must design that explicitly.
 
 The handle is currently underpowered. `HostHandle` exposes `element`, `root`,
 `signal`, and `update()`, but not stable props, stable IDs, queued tasks, or
-update-scoped abort signals. Option B is good only if Iktia treats the handle
+update-scoped abort signals. Option B is good only if Naos treats the handle
 as a real platform contract rather than a minimal escape hatch.
 
 ### Assessment
 
-This option captures the useful Remix architecture while preserving Iktia's
+This option captures the useful Remix architecture while preserving Naos's
 compiler-first identity. It is the best fit for v0.1 because it minimizes
 public syntax churn and clarifies semantics where they already exist.
 
 ## Option C: Support Both Public Shapes
 
-Iktia could allow both current single-return components and Remix-style factory
+Naos could allow both current single-return components and Remix-style factory
 components.
 
 ```tsx
@@ -501,7 +501,7 @@ The project could experiment without forcing a full migration. Early adopters
 could try factory syntax in primitives and examples before the API is marked
 stable.
 
-The Remix comparison becomes easy to explain because Iktia visibly supports
+The Remix comparison becomes easy to explain because Naos visibly supports
 the same broad shape.
 
 ### Disadvantages
@@ -511,7 +511,7 @@ guide must explain both. Every diagnostic must know which mode it is in. Every
 example becomes a choice.
 
 The two models are not just syntax variants. They imply different state,
-props, update, effect, and DSD rules. If both are supported, Iktia must define
+props, update, effect, and DSD rules. If both are supported, Naos must define
 how `state()` interacts with `let`, whether `computed()` is useful inside a
 render callback, whether effects run from setup or render, and whether
 prerender can execute the outer function.
@@ -520,7 +520,7 @@ The existence of a factory shape makes the simpler shape look less capable.
 Authors may cargo-cult the more complex model because it seems lower-level or
 more powerful.
 
-Compiler and docs boundaries would drift. Iktia would have to support a
+Compiler and docs boundaries would drift. Naos would have to support a
 runtime-looking authoring shape while still telling users it is not a runtime
 framework.
 
@@ -528,7 +528,7 @@ framework.
 
 This option is attractive as an experiment but weak as a v0.1 public default.
 It should not be held open as a planned future public mode, because it would
-create a second component lifecycle model. If Iktia ever revisits factory
+create a second component lifecycle model. If Naos ever revisits factory
 syntax, it should require a new RFC that proves the shape can preserve the
 same setup-once compiler semantics, not merely a feature flag that imports
 render-repeated behavior.
@@ -537,7 +537,7 @@ render-repeated behavior.
 
 Choose Option B.
 
-Iktia should formally define current function components as instance factory
+Naos should formally define current function components as instance factory
 declarations with single JSX view returns. The docs should explicitly reject
 the React interpretation that the component function reruns as the render
 body. The compiler-generated Custom Element class is the runtime artifact.
@@ -564,7 +564,7 @@ This keeps the Remix learning where it is valuable:
 * behavior stays close to DOM and platform APIs;
 * source code stays model-friendly.
 
-It avoids the parts that conflict with Iktia:
+It avoids the parts that conflict with Naos:
 
 * no runtime-first component renderer;
 * no public render callback by default;
@@ -646,7 +646,7 @@ Computed callbacks should stay pure. A computed value can read props, state,
 and other supported bindings, then return a value for text, attributes,
 control flow, events, effects, or form metadata.
 
-Computed values are the Iktia equivalent of "values recomputed during update"
+Computed values are the Naos equivalent of "values recomputed during update"
 without exposing a public render callback.
 
 ### Effects
@@ -683,7 +683,7 @@ export type HostHandle = {
 }
 ```
 
-This RFC recommends treating that type as the seed of an Iktia instance handle,
+This RFC recommends treating that type as the seed of an Naos instance handle,
 not as a casual escape hatch.
 
 Candidate future shape:
@@ -717,7 +717,7 @@ avoid closing the door.
 
 ### Abortable Async Work
 
-Remix v3's strongest practical lesson is abortable async behavior. Iktia should
+Remix v3's strongest practical lesson is abortable async behavior. Naos should
 adopt that principle even if the syntax differs.
 
 The minimum rule:
@@ -747,7 +747,7 @@ on("click", async (event, signal) => {
 ```
 
 This RFC does not choose the exact API. It records that abortability is a real
-architectural advantage and should be part of the Iktia handle/event design.
+architectural advantage and should be part of the Naos handle/event design.
 
 ### Updates
 
@@ -788,7 +788,7 @@ Single-return instance declarations keep it clearer.
 
 ## Fine-Grained Codegen Follow-Up
 
-The syntax decision does not by itself make Iktia's generated updates as
+The syntax decision does not by itself make Naos's generated updates as
 selective as the setup-once compiler family. The current generator has the
 right broad shape but still uses a coarse update model:
 
@@ -801,7 +801,7 @@ right broad shape but still uses a coarse update model:
 * `#runEffects()` cleans and reruns every effect on every flush.
 
 Those facts do not change the recommendation in this RFC. They strengthen it.
-If Iktia keeps the single-return instance setup model, the next architectural
+If Naos keeps the single-return instance setup model, the next architectural
 leverage is making the compiler smarter under that model, not adding a second
 component syntax.
 
@@ -822,12 +822,12 @@ The recommended follow-up is a separate RFC for fine-grained reactive codegen:
    an update pass and invalidate when their dependency sources change.
 
 The fallback for unknown reads must be conservative: run the same broad update
-behavior Iktia runs today. Correctness should dominate granularity. This keeps
+behavior Naos runs today. Correctness should dominate granularity. This keeps
 the improvements incremental and compatible with the v0.1 authoring API.
 
 ## Comparison Matrix
 
-| Criteria | Option A: Remix-style public factories | Option B: Iktia instance semantics | Option C: Both shapes |
+| Criteria | Option A: Remix-style public factories | Option B: Naos instance semantics | Option C: Both shapes |
 | --- | --- | --- | --- |
 | Lifecycle clarity | Strong visual setup/render split | Strong if documented clearly | Mixed; authors must choose |
 | Platform fit | Good for runtime components | Strong for generated Custom Elements | Mixed |
@@ -842,7 +842,7 @@ the improvements incremental and compatible with the v0.1 authoring API.
 
 ### Positive
 
-* Iktia gets a clear answer to "does the component function rerun?"
+* Naos gets a clear answer to "does the component function rerun?"
 * The public syntax remains compatible with current docs, examples, tests, and
   primitives.
 * The compiler can keep a narrow, explainable syntax boundary.
@@ -854,7 +854,7 @@ the improvements incremental and compatible with the v0.1 authoring API.
 
 ### Negative
 
-* Iktia does not get Remix's visually obvious `setup -> render function` shape.
+* Naos does not get Remix's visually obvious `setup -> render function` shape.
 * Authors must learn that `state()` is the way to make local values reactive.
 * Some imperative primitive code may feel more ceremony-heavy than Remix's
   plain local variable approach.
@@ -875,7 +875,7 @@ the improvements incremental and compatible with the v0.1 authoring API.
 The Authoring Guide should add a section near "Function Components":
 
 ```md
-Iktia function components are instance setup declarations. The body is analyzed
+Naos function components are instance setup declarations. The body is analyzed
 and lowered into a generated Custom Element class. It is not called again as a
 render function during updates. Use `state()`, `computed()`, prop reads,
 `effect()`, and `host().update()` to participate in generated updates.
@@ -892,13 +892,13 @@ RFC when discussing Remix v3's component pattern specifically.
 This RFC is primarily semantic, but several follow-up implementation tasks are
 likely useful:
 
-1. Add docs that explicitly distinguish Iktia components from React render
+1. Add docs that explicitly distinguish Naos components from React render
    functions and Remix returned render functions.
 2. Add compiler diagnostics for callback-returned JSX such as
    `return () => <button />`, explaining that public factory render functions
    are not part of the accepted v0.1 component shape.
 3. Prioritize abortable async work: `host().signal` already covers disconnect
-   cleanup, but Iktia still needs a design for update-scoped abort signals and
+   cleanup, but Naos still needs a design for update-scoped abort signals and
    event-handler re-entry cancellation.
 4. Review generated `host()` bindings and decide whether the next small step is
    stable hydration-safe `id`, typed `props`, `queueTask()`, or
@@ -926,10 +926,10 @@ likely useful:
 
 This RFC is considered accepted when:
 
-* the authoring guide states that Iktia component functions are instance setup
+* the authoring guide states that Naos component functions are instance setup
   declarations, not React-like render functions;
 * docs mention Remix v3's returned render function pattern only as inspiration,
-  not as an Iktia compatibility target;
+  not as an Naos compatibility target;
 * the current single JSX return shape remains the canonical v0.1 authoring
   syntax;
 * factory syntax is not presented as a planned future public mode;
@@ -945,6 +945,6 @@ This RFC is considered accepted when:
 
 Draft recommendation: accept Option B.
 
-Iktia should learn from Remix v3's component architecture by defining a clear
+Naos should learn from Remix v3's component architecture by defining a clear
 instance setup and update model. It should not adopt Remix's public component
 factory syntax as the canonical authoring shape for v0.1.

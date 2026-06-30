@@ -6,7 +6,7 @@
 [part~="root"] {
   display: grid;
   gap: 0.5rem;
-  color: var(--iktia-accordion-fg, #17201b);
+  color: var(--naos-accordion-fg, #17201b);
 }
 
 [part~="label"] {
@@ -15,8 +15,8 @@
 
 [part~="items"] {
   display: grid;
-  border: 1px solid var(--iktia-accordion-border, #65736d);
-  border-radius: var(--iktia-accordion-radius, 0.375rem);
+  border: 1px solid var(--naos-accordion-border, #65736d);
+  border-radius: var(--naos-accordion-radius, 0.375rem);
   overflow: hidden;
 }
 

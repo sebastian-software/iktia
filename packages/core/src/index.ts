@@ -154,7 +154,7 @@ export function onDisconnected(callback: () => void): void {
 
 function authoringRuntimeError(apiName: string): never {
   throw new Error(
-    `Iktia ${apiName}() can only be used in source files transformed by the Iktia compiler.`
+    `Naos ${apiName}() can only be used in source files transformed by the Naos compiler.`
   )
 }
 

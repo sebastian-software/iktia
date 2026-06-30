@@ -7,31 +7,31 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  createIktiaZagDialogService,
-  getIktiaZagDialogApi,
-  stopIktiaZagDialogService,
+  createNaosZagDialogService,
+  getNaosZagDialogApi,
+  stopNaosZagDialogService,
 } from "./internal/zag/dialog.js"
-import type { IktiaZagDialogService } from "./internal/zag/dialog.js"
+import type { NaosZagDialogService } from "./internal/zag/dialog.js"
 import {
-  getIktiaOverlayStateAttributes,
-  listenForIktiaOverlayEscape,
+  getNaosOverlayStateAttributes,
+  listenForNaosOverlayEscape,
 } from "./internal/behavior/overlay.js"
 import {
-  createIktiaPresenceSnapshot,
-  getIktiaPresenceAttributes,
-  getIktiaPresenceMotionAttributes,
-  isIktiaPresenceHidden,
-  isIktiaPresenceOpen,
-  nextIktiaPresenceSnapshot,
-  scheduleIktiaPresenceFrame,
-  settleIktiaPresenceSnapshot,
-  waitForIktiaPresenceExit,
+  createNaosPresenceSnapshot,
+  getNaosPresenceAttributes,
+  getNaosPresenceMotionAttributes,
+  isNaosPresenceHidden,
+  isNaosPresenceOpen,
+  nextNaosPresenceSnapshot,
+  scheduleNaosPresenceFrame,
+  settleNaosPresenceSnapshot,
+  waitForNaosPresenceExit,
 } from "./internal/behavior/presence.js"
 import css from "./dialog.wc.css?inline"
 
-export type IktiaDialogProps = {
+export type NaosDialogProps = {
   description?: string
   label?: string
   modal?: boolean
@@ -43,23 +43,23 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaDialog({
+export function NaosDialog({
   description = "Dialog content",
   label = "Open dialog",
   modal = true,
   open = false,
   title = "Dialog",
-}: IktiaDialogProps = {}) {
+}: NaosDialogProps = {}) {
   const expanded = state(open)
-  const presence = state(createIktiaPresenceSnapshot(open))
-  const dialogService = state<IktiaZagDialogService | null>(null)
-  const dialogApi = computed(() => getIktiaZagDialogApi(dialogService()))
-  const changed = event<{ open: boolean }>("iktia-open-change")
+  const presence = state(createNaosPresenceSnapshot(open))
+  const dialogService = state<NaosZagDialogService | null>(null)
+  const dialogApi = computed(() => getNaosZagDialogApi(dialogService()))
+  const changed = event<{ open: boolean }>("naos-open-change")
 
   onConnected(() => {
-    dialogService.set(createIktiaZagDialogService({
+    dialogService.set(createNaosZagDialogService({
       host: host().element,
-      id: "iktia-dialog",
+      id: "naos-dialog",
       label,
       modal,
       onOpenChange(nextOpen) {
@@ -71,29 +71,29 @@ export function IktiaDialog({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagDialogService(dialogService())
+    stopNaosZagDialogService(dialogService())
     dialogService.set(null)
   })
   effect(() => {
-    const next = nextIktiaPresenceSnapshot(presence(), expanded())
+    const next = nextNaosPresenceSnapshot(presence(), expanded())
     if (next !== presence()) presence.set(next)
   })
   effect(() => {
     const snapshot = presence()
     if (snapshot.phase === "entering") {
-      return scheduleIktiaPresenceFrame(() => {
+      return scheduleNaosPresenceFrame(() => {
         if (expanded()) {
-          presence.set(settleIktiaPresenceSnapshot(presence(), true))
+          presence.set(settleNaosPresenceSnapshot(presence(), true))
         }
       })
     }
     if (snapshot.phase !== "closing") return
     const content = host().root.querySelector("[part~='content']")
-    return waitForIktiaPresenceExit(
+    return waitForNaosPresenceExit(
       content instanceof Element ? content : null,
       () => {
         if (!expanded()) {
-          presence.set(settleIktiaPresenceSnapshot(presence(), false))
+          presence.set(settleNaosPresenceSnapshot(presence(), false))
         }
       }
     )
@@ -110,7 +110,7 @@ export function IktiaDialog({
       setTimeout(() => trigger.focus(), 0)
     }
     const abort = new AbortController()
-    const cleanupEscape = listenForIktiaOverlayEscape({
+    const cleanupEscape = listenForNaosOverlayEscape({
       onClose: closeDialog,
       target: document,
     })
@@ -129,13 +129,13 @@ export function IktiaDialog({
   return (
     <div
       part="root"
-      {...getIktiaOverlayStateAttributes({
+      {...getNaosOverlayStateAttributes({
         kind: "dialog",
         modal,
-        open: isIktiaPresenceOpen(presence()),
+        open: isNaosPresenceOpen(presence()),
       })}
-      {...getIktiaPresenceAttributes(presence())}
-      {...getIktiaPresenceMotionAttributes()}
+      {...getNaosPresenceAttributes(presence())}
+      {...getNaosPresenceMotionAttributes()}
     >
       <button
         {...(dialogApi()?.getTriggerProps() ?? {})}
@@ -148,36 +148,36 @@ export function IktiaDialog({
       <div
         {...(dialogApi()?.getBackdropProps() ?? {})}
         part="backdrop"
-        {...getIktiaOverlayStateAttributes({
+        {...getNaosOverlayStateAttributes({
           kind: "dialog",
           modal,
-          open: isIktiaPresenceOpen(presence()),
+          open: isNaosPresenceOpen(presence()),
         })}
-        {...getIktiaPresenceAttributes(presence())}
-        hidden={isIktiaPresenceHidden(presence())}
+        {...getNaosPresenceAttributes(presence())}
+        hidden={isNaosPresenceHidden(presence())}
       />
       <div
         {...(dialogApi()?.getPositionerProps() ?? {})}
         part="positioner"
-        {...getIktiaOverlayStateAttributes({
+        {...getNaosOverlayStateAttributes({
           kind: "dialog",
           modal,
-          open: isIktiaPresenceOpen(presence()),
+          open: isNaosPresenceOpen(presence()),
         })}
-        {...getIktiaPresenceAttributes(presence())}
-        hidden={isIktiaPresenceHidden(presence())}
+        {...getNaosPresenceAttributes(presence())}
+        hidden={isNaosPresenceHidden(presence())}
       >
         <section
           {...(dialogApi()?.getContentProps() ?? {})}
           part="content"
           aria-modal={modal ? "true" : undefined}
-          {...getIktiaOverlayStateAttributes({
+          {...getNaosOverlayStateAttributes({
             kind: "dialog",
             modal,
-            open: isIktiaPresenceOpen(presence()),
+            open: isNaosPresenceOpen(presence()),
           })}
-          {...getIktiaPresenceAttributes(presence())}
-          hidden={isIktiaPresenceHidden(presence())}
+          {...getNaosPresenceAttributes(presence())}
+          hidden={isNaosPresenceHidden(presence())}
         >
           <div part="header">
             <h2 {...(dialogApi()?.getTitleProps() ?? {})} part="title">

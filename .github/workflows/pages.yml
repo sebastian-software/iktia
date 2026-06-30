@@ -50,31 +50,36 @@ jobs:
         run: pnpm check:docs
 
       - name: Check demo types
-        run: pnpm --filter @iktia/example-counter type-check
+        run: pnpm --filter @naos-ui/example-counter type-check
 
       - name: Install Playwright Chromium
-        run: pnpm --filter @iktia/example-counter exec playwright install --with-deps chromium
+        run: pnpm --filter @naos-ui/example-counter exec playwright install --with-deps chromium
 
       - name: Prepare demo DSD
-        run: pnpm --filter @iktia/example-counter prepare:dsd
+        run: pnpm --filter @naos-ui/example-counter prepare:dsd
 
       - name: Test demo
-        run: pnpm --filter @iktia/example-counter exec playwright test --project=chromium
+        run: pnpm --filter @naos-ui/example-counter exec playwright test --project=chromium
 
       - name: Build docs site
         run: pnpm build:docs
         env:
-          IKTIA_GITHUB_PAGES: "true"
+          NAOS_GITHUB_PAGES: "true"
+          NAOS_SITE_BASE: "/"
 
       - name: Build demo site
-        run: pnpm --filter @iktia/example-counter build
+        run: pnpm --filter @naos-ui/example-counter build
         env:
-          IKTIA_GITHUB_PAGES: "true"
+          NAOS_GITHUB_PAGES: "true"
+          NAOS_DEMO_BASE: "/demos/"
 
       - name: Copy demo into docs artifact
         run: |
           mkdir -p sites/docs/build/client/demos
           cp -R examples/counter/dist/. sites/docs/build/client/demos/
+
+      - name: Add custom domain (CNAME)
+        run: echo "naos-ui.dev" > sites/docs/build/client/CNAME
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6

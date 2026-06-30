@@ -43,7 +43,7 @@ returned JSX template spans.
 The exported component function is not a React-style render function and is not
 called again during updates. The closest comparison points are setup-once and
 compiler-oriented systems such as Solid and Svelte, not runtime rerendering.
-Factory render callbacks such as `return () => <JSX>` are not part of Iktia's
+Factory render callbacks such as `return () => <JSX>` are not part of Naos's
 v0.1 component shape. Generated state writes, prop changes, effects, and host
 updates drive the DOM patch code instead.
 
@@ -104,7 +104,7 @@ accessors on update.
 
 `<For motion="flip">` is limited to item-keyed `<For>` lists. It uses a
 compiler-emitted first/last measurement around the keyed reorder, then delegates
-to `@iktia/motion` for a transform-only WAAPI animation. It is skipped for
+to `@naos-ui/motion` for a transform-only WAAPI animation. It is skipped for
 reduced-motion users. `<Index>` and keyed `.map()` do not expose this option.
 
 Item-keyed list row bindings can use a local keyed selector helper when the
@@ -157,7 +157,7 @@ export function Button() {
 ```
 
 The current MVP is designed for flat CSS text. Vite owns the import, asset, and
-invalidation behavior; Iktia does not implement a CSS graph. CSS module
+invalidation behavior; Naos does not implement a CSS graph. CSS module
 contracts, Sass, recursive CSS imports, constructable stylesheets, CSS asset
 bundling, and source-map-aware CSS diagnostics are later milestones. CSS custom
 properties are the v0.1 theming mechanism.
@@ -166,7 +166,7 @@ properties are the v0.1 theming mechanism.
 
 Declarative Shadow DOM is generated through the explicit prerender API. Normal
 client builds keep the imperative Custom Element path. Once a component enters
-the prerender path, Iktia emits DSD host HTML by default.
+the prerender path, Naos emits DSD host HTML by default.
 
 The DSD serializer supports:
 
@@ -179,12 +179,12 @@ The DSD serializer supports:
 * Literal arrays and objects for initial values.
 * Simple template strings, identifier reads, accessor reads, boolean negation,
   and simple boolean conditionals over supported values.
-* Visible `data-iktia-*` markers in DSD HTML only.
+* Visible `data-naos-*` markers in DSD HTML only.
 
 The DSD serializer does not execute arbitrary JavaScript or TypeScript. Computed
 callbacks, effects, event handlers, imports, browser APIs, and unsupported
 dynamic expressions are left for client hydration. Development hydration
-mismatches throw a `Iktia hydration mismatch` diagnostic. Production builds
+mismatches throw a `Naos hydration mismatch` diagnostic. Production builds
 fall back to an imperative remount.
 
 ## Unsupported Patterns
@@ -226,7 +226,7 @@ Currently unsupported:
 
 The Node package is a thin typed adapter around the Rust N-API module. Published
 installs resolve platform-specific optional native packages. Local workspace
-development falls back to `packages/compiler/native/iktia-node.node`.
+development falls back to `packages/compiler/native/naos-node.node`.
 
 ```sh
 pnpm -w build:native
@@ -238,7 +238,7 @@ loader order, source-build guidance, and generated N-API boundary types.
 
 ## Error Model
 
-Compiler API failures throw `IktiaCompilerError` with `diagnostics[]`.
+Compiler API failures throw `NaosCompilerError` with `diagnostics[]`.
 Diagnostics include a code, severity, message, filename, optional UTF-8 span,
 and optional hint. Vite and the CLI render that shared structure.
 See [Compiler diagnostics](compiler-diagnostics.md) for the current code
@@ -261,7 +261,7 @@ node-level source-map segments.
 ## Conformance Fixtures
 
 The local conformance suite in
-`crates/iktia-core/tests/fixtures/conformance` defines the durable compiler
+`crates/naos-core/tests/fixtures/conformance` defines the durable compiler
 boundary for accepted, rejected, and Declarative Shadow DOM authoring patterns.
 See [Compiler conformance fixtures](conformance-fixtures.md) for the fixture
 layout and rules for adding coverage when compiler syntax changes.

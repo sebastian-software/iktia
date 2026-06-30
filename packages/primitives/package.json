@@ -1,15 +1,15 @@
 {
-  "name": "@iktia/primitives",
+  "name": "@naos-ui/primitives",
   "version": "0.0.0",
-  "description": "Iktia-authored primitive Web Components for design-system baselines.",
+  "description": "Naos-authored primitive Web Components for design-system baselines.",
   "license": "Apache-2.0",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sebastian-software/iktia.git",
+    "url": "git+https://github.com/sebastian-software/naos-ui.git",
     "directory": "packages/primitives"
   },
-  "bugs": "https://github.com/sebastian-software/iktia/issues",
+  "bugs": "https://github.com/sebastian-software/naos-ui/issues",
   "exports": {
     ".": {
       "types": "./dist/index.d.mts",
@@ -206,9 +206,9 @@
     "test": "vitest run --globals"
   },
   "dependencies": {
-    "@iktia/core": "workspace:^",
-    "@iktia/motion": "workspace:^",
-    "@iktia/runtime": "workspace:^",
+    "@naos-ui/core": "workspace:^",
+    "@naos-ui/motion": "workspace:^",
+    "@naos-ui/runtime": "workspace:^",
     "@internationalized/date": "3.12.2",
     "@zag-js/accordion": "1.41.2",
     "@zag-js/avatar": "1.41.2",
@@ -239,7 +239,7 @@
     "@zag-js/tooltip": "1.41.2"
   },
   "devDependencies": {
-    "@iktia/compiler": "workspace:^",
+    "@naos-ui/compiler": "workspace:^",
     "@types/node": "^25.0.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.6"

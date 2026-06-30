@@ -6,18 +6,18 @@
 [part~="root"] {
   display: inline-flex;
   align-items: center;
-  min-height: var(--iktia-tab-min-height, 2.25rem);
+  min-height: var(--naos-tab-min-height, 2.25rem);
   border-bottom: 3px solid transparent;
-  padding: var(--iktia-tab-padding, 0.5rem 0.7rem);
-  color: var(--iktia-tab-fg, #58665f);
+  padding: var(--naos-tab-padding, 0.5rem 0.7rem);
+  color: var(--naos-tab-fg, #58665f);
   font: inherit;
   font-weight: 800;
   cursor: pointer;
 }
 
 :host([data-state="selected"]) [part~="root"] {
-  border-bottom-color: var(--iktia-tab-selected-border, #0f766e);
-  color: var(--iktia-tab-selected-fg, #0f3f35);
+  border-bottom-color: var(--naos-tab-selected-border, #0f766e);
+  color: var(--naos-tab-selected-fg, #0f3f35);
 }
 
 :host([data-disabled]) [part~="root"] {
@@ -26,6 +26,6 @@
 }
 
 :host(:focus-visible) {
-  outline: 2px solid var(--iktia-focus-ring, #0f766e);
+  outline: 2px solid var(--naos-focus-ring, #0f766e);
   outline-offset: 2px;
 }

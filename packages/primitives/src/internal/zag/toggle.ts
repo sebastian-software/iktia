@@ -8,9 +8,9 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaZagToggleService = ReturnType<typeof createZagService>
+export type NaosZagToggleService = ReturnType<typeof createZagService>
 
-type IktiaZagToggleServiceOptions = {
+type NaosZagToggleServiceOptions = {
   disabled: boolean
   host: HTMLElement
   id: string
@@ -19,14 +19,14 @@ type IktiaZagToggleServiceOptions = {
   root: ParentNode
 }
 
-export function createIktiaZagToggleService({
+export function createNaosZagToggleService({
   disabled,
   host,
   id,
   onPressedChange,
   pressed,
   root,
-}: IktiaZagToggleServiceOptions): IktiaZagToggleService {
+}: NaosZagToggleServiceOptions): NaosZagToggleService {
   return createZagService({
     machine: toggleMachine as never,
     props: {
@@ -43,14 +43,14 @@ export function createIktiaZagToggleService({
   })
 }
 
-export function getIktiaZagToggleApi(
-  service: IktiaZagToggleService | null
+export function getNaosZagToggleApi(
+  service: NaosZagToggleService | null
 ): ZagToggleApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function withoutIktiaZagToggleClick<T extends Record<string, unknown>>(
+export function withoutNaosZagToggleClick<T extends Record<string, unknown>>(
   props: T
 ): T {
   const nextProps = { ...props }
@@ -58,8 +58,8 @@ export function withoutIktiaZagToggleClick<T extends Record<string, unknown>>(
   return nextProps
 }
 
-export function stopIktiaZagToggleService(
-  service: IktiaZagToggleService | null
+export function stopNaosZagToggleService(
+  service: NaosZagToggleService | null
 ) {
   service?.stop()
 }

@@ -1,28 +1,28 @@
 # Data Resources
 
-`@iktia/data` is an optional package for loading remote data in Iktia and
+`@naos-ui/data` is an optional package for loading remote data in Naos and
 plain Custom Element applications. It keeps data fetching outside
-`@iktia/runtime`, `@iktia/primitives`, and the compiler while giving components
+`@naos-ui/runtime`, `@naos-ui/primitives`, and the compiler while giving components
 a normalized state shape for pending, success, and error states.
 
 The base package supports two source types:
 
 * `fetchResource()` for pull-based HTTP or service-client requests.
 * `subscriptionResource()` for push-based sources such as WebSockets, database
-  subscriptions, including provider adapters such as `@iktia/data-convex`.
+  subscriptions, including provider adapters such as `@naos-ui/data-convex`.
 
 The package is inspired by SWR's key, cache, revalidation, and mutate model,
 but it does not depend on SWR or React.
 
 ## Adapter Modularity
 
-`@iktia/data` must stay backend-neutral. It should not depend on Convex,
+`@naos-ui/data` must stay backend-neutral. It should not depend on Convex,
 Firebase, Supabase, SWR, React, or any other data provider package. Apps that
 only need `fetchResource()` should not install backend clients or pay their
 bundle cost.
 
 Provider integrations live in separate optional packages, such as
-`@iktia/data-convex`, or in app code built on top of `subscriptionResource()`.
+`@naos-ui/data-convex`, or in app code built on top of `subscriptionResource()`.
 Those adapters can depend on their provider SDKs while keeping the generic
 resource package small and usable for fetch-only applications.
 
@@ -38,7 +38,7 @@ type ResourceState<Data, Error = unknown> =
 ```
 
 Use `snapshot()` to read the current state and `subscribe()` to receive change
-notifications. Iktia component integration should subscribe for the element
+notifications. Naos component integration should subscribe for the element
 instance lifetime and schedule host updates from the subscription callback.
 
 ## Fetch
@@ -47,7 +47,7 @@ Use `fetchResource()` for ordinary HTTP data, static JSON, asset metadata,
 third-party APIs, or app service clients.
 
 ```ts
-import { fetchResource } from "@iktia/data"
+import { fetchResource } from "@naos-ui/data"
 
 const profile = fetchResource(["profile", userId], async ([, id], { signal }) => {
   const response = await fetch(`/api/profile/${id}`, { signal })
@@ -74,7 +74,7 @@ Fetch resources:
 Use `subscriptionResource()` when data arrives from a push source.
 
 ```ts
-import { subscriptionResource } from "@iktia/data"
+import { subscriptionResource } from "@naos-ui/data"
 
 const messages = subscriptionResource(["messages", channel], ([, name], { next, signal }) => {
   const socket = new WebSocket(`/api/messages?channel=${name}`)
@@ -95,14 +95,14 @@ last consumer is disposed.
 
 ## Convex Adapter
 
-Convex support lives in `@iktia/data-convex`, not inside `@iktia/data` itself.
+Convex support lives in `@naos-ui/data-convex`, not inside `@naos-ui/data` itself.
 It is a thin adapter over Convex's existing JavaScript browser client APIs, not
 a fork. The package declares `convex` as a peer dependency so fetch-only apps do
 not install or bundle Convex.
 
 ```ts
 import { ConvexClient } from "convex/browser"
-import { convexMutation, convexResource } from "@iktia/data-convex"
+import { convexMutation, convexResource } from "@naos-ui/data-convex"
 import { api } from "../convex/_generated/api"
 
 const convex = new ConvexClient(import.meta.env.VITE_CONVEX_URL)

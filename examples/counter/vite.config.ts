@@ -1,14 +1,14 @@
 import { resolve } from "node:path"
 
 import { defineConfig } from "vite"
-import { iktia } from "@iktia/vite"
+import { naos } from "@naos-ui/vite"
 
 function demoBasePath(): string {
-  if (process.env.IKTIA_DEMO_BASE) {
-    return process.env.IKTIA_DEMO_BASE
+  if (process.env.NAOS_DEMO_BASE) {
+    return process.env.NAOS_DEMO_BASE
   }
 
-  if (process.env.IKTIA_GITHUB_PAGES !== "true") {
+  if (process.env.NAOS_GITHUB_PAGES !== "true") {
     return "/"
   }
 
@@ -26,5 +26,5 @@ export default defineConfig({
       },
     },
   },
-  plugins: [iktia()],
+  plugins: [naos()],
 })

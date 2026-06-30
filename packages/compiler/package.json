@@ -1,15 +1,15 @@
 {
-  "name": "@iktia/compiler",
+  "name": "@naos-ui/compiler",
   "version": "0.0.0",
-  "description": "Thin Node.js wrapper around the Iktia native compiler.",
+  "description": "Thin Node.js wrapper around the Naos native compiler.",
   "license": "Apache-2.0",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sebastian-software/iktia.git",
+    "url": "git+https://github.com/sebastian-software/naos-ui.git",
     "directory": "packages/compiler"
   },
-  "bugs": "https://github.com/sebastian-software/iktia/issues",
+  "bugs": "https://github.com/sebastian-software/naos-ui/issues",
   "exports": {
     ".": {
       "types": "./dist/index.d.mts",
@@ -36,14 +36,14 @@
     "access": "public"
   },
   "optionalDependencies": {
-    "@iktia/compiler-darwin-arm64": "workspace:^",
-    "@iktia/compiler-darwin-x64": "workspace:^",
-    "@iktia/compiler-linux-arm64-gnu": "workspace:^",
-    "@iktia/compiler-linux-arm64-musl": "workspace:^",
-    "@iktia/compiler-linux-x64-gnu": "workspace:^",
-    "@iktia/compiler-linux-x64-musl": "workspace:^",
-    "@iktia/compiler-win32-arm64-msvc": "workspace:^",
-    "@iktia/compiler-win32-x64-msvc": "workspace:^"
+    "@naos-ui/compiler-darwin-arm64": "workspace:^",
+    "@naos-ui/compiler-darwin-x64": "workspace:^",
+    "@naos-ui/compiler-linux-arm64-gnu": "workspace:^",
+    "@naos-ui/compiler-linux-arm64-musl": "workspace:^",
+    "@naos-ui/compiler-linux-x64-gnu": "workspace:^",
+    "@naos-ui/compiler-linux-x64-musl": "workspace:^",
+    "@naos-ui/compiler-win32-arm64-msvc": "workspace:^",
+    "@naos-ui/compiler-win32-x64-msvc": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "^25.0.0",

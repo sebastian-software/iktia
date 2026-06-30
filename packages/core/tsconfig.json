@@ -5,11 +5,11 @@
     "composite": true,
     "ignoreDeprecations": "6.0",
     "jsx": "react-jsx",
-    "jsxImportSource": "@iktia/core",
+    "jsxImportSource": "@naos-ui/core",
     "paths": {
-      "@iktia/core": ["src/index.ts"],
-      "@iktia/core/jsx-runtime": ["src/jsx-runtime.ts"],
-      "@iktia/core/jsx-dev-runtime": ["src/jsx-dev-runtime.ts"]
+      "@naos-ui/core": ["src/index.ts"],
+      "@naos-ui/core/jsx-runtime": ["src/jsx-runtime.ts"],
+      "@naos-ui/core/jsx-dev-runtime": ["src/jsx-dev-runtime.ts"]
     },
     "rootDir": "src",
     "tsBuildInfoFile": ".tsbuildinfo/tsconfig.tsbuildinfo"

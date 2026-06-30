@@ -1,6 +1,6 @@
 # Troubleshooting
 
-Use this page when a local Iktia project fails before the demo or package build
+Use this page when a local Naos project fails before the demo or package build
 is healthy.
 
 ## Native Compiler Does Not Load
@@ -8,10 +8,10 @@ is healthy.
 Run:
 
 ```sh
-iktia info
+naos info
 ```
 
-Published installs should load the matching `@iktia/compiler-*` optional
+Published installs should load the matching `@naos-ui/compiler-*` optional
 package. Repository development uses the local native binding:
 
 ```sh
@@ -19,20 +19,20 @@ pnpm build:native
 ```
 
 See [Native distribution](native-distribution.md) for package names, loader
-order, supported platforms, and the `IKTIA_NATIVE_BINDING_PATH` override.
+order, supported platforms, and the `NAOS_NATIVE_BINDING_PATH` override.
 
 ## `.wc.tsx` File Is Not Transformed
 
 Check that:
 
 * the file extension is `.wc.tsx`;
-* `@iktia/vite` is installed and `iktia()` is in the Vite plugin list;
+* `@naos-ui/vite` is installed and `naos()` is in the Vite plugin list;
 * the plugin `include` and `exclude` options still match the file;
 * the file is imported by the app or by a build entry.
 
 ## Unsupported TSX Diagnostics
 
-Iktia intentionally accepts a narrow TSX subset. Common unsupported patterns are
+Naos intentionally accepts a narrow TSX subset. Common unsupported patterns are
 fragments, multiple root elements, unkeyed `.map()` children, block-bodied
 `.map()` callbacks, conditional JSX outside `<Show>`, spread attributes, rest
 props, and callback expression returns such as `() => <button />`.
@@ -45,11 +45,11 @@ accepted and rejected syntax.
 Declarative Shadow DOM is emitted only through explicit prerendering:
 
 ```sh
-iktia prerender src/counter.wc.tsx --props '{"label":"Static"}'
+naos prerender src/counter.wc.tsx --props '{"label":"Static"}'
 ```
 
 The normal Vite transform emits a client Custom Element module. The Vite plugin
-emits prerender metadata by default so static site builds can discover Iktia
+emits prerender metadata by default so static site builds can discover Naos
 components, but it does not automatically write HTML for every component.
 
 ## CSS Is Missing In Prerendered HTML
@@ -77,9 +77,9 @@ pnpm install
 pnpm build:native
 pnpm check-types
 pnpm test
-pnpm --filter @iktia/example-counter type-check
-pnpm --filter @iktia/example-counter build
-pnpm --filter @iktia/example-counter test
+pnpm --filter @naos-ui/example-counter type-check
+pnpm --filter @naos-ui/example-counter build
+pnpm --filter @naos-ui/example-counter test
 ```
 
 Use [MVP verification](mvp-verification.md) for the full health checklist.

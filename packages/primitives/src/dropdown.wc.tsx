@@ -1,4 +1,4 @@
-import { effect, event, host, on, state, type ComponentOptions } from "@iktia/core"
+import { effect, event, host, on, state, type ComponentOptions } from "@naos-ui/core"
 import {
   nextDisclosureOpen,
   shouldCloseDisclosureForKey,
@@ -6,7 +6,7 @@ import {
 } from "./internal/behavior/disclosure.js"
 import css from "./dropdown.wc.css?inline"
 
-export type IktiaDropdownProps = {
+export type NaosDropdownProps = {
   label?: string
   open?: boolean
 }
@@ -15,12 +15,12 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaDropdown({
+export function NaosDropdown({
   label = "Options",
   open = false,
-}: IktiaDropdownProps = {}) {
+}: NaosDropdownProps = {}) {
   const expanded = state(open)
-  const changed = event<{ open: boolean }>("iktia-open-change")
+  const changed = event<{ open: boolean }>("naos-open-change")
 
   effect(() => {
     const { element, signal } = host()
@@ -48,7 +48,7 @@ export function IktiaDropdown({
         part="trigger"
         type="button"
         aria-expanded={expanded()}
-        aria-controls="iktia-dropdown-panel"
+        aria-controls="naos-dropdown-panel"
         onKeyDown={on("keydown", (event) => {
           if (!shouldCloseDisclosureForKey(event.key)) return
           if (!expanded()) return
@@ -63,7 +63,7 @@ export function IktiaDropdown({
       >
         <slot name="trigger">{label}</slot>
       </button>
-      <div id="iktia-dropdown-panel" part="panel">
+      <div id="naos-dropdown-panel" part="panel">
         <slot />
       </div>
     </div>

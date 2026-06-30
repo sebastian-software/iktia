@@ -7,16 +7,16 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  createIktiaZagNumberInputService,
-  getIktiaZagNumberInputApi,
-  stopIktiaZagNumberInputService,
+  createNaosZagNumberInputService,
+  getNaosZagNumberInputApi,
+  stopNaosZagNumberInputService,
 } from "./internal/zag/number-input.js"
-import type { IktiaZagNumberInputService } from "./internal/zag/number-input.js"
+import type { NaosZagNumberInputService } from "./internal/zag/number-input.js"
 import css from "./number-input.wc.css?inline"
 
-export type IktiaNumberInputProps = {
+export type NaosNumberInputProps = {
   disabled?: boolean
   label?: string
   max?: number
@@ -30,7 +30,7 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaNumberInput({
+export function NaosNumberInput({
   disabled = false,
   label = "Number",
   max = 100,
@@ -38,12 +38,12 @@ export function IktiaNumberInput({
   name = "",
   step = 1,
   value = "",
-}: IktiaNumberInputProps = {}) {
+}: NaosNumberInputProps = {}) {
   const current = state(value)
   const numeric = state(Number(value))
-  const numberInputService = state<IktiaZagNumberInputService | null>(null)
-  const numberInputApi = computed(() => getIktiaZagNumberInputApi(numberInputService()))
-  const changed = event<{ value: string; valueAsNumber: number }>("iktia-change")
+  const numberInputService = state<NaosZagNumberInputService | null>(null)
+  const numberInputApi = computed(() => getNaosZagNumberInputApi(numberInputService()))
+  const changed = event<{ value: string; valueAsNumber: number }>("naos-change")
   const form = formControl({
     value: () => current(),
     reset: () => {
@@ -61,10 +61,10 @@ export function IktiaNumberInput({
   void name
 
   onConnected(() => {
-    numberInputService.set(createIktiaZagNumberInputService({
+    numberInputService.set(createNaosZagNumberInputService({
       disabled,
       host: host().element,
-      id: "iktia-number-input",
+      id: "naos-number-input",
       label,
       max,
       min,
@@ -79,7 +79,7 @@ export function IktiaNumberInput({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagNumberInputService(numberInputService())
+    stopNaosZagNumberInputService(numberInputService())
     numberInputService.set(null)
   })
 

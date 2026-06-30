@@ -2,30 +2,30 @@ import { describe, expect, it } from "vitest"
 
 import { nextCheckboxState } from "./checkbox.js"
 import {
-  consumeIktiaContext,
-  createIktiaContext,
-  provideIktiaContext,
+  consumeNaosContext,
+  createNaosContext,
+  provideNaosContext,
 } from "./context.js"
 import {
   nextDisclosureOpen,
   shouldCloseDisclosureForKey,
 } from "./disclosure.js"
 import {
-  createIktiaOverlayLayerStack,
-  getIktiaOverlayGeometryStyle,
-  getIktiaOverlayStateAttributes,
-  isIktiaOverlayOutsideEventPath,
-  shouldCloseIktiaOverlayForKey,
+  createNaosOverlayLayerStack,
+  getNaosOverlayGeometryStyle,
+  getNaosOverlayStateAttributes,
+  isNaosOverlayOutsideEventPath,
+  shouldCloseNaosOverlayForKey,
 } from "./overlay.js"
 import {
-  createIktiaPresenceSnapshot,
-  getIktiaPresenceAttributes,
-  getIktiaPresenceMotionAttributes,
-  isIktiaPresenceHidden,
-  isIktiaPresenceOpen,
-  nextIktiaPresenceSnapshot,
-  settleIktiaPresenceSnapshot,
-  waitForIktiaPresenceExit,
+  createNaosPresenceSnapshot,
+  getNaosPresenceAttributes,
+  getNaosPresenceMotionAttributes,
+  isNaosPresenceHidden,
+  isNaosPresenceOpen,
+  nextNaosPresenceSnapshot,
+  settleNaosPresenceSnapshot,
+  waitForNaosPresenceExit,
 } from "./presence.js"
 import { tabsValueForKey } from "./tabs.js"
 import { nextTogglePressed, toggleFormValue } from "./toggle.js"
@@ -87,18 +87,18 @@ describe("primitive behavior kernels", () => {
     const originalCustomEvent = globalThis.CustomEvent
     globalThis.CustomEvent = TestCustomEvent as unknown as typeof CustomEvent
 
-    const context = createIktiaContext<string>("test-context")
+    const context = createNaosContext<string>("test-context")
     const providerTarget = new TestEventTarget()
     const consumerTarget = new TestEventTarget()
     consumerTarget.parent = providerTarget
     const received: string[] = []
 
-    const provider = provideIktiaContext({
+    const provider = provideNaosContext({
       context,
       host: providerTarget,
       value: "initial",
     })
-    const cleanup = consumeIktiaContext({
+    const cleanup = consumeNaosContext({
       callback(value) {
         received.push(value)
       },
@@ -144,7 +144,7 @@ describe("primitive behavior kernels", () => {
 
   it("maps overlay state attributes for public styling hooks", () => {
     expect(
-      getIktiaOverlayStateAttributes({
+      getNaosOverlayStateAttributes({
         align: "start",
         anchorHidden: true,
         kind: "popover",
@@ -156,7 +156,7 @@ describe("primitive behavior kernels", () => {
     ).toEqual({
       "data-align": "start",
       "data-anchor-hidden": "",
-      "data-iktia-overlay": "popover",
+      "data-naos-overlay": "popover",
       "data-layer": "3",
       "data-modal": "",
       "data-side": "bottom",
@@ -164,25 +164,25 @@ describe("primitive behavior kernels", () => {
     })
   })
 
-  it("maps overlay geometry to Iktia CSS variables", () => {
+  it("maps overlay geometry to Naos CSS variables", () => {
     expect(
-      getIktiaOverlayGeometryStyle({
+      getNaosOverlayGeometryStyle({
         anchorHeight: 32,
         anchorWidth: "var(--trigger-width)",
         availableHeight: 240,
         transformOrigin: "top left",
       })
     ).toEqual({
-      "--iktia-anchor-height": "32px",
-      "--iktia-anchor-width": "var(--trigger-width)",
-      "--iktia-available-height": "240px",
-      "--iktia-transform-origin": "top left",
+      "--naos-anchor-height": "32px",
+      "--naos-anchor-width": "var(--trigger-width)",
+      "--naos-available-height": "240px",
+      "--naos-transform-origin": "top left",
     })
   })
 
   it("tracks the active overlay layer", () => {
     const closed: string[] = []
-    const stack = createIktiaOverlayLayerStack()
+    const stack = createNaosOverlayLayerStack()
     const unregisterFirst = stack.register({
       close: (reason) => closed.push(`first:${reason}`),
       id: "first",
@@ -209,50 +209,50 @@ describe("primitive behavior kernels", () => {
     const trigger = new EventTarget()
     const outside = new EventTarget()
 
-    expect(shouldCloseIktiaOverlayForKey({ key: "Escape" })).toBe(true)
+    expect(shouldCloseNaosOverlayForKey({ key: "Escape" })).toBe(true)
     expect(
-      shouldCloseIktiaOverlayForKey({ defaultPrevented: true, key: "Escape" })
+      shouldCloseNaosOverlayForKey({ defaultPrevented: true, key: "Escape" })
     ).toBe(false)
-    expect(shouldCloseIktiaOverlayForKey({ key: "Enter" })).toBe(false)
-    expect(isIktiaOverlayOutsideEventPath([outside], [content, trigger])).toBe(true)
-    expect(isIktiaOverlayOutsideEventPath([content, outside], [content, trigger]))
+    expect(shouldCloseNaosOverlayForKey({ key: "Enter" })).toBe(false)
+    expect(isNaosOverlayOutsideEventPath([outside], [content, trigger])).toBe(true)
+    expect(isNaosOverlayOutsideEventPath([content, outside], [content, trigger]))
       .toBe(false)
   })
 
   it("maps presence lifecycle phases for transient UI", () => {
-    const closed = createIktiaPresenceSnapshot(false)
-    const entering = nextIktiaPresenceSnapshot(closed, true)
-    const open = settleIktiaPresenceSnapshot(entering, true)
-    const closing = nextIktiaPresenceSnapshot(open, false)
-    const settled = settleIktiaPresenceSnapshot(closing, false)
+    const closed = createNaosPresenceSnapshot(false)
+    const entering = nextNaosPresenceSnapshot(closed, true)
+    const open = settleNaosPresenceSnapshot(entering, true)
+    const closing = nextNaosPresenceSnapshot(open, false)
+    const settled = settleNaosPresenceSnapshot(closing, false)
 
     expect(entering.phase).toBe("entering")
     expect(open.phase).toBe("open")
     expect(closing.phase).toBe("closing")
     expect(settled.phase).toBe("closed")
-    expect(isIktiaPresenceOpen(entering)).toBe(true)
-    expect(isIktiaPresenceOpen(closing)).toBe(false)
-    expect(isIktiaPresenceHidden(closing)).toBe(false)
-    expect(isIktiaPresenceHidden(settled)).toBe(true)
-    expect(getIktiaPresenceAttributes(entering)).toEqual({
+    expect(isNaosPresenceOpen(entering)).toBe(true)
+    expect(isNaosPresenceOpen(closing)).toBe(false)
+    expect(isNaosPresenceHidden(closing)).toBe(false)
+    expect(isNaosPresenceHidden(settled)).toBe(true)
+    expect(getNaosPresenceAttributes(entering)).toEqual({
       "data-ending-style": undefined,
-      "data-iktia-presence": "entering",
+      "data-naos-presence": "entering",
       "data-starting-style": "",
     })
-    expect(getIktiaPresenceAttributes(closing)).toEqual({
+    expect(getNaosPresenceAttributes(closing)).toEqual({
       "data-ending-style": "",
-      "data-iktia-presence": "closing",
+      "data-naos-presence": "closing",
       "data-starting-style": undefined,
     })
   })
 
   it("maps presence motion to a stable spring token class", () => {
-    const motion = getIktiaPresenceMotionAttributes()
+    const motion = getNaosPresenceMotionAttributes()
 
     expect(motion).toEqual({
-      class: "iktia-motion-presence-spring-snappy",
+      class: "naos-motion-presence-spring-snappy",
     })
-    expect(getIktiaPresenceMotionAttributes()).toBe(motion)
+    expect(getNaosPresenceMotionAttributes()).toBe(motion)
   })
 
   it("waits for presence exit animations before settling", async () => {
@@ -277,7 +277,7 @@ describe("primitive behavior kernels", () => {
       } as unknown as Element
       const calls: string[] = []
 
-      waitForIktiaPresenceExit(element, () => calls.push("done"))
+      waitForNaosPresenceExit(element, () => calls.push("done"))
       await Promise.resolve()
       expect(calls).toEqual([])
 

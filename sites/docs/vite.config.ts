@@ -3,7 +3,11 @@ import tailwindcss from "@tailwindcss/vite"
 import { ardo, detectGitHubBasename } from "ardo/vite"
 
 function docsBasePath(): string {
-  return process.env.IKTIA_GITHUB_PAGES === "true" ? detectGitHubBasename() : "/"
+  if (process.env.NAOS_SITE_BASE) {
+    return process.env.NAOS_SITE_BASE
+  }
+
+  return process.env.NAOS_GITHUB_PAGES === "true" ? detectGitHubBasename() : "/"
 }
 
 export default defineConfig({
@@ -12,16 +16,16 @@ export default defineConfig({
     tailwindcss(),
     ardo({
       base: docsBasePath(),
-      title: "Iktia",
+      title: "Naos",
       description:
         "React-like TSX authoring for native Custom Elements without a framework runtime.",
-      githubPages: process.env.IKTIA_GITHUB_PAGES === "true",
+      githubPages: process.env.NAOS_GITHUB_PAGES === "true",
       markdown: {
         lineNumbers: true,
       },
       project: {
-        name: "Iktia",
-        repository: "https://github.com/sebastian-software/iktia",
+        name: "Naos",
+        repository: "https://github.com/sebastian-software/naos-ui",
         license: "Apache-2.0",
       },
       sidebar: {

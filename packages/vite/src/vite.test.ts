@@ -1,18 +1,18 @@
-import { IktiaCompilerError, setNativeBindingsForTesting } from "@iktia/compiler"
+import { NaosCompilerError, setNativeBindingsForTesting } from "@naos-ui/compiler"
 import { mkdtemp, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 
-import { iktia } from "./vite.js"
+import { naos } from "./vite.js"
 
-describe("iktia", () => {
+describe("naos", () => {
   afterEach(() => {
     setNativeBindingsForTesting(null)
   })
 
   it("passes through files outside the include filter", async () => {
-    const plugin = iktia()
+    const plugin = naos()
     const transform = plugin.transform
     if (typeof transform !== "function") {
       throw new Error("Expected transform hook")
@@ -41,7 +41,7 @@ describe("iktia", () => {
       }),
     })
 
-    const plugin = iktia()
+    const plugin = naos()
     const transform = plugin.transform
     if (typeof transform !== "function") {
       throw new Error("Expected transform hook")
@@ -80,7 +80,7 @@ describe("iktia", () => {
       }),
     })
 
-    const plugin = iktia()
+    const plugin = naos()
     const transform = plugin.transform
     if (typeof transform !== "function") {
       throw new Error("Expected transform hook")
@@ -113,9 +113,9 @@ describe("iktia", () => {
         usesDeclarativeShadowDom: true,
       }),
       transformComponent: () => {
-        throw new IktiaCompilerError("Unsupported JSX", [
+        throw new NaosCompilerError("Unsupported JSX", [
           {
-            code: "IKTIA_UNSUPPORTED_SYNTAX",
+            code: "NAOS_UNSUPPORTED_SYNTAX",
             filename: "/src/counter.wc.tsx",
             hint: "Use supported syntax.",
             message: "Unsupported JSX",
@@ -126,7 +126,7 @@ describe("iktia", () => {
       },
     })
 
-    const plugin = iktia()
+    const plugin = naos()
     const transform = plugin.transform
     if (typeof transform !== "function") {
       throw new Error("Expected transform hook")
@@ -135,7 +135,7 @@ describe("iktia", () => {
     await expect(
       transform.call(mockPluginContext(), "source", "/src/counter.wc.tsx")
     ).rejects.toThrow(
-      "/src/counter.wc.tsx:4-12 error IKTIA_UNSUPPORTED_SYNTAX: Unsupported JSX\nhint: Use supported syntax."
+      "/src/counter.wc.tsx:4-12 error NAOS_UNSUPPORTED_SYNTAX: Unsupported JSX\nhint: Use supported syntax."
     )
   })
 
@@ -158,7 +158,7 @@ describe("iktia", () => {
       }),
     })
 
-    const plugin = iktia()
+    const plugin = naos()
     const transform = plugin.transform
     const generateBundle = plugin.generateBundle
     if (typeof transform !== "function" || typeof generateBundle !== "function") {
@@ -180,7 +180,7 @@ describe("iktia", () => {
 
     expect(emitted).toEqual([
       {
-        fileName: "iktia-manifest.json",
+        fileName: "naos-manifest.json",
         source:
           '{\n  "components": [\n    {\n      "className": "CounterElement",\n      "clientModule": "/src/counter.wc.tsx",\n      "exportName": "Counter",\n      "importPath": "/src/counter.wc.tsx",\n      "shadow": true,\n      "tagName": "x-counter",\n      "usesDeclarativeShadowDom": true\n    }\n  ]\n}\n',
         type: "asset",
@@ -210,7 +210,7 @@ describe("iktia", () => {
       }),
     })
 
-    const plugin = iktia({ prerender: false })
+    const plugin = naos({ prerender: false })
     const transform = plugin.transform
     const generateBundle = plugin.generateBundle
     if (typeof transform !== "function" || typeof generateBundle !== "function") {
@@ -235,7 +235,7 @@ describe("iktia", () => {
   })
 
   it("passes resolved inline CSS imports to DSD prerendering", async () => {
-    const root = await mkdtemp(join(tmpdir(), "iktia-vite-"))
+    const root = await mkdtemp(join(tmpdir(), "naos-vite-"))
     try {
       const filename = join(root, "counter.wc.tsx")
       await writeFile(join(root, "counter.css"), ":host { display: block; }\n")
@@ -261,7 +261,7 @@ describe("iktia", () => {
         }),
       })
 
-      const plugin = iktia()
+      const plugin = naos()
       const transform = plugin.transform
       if (typeof transform !== "function") {
         throw new Error("Expected transform hook")

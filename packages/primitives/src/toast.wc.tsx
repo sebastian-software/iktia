@@ -1,8 +1,8 @@
-import { event, on, type ComponentOptions } from "@iktia/core"
-import { createIktiaToast } from "./internal/zag/toast.js"
+import { event, on, type ComponentOptions } from "@naos-ui/core"
+import { createNaosToast } from "./internal/zag/toast.js"
 import css from "./toast.wc.css?inline"
 
-export type IktiaToastProps = {
+export type NaosToastProps = {
   closable?: boolean
   description?: string
   duration?: number
@@ -15,15 +15,15 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaToast({
+export function NaosToast({
   closable = true,
   description = "",
   duration = 5000,
   label = "Show notification",
   title = "Notification",
   type = "info",
-}: IktiaToastProps = {}) {
-  const created = event<{ id: string }>("iktia-create")
+}: NaosToastProps = {}) {
+  const created = event<{ id: string }>("naos-create")
 
   return (
     <button
@@ -31,7 +31,7 @@ export function IktiaToast({
       type="button"
       data-type={type}
       onClick={on("click", () => {
-        const id = createIktiaToast({
+        const id = createNaosToast({
           closable,
           description,
           duration,

@@ -8,9 +8,9 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaZagCollapsibleService = ReturnType<typeof createZagService>
+export type NaosZagCollapsibleService = ReturnType<typeof createZagService>
 
-type IktiaZagCollapsibleServiceOptions = {
+type NaosZagCollapsibleServiceOptions = {
   disabled: boolean
   host: HTMLElement
   id: string
@@ -19,14 +19,14 @@ type IktiaZagCollapsibleServiceOptions = {
   root: ParentNode
 }
 
-export function createIktiaZagCollapsibleService({
+export function createNaosZagCollapsibleService({
   disabled,
   host,
   id,
   onOpenChange,
   open,
   root,
-}: IktiaZagCollapsibleServiceOptions): IktiaZagCollapsibleService {
+}: NaosZagCollapsibleServiceOptions): NaosZagCollapsibleService {
   return createZagService({
     machine: collapsibleMachine as never,
     props: {
@@ -45,15 +45,15 @@ export function createIktiaZagCollapsibleService({
   })
 }
 
-export function getIktiaZagCollapsibleApi(
-  service: IktiaZagCollapsibleService | null
+export function getNaosZagCollapsibleApi(
+  service: NaosZagCollapsibleService | null
 ): ZagCollapsibleApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagCollapsibleService(
-  service: IktiaZagCollapsibleService | null
+export function stopNaosZagCollapsibleService(
+  service: NaosZagCollapsibleService | null
 ) {
   service?.stop()
 }

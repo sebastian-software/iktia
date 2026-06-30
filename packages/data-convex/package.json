@@ -1,15 +1,15 @@
 {
-  "name": "@iktia/data-convex",
+  "name": "@naos-ui/data-convex",
   "version": "0.0.0",
-  "description": "Optional Convex adapter for Iktia data resources.",
+  "description": "Optional Convex adapter for Naos data resources.",
   "license": "Apache-2.0",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sebastian-software/iktia.git",
+    "url": "git+https://github.com/sebastian-software/naos-ui.git",
     "directory": "packages/data-convex"
   },
-  "bugs": "https://github.com/sebastian-software/iktia/issues",
+  "bugs": "https://github.com/sebastian-software/naos-ui/issues",
   "exports": {
     ".": {
       "types": "./dist/index.d.mts",
@@ -34,7 +34,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@iktia/data": "workspace:^"
+    "@naos-ui/data": "workspace:^"
   },
   "peerDependencies": {
     "convex": "^1.41.0"

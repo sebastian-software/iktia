@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest"
 import { makeFunctionReference } from "convex/server"
 import type { ConnectionState } from "convex/browser"
 import type { FunctionArgs, FunctionReference, FunctionReturnType } from "convex/server"
-import { ResourceCache } from "@iktia/data"
+import { ResourceCache } from "@naos-ui/data"
 
 import type { ConvexUnsubscribe } from "./index.js"
 import {

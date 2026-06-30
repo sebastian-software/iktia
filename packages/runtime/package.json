@@ -1,15 +1,15 @@
 {
-  "name": "@iktia/runtime",
+  "name": "@naos-ui/runtime",
   "version": "0.0.0",
-  "description": "Tiny platform helpers for Iktia generated native interface elements.",
+  "description": "Tiny platform helpers for Naos generated native interface elements.",
   "license": "Apache-2.0",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sebastian-software/iktia.git",
+    "url": "git+https://github.com/sebastian-software/naos-ui.git",
     "directory": "packages/runtime"
   },
-  "bugs": "https://github.com/sebastian-software/iktia/issues",
+  "bugs": "https://github.com/sebastian-software/naos-ui/issues",
   "exports": {
     ".": {
       "types": "./dist/runtime.d.mts",

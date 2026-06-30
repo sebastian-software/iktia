@@ -7,16 +7,16 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  createIktiaZagSwitchService,
-  getIktiaZagSwitchApi,
-  stopIktiaZagSwitchService,
+  createNaosZagSwitchService,
+  getNaosZagSwitchApi,
+  stopNaosZagSwitchService,
 } from "./internal/zag/switch.js"
-import type { IktiaZagSwitchService } from "./internal/zag/switch.js"
+import type { NaosZagSwitchService } from "./internal/zag/switch.js"
 import css from "./switch.wc.css?inline"
 
-export type IktiaSwitchProps = {
+export type NaosSwitchProps = {
   checked?: boolean
   disabled?: boolean
   label?: string
@@ -28,17 +28,17 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaSwitch({
+export function NaosSwitch({
   checked = false,
   disabled = false,
   label = "Switch",
   name = "",
   value = "on",
-}: IktiaSwitchProps = {}) {
+}: NaosSwitchProps = {}) {
   const active = state(checked)
-  const switchService = state<IktiaZagSwitchService | null>(null)
-  const switchApi = computed(() => getIktiaZagSwitchApi(switchService()))
-  const changed = event<{ checked: boolean }>("iktia-change")
+  const switchService = state<NaosZagSwitchService | null>(null)
+  const switchApi = computed(() => getNaosZagSwitchApi(switchService()))
+  const changed = event<{ checked: boolean }>("naos-change")
   const form = formControl({
     value: () => (active() ? value : null),
     reset: () => {
@@ -51,11 +51,11 @@ export function IktiaSwitch({
   void name
 
   onConnected(() => {
-    switchService.set(createIktiaZagSwitchService({
+    switchService.set(createNaosZagSwitchService({
       checked: active(),
       disabled,
       host: host().element,
-      id: "iktia-switch",
+      id: "naos-switch",
       label,
       onCheckedChange(nextChecked) {
         active.set(nextChecked)
@@ -66,7 +66,7 @@ export function IktiaSwitch({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagSwitchService(switchService())
+    stopNaosZagSwitchService(switchService())
     switchService.set(null)
   })
 

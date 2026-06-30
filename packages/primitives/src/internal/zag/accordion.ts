@@ -8,9 +8,9 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaZagAccordionService = ReturnType<typeof createZagService>
+export type NaosZagAccordionService = ReturnType<typeof createZagService>
 
-type IktiaZagAccordionServiceOptions = {
+type NaosZagAccordionServiceOptions = {
   collapsible: boolean
   disabled: boolean
   host: HTMLElement
@@ -23,7 +23,7 @@ type IktiaZagAccordionServiceOptions = {
   value: string[]
 }
 
-type IktiaAccordionItemElement = HTMLElement & {
+type NaosAccordionItemElement = HTMLElement & {
   disabled?: boolean
   label?: string
   value?: string
@@ -31,29 +31,29 @@ type IktiaAccordionItemElement = HTMLElement & {
 
 type AccordionItem = {
   disabled: boolean
-  element: IktiaAccordionItemElement
+  element: NaosAccordionItemElement
   label: string
   value: string
 }
 
-type SyncIktiaAccordionItemsOptions = {
+type SyncNaosAccordionItemsOptions = {
   api: ZagAccordionApi
   disabled: boolean
   host: HTMLElement
   onRequestUpdate(): void
 }
 
-const accordionItemSelector = "iktia-accordion-item"
+const accordionItemSelector = "naos-accordion-item"
 
-export function parseIktiaAccordionValue(value: string): string[] {
+export function parseNaosAccordionValue(value: string): string[] {
   return value.split(/\s+/).filter(Boolean)
 }
 
-export function serializeIktiaAccordionValue(value: string[]): string {
+export function serializeNaosAccordionValue(value: string[]): string {
   return value.join(" ")
 }
 
-export function createIktiaZagAccordionService({
+export function createNaosZagAccordionService({
   collapsible,
   disabled,
   host,
@@ -64,7 +64,7 @@ export function createIktiaZagAccordionService({
   orientation,
   root,
   value,
-}: IktiaZagAccordionServiceOptions): IktiaZagAccordionService {
+}: NaosZagAccordionServiceOptions): NaosZagAccordionService {
   return createZagService({
     machine: accordionMachine as never,
     props: {
@@ -89,25 +89,25 @@ export function createIktiaZagAccordionService({
   })
 }
 
-export function getIktiaZagAccordionApi(
-  service: IktiaZagAccordionService | null
+export function getNaosZagAccordionApi(
+  service: NaosZagAccordionService | null
 ): ZagAccordionApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagAccordionService(
-  service: IktiaZagAccordionService | null
+export function stopNaosZagAccordionService(
+  service: NaosZagAccordionService | null
 ) {
   service?.stop()
 }
 
-export function syncIktiaAccordionItems({
+export function syncNaosAccordionItems({
   api,
   disabled,
   host,
   onRequestUpdate,
-}: SyncIktiaAccordionItemsOptions) {
+}: SyncNaosAccordionItemsOptions) {
   const cleanups: VoidFunction[] = []
   const items = accordionItemsFor(host, disabled)
 
@@ -214,7 +214,7 @@ function accordionItemsFor(
   groupDisabled: boolean
 ): AccordionItem[] {
   return Array.from(
-    host.querySelectorAll<IktiaAccordionItemElement>(accordionItemSelector)
+    host.querySelectorAll<NaosAccordionItemElement>(accordionItemSelector)
   )
     .map((element) => {
       const value = element.value ?? element.getAttribute("value") ?? ""

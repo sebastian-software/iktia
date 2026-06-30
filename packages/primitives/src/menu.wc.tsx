@@ -7,21 +7,21 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  createIktiaZagMenuService,
-  getIktiaZagMenuApi,
-  stopIktiaZagMenuService,
-  syncIktiaMenuItems,
+  createNaosZagMenuService,
+  getNaosZagMenuApi,
+  stopNaosZagMenuService,
+  syncNaosMenuItems,
 } from "./internal/zag/menu.js"
-import type { IktiaZagMenuService } from "./internal/zag/menu.js"
+import type { NaosZagMenuService } from "./internal/zag/menu.js"
 import {
-  getIktiaOverlayStateAttributes,
-  listenForIktiaOverlayEscape,
+  getNaosOverlayStateAttributes,
+  listenForNaosOverlayEscape,
 } from "./internal/behavior/overlay.js"
 import css from "./menu.wc.css?inline"
 
-export type IktiaMenuProps = {
+export type NaosMenuProps = {
   disabled?: boolean
   label?: string
   open?: boolean
@@ -31,24 +31,24 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaMenu({
+export function NaosMenu({
   disabled = false,
   label = "Actions",
   open = false,
-}: IktiaMenuProps = {}) {
+}: NaosMenuProps = {}) {
   const expanded = state(open)
   const highlighted = state<string | null>(null)
-  const menuService = state<IktiaZagMenuService | null>(null)
-  const menuApi = computed(() => getIktiaZagMenuApi(menuService()))
-  const opened = event<{ open: boolean }>("iktia-open-change")
-  const selected = event<{ value: string }>("iktia-select")
+  const menuService = state<NaosZagMenuService | null>(null)
+  const menuApi = computed(() => getNaosZagMenuApi(menuService()))
+  const opened = event<{ open: boolean }>("naos-open-change")
+  const selected = event<{ value: string }>("naos-select")
 
   onConnected(() => {
     const hostElement = host().element
-    menuService.set(createIktiaZagMenuService({
+    menuService.set(createNaosZagMenuService({
       disabled,
       host: hostElement,
-      id: "iktia-menu",
+      id: "naos-menu",
       label,
       onHighlightChange(nextValue) {
         highlighted.set(nextValue)
@@ -62,7 +62,7 @@ export function IktiaMenu({
     if (open) menuApi()?.setOpen(true)
   })
   onDisconnected(() => {
-    stopIktiaZagMenuService(menuService())
+    stopNaosZagMenuService(menuService())
     menuService.set(null)
   })
   effect(() => {
@@ -70,7 +70,7 @@ export function IktiaMenu({
     void expanded()
     void highlighted()
     if (api == null) return
-    return syncIktiaMenuItems({
+    return syncNaosMenuItems({
       api,
       disabled,
       host: host().element,
@@ -84,7 +84,7 @@ export function IktiaMenu({
     const api = menuApi()
     void expanded()
     if (api == null || !expanded()) return
-    return listenForIktiaOverlayEscape({
+    return listenForNaosOverlayEscape({
       onClose: () => api.setOpen(false),
       target: document,
     })
@@ -94,7 +94,7 @@ export function IktiaMenu({
     <div
       part="root"
       data-disabled={disabled || undefined}
-      {...getIktiaOverlayStateAttributes({
+      {...getNaosOverlayStateAttributes({
         kind: "menu",
         open: expanded(),
       })}
@@ -110,7 +110,7 @@ export function IktiaMenu({
       <div
         {...(menuApi()?.getPositionerProps() ?? {})}
         part="positioner"
-        {...getIktiaOverlayStateAttributes({
+        {...getNaosOverlayStateAttributes({
           kind: "menu",
           open: expanded(),
         })}
@@ -118,7 +118,7 @@ export function IktiaMenu({
         <div
           {...(menuApi()?.getContentProps() ?? {})}
           part="content"
-          {...getIktiaOverlayStateAttributes({
+          {...getNaosOverlayStateAttributes({
             kind: "menu",
             open: expanded(),
           })}

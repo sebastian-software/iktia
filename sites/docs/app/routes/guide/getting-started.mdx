@@ -1,12 +1,12 @@
 ---
 title: Getting Started
-description: Install Iktia packages and compile TSX Web Components.
+description: Install Naos packages and compile TSX Web Components.
 order: 1
 ---
 
 # Getting Started
 
-Iktia v0.1 is a prerelease compiler toolchain for building native Custom
+Naos v0.1 is a prerelease compiler toolchain for building native Custom
 Elements from a React-like TSX subset. You write typed component functions; the
 browser receives platform code.
 
@@ -21,11 +21,11 @@ Read the docs in this order when you are new to the project:
 ## Install
 
 ```sh
-pnpm add @iktia/core @iktia/runtime
-pnpm add -D @iktia/compiler @iktia/vite @iktia/cli
+pnpm add @naos-ui/core @naos-ui/runtime
+pnpm add -D @naos-ui/compiler @naos-ui/vite @naos-ui/cli
 ```
 
-`@iktia/compiler` installs one optional native package for the current platform.
+`@naos-ui/compiler` installs one optional native package for the current platform.
 There is no npm source-build fallback in v0.1.
 
 ## Configure TypeScript
@@ -34,7 +34,7 @@ There is no npm source-build fallback in v0.1.
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "@iktia/core",
+    "jsxImportSource": "@naos-ui/core",
     "types": ["vite/client"]
   }
 }
@@ -44,20 +44,20 @@ There is no npm source-build fallback in v0.1.
 
 ```ts
 import { defineConfig } from "vite"
-import { iktia } from "@iktia/vite"
+import { naos } from "@naos-ui/vite"
 
 export default defineConfig({
-  plugins: [iktia()],
+  plugins: [naos()],
 })
 ```
 
-Vite owns modules, chunks, assets, cache invalidation, and CSS imports. Iktia
+Vite owns modules, chunks, assets, cache invalidation, and CSS imports. Naos
 only transforms accepted `.wc.tsx` component modules.
 
 ## Author A Component
 
 ```tsx
-import { computed, event, state, type ComponentOptions } from "@iktia/core"
+import { computed, event, state, type ComponentOptions } from "@naos-ui/core"
 import css from "./counter.wc.css?inline"
 
 export const options = {
@@ -90,9 +90,9 @@ pages consume the result with regular DOM APIs.
 ## CLI
 
 ```sh
-iktia compile src/counter.wc.tsx -o dist/counter.js
-iktia prerender src/counter.wc.tsx --props '{"label":"Static"}'
-iktia info
+naos compile src/counter.wc.tsx -o dist/counter.js
+naos prerender src/counter.wc.tsx --props '{"label":"Static"}'
+naos info
 ```
 
 Use the CLI for smoke tests, standalone transforms, and static HTML output.
@@ -103,26 +103,26 @@ Application builds should use the Vite plugin.
 Declarative Shadow DOM is the default HTML output inside the prerender path:
 
 ```sh
-iktia prerender src/counter.wc.tsx --props '{"label":"Static"}' -o dist/counter.html
+naos prerender src/counter.wc.tsx --props '{"label":"Static"}' -o dist/counter.html
 ```
 
 In Vite builds, prerender metadata is on by default so a static site or demo
-build can discover compiled Iktia components:
+build can discover compiled Naos components:
 
 ```ts
-iktia({
+naos({
   prerender: {
-    manifestFile: "iktia-manifest.json",
+    manifestFile: "naos-manifest.json",
   },
 })
 ```
 
-The snippet above only customizes the manifest path. `iktia()` already uses
-`iktia-manifest.json`. Use `prerender: false` only when a build should not emit
+The snippet above only customizes the manifest path. `naos()` already uses
+`naos-manifest.json`. Use `prerender: false` only when a build should not emit
 static HTML metadata.
 
-There is no component-level DSD switch. If you prerender an Iktia component,
-Iktia emits `<template shadowrootmode="open">` host HTML and the client module
+There is no component-level DSD switch. If you prerender an Naos component,
+Naos emits `<template shadowrootmode="open">` host HTML and the client module
 hydrates it on upgrade.
 
 ## Native Install Checks
@@ -130,19 +130,19 @@ hydrates it on upgrade.
 If the compiler cannot load its native binding, run:
 
 ```sh
-iktia info
+naos info
 ```
 
 The output shows the detected platform and native package. Published installs
-should load the matching `@iktia/compiler-*` package. Repository development
+should load the matching `@naos-ui/compiler-*` package. Repository development
 uses a local binding built with:
 
 ```sh
 pnpm -w build:native
 ```
 
-## What Iktia Is Not
+## What Naos Is Not
 
-Iktia is not a React compatibility layer, a virtual DOM renderer, a bundler, or
-a framework adapter. Vite owns modules, chunks, assets, and CSS loading. Iktia
+Naos is not a React compatibility layer, a virtual DOM renderer, a bundler, or
+a framework adapter. Vite owns modules, chunks, assets, and CSS loading. Naos
 only compiles accepted `.wc.tsx` modules into native Custom Elements.

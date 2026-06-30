@@ -7,19 +7,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--iktia-combobox-item-gap, 0.75rem);
-  min-height: var(--iktia-combobox-item-min-height, 2rem);
-  border-radius: var(--iktia-combobox-item-radius, 0.25rem);
-  padding: var(--iktia-combobox-item-padding, 0.4rem 0.55rem);
-  color: var(--iktia-combobox-item-fg, #17201b);
+  gap: var(--naos-combobox-item-gap, 0.75rem);
+  min-height: var(--naos-combobox-item-min-height, 2rem);
+  border-radius: var(--naos-combobox-item-radius, 0.25rem);
+  padding: var(--naos-combobox-item-padding, 0.4rem 0.55rem);
+  color: var(--naos-combobox-item-fg, #17201b);
   font: inherit;
   cursor: pointer;
 }
 
 :host([data-highlighted]) [part~="root"],
 :host([data-state="checked"]) [part~="root"] {
-  background: var(--iktia-combobox-item-active-bg, #e2f3ea);
-  color: var(--iktia-combobox-item-active-fg, #0f3f35);
+  background: var(--naos-combobox-item-active-bg, #e2f3ea);
+  color: var(--naos-combobox-item-active-fg, #0f3f35);
 }
 
 :host([data-disabled]) [part~="root"] {

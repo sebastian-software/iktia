@@ -1,7 +1,7 @@
-import { event, on, type ComponentOptions } from "@iktia/core"
+import { event, on, type ComponentOptions } from "@naos-ui/core"
 import css from "./button.wc.css?inline"
 
-export type IktiaButtonProps = {
+export type NaosButtonProps = {
   disabled?: boolean
   label?: string
   variant?: string
@@ -11,12 +11,12 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaButton({
+export function NaosButton({
   disabled = false,
   label = "",
   variant = "default",
-}: IktiaButtonProps = {}) {
-  const pressed = event<{ variant: string }>("iktia-press")
+}: NaosButtonProps = {}) {
+  const pressed = event<{ variant: string }>("naos-press")
 
   return (
     <button

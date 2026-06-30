@@ -8,20 +8,20 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  collectIktiaSelectItems,
-  createIktiaZagSelectService,
-  getIktiaZagSelectApi,
-  labelForIktiaSelectValue,
-  stopIktiaZagSelectService,
-  syncIktiaSelectItems,
+  collectNaosSelectItems,
+  createNaosZagSelectService,
+  getNaosZagSelectApi,
+  labelForNaosSelectValue,
+  stopNaosZagSelectService,
+  syncNaosSelectItems,
 } from "./internal/zag/select.js"
-import type { IktiaZagSelectService } from "./internal/zag/select.js"
-import { getIktiaOverlayStateAttributes } from "./internal/behavior/overlay.js"
+import type { NaosZagSelectService } from "./internal/zag/select.js"
+import { getNaosOverlayStateAttributes } from "./internal/behavior/overlay.js"
 import css from "./select.wc.css?inline"
 
-export type IktiaSelectProps = {
+export type NaosSelectProps = {
   disabled?: boolean
   label?: string
   name?: string
@@ -33,22 +33,22 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaSelect({
+export function NaosSelect({
   disabled = false,
   label = "Options",
   name = "",
   placeholder = "Select an option",
   value = "",
-}: IktiaSelectProps = {}) {
+}: NaosSelectProps = {}) {
   const selected = state(value)
   const open = state(false)
-  const selectService = state<IktiaZagSelectService | null>(null)
-  const selectApi = computed(() => getIktiaZagSelectApi(selectService()))
+  const selectService = state<NaosZagSelectService | null>(null)
+  const selectApi = computed(() => getNaosZagSelectApi(selectService()))
   const selectedLabel = computed(() =>
-    selected() ? labelForIktiaSelectValue(host().element, selected()) : ""
+    selected() ? labelForNaosSelectValue(host().element, selected()) : ""
   )
-  const changed = event<{ value: string }>("iktia-change")
-  const opened = event<{ open: boolean }>("iktia-open-change")
+  const changed = event<{ value: string }>("naos-change")
+  const opened = event<{ open: boolean }>("naos-open-change")
   const form = formControl({
     value: () => selected() || null,
     reset: () => {
@@ -62,11 +62,11 @@ export function IktiaSelect({
 
   onConnected(() => {
     const hostElement = host().element
-    selectService.set(createIktiaZagSelectService({
+    selectService.set(createNaosZagSelectService({
       disabled,
       host: hostElement,
-      id: "iktia-select",
-      items: collectIktiaSelectItems(hostElement),
+      id: "naos-select",
+      items: collectNaosSelectItems(hostElement),
       name,
       onOpenChange(nextOpen) {
         open.set(nextOpen)
@@ -81,7 +81,7 @@ export function IktiaSelect({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagSelectService(selectService())
+    stopNaosZagSelectService(selectService())
     selectService.set(null)
   })
   effect(() => {
@@ -89,7 +89,7 @@ export function IktiaSelect({
     void selected()
     void open()
     if (api == null) return
-    return syncIktiaSelectItems({
+    return syncNaosSelectItems({
       api,
       disabled,
       host: host().element,
@@ -102,7 +102,7 @@ export function IktiaSelect({
       {...(selectApi()?.getRootProps() ?? {})}
       part="root"
       data-disabled={disabled || undefined}
-      {...getIktiaOverlayStateAttributes({
+      {...getNaosOverlayStateAttributes({
         kind: "select",
         open: open(),
       })}
@@ -127,7 +127,7 @@ export function IktiaSelect({
       <div
         {...(selectApi()?.getPositionerProps() ?? {})}
         part="positioner"
-        {...getIktiaOverlayStateAttributes({
+        {...getNaosOverlayStateAttributes({
           kind: "select",
           open: open(),
         })}
@@ -135,7 +135,7 @@ export function IktiaSelect({
         <div
           {...(selectApi()?.getContentProps() ?? {})}
           part="content"
-          {...getIktiaOverlayStateAttributes({
+          {...getNaosOverlayStateAttributes({
             kind: "select",
             open: open(),
           })}

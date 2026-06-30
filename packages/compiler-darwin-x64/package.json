@@ -1,11 +1,11 @@
 {
-  "name": "@iktia/compiler-darwin-x64",
+  "name": "@naos-ui/compiler-darwin-x64",
   "version": "0.0.0",
-  "description": "macOS x64 native bindings for @iktia/compiler.",
+  "description": "macOS x64 native bindings for @naos-ui/compiler.",
   "license": "Apache-2.0",
   "type": "commonjs",
-  "main": "./iktia-node.node",
-  "files": ["README.md", "iktia-node.node"],
+  "main": "./naos-node.node",
+  "files": ["README.md", "naos-node.node"],
   "scripts": {
     "build": "node ../compiler/scripts/build-native.mjs"
   },
@@ -14,10 +14,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sebastian-software/iktia.git",
+    "url": "git+https://github.com/sebastian-software/naos-ui.git",
     "directory": "packages/compiler-darwin-x64"
   },
-  "bugs": "https://github.com/sebastian-software/iktia/issues",
+  "bugs": "https://github.com/sebastian-software/naos-ui/issues",
   "publishConfig": {
     "access": "public"
   },

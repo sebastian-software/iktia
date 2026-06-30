@@ -5,11 +5,11 @@ import { fileURLToPath } from "node:url"
 
 import {
   getNativeInfo,
-  isIktiaCompilerError,
+  isNaosCompilerError,
   renderDeclarativeShadowDom,
   transformComponent,
-  type IktiaDiagnostic,
-} from "@iktia/compiler"
+  type NaosDiagnostic,
+} from "@naos-ui/compiler"
 
 export type CliIo = {
   cwd?: string
@@ -28,19 +28,19 @@ type ParsedArgs = {
 }
 
 const helpText = `Usage:
-  iktia compile <input> [-o output] [--stdout] [--json] [--pretty]
-  iktia prerender <input> [-o output] [--props json] [--json] [--pretty]
-  iktia info [--json] [--pretty]
+  naos compile <input> [-o output] [--stdout] [--json] [--pretty]
+  naos prerender <input> [-o output] [--props json] [--json] [--pretty]
+  naos info [--json] [--pretty]
 
 Examples:
-  iktia compile src/counter.wc.tsx -o dist/counter.js
-  iktia compile src/counter.wc.tsx -o dist/counter.js --json
-  iktia prerender src/counter.wc.tsx --props '{"label":"Count"}' --stdout
-  iktia info --pretty
+  naos compile src/counter.wc.tsx -o dist/counter.js
+  naos compile src/counter.wc.tsx -o dist/counter.js --json
+  naos prerender src/counter.wc.tsx --props '{"label":"Count"}' --stdout
+  naos info --pretty
 `
 
 const compileHelpText = `Usage:
-  iktia compile <input> [-o output] [--stdout] [--json] [--pretty]
+  naos compile <input> [-o output] [--stdout] [--json] [--pretty]
 
 Compile one .wc.tsx module to JavaScript.
 
@@ -53,7 +53,7 @@ Options:
 `
 
 const prerenderHelpText = `Usage:
-  iktia prerender <input> [-o output] [--props json] [--stdout] [--json] [--pretty]
+  naos prerender <input> [-o output] [--props json] [--stdout] [--json] [--pretty]
 
 Prerender one .wc.tsx module to host HTML with Declarative Shadow DOM.
 
@@ -67,7 +67,7 @@ Options:
 `
 
 const infoHelpText = `Usage:
-  iktia info [--json] [--pretty]
+  naos info [--json] [--pretty]
 
 Print Node platform metadata and native compiler version metadata as JSON.
 
@@ -101,11 +101,11 @@ export async function runCli(
         io.stdout.write(helpText)
         return 0
       default:
-        io.stderr.write(`Unknown Iktia command: ${command}\n${helpText}`)
+        io.stderr.write(`Unknown Naos command: ${command}\n${helpText}`)
         return 1
     }
   } catch (error) {
-    if (isIktiaCompilerError(error)) {
+    if (isNaosCompilerError(error)) {
       io.stderr.write(`${formatDiagnostics(error.diagnostics)}\n`)
       return 1
     }
@@ -220,7 +220,7 @@ function infoCommand(args: readonly string[], io: CliIo): number {
     return 0
   }
   if (parsed.input || parsed.output || parsed.stdout) {
-    throw new Error("iktia info does not accept input, output, or --stdout")
+    throw new Error("naos info does not accept input, output, or --stdout")
   }
   const native = getNativeInfo()
   writeJson(
@@ -298,10 +298,10 @@ function validateJsonSummaryMode(parsed: ParsedArgs, command: string): void {
     return
   }
   if (parsed.stdout) {
-    throw new Error(`iktia ${command} --json cannot be combined with --stdout`)
+    throw new Error(`naos ${command} --json cannot be combined with --stdout`)
   }
   if (!parsed.output) {
-    throw new Error(`iktia ${command} --json requires -o or --output`)
+    throw new Error(`naos ${command} --json requires -o or --output`)
   }
 }
 
@@ -323,7 +323,7 @@ function readOptionValue(args: readonly string[], index: number, option: string)
 
 function requireInput(parsed: ParsedArgs, command: string): string {
   if (!parsed.input) {
-    throw new Error(`iktia ${command} requires an input file`)
+    throw new Error(`naos ${command} requires an input file`)
   }
   return parsed.input
 }
@@ -375,7 +375,7 @@ function stripQuery(id: string): string {
   return id.split("?")[0] ?? id
 }
 
-function formatDiagnostics(diagnostics: readonly IktiaDiagnostic[]): string {
+function formatDiagnostics(diagnostics: readonly NaosDiagnostic[]): string {
   return diagnostics
     .map((diagnostic) => {
       const span = diagnostic.span

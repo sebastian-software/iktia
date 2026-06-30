@@ -7,18 +7,18 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  createIktiaZagFileUploadService,
+  createNaosZagFileUploadService,
   fileUploadFileNames,
   fileUploadFormValue,
-  getIktiaZagFileUploadApi,
-  stopIktiaZagFileUploadService,
+  getNaosZagFileUploadApi,
+  stopNaosZagFileUploadService,
 } from "./internal/zag/file-upload.js"
-import type { IktiaZagFileUploadService } from "./internal/zag/file-upload.js"
+import type { NaosZagFileUploadService } from "./internal/zag/file-upload.js"
 import css from "./file-upload.wc.css?inline"
 
-export type IktiaFileUploadProps = {
+export type NaosFileUploadProps = {
   accept?: string
   disabled?: boolean
   label?: string
@@ -31,20 +31,20 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaFileUpload({
+export function NaosFileUpload({
   accept = "",
   disabled = false,
   label = "Upload files",
   maxFiles = 3,
   multiple = false,
   name = "",
-}: IktiaFileUploadProps = {}) {
+}: NaosFileUploadProps = {}) {
   const files = state<File[]>([])
   const rejected = state<string[]>([])
-  const fileUploadService = state<IktiaZagFileUploadService | null>(null)
-  const fileUploadApi = computed(() => getIktiaZagFileUploadApi(fileUploadService()))
-  const changed = event<{ files: string[]; rejectedFiles: string[] }>("iktia-change")
-  const rejectedEvent = event<{ files: string[] }>("iktia-invalid")
+  const fileUploadService = state<NaosZagFileUploadService | null>(null)
+  const fileUploadApi = computed(() => getNaosZagFileUploadApi(fileUploadService()))
+  const changed = event<{ files: string[]; rejectedFiles: string[] }>("naos-change")
+  const rejectedEvent = event<{ files: string[] }>("naos-invalid")
   const form = formControl({
     value: () => fileUploadFormValue({ files: files(), multiple, name }),
     reset: () => {
@@ -59,11 +59,11 @@ export function IktiaFileUpload({
   void name
 
   onConnected(() => {
-    fileUploadService.set(createIktiaZagFileUploadService({
+    fileUploadService.set(createNaosZagFileUploadService({
       accept,
       disabled,
       host: host().element,
-      id: "iktia-file-upload",
+      id: "naos-file-upload",
       maxFiles,
       multiple,
       name,
@@ -91,7 +91,7 @@ export function IktiaFileUpload({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagFileUploadService(fileUploadService())
+    stopNaosZagFileUploadService(fileUploadService())
     fileUploadService.set(null)
   })
 

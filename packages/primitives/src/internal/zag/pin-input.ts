@@ -10,10 +10,10 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaZagPinInputService = ReturnType<typeof createZagService>
-export type IktiaZagPinInputType = "alphanumeric" | "alphabetic" | "numeric"
+export type NaosZagPinInputService = ReturnType<typeof createZagService>
+export type NaosZagPinInputType = "alphanumeric" | "alphabetic" | "numeric"
 
-type IktiaZagPinInputServiceOptions = {
+type NaosZagPinInputServiceOptions = {
   count: number
   disabled: boolean
   host: HTMLElement
@@ -26,7 +26,7 @@ type IktiaZagPinInputServiceOptions = {
   otp: boolean
   placeholder: string
   root: ParentNode
-  type: IktiaZagPinInputType
+  type: NaosZagPinInputType
   value: string
 }
 
@@ -35,7 +35,7 @@ export function pinInputValueArray(value: string, count: number): string[] {
   return Array.from({ length: count }).map((_, index) => chars[index] ?? "")
 }
 
-export function createIktiaZagPinInputService({
+export function createNaosZagPinInputService({
   count,
   disabled,
   host,
@@ -50,7 +50,7 @@ export function createIktiaZagPinInputService({
   root,
   type,
   value,
-}: IktiaZagPinInputServiceOptions): IktiaZagPinInputService {
+}: NaosZagPinInputServiceOptions): NaosZagPinInputService {
   return createZagService({
     machine: pinInputMachine as never,
     props: {
@@ -79,15 +79,15 @@ export function createIktiaZagPinInputService({
   })
 }
 
-export function getIktiaZagPinInputApi(
-  service: IktiaZagPinInputService | null
+export function getNaosZagPinInputApi(
+  service: NaosZagPinInputService | null
 ): ZagPinInputApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagPinInputService(
-  service: IktiaZagPinInputService | null
+export function stopNaosZagPinInputService(
+  service: NaosZagPinInputService | null
 ) {
   service?.stop()
 }

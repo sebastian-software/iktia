@@ -8,21 +8,21 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  collectIktiaListboxItems,
-  createIktiaZagListboxService,
-  getIktiaZagListboxApi,
+  collectNaosListboxItems,
+  createNaosZagListboxService,
+  getNaosZagListboxApi,
   listboxFormValue,
-  parseIktiaListboxValue,
-  serializeIktiaListboxValue,
-  stopIktiaZagListboxService,
-  syncIktiaListboxItems,
+  parseNaosListboxValue,
+  serializeNaosListboxValue,
+  stopNaosZagListboxService,
+  syncNaosListboxItems,
 } from "./internal/zag/listbox.js"
-import type { IktiaZagListboxService } from "./internal/zag/listbox.js"
+import type { NaosZagListboxService } from "./internal/zag/listbox.js"
 import css from "./listbox.wc.css?inline"
 
-export type IktiaListboxProps = {
+export type NaosListboxProps = {
   disabled?: boolean
   label?: string
   multiple?: boolean
@@ -35,19 +35,19 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaListbox({
+export function NaosListbox({
   disabled = false,
   label = "Options",
   multiple = false,
   name = "",
   orientation = "vertical",
   value = "",
-}: IktiaListboxProps = {}) {
-  const selected = state(parseIktiaListboxValue(value))
+}: NaosListboxProps = {}) {
+  const selected = state(parseNaosListboxValue(value))
   const highlighted = state("")
-  const listboxService = state<IktiaZagListboxService | null>(null)
-  const listboxApi = computed(() => getIktiaZagListboxApi(listboxService()))
-  const changed = event<{ value: string[] }>("iktia-change")
+  const listboxService = state<NaosZagListboxService | null>(null)
+  const listboxApi = computed(() => getNaosZagListboxApi(listboxService()))
+  const changed = event<{ value: string[] }>("naos-change")
   const form = formControl({
     value: () =>
       listboxFormValue({
@@ -56,7 +56,7 @@ export function IktiaListbox({
         value: selected(),
       }),
     reset: () => {
-      const nextValue = parseIktiaListboxValue(value)
+      const nextValue = parseNaosListboxValue(value)
       selected.set(nextValue)
       listboxApi()?.setValue(nextValue)
     },
@@ -67,11 +67,11 @@ export function IktiaListbox({
 
   onConnected(() => {
     const hostElement = host().element
-    listboxService.set(createIktiaZagListboxService({
+    listboxService.set(createNaosZagListboxService({
       disabled,
       host: hostElement,
-      id: "iktia-listbox",
-      items: collectIktiaListboxItems(hostElement),
+      id: "naos-listbox",
+      items: collectNaosListboxItems(hostElement),
       multiple,
       onHighlightChange(nextValue) {
         highlighted.set(nextValue)
@@ -86,7 +86,7 @@ export function IktiaListbox({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagListboxService(listboxService())
+    stopNaosZagListboxService(listboxService())
     listboxService.set(null)
   })
   effect(() => {
@@ -94,7 +94,7 @@ export function IktiaListbox({
     void selected()
     void highlighted()
     if (api == null) return
-    return syncIktiaListboxItems({
+    return syncNaosListboxItems({
       api,
       disabled,
       host: host().element,
@@ -107,7 +107,7 @@ export function IktiaListbox({
       {...(listboxApi()?.getRootProps() ?? {})}
       part="root"
       aria-disabled={disabled || undefined}
-      data-state={serializeIktiaListboxValue(selected()) || "none"}
+      data-state={serializeNaosListboxValue(selected()) || "none"}
       data-disabled={disabled || undefined}
       data-orientation={orientation}
     >
@@ -117,7 +117,7 @@ export function IktiaListbox({
       <div
         {...(listboxApi()?.getContentProps() ?? {})}
         part="content"
-        data-state={serializeIktiaListboxValue(selected()) || "none"}
+        data-state={serializeNaosListboxValue(selected()) || "none"}
       >
         <slot name="item" />
       </div>

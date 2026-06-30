@@ -1,6 +1,6 @@
-# `@iktia/router`
+# `@naos-ui/router`
 
-`@iktia/router` is a tiny platform router for Custom Element applications.
+`@naos-ui/router` is a tiny platform router for Custom Element applications.
 
 It maps URLs to native elements, lazy-loads route modules, runs abortable route
 loaders and FormData actions, exposes route params and search params, intercepts
@@ -9,7 +9,7 @@ state, restores scroll and focus after route commits, emits route events, and
 cancels stale async navigations.
 
 ```ts
-import { createRouter, defineRoutes, redirect } from "@iktia/router"
+import { createRouter, defineRoutes, redirect } from "@naos-ui/router"
 
 const routes = defineRoutes([
   {
@@ -46,9 +46,9 @@ createRouter({
 }).start()
 ```
 
-Route elements receive `element.iktiaRoute`, including `params`, `search`,
+Route elements receive `element.naosRoute`, including `params`, `search`,
 `data`, `actionData`, the current `URL`, and the navigation `AbortSignal`.
-Native forms opt into action handling with `data-iktia-action`.
+Native forms opt into action handling with `data-naos-action`.
 
 The router defaults to browser-native app navigation behavior: new route commits
 scroll to the top or hash target, back/forward restores the previous scroll
@@ -59,10 +59,10 @@ the first heading, or the outlet. Apps that own this behavior can pass
 native fragment navigation.
 
 Route events are dispatched from the router and the outlet:
-`iktia:navigationstart`, `iktia:navigationcommit`, `iktia:navigationabort`,
-`iktia:navigationerror`, `iktia:routechange`, `iktia:actionstart`,
-`iktia:actioncommit`, and `iktia:actionerror`.
+`naos:navigationstart`, `naos:navigationcommit`, `naos:navigationabort`,
+`naos:navigationerror`, `naos:routechange`, `naos:actionstart`,
+`naos:actioncommit`, and `naos:actionerror`.
 
-The package is optional. It is not a dependency of generated Iktia components,
-`@iktia/runtime`, or `@iktia/primitives`, and it does not depend on React,
+The package is optional. It is not a dependency of generated Naos components,
+`@naos-ui/runtime`, or `@naos-ui/primitives`, and it does not depend on React,
 Next.js, TanStack Router, Angular, Lit, or a virtual DOM runtime.

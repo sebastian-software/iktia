@@ -1,8 +1,8 @@
-# Iktia
+# Naos
 
-Iktia is a TSX compiler for native interface elements.
+Naos is a TSX compiler for native interface elements.
 
-Write declarative TypeScript and TSX. Iktia compiles that source into
+Write declarative TypeScript and TSX. Naos compiles that source into
 lightweight Web Components for design systems, embedded widgets, CMS pages, and
 classic web applications.
 
@@ -11,17 +11,18 @@ elements.
 
 ## Why the Name?
 
-Iktia (say `IK-tee-uh`) is a Greek-inspired coined name. It nods to Iktinos,
-often Latinized as Ictinus, the ancient Greek architect associated with the
-Parthenon.
+Naos (say `NAH-oss`) takes its name from the _naós_ (ναός), the inner chamber
+of a Greek temple — the structural core the surrounding columns and façade are
+built to hold and protect.
 
-The reference is loose, not literal: architecture, proportion, and structure
-rather than mythology or a direct translation. That felt right for a compiler
-whose job is to turn typed interface code into native interface elements without
-carrying a framework runtime along for the ride.
+The reference is loose, not literal: architecture, proportion, and a load-bearing
+core rather than mythology or a direct translation. That felt right for a
+compiler whose job is to turn typed interface code into native interface elements
+without carrying a framework runtime along for the ride. The components ship as
+the `@naos-ui` package family.
 
 ```tsx
-import { computed, event, on, state } from "@iktia/core"
+import { computed, event, on, state } from "@naos-ui/core"
 
 export type CounterProps = {
   label?: string
@@ -66,8 +67,8 @@ The current implementation proves the vertical slice:
   HTML paths
 * typed N-API boundary and Node wrapper
 * Vite transform plugin
-* first experimental `@iktia/primitives` package built from `.wc.tsx` sources
-* optional `@iktia/router` package for Custom Element app shells
+* first experimental `@naos-ui/primitives` package built from `.wc.tsx` sources
+* optional `@naos-ui/router` package for Custom Element app shells
 * Ardo-rendered docs plus linked static demos with Playwright browser gates
 * Shadow DOM style injection and default/named slots
 
@@ -79,7 +80,7 @@ accepted syntax boundary.
 
 Web Components are the browser platform's reusable component primitive. The
 ecosystem already has mature ways to build them: runtime libraries, framework
-adapters, full compilers, and design-system toolkits. Iktia explores a focused
+adapters, full compilers, and design-system toolkits. Naos explores a focused
 point in that landscape:
 
 * Rust owns compiler semantics.
@@ -93,7 +94,7 @@ less runtime surface than framework-backed wrappers.
 
 ## Good Fit
 
-Iktia is aimed at:
+Naos is aimed at:
 
 * design-system packages that need framework-neutral output
 * embedded widgets that should not bring an app framework with them
@@ -116,9 +117,9 @@ It is not trying to be:
 For package consumers, install the public packages:
 
 ```sh
-pnpm add @iktia/core @iktia/runtime
-pnpm add @iktia/primitives @iktia/router
-pnpm add -D @iktia/compiler @iktia/vite @iktia/cli
+pnpm add @naos-ui/core @naos-ui/runtime
+pnpm add @naos-ui/primitives @naos-ui/router
+pnpm add -D @naos-ui/compiler @naos-ui/vite @naos-ui/cli
 ```
 
 For repository development, install dependencies and build the local native
@@ -135,7 +136,7 @@ Configure TypeScript for the automatic JSX runtime.
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "@iktia/core"
+    "jsxImportSource": "@naos-ui/core"
   }
 }
 ```
@@ -144,15 +145,15 @@ Add the Vite plugin.
 
 ```ts
 import { defineConfig } from "vite"
-import { iktia } from "@iktia/vite"
+import { naos } from "@naos-ui/vite"
 
 export default defineConfig({
-  plugins: [iktia()],
+  plugins: [naos()],
 })
 ```
 
 The Vite plugin emits prerender metadata by default for static HTML and DSD
-workflows. Use `iktia({ prerender: false })` only for builds that never need
+workflows. Use `naos({ prerender: false })` only for builds that never need
 that metadata.
 
 Create a `.wc.tsx` file and import it from your app.
@@ -164,7 +165,7 @@ import "./counter.wc.tsx"
 Use the first packaged primitives when you want a compiled baseline UI surface.
 
 ```ts
-import "@iktia/primitives"
+import "@naos-ui/primitives"
 ```
 
 The initial primitive package includes experimental button, button group,
@@ -176,14 +177,14 @@ cross-browser form behavior are fully documented and tested.
 Run the example.
 
 ```sh
-pnpm --filter @iktia/example-counter build
-pnpm --filter @iktia/example-counter test
+pnpm --filter @naos-ui/example-counter build
+pnpm --filter @naos-ui/example-counter test
 ```
 
 The public site is split into Ardo-rendered docs at the root and linked static
-Iktia demos under `/demos/`. The demos cover reactive state, events, primitive
+Naos demos under `/demos/`. The demos cover reactive state, events, primitive
 parts/slots/state attributes, PascalCase composition, CSS variables, packaged
-`@iktia/primitives`, an optional `@iktia/router` Custom Element route shell
+`@naos-ui/primitives`, an optional `@naos-ui/router` Custom Element route shell
 with loader/action flow, and a generated Declarative Shadow DOM page with
 delayed custom-element upgrade. See
 [docs/demos.md](docs/demos.md) for the docs/demo matrix, local commands, and
@@ -197,7 +198,7 @@ compiler detail. `Counter` compiles to `x-counter`, while multi-word names such
 as `CounterButton` compile to `counter-button`.
 
 ```tsx
-import { Show, computed, event, on, state, type ComponentOptions } from "@iktia/core"
+import { Show, computed, event, on, state, type ComponentOptions } from "@naos-ui/core"
 import css from "./button.css?inline"
 
 export type ButtonProps = {
@@ -266,17 +267,17 @@ see [docs/authoring.md](docs/authoring.md).
 ## Packages
 
 ```txt
-@iktia/core       Authoring API and JSX runtime types
-@iktia/motion     Framework-free motion kernels for generated output and primitives
-@iktia/runtime    Tiny platform helpers for generated elements
-@iktia/router     Tiny platform router for Custom Element app shells
-@iktia/compiler   Node wrapper around the Rust compiler
-@iktia/compiler-* Platform-specific optional native compiler bindings
-@iktia/cli        Minimal compile, prerender, and info commands
-@iktia/vite       Vite transform and prerender metadata integration
+@naos-ui/core       Authoring API and JSX runtime types
+@naos-ui/motion     Framework-free motion kernels for generated output and primitives
+@naos-ui/runtime    Tiny platform helpers for generated elements
+@naos-ui/router     Tiny platform router for Custom Element app shells
+@naos-ui/compiler   Node wrapper around the Rust compiler
+@naos-ui/compiler-* Platform-specific optional native compiler bindings
+@naos-ui/cli        Minimal compile, prerender, and info commands
+@naos-ui/vite       Vite transform and prerender metadata integration
 ```
 
-`@iktia/runtime` is intentionally not a component runtime. It may expose small
+`@naos-ui/runtime` is intentionally not a component runtime. It may expose small
 platform helpers such as event creation, scheduling, or hydration helpers, but
 it must not grow into a reconciler, virtual DOM, hook system, or framework
 runtime.
@@ -286,10 +287,10 @@ runtime.
 ```text
 .wc.tsx source
   -> Vite plugin filter
-  -> @iktia/compiler typed wrapper
-  -> optional @iktia/compiler-* native package
-  -> iktia-node N-API module
-  -> iktia-core Rust compiler
+  -> @naos-ui/compiler typed wrapper
+  -> optional @naos-ui/compiler-* native package
+  -> naos-node N-API module
+  -> naos-core Rust compiler
   -> OXC TSX parse validation
   -> component analysis and code generation
   -> native Custom Element JavaScript
@@ -309,27 +310,27 @@ export const options = {
 } satisfies ComponentOptions
 ```
 
-Iktia treats CSS as flat text for v0.1. Vite owns CSS loading; CSS custom
+Naos treats CSS as flat text for v0.1. Vite owns CSS loading; CSS custom
 properties are the supported theming boundary.
 
 The normal Vite transform emits imperative Custom Element modules. When a build
 uses an explicit prerender entry point, Declarative Shadow DOM is the default
-HTML output for Iktia components. The generated client class adopts an existing
+HTML output for Naos components. The generated client class adopts an existing
 declarative shadow root before any `attachShadow()` fallback, binds internal
-`data-iktia-*` hydration markers, throws a clear development mismatch
+`data-naos-*` hydration markers, throws a clear development mismatch
 diagnostic, and remounts imperatively in production when a stale prerender
 artifact cannot be hydrated.
 
 ## Landscape
 
 This section is a product-positioning snapshot from June 2026. It is meant to
-explain where Iktia fits, not to rank mature projects against an MVP.
+explain where Naos fits, not to rank mature projects against an MVP.
 
-| Tool or category | Authoring model | Runtime or output model | Strong fit | How Iktia differs |
+| Tool or category | Authoring model | Runtime or output model | Strong fit | How Naos differs |
 | --- | --- | --- | --- | --- |
 | Native Custom Elements | JavaScript classes extending `HTMLElement` | Browser-native Custom Elements | Maximum platform control and minimum dependency surface | Adds typed TSX authoring and compiler-generated boilerplate |
 | Lit | `LitElement`, reactive properties, tagged template literals | Lightweight Lit runtime and reactive update cycle | Mature web component libraries with broad docs and ecosystem | Avoids a template/runtime library and compiles a narrow TSX subset to direct DOM code |
-| Stencil | TypeScript, JSX, and CSS compiler for Web Components | Compiler-generated Custom Elements | Production component libraries that need a complete Web Component compiler toolchain | Closest category neighbor, but Iktia is Rust/OXC-first and intentionally smaller |
+| Stencil | TypeScript, JSX, and CSS compiler for Web Components | Compiler-generated Custom Elements | Production component libraries that need a complete Web Component compiler toolchain | Closest category neighbor, but Naos is Rust/OXC-first and intentionally smaller |
 | FAST | Web Component libraries and design-system foundation | FAST element/runtime model and component packages | Design systems aligned with FAST/Fluent patterns | Does not provide a design system or runtime foundation package |
 | Svelte custom elements | Svelte components compiled behind a Custom Element wrapper | Svelte component lifecycle wrapped as a custom element | Teams already building in Svelte that need custom-element distribution | The source component is the Custom Element contract itself, not a wrapped framework component |
 | Vue custom elements | Vue component APIs through `defineCustomElement()` | Native Custom Element constructor backed by Vue's component model | Vue teams publishing embeddable components | Does not bring Vue's component/runtime model into the element |
@@ -341,7 +342,7 @@ explain where Iktia fits, not to rank mature projects against an MVP.
 | Mitosis | JSX source compiled to many frameworks | Framework-specific generated outputs | Design systems that must target React, Vue, Svelte, Angular, Solid, Qwik, and more | Targets one output deliberately: native Custom Elements |
 
 Stencil is the closest established category neighbor because it is also a
-complete, established compiler ecosystem. Iktia is a focused experiment in
+complete, established compiler ecosystem. Naos is a focused experiment in
 what a smaller Rust/OXC-first compiler can provide with a deliberately narrow
 authoring boundary and no framework runtime goal.
 
@@ -356,15 +357,15 @@ pnpm build:docs
 pnpm check-native-types
 pnpm check
 pnpm test
-pnpm --filter @iktia/example-counter type-check
-pnpm --filter @iktia/example-counter build
-pnpm --filter @iktia/example-counter test
+pnpm --filter @naos-ui/example-counter type-check
+pnpm --filter @naos-ui/example-counter build
+pnpm --filter @naos-ui/example-counter test
 ```
 
 Workspace layout:
 
-* `crates/iktia-core`: Rust compiler analysis and code generation
-* `crates/iktia-node`: N-API wrapper around the Rust core
+* `crates/naos-core`: Rust compiler analysis and code generation
+* `crates/naos-node`: N-API wrapper around the Rust core
 * `packages/compiler`: typed Node loader for optional native bindings
 * `packages/compiler-*`: platform-specific native compiler packages
 * `packages/cli`: minimal compile, prerender, and info commands

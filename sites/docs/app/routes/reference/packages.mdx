@@ -7,32 +7,32 @@ order: 2
 # Packages
 
 v0.1 publishes JavaScript packages plus optional native compiler packages. The
-native packages are installed through `@iktia/compiler`.
+native packages are installed through `@naos-ui/compiler`.
 
 ## JavaScript Packages
 
 | Package | Purpose |
 | --- | --- |
-| `@iktia/core` | Public authoring types and primitives. |
-| `@iktia/runtime` | Tiny generated-code helper runtime. |
-| `@iktia/primitives` | Experimental Iktia-authored primitive Web Components. |
-| `@iktia/router` | Optional platform router for Custom Element app shells. |
-| `@iktia/compiler` | Node boundary and native loader. |
-| `@iktia/vite` | Vite plugin. |
-| `@iktia/cli` | Minimal compile, prerender, and info binary. |
+| `@naos-ui/core` | Public authoring types and primitives. |
+| `@naos-ui/runtime` | Tiny generated-code helper runtime. |
+| `@naos-ui/primitives` | Experimental Naos-authored primitive Web Components. |
+| `@naos-ui/router` | Optional platform router for Custom Element app shells. |
+| `@naos-ui/compiler` | Node boundary and native loader. |
+| `@naos-ui/vite` | Vite plugin. |
+| `@naos-ui/cli` | Minimal compile, prerender, and info binary. |
 
 ## Native Packages
 
 | Package | Platform |
 | --- | --- |
-| `@iktia/compiler-darwin-arm64` | macOS arm64 |
-| `@iktia/compiler-darwin-x64` | macOS x64 |
-| `@iktia/compiler-linux-arm64-gnu` | Linux arm64 glibc |
-| `@iktia/compiler-linux-arm64-musl` | Linux arm64 musl |
-| `@iktia/compiler-linux-x64-gnu` | Linux x64 glibc |
-| `@iktia/compiler-linux-x64-musl` | Linux x64 musl |
-| `@iktia/compiler-win32-arm64-msvc` | Windows arm64 MSVC |
-| `@iktia/compiler-win32-x64-msvc` | Windows x64 MSVC |
+| `@naos-ui/compiler-darwin-arm64` | macOS arm64 |
+| `@naos-ui/compiler-darwin-x64` | macOS x64 |
+| `@naos-ui/compiler-linux-arm64-gnu` | Linux arm64 glibc |
+| `@naos-ui/compiler-linux-arm64-musl` | Linux arm64 musl |
+| `@naos-ui/compiler-linux-x64-gnu` | Linux x64 glibc |
+| `@naos-ui/compiler-linux-x64-musl` | Linux x64 musl |
+| `@naos-ui/compiler-win32-arm64-msvc` | Windows arm64 MSVC |
+| `@naos-ui/compiler-win32-x64-msvc` | Windows x64 MSVC |
 
 The loader resolution order is environment override, installed optional package,
 workspace-local binding, then a clear unsupported or missing-dependency error.

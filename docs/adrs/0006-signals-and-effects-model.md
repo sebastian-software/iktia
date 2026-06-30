@@ -12,7 +12,7 @@ differing in public API and runtime details.
 
 ## Decision
 
-Adopt an Iktia-owned reactive vocabulary:
+Adopt an Naos-owned reactive vocabulary:
 
 * `state<T>()` is the public local state primitive.
 * `computed(() => value)` represents pure derived values and is read-only.

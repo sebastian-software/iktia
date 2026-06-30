@@ -1,9 +1,9 @@
 # Compiler Conformance Fixtures
 
 The compiler conformance suite lives in
-`crates/iktia-core/tests/fixtures/conformance` and is exercised by
-`crates/iktia-core/tests/conformance.rs`. It defines the local, reviewable
-boundary for authoring patterns that Iktia accepts, rejects, and prerenders as
+`crates/naos-core/tests/fixtures/conformance` and is exercised by
+`crates/naos-core/tests/conformance.rs`. It defines the local, reviewable
+boundary for authoring patterns that Naos accepts, rejects, and prerenders as
 Declarative Shadow DOM.
 
 ## Fixture Groups
@@ -39,5 +39,5 @@ When adding or changing compiler syntax:
 Run the local conformance suite from the workspace root:
 
 ```sh
-cargo test -p iktia-core --test conformance
+cargo test -p naos-core --test conformance
 ```

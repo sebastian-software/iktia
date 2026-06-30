@@ -5,7 +5,7 @@ import {
   defaultResourceCache,
   normalizeResourceKey,
   subscriptionResource,
-} from "@iktia/data"
+} from "@naos-ui/data"
 import { getFunctionName } from "convex/server"
 import type { ConnectionState, MutationOptions } from "convex/browser"
 import type {

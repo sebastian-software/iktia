@@ -38,53 +38,53 @@ const jsPackages = [
 const nativeTargets = [
   {
     cpu: "arm64",
-    name: "@iktia/compiler-darwin-arm64",
+    name: "@naos-ui/compiler-darwin-arm64",
     os: "darwin",
     path: "packages/compiler-darwin-arm64",
   },
   {
     cpu: "x64",
-    name: "@iktia/compiler-darwin-x64",
+    name: "@naos-ui/compiler-darwin-x64",
     os: "darwin",
     path: "packages/compiler-darwin-x64",
   },
   {
     cpu: "arm64",
     libc: "glibc",
-    name: "@iktia/compiler-linux-arm64-gnu",
+    name: "@naos-ui/compiler-linux-arm64-gnu",
     os: "linux",
     path: "packages/compiler-linux-arm64-gnu",
   },
   {
     cpu: "arm64",
     libc: "musl",
-    name: "@iktia/compiler-linux-arm64-musl",
+    name: "@naos-ui/compiler-linux-arm64-musl",
     os: "linux",
     path: "packages/compiler-linux-arm64-musl",
   },
   {
     cpu: "x64",
     libc: "glibc",
-    name: "@iktia/compiler-linux-x64-gnu",
+    name: "@naos-ui/compiler-linux-x64-gnu",
     os: "linux",
     path: "packages/compiler-linux-x64-gnu",
   },
   {
     cpu: "x64",
     libc: "musl",
-    name: "@iktia/compiler-linux-x64-musl",
+    name: "@naos-ui/compiler-linux-x64-musl",
     os: "linux",
     path: "packages/compiler-linux-x64-musl",
   },
   {
     cpu: "arm64",
-    name: "@iktia/compiler-win32-arm64-msvc",
+    name: "@naos-ui/compiler-win32-arm64-msvc",
     os: "win32",
     path: "packages/compiler-win32-arm64-msvc",
   },
   {
     cpu: "x64",
-    name: "@iktia/compiler-win32-x64-msvc",
+    name: "@naos-ui/compiler-win32-x64-msvc",
     os: "win32",
     path: "packages/compiler-win32-x64-msvc",
   },
@@ -103,11 +103,11 @@ for (const packagePath of publicPackages) {
   check(packageJson?.engines?.node === ">=22.0.0", `${packagePath} must require Node 22+`)
   check(packageJson?.publishConfig?.access === "public", `${packagePath} must publish publicly`)
   check(
-    packageJson?.repository?.url === "git+https://github.com/sebastian-software/iktia.git",
+    packageJson?.repository?.url === "git+https://github.com/sebastian-software/naos-ui.git",
     `${packagePath} repository must point at the GitHub repository`
   )
   check(packageJson?.repository?.directory === packagePath, `${packagePath} repository directory must match`)
-  check(packageJson?.bugs === "https://github.com/sebastian-software/iktia/issues", `${packagePath} bugs URL must match`)
+  check(packageJson?.bugs === "https://github.com/sebastian-software/naos-ui/issues", `${packagePath} bugs URL must match`)
 }
 
 for (const packagePath of jsPackages) {
@@ -134,14 +134,14 @@ const compilerPackage = packageJsonByPath.get("packages/compiler")
 const optionalDependencyNames = Object.keys(compilerPackage?.optionalDependencies ?? {}).sort()
 check(
   arrayEquals(optionalDependencyNames, nativeTargets.map((target) => target.name).sort()),
-  "@iktia/compiler optionalDependencies must match native package matrix"
+  "@naos-ui/compiler optionalDependencies must match native package matrix"
 )
 
 for (const target of nativeTargets) {
   const packageJson = packageJsonByPath.get(target.path)
   check(packageJson?.name === target.name, `${target.path} package name must be ${target.name}`)
   check(packageJson?.type === "commonjs", `${target.name} must be CommonJS`)
-  check(packageJson?.main === "./iktia-node.node", `${target.name} main must point at the .node artifact`)
+  check(packageJson?.main === "./naos-node.node", `${target.name} main must point at the .node artifact`)
   check(packageJson?.os?.[0] === target.os, `${target.name} os metadata must be ${target.os}`)
   check(packageJson?.cpu?.[0] === target.cpu, `${target.name} cpu metadata must be ${target.cpu}`)
   if (target.libc) {
@@ -151,8 +151,8 @@ for (const target of nativeTargets) {
 
 const cargoToml = readText("Cargo.toml")
 check(cargoToml.includes('version = "0.0.0"'), "workspace Cargo version must stay aligned")
-check(readText("crates/iktia-core/Cargo.toml").includes("publish = false"), "iktia-core must remain unpublished")
-check(readText("crates/iktia-node/Cargo.toml").includes("publish = false"), "iktia-node must remain unpublished")
+check(readText("crates/naos-core/Cargo.toml").includes("publish = false"), "naos-core must remain unpublished")
+check(readText("crates/naos-node/Cargo.toml").includes("publish = false"), "naos-node must remain unpublished")
 check(readText(".npmrc").includes("provenance=true"), ".npmrc must enable npm provenance")
 
 const releasePlease = readJson("release-please-config.json")

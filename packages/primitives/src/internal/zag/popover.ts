@@ -8,9 +8,9 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaZagPopoverService = ReturnType<typeof createZagService>
+export type NaosZagPopoverService = ReturnType<typeof createZagService>
 
-type IktiaZagPopoverServiceOptions = {
+type NaosZagPopoverServiceOptions = {
   host: HTMLElement
   id: string
   modal: boolean
@@ -19,14 +19,14 @@ type IktiaZagPopoverServiceOptions = {
   root: ParentNode
 }
 
-export function createIktiaZagPopoverService({
+export function createNaosZagPopoverService({
   host,
   id,
   modal,
   onOpenChange,
   open,
   root,
-}: IktiaZagPopoverServiceOptions): IktiaZagPopoverService {
+}: NaosZagPopoverServiceOptions): NaosZagPopoverService {
   return createZagService({
     machine: popoverMachine as never,
     props: {
@@ -56,15 +56,15 @@ export function createIktiaZagPopoverService({
   })
 }
 
-export function getIktiaZagPopoverApi(
-  service: IktiaZagPopoverService | null
+export function getNaosZagPopoverApi(
+  service: NaosZagPopoverService | null
 ): ZagPopoverApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagPopoverService(
-  service: IktiaZagPopoverService | null
+export function stopNaosZagPopoverService(
+  service: NaosZagPopoverService | null
 ) {
   service?.stop()
 }

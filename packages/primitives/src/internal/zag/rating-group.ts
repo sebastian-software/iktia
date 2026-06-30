@@ -10,9 +10,9 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaZagRatingGroupService = ReturnType<typeof createZagService>
+export type NaosZagRatingGroupService = ReturnType<typeof createZagService>
 
-type IktiaZagRatingGroupServiceOptions = {
+type NaosZagRatingGroupServiceOptions = {
   allowHalf: boolean
   count: number
   disabled: boolean
@@ -66,7 +66,7 @@ export function ratingGroupKeyboardValue({
   return null
 }
 
-export function createIktiaZagRatingGroupService({
+export function createNaosZagRatingGroupService({
   allowHalf,
   count,
   disabled,
@@ -80,7 +80,7 @@ export function createIktiaZagRatingGroupService({
   required,
   root,
   value,
-}: IktiaZagRatingGroupServiceOptions): IktiaZagRatingGroupService {
+}: NaosZagRatingGroupServiceOptions): NaosZagRatingGroupService {
   return createZagService({
     machine: ratingGroupMachine as never,
     props: {
@@ -110,15 +110,15 @@ export function createIktiaZagRatingGroupService({
   })
 }
 
-export function getIktiaZagRatingGroupApi(
-  service: IktiaZagRatingGroupService | null
+export function getNaosZagRatingGroupApi(
+  service: NaosZagRatingGroupService | null
 ): ZagRatingGroupApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagRatingGroupService(
-  service: IktiaZagRatingGroupService | null
+export function stopNaosZagRatingGroupService(
+  service: NaosZagRatingGroupService | null
 ) {
   service?.stop()
 }

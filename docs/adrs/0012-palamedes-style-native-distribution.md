@@ -6,8 +6,8 @@ Weight: P1
 
 ## Context
 
-Iktia's compiler is Rust-first and initially reached Node through a local
-N-API binding copied to `packages/compiler/native/iktia-node.node`. That is
+Naos's compiler is Rust-first and initially reached Node through a local
+N-API binding copied to `packages/compiler/native/naos-node.node`. That is
 enough for repository development, but it is not a publishable distribution
 model.
 
@@ -19,21 +19,21 @@ platform-specific optional npm packages.
 
 Adopt the Palamedes native distribution model for v0.1.
 
-`@iktia/compiler` is the public TypeScript compiler API and platform-aware
+`@naos-ui/compiler` is the public TypeScript compiler API and platform-aware
 loader. It has optional dependencies on native packages that contain the
 compiled `.node` artifacts:
 
-* `@iktia/compiler-darwin-arm64`
-* `@iktia/compiler-darwin-x64`
-* `@iktia/compiler-linux-arm64-gnu`
-* `@iktia/compiler-linux-arm64-musl`
-* `@iktia/compiler-linux-x64-gnu`
-* `@iktia/compiler-linux-x64-musl`
-* `@iktia/compiler-win32-arm64-msvc`
-* `@iktia/compiler-win32-x64-msvc`
+* `@naos-ui/compiler-darwin-arm64`
+* `@naos-ui/compiler-darwin-x64`
+* `@naos-ui/compiler-linux-arm64-gnu`
+* `@naos-ui/compiler-linux-arm64-musl`
+* `@naos-ui/compiler-linux-x64-gnu`
+* `@naos-ui/compiler-linux-x64-musl`
+* `@naos-ui/compiler-win32-arm64-msvc`
+* `@naos-ui/compiler-win32-x64-msvc`
 
 Native packages are CommonJS packages whose `main` points directly at
-`./iktia-node.node`. Package manifests must include correct `os`, `cpu`, and
+`./naos-node.node`. Package manifests must include correct `os`, `cpu`, and
 Linux `libc` metadata.
 
 Loader resolution order:
@@ -44,14 +44,14 @@ Loader resolution order:
 4. source-build guidance for contributors.
 
 Normal npm installs do not compile native code from source. Source builds are a
-contributor-only path. `iktia-core` and `iktia-node` are not published to
+contributor-only path. `naos-core` and `naos-node` are not published to
 crates.io for v0.1.
 
-The N-API boundary remains workflow-oriented. Iktia should expose meaningful
+The N-API boundary remains workflow-oriented. Naos should expose meaningful
 native operations such as `transformComponent()` and
 `renderDeclarativeShadowDom()`, not many small helper calls.
 
-Generated TypeScript declarations derived from `crates/iktia-node` are the
+Generated TypeScript declarations derived from `crates/naos-node` are the
 source of truth for the JS-visible native boundary and must be checked in CI.
 
 ## Alternatives

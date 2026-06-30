@@ -5,12 +5,12 @@
 
 [part~="root"] {
   display: grid;
-  gap: var(--iktia-file-upload-gap, 0.45rem);
-  color: var(--iktia-file-upload-fg, #17201b);
+  gap: var(--naos-file-upload-gap, 0.45rem);
+  color: var(--naos-file-upload-fg, #17201b);
 }
 
 [part~="label"] {
-  color: var(--iktia-file-upload-label-fg, #283c35);
+  color: var(--naos-file-upload-label-fg, #283c35);
   font-size: 0.9rem;
   font-weight: 700;
 }
@@ -20,38 +20,38 @@
   display: grid;
   gap: 0.45rem;
   place-items: center;
-  min-height: var(--iktia-file-upload-dropzone-min-height, 6rem);
-  width: min(var(--iktia-file-upload-width, 24rem), 100%);
-  border: 1px dashed var(--iktia-file-upload-border, #65736d);
-  border-radius: var(--iktia-file-upload-radius, 0.45rem);
-  background: var(--iktia-file-upload-bg, #ffffff);
+  min-height: var(--naos-file-upload-dropzone-min-height, 6rem);
+  width: min(var(--naos-file-upload-width, 24rem), 100%);
+  border: 1px dashed var(--naos-file-upload-border, #65736d);
+  border-radius: var(--naos-file-upload-radius, 0.45rem);
+  background: var(--naos-file-upload-bg, #ffffff);
   padding: 0.85rem;
   text-align: center;
 }
 
 [part~="dropzone"]:focus-visible {
-  border-color: var(--iktia-focus-ring, #0f766e);
-  outline: 2px solid var(--iktia-focus-ring, #0f766e);
+  border-color: var(--naos-focus-ring, #0f766e);
+  outline: 2px solid var(--naos-focus-ring, #0f766e);
   outline-offset: 2px;
 }
 
 [part~="dropzone"][data-dragging] {
-  border-color: var(--iktia-focus-ring, #0f766e);
-  background: var(--iktia-file-upload-dragging-bg, #eef7f4);
+  border-color: var(--naos-focus-ring, #0f766e);
+  background: var(--naos-file-upload-dragging-bg, #eef7f4);
 }
 
 [part~="message"] {
-  color: var(--iktia-file-upload-message-fg, #3f4d47);
+  color: var(--naos-file-upload-message-fg, #3f4d47);
   font-size: 0.9rem;
 }
 
 [part~="trigger"],
 [part~="clear"],
 [part~="item-delete"] {
-  border: 1px solid var(--iktia-file-upload-action-border, #65736d);
+  border: 1px solid var(--naos-file-upload-action-border, #65736d);
   border-radius: 0.375rem;
-  background: var(--iktia-file-upload-action-bg, #eef2f7);
-  color: var(--iktia-file-upload-action-fg, #17201b);
+  background: var(--naos-file-upload-action-bg, #eef2f7);
+  color: var(--naos-file-upload-action-fg, #17201b);
   cursor: pointer;
   font: inherit;
   min-height: 2rem;
@@ -61,7 +61,7 @@
 [part~="trigger"]:hover,
 [part~="clear"]:hover,
 [part~="item-delete"]:hover {
-  background: var(--iktia-file-upload-action-bg-hover, #e2f3ea);
+  background: var(--naos-file-upload-action-bg-hover, #e2f3ea);
 }
 
 [part~="items"] {
@@ -74,10 +74,10 @@
   grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 0.45rem;
-  width: min(var(--iktia-file-upload-width, 24rem), 100%);
-  border: 1px solid var(--iktia-file-upload-item-border, #d1ddd7);
+  width: min(var(--naos-file-upload-width, 24rem), 100%);
+  border: 1px solid var(--naos-file-upload-item-border, #d1ddd7);
   border-radius: 0.375rem;
-  background: var(--iktia-file-upload-item-bg, #f8fbfa);
+  background: var(--naos-file-upload-item-bg, #f8fbfa);
   padding: 0.4rem;
 }
 
@@ -90,7 +90,7 @@
 }
 
 [part~="item-size"] {
-  color: var(--iktia-file-upload-size-fg, #3f4d47);
+  color: var(--naos-file-upload-size-fg, #3f4d47);
   font-size: 0.8rem;
   white-space: nowrap;
 }
@@ -101,7 +101,7 @@
 }
 
 [part~="rejected"] {
-  color: var(--iktia-file-upload-invalid-fg, #b42318);
+  color: var(--naos-file-upload-invalid-fg, #b42318);
   font-size: 0.85rem;
 }
 

@@ -6,7 +6,7 @@ Weight: P1
 
 ## Context
 
-Iktia primitives expose platform-native styling contracts through Shadow DOM,
+Naos primitives expose platform-native styling contracts through Shadow DOM,
 parts, slots, state attributes, ARIA, and CSS custom properties. ADR 0015
 already establishes CSS custom properties as the v0.1 theming mechanism, but it
 does not define where reusable theme presets live or how package-level theme
@@ -19,47 +19,47 @@ scheme layers, low-specificity CSS token selectors, scoped light/dark sections,
 and a clear split between global design tokens and component-level styling
 hooks.
 
-Iktia should learn from those systems without copying their source, component
+Naos should learn from those systems without copying their source, component
 CSS, DOM structure, registry shape, palette matrix, utility classes, hosted
 project workflow, or visual builder.
 
 ## Decision
 
-Create a separate `@iktia/theme` package for reusable theme presets and token
+Create a separate `@naos-ui/theme` package for reusable theme presets and token
 metadata.
 
-The `@iktia/theme` package owns semantic CSS custom properties and generated
-preset CSS. The `@iktia/primitives` package owns primitive component CSS,
+The `@naos-ui/theme` package owns semantic CSS custom properties and generated
+preset CSS. The `@naos-ui/primitives` package owns primitive component CSS,
 parts, slots, state attributes, events, accessibility behavior, and
 primitive-specific override variables.
 
-Theme CSS uses Iktia-prefixed global tokens such as `--iktia-background`,
-`--iktia-surface`, `--iktia-primary`, `--iktia-success`, `--iktia-info`,
-`--iktia-warning`, `--iktia-error`, `--iktia-border`, `--iktia-input`,
-`--iktia-ring`, `--iktia-radius`, and `--iktia-font-sans`.
+Theme CSS uses Naos-prefixed global tokens such as `--naos-background`,
+`--naos-surface`, `--naos-primary`, `--naos-success`, `--naos-info`,
+`--naos-warning`, `--naos-error`, `--naos-border`, `--naos-input`,
+`--naos-ring`, `--naos-radius`, and `--naos-font-sans`.
 
 The first theme slice also includes a small role-token layer for repeated
-primitive families, such as `--iktia-control-bg`,
-`--iktia-control-border`, `--iktia-overlay-bg`,
-`--iktia-feedback-bg`, `--iktia-track-bg`, and `--iktia-range-bg`.
+primitive families, such as `--naos-control-bg`,
+`--naos-control-border`, `--naos-overlay-bg`,
+`--naos-feedback-bg`, `--naos-track-bg`, and `--naos-range-bg`.
 These role tokens are shared fallback points, not component APIs.
 Primitive-specific variables remain the exact override layer for individual
 components.
 
 Theme CSS must use low-specificity selectors so host applications can override
 tokens without fighting the preset. Generated preset CSS should also use a
-named cascade layer, `iktia-theme`, so normal application CSS can override theme
+named cascade layer, `naos-theme`, so normal application CSS can override theme
 defaults without depending on import order. The default selector shape is:
 
 ```css
-@layer iktia-theme {
+@layer naos-theme {
   :where(:root),
-  :where([data-iktia-theme="neutral"]) {
+  :where([data-naos-theme="neutral"]) {
     color-scheme: light;
   }
 
-  :where([data-iktia-color-scheme="dark"]),
-  :where([data-iktia-theme="neutral"][data-iktia-color-scheme="dark"]) {
+  :where([data-naos-color-scheme="dark"]),
+  :where([data-naos-theme="neutral"][data-naos-color-scheme="dark"]) {
     color-scheme: dark;
   }
 }
@@ -67,11 +67,11 @@ defaults without depending on import order. The default selector shape is:
 
 The public theme selectors are:
 
-* `data-iktia-theme="<name>"` for a named theme scope;
-* `data-iktia-color-scheme="dark"` for dark-mode overrides.
+* `data-naos-theme="<name>"` for a named theme scope;
+* `data-naos-color-scheme="dark"` for dark-mode overrides.
 
 Light mode is the default token set. Dark mode is opt-in through
-`data-iktia-color-scheme="dark"` on `:root` or a subtree. The CSS `color-scheme`
+`data-naos-color-scheme="dark"` on `:root` or a subtree. The CSS `color-scheme`
 property must be set with the same selectors so native controls and browser UI
 match the selected scheme.
 
@@ -79,9 +79,9 @@ Primitive CSS must use fallback chains that preserve component-specific
 overrides while consuming role tokens and semantic theme tokens:
 
 ```css
-border-color: var(--iktia-button-border, var(--iktia-control-border, var(--iktia-border, #26584a)));
-background: var(--iktia-button-bg, var(--iktia-control-bg, var(--iktia-surface, #f3faf6)));
-outline-color: var(--iktia-focus-ring, var(--iktia-ring, #0f766e));
+border-color: var(--naos-button-border, var(--naos-control-border, var(--naos-border, #26584a)));
+background: var(--naos-button-bg, var(--naos-control-bg, var(--naos-surface, #f3faf6)));
+outline-color: var(--naos-focus-ring, var(--naos-ring, #0f766e));
 ```
 
 Do not adopt a full Web Awesome-style palette and variant class system in the
@@ -98,13 +98,13 @@ only be introduced later when they remove behavior or lifecycle duplication
 without hiding primitive-specific parts, state attributes, and accessibility
 contracts.
 
-Do not add `iktia init`, `iktia create`, or `iktia theme apply` as part of the
+Do not add `naos init`, `naos create`, or `naos theme apply` as part of the
 first theme package. CLI theming workflows require a later update to the
 minimal CLI scope decision.
 
 ## Alternatives
 
-* Put theme CSS and token metadata directly in `@iktia/primitives`.
+* Put theme CSS and token metadata directly in `@naos-ui/primitives`.
 * Keep theming as docs-only snippets with no installable package.
 * Adopt ShadCN's theme registry shape directly.
 * Adopt Web Awesome's full stackable theme, palette, variant, utility, and
@@ -114,16 +114,16 @@ minimal CLI scope decision.
 
 ## Consequences
 
-* `@iktia/primitives` stays focused on behavior, accessibility, DOM contracts,
+* `@naos-ui/primitives` stays focused on behavior, accessibility, DOM contracts,
   and minimal default CSS.
-* `@iktia/theme` can evolve reusable presets without becoming a component
+* `@naos-ui/theme` can evolve reusable presets without becoming a component
   runtime.
 * Host applications can theme globally or per subtree with normal CSS
   inheritance.
 * Component-specific variables remain the exact override layer for individual
   primitives.
 * A small role-token layer reduces repeated primitive fallback logic without
-  turning `@iktia/primitives` into an opinionated design system.
+  turning `@naos-ui/primitives` into an opinionated design system.
 * `color-scheme` keeps native controls aligned with light and dark tokens.
 * The first implementation stays smaller than Web Awesome's full theme system
   while preserving a later path to palettes, variant-role mapping, grouped

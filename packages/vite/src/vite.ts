@@ -2,28 +2,28 @@ import { readFile } from "node:fs/promises"
 import { dirname, isAbsolute, relative, resolve } from "node:path"
 
 import {
-  isIktiaCompilerError,
+  isNaosCompilerError,
   renderDeclarativeShadowDom,
   transformComponent,
-  type IktiaDiagnostic,
+  type NaosDiagnostic,
   type RenderDeclarativeShadowDomRequest,
   type RenderDeclarativeShadowDomResult,
-} from "@iktia/compiler"
+} from "@naos-ui/compiler"
 import { createFilter, type FilterPattern, type Plugin } from "vite"
 
-export type IktiaVitePluginOptions = {
+export type NaosVitePluginOptions = {
   include?: FilterPattern
   exclude?: FilterPattern
-  prerender?: boolean | IktiaDeclarativeShadowDomPrerenderOptions
+  prerender?: boolean | NaosDeclarativeShadowDomPrerenderOptions
 }
 
-export type IktiaDeclarativeShadowDomPrerenderOptions = {
+export type NaosDeclarativeShadowDomPrerenderOptions = {
   include?: FilterPattern
   exclude?: FilterPattern
   manifestFile?: string | false
 }
 
-export type IktiaDeclarativeShadowDomManifestEntry = {
+export type NaosDeclarativeShadowDomManifestEntry = {
   tagName: string
   className: string
   exportName?: string | null
@@ -33,11 +33,11 @@ export type IktiaDeclarativeShadowDomManifestEntry = {
   usesDeclarativeShadowDom: boolean
 }
 
-export type IktiaDeclarativeShadowDomManifest = {
-  components: IktiaDeclarativeShadowDomManifestEntry[]
+export type NaosDeclarativeShadowDomManifest = {
+  components: NaosDeclarativeShadowDomManifestEntry[]
 }
 
-export function iktia(options: IktiaVitePluginOptions = {}): Plugin {
+export function naos(options: NaosVitePluginOptions = {}): Plugin {
   const filter = createFilter(options.include ?? /\.wc\.tsx$/, options.exclude ?? /node_modules/)
   const prerenderOptions = normalizePrerenderOptions(options.prerender)
   const prerenderFilter = prerenderOptions
@@ -46,10 +46,10 @@ export function iktia(options: IktiaVitePluginOptions = {}): Plugin {
         prerenderOptions.exclude ?? options.exclude ?? /node_modules/
       )
     : null
-  const manifest = new Map<string, IktiaDeclarativeShadowDomManifestEntry>()
+  const manifest = new Map<string, NaosDeclarativeShadowDomManifestEntry>()
 
   return {
-    name: "iktia:transform",
+    name: "naos:transform",
     enforce: "pre",
     async transform(code, id) {
       const filename = stripQuery(id)
@@ -69,7 +69,7 @@ export function iktia(options: IktiaVitePluginOptions = {}): Plugin {
 
         if (prerenderFilter?.(filename)) {
           const inlineStyles = await resolveInlineStyles(code, filename)
-          const prerendered = renderIktiaDeclarativeShadowDom({
+          const prerendered = renderNaosDeclarativeShadowDom({
             filename,
             inlineStyles,
             source: code,
@@ -91,11 +91,11 @@ export function iktia(options: IktiaVitePluginOptions = {}): Plugin {
           map: result.map ?? null,
         }
       } catch (error) {
-        if (isIktiaCompilerError(error)) {
-          this.error(formatIktiaDiagnostics(error.diagnostics, filename))
+        if (isNaosCompilerError(error)) {
+          this.error(formatNaosDiagnostics(error.diagnostics, filename))
         }
         const message = error instanceof Error ? error.message : String(error)
-        this.error(`Iktia transform failed in ${filename}: ${message}`)
+        this.error(`Naos transform failed in ${filename}: ${message}`)
       }
     },
     generateBundle() {
@@ -103,7 +103,7 @@ export function iktia(options: IktiaVitePluginOptions = {}): Plugin {
         return
       }
 
-      const manifestJson: IktiaDeclarativeShadowDomManifest = {
+      const manifestJson: NaosDeclarativeShadowDomManifest = {
         components: [...manifest.values()].sort((left, right) =>
           left.importPath.localeCompare(right.importPath)
         ),
@@ -118,8 +118,8 @@ export function iktia(options: IktiaVitePluginOptions = {}): Plugin {
   }
 }
 
-export function formatIktiaDiagnostics(
-  diagnostics: readonly IktiaDiagnostic[],
+export function formatNaosDiagnostics(
+  diagnostics: readonly NaosDiagnostic[],
   fallbackFilename: string
 ): string {
   return diagnostics
@@ -134,7 +134,7 @@ export function formatIktiaDiagnostics(
     .join("\n")
 }
 
-export function renderIktiaDeclarativeShadowDom(
+export function renderNaosDeclarativeShadowDom(
   request: RenderDeclarativeShadowDomRequest
 ): RenderDeclarativeShadowDomResult {
   return renderDeclarativeShadowDom(request)
@@ -192,18 +192,18 @@ function manifestComponentPath(filename: string): string {
 }
 
 function normalizePrerenderOptions(
-  options: IktiaVitePluginOptions["prerender"]
-): IktiaDeclarativeShadowDomPrerenderOptions | null {
+  options: NaosVitePluginOptions["prerender"]
+): NaosDeclarativeShadowDomPrerenderOptions | null {
   if (options === false) {
     return null
   }
   if (options === undefined || options === true) {
     return {
-      manifestFile: "iktia-manifest.json",
+      manifestFile: "naos-manifest.json",
     }
   }
   return {
     ...options,
-    manifestFile: options.manifestFile ?? "iktia-manifest.json",
+    manifestFile: options.manifestFile ?? "naos-manifest.json",
   }
 }

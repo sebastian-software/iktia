@@ -2,9 +2,9 @@ import { existsSync } from "node:fs"
 import { createRequire } from "node:module"
 import { fileURLToPath } from "node:url"
 
-import type { NativeBindings } from "./generated/iktia-node-types.js"
+import type { NativeBindings } from "./generated/naos-node-types.js"
 
-export const NATIVE_BINDING_ENV = "IKTIA_NATIVE_BINDING_PATH"
+export const NATIVE_BINDING_ENV = "NAOS_NATIVE_BINDING_PATH"
 
 export type LinuxLibc = "gnu" | "musl"
 
@@ -22,14 +22,14 @@ export const NATIVE_TARGETS: readonly NativeTarget[] = [
     arch: "arm64",
     nodeArch: "arm64",
     nodePlatform: "darwin",
-    packageName: "@iktia/compiler-darwin-arm64",
+    packageName: "@naos-ui/compiler-darwin-arm64",
     rustTarget: "aarch64-apple-darwin",
   },
   {
     arch: "x64",
     nodeArch: "x64",
     nodePlatform: "darwin",
-    packageName: "@iktia/compiler-darwin-x64",
+    packageName: "@naos-ui/compiler-darwin-x64",
     rustTarget: "x86_64-apple-darwin",
   },
   {
@@ -37,7 +37,7 @@ export const NATIVE_TARGETS: readonly NativeTarget[] = [
     libc: "gnu",
     nodeArch: "arm64",
     nodePlatform: "linux",
-    packageName: "@iktia/compiler-linux-arm64-gnu",
+    packageName: "@naos-ui/compiler-linux-arm64-gnu",
     rustTarget: "aarch64-unknown-linux-gnu",
   },
   {
@@ -45,7 +45,7 @@ export const NATIVE_TARGETS: readonly NativeTarget[] = [
     libc: "musl",
     nodeArch: "arm64",
     nodePlatform: "linux",
-    packageName: "@iktia/compiler-linux-arm64-musl",
+    packageName: "@naos-ui/compiler-linux-arm64-musl",
     rustTarget: "aarch64-unknown-linux-musl",
   },
   {
@@ -53,7 +53,7 @@ export const NATIVE_TARGETS: readonly NativeTarget[] = [
     libc: "gnu",
     nodeArch: "x64",
     nodePlatform: "linux",
-    packageName: "@iktia/compiler-linux-x64-gnu",
+    packageName: "@naos-ui/compiler-linux-x64-gnu",
     rustTarget: "x86_64-unknown-linux-gnu",
   },
   {
@@ -61,21 +61,21 @@ export const NATIVE_TARGETS: readonly NativeTarget[] = [
     libc: "musl",
     nodeArch: "x64",
     nodePlatform: "linux",
-    packageName: "@iktia/compiler-linux-x64-musl",
+    packageName: "@naos-ui/compiler-linux-x64-musl",
     rustTarget: "x86_64-unknown-linux-musl",
   },
   {
     arch: "arm64",
     nodeArch: "arm64",
     nodePlatform: "win32",
-    packageName: "@iktia/compiler-win32-arm64-msvc",
+    packageName: "@naos-ui/compiler-win32-arm64-msvc",
     rustTarget: "aarch64-pc-windows-msvc",
   },
   {
     arch: "x64",
     nodeArch: "x64",
     nodePlatform: "win32",
-    packageName: "@iktia/compiler-win32-x64-msvc",
+    packageName: "@naos-ui/compiler-win32-x64-msvc",
     rustTarget: "x86_64-pc-windows-msvc",
   },
 ] as const
@@ -127,7 +127,7 @@ export function resolveNativeTarget(options: {
 }
 
 export function localNativeBindingPath(importMetaUrl = import.meta.url): string {
-  return fileURLToPath(new URL("../native/iktia-node.node", importMetaUrl))
+  return fileURLToPath(new URL("../native/naos-node.node", importMetaUrl))
 }
 
 export function setNativeBindingsForTesting(bindings: NativeBindings | null): void {
@@ -171,7 +171,7 @@ export function loadNativeBindingsWithContext(
   if (!target) {
     throw new Error(
       [
-        `No Iktia native compiler package is available for ${formatRuntimeTarget({
+        `No Naos native compiler package is available for ${formatRuntimeTarget({
           arch,
           libc,
           platform,
@@ -196,7 +196,7 @@ export function loadNativeBindingsWithContext(
 
   throw new Error(
     [
-      `Failed to load Iktia native compiler binding for ${target.rustTarget}.`,
+      `Failed to load Naos native compiler binding for ${target.rustTarget}.`,
       `Attempted optional package: ${target.packageName}.`,
       `Attempted workspace binding: ${localBindingPath}.`,
       `Supported native packages: ${supportedPackageList()}.`,

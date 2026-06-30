@@ -1,15 +1,15 @@
 {
-  "name": "@iktia/core",
+  "name": "@naos-ui/core",
   "version": "0.0.0",
-  "description": "Authoring API and JSX types for Iktia native interface elements.",
+  "description": "Authoring API and JSX types for Naos native interface elements.",
   "license": "Apache-2.0",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sebastian-software/iktia.git",
+    "url": "git+https://github.com/sebastian-software/naos-ui.git",
     "directory": "packages/core"
   },
-  "bugs": "https://github.com/sebastian-software/iktia/issues",
+  "bugs": "https://github.com/sebastian-software/naos-ui/issues",
   "exports": {
     ".": {
       "types": "./dist/index.d.mts",

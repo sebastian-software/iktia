@@ -7,7 +7,7 @@ Weight: P1
 ## Context
 
 The MVP intentionally kept early compatibility paths while the compiler proved
-its vertical slice. Before v0.1, Iktia is still free to reduce that surface to
+its vertical slice. Before v0.1, Naos is still free to reduce that surface to
 one public authoring path.
 
 Keeping experimental vocabulary would turn implementation history into a public

@@ -1,15 +1,15 @@
 {
-  "name": "@iktia/vite",
+  "name": "@naos-ui/vite",
   "version": "0.0.0",
-  "description": "Vite plugin for compiling Iktia native interface elements.",
+  "description": "Vite plugin for compiling Naos native interface elements.",
   "license": "Apache-2.0",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sebastian-software/iktia.git",
+    "url": "git+https://github.com/sebastian-software/naos-ui.git",
     "directory": "packages/vite"
   },
-  "bugs": "https://github.com/sebastian-software/iktia/issues",
+  "bugs": "https://github.com/sebastian-software/naos-ui/issues",
   "exports": {
     ".": {
       "types": "./dist/vite.d.mts",
@@ -34,7 +34,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@iktia/compiler": "workspace:^"
+    "@naos-ui/compiler": "workspace:^"
   },
   "peerDependencies": {
     "vite": "^6 || ^7 || ^8"

@@ -1,8 +1,8 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises"
 import { dirname, join, resolve } from "node:path"
 
-import { transformComponent } from "@iktia/compiler"
-import { springMotionTokenCss } from "@iktia/motion"
+import { transformComponent } from "@naos-ui/compiler"
+import { springMotionTokenCss } from "@naos-ui/motion"
 import ts from "typescript"
 
 const packageRoot = resolve(import.meta.dirname, "..")
@@ -143,7 +143,7 @@ async function inlineCssImports(code, filename, { motionCss = "" } = {}) {
 }
 
 function motionCssForComponentSource(source) {
-  if (!source.includes("getIktiaPresenceMotionAttributes")) return ""
+  if (!source.includes("getNaosPresenceMotionAttributes")) return ""
   return springMotionTokenCss({ kind: "presence", preset: "snappy" })
 }
 
@@ -194,7 +194,7 @@ async function buildTypeScriptFile({ distRoot, filename, sourceRoot }) {
 
 function declarationFor(component) {
   const className = classNameFor(component)
-  const tagName = `iktia-${component}`
+  const tagName = `naos-${component}`
   return `export declare class ${className} extends HTMLElement {}
 export { ${className} as ${exportNameFor(component)} };
 export default ${className};
@@ -216,5 +216,5 @@ function exportNameFor(component) {
     .split("-")
     .map((part) => `${part[0].toUpperCase()}${part.slice(1)}`)
     .join("")
-    .replace(/^/, "Iktia")
+    .replace(/^/, "Naos")
 }

@@ -1,14 +1,14 @@
 # CLI
 
-`@iktia/cli` publishes the `iktia` binary. It is a thin command-line surface
-over the same native compiler API used by `@iktia/vite`.
+`@naos-ui/cli` publishes the `naos` binary. It is a thin command-line surface
+over the same native compiler API used by `@naos-ui/vite`.
 
 ## Commands
 
 ```sh
-iktia compile <input> [-o output] [--stdout] [--json] [--pretty]
-iktia prerender <input> [-o output] [--props json] [--stdout] [--json] [--pretty]
-iktia info [--json] [--pretty]
+naos compile <input> [-o output] [--stdout] [--json] [--pretty]
+naos prerender <input> [-o output] [--props json] [--stdout] [--json] [--pretty]
+naos info [--json] [--pretty]
 ```
 
 `compile` transforms one `.wc.tsx` module and writes JavaScript. With `-o`, the
@@ -32,10 +32,10 @@ compact JSON.
 ## Examples
 
 ```sh
-iktia compile src/counter.wc.tsx -o dist/counter.js
-iktia compile src/counter.wc.tsx -o dist/counter.js --json
-iktia prerender src/counter.wc.tsx --props '{"label":"Count"}' --stdout
-iktia info --pretty
+naos compile src/counter.wc.tsx -o dist/counter.js
+naos compile src/counter.wc.tsx -o dist/counter.js --json
+naos prerender src/counter.wc.tsx --props '{"label":"Count"}' --stdout
+naos info --pretty
 ```
 
 ## Diagnostics
@@ -43,7 +43,7 @@ iktia info --pretty
 Compiler failures are rendered from structured `diagnostics[]` entries:
 
 ```txt
-counter.wc.tsx:4-12 error IKTIA_UNSUPPORTED_SYNTAX: Unsupported JSX
+counter.wc.tsx:4-12 error NAOS_UNSUPPORTED_SYNTAX: Unsupported JSX
 hint: Use supported syntax.
 ```
 

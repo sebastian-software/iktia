@@ -9,19 +9,19 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaSelectItem = {
+export type NaosSelectItem = {
   disabled: boolean
   label: string
   value: string
 }
 
-export type IktiaZagSelectService = ReturnType<typeof createZagService>
+export type NaosZagSelectService = ReturnType<typeof createZagService>
 
-type IktiaZagSelectServiceOptions = {
+type NaosZagSelectServiceOptions = {
   disabled: boolean
   host: HTMLElement
   id: string
-  items: IktiaSelectItem[]
+  items: NaosSelectItem[]
   name: string
   onOpenChange(open: boolean): void
   onValueChange(value: string): void
@@ -29,23 +29,23 @@ type IktiaZagSelectServiceOptions = {
   value: string
 }
 
-type IktiaSelectItemElement = HTMLElement & {
+type NaosSelectItemElement = HTMLElement & {
   disabled?: boolean
   label?: string
   value?: string
 }
 
-type SyncIktiaSelectItemsOptions = {
+type SyncNaosSelectItemsOptions = {
   api: ZagSelectApi
   disabled: boolean
   host: HTMLElement
   onRequestUpdate(): void
 }
 
-const selectItemSelector = "iktia-select-item"
+const selectItemSelector = "naos-select-item"
 
-export function collectIktiaSelectItems(host: HTMLElement): IktiaSelectItem[] {
-  return Array.from(host.querySelectorAll<IktiaSelectItemElement>(selectItemSelector))
+export function collectNaosSelectItems(host: HTMLElement): NaosSelectItem[] {
+  return Array.from(host.querySelectorAll<NaosSelectItemElement>(selectItemSelector))
     .map((element) => {
       const value = element.value ?? element.getAttribute("value") ?? ""
       const label =
@@ -62,11 +62,11 @@ export function collectIktiaSelectItems(host: HTMLElement): IktiaSelectItem[] {
     .filter((item) => item.value.length > 0)
 }
 
-export function labelForIktiaSelectValue(host: HTMLElement, value: string) {
-  return collectIktiaSelectItems(host).find((item) => item.value === value)?.label ?? ""
+export function labelForNaosSelectValue(host: HTMLElement, value: string) {
+  return collectNaosSelectItems(host).find((item) => item.value === value)?.label ?? ""
 }
 
-export function createIktiaZagSelectService({
+export function createNaosZagSelectService({
   disabled,
   host,
   id,
@@ -76,7 +76,7 @@ export function createIktiaZagSelectService({
   onValueChange,
   root,
   value,
-}: IktiaZagSelectServiceOptions): IktiaZagSelectService {
+}: NaosZagSelectServiceOptions): NaosZagSelectService {
   return createZagService({
     machine: selectMachine as never,
     props: {
@@ -102,30 +102,30 @@ export function createIktiaZagSelectService({
   })
 }
 
-export function getIktiaZagSelectApi(
-  service: IktiaZagSelectService | null
+export function getNaosZagSelectApi(
+  service: NaosZagSelectService | null
 ): ZagSelectApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagSelectService(
-  service: IktiaZagSelectService | null
+export function stopNaosZagSelectService(
+  service: NaosZagSelectService | null
 ) {
   service?.stop()
 }
 
-export function syncIktiaSelectItems({
+export function syncNaosSelectItems({
   api,
   disabled,
   host,
   onRequestUpdate,
-}: SyncIktiaSelectItemsOptions) {
+}: SyncNaosSelectItemsOptions) {
   const cleanups: VoidFunction[] = []
-  const items = collectIktiaSelectItems(host)
+  const items = collectNaosSelectItems(host)
 
   for (const item of items) {
-    const element = host.querySelector<IktiaSelectItemElement>(
+    const element = host.querySelector<NaosSelectItemElement>(
       `${selectItemSelector}[value="${cssEscape(item.value)}"]`
     )
     if (element == null) continue
@@ -146,7 +146,7 @@ export function syncIktiaSelectItems({
   }
 }
 
-function createSelectCollection(items: IktiaSelectItem[]) {
+function createSelectCollection(items: NaosSelectItem[]) {
   return selectCollection({
     items,
     isItemDisabled: (item) => item.disabled,
@@ -164,8 +164,8 @@ function syncSelectItem({
 }: {
   api: ZagSelectApi
   disabled: boolean
-  element: IktiaSelectItemElement
-  item: IktiaSelectItem
+  element: NaosSelectItemElement
+  item: NaosSelectItem
   onRequestUpdate(): void
 }) {
   const itemState = api.getItemState({ item })

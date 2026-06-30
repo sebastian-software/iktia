@@ -7,20 +7,20 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
-  createIktiaZagPinInputService,
-  getIktiaZagPinInputApi,
+  createNaosZagPinInputService,
+  getNaosZagPinInputApi,
   pinInputValueArray,
-  stopIktiaZagPinInputService,
+  stopNaosZagPinInputService,
 } from "./internal/zag/pin-input.js"
 import type {
-  IktiaZagPinInputService,
-  IktiaZagPinInputType,
+  NaosZagPinInputService,
+  NaosZagPinInputType,
 } from "./internal/zag/pin-input.js"
 import css from "./pin-input.wc.css?inline"
 
-export type IktiaPinInputProps = {
+export type NaosPinInputProps = {
   count?: number
   disabled?: boolean
   label?: string
@@ -28,7 +28,7 @@ export type IktiaPinInputProps = {
   name?: string
   otp?: boolean
   placeholder?: string
-  type?: IktiaZagPinInputType
+  type?: NaosZagPinInputType
   value?: string
 }
 
@@ -36,7 +36,7 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaPinInput({
+export function NaosPinInput({
   count = 4,
   disabled = false,
   label = "Code",
@@ -46,14 +46,14 @@ export function IktiaPinInput({
   placeholder = "○",
   type = "numeric",
   value = "",
-}: IktiaPinInputProps = {}) {
+}: NaosPinInputProps = {}) {
   const current = state(value)
   const complete = state(value.length >= count)
-  const pinInputService = state<IktiaZagPinInputService | null>(null)
-  const pinInputApi = computed(() => getIktiaZagPinInputApi(pinInputService()))
-  const changed = event<{ complete: boolean; value: string }>("iktia-change")
-  const completed = event<{ value: string }>("iktia-complete")
-  const invalid = event<{ index: number; value: string }>("iktia-invalid")
+  const pinInputService = state<NaosZagPinInputService | null>(null)
+  const pinInputApi = computed(() => getNaosZagPinInputApi(pinInputService()))
+  const changed = event<{ complete: boolean; value: string }>("naos-change")
+  const completed = event<{ value: string }>("naos-complete")
+  const invalid = event<{ index: number; value: string }>("naos-invalid")
   const form = formControl({
     value: () => current(),
     reset: () => {
@@ -67,11 +67,11 @@ export function IktiaPinInput({
   void name
 
   onConnected(() => {
-    pinInputService.set(createIktiaZagPinInputService({
+    pinInputService.set(createNaosZagPinInputService({
       count,
       disabled,
       host: host().element,
-      id: "iktia-pin-input",
+      id: "naos-pin-input",
       label,
       mask,
       onValueChange(details) {
@@ -100,7 +100,7 @@ export function IktiaPinInput({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagPinInputService(pinInputService())
+    stopNaosZagPinInputService(pinInputService())
     pinInputService.set(null)
   })
 

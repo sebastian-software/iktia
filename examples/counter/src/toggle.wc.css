@@ -1,4 +1,4 @@
 :host { display: inline-block; font-family: system-ui, sans-serif; }
-button { display: inline-flex; align-items: center; gap: 0.5rem; border: 1px solid var(--iktia-toggle-border, #888); border-radius: 0.375rem; padding: 0.5rem 0.75rem; background: var(--iktia-toggle-bg, white); color: var(--iktia-toggle-fg, #111); }
-button[data-state='on'] { border-color: var(--iktia-toggle-on-border, #0f766e); background: var(--iktia-toggle-on-bg, #ecfdf5); }
-[part~='indicator'] { font-size: 0.75rem; color: var(--iktia-toggle-muted, #475569); }
+button { display: inline-flex; align-items: center; gap: 0.5rem; border: 1px solid var(--naos-toggle-border, #888); border-radius: 0.375rem; padding: 0.5rem 0.75rem; background: var(--naos-toggle-bg, white); color: var(--naos-toggle-fg, #111); }
+button[data-state='on'] { border-color: var(--naos-toggle-on-border, #0f766e); background: var(--naos-toggle-on-bg, #ecfdf5); }
+[part~='indicator'] { font-size: 0.75rem; color: var(--naos-toggle-muted, #475569); }

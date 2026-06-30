@@ -8,9 +8,9 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaZagSliderService = ReturnType<typeof createZagService>
+export type NaosZagSliderService = ReturnType<typeof createZagService>
 
-type IktiaZagSliderServiceOptions = {
+type NaosZagSliderServiceOptions = {
   disabled: boolean
   host: HTMLElement
   id: string
@@ -23,7 +23,7 @@ type IktiaZagSliderServiceOptions = {
   value: number
 }
 
-export function createIktiaZagSliderService({
+export function createNaosZagSliderService({
   disabled,
   host,
   id,
@@ -34,7 +34,7 @@ export function createIktiaZagSliderService({
   root,
   step,
   value,
-}: IktiaZagSliderServiceOptions): IktiaZagSliderService {
+}: NaosZagSliderServiceOptions): NaosZagSliderService {
   return createZagService({
     machine: sliderMachine as never,
     props: {
@@ -62,15 +62,15 @@ export function createIktiaZagSliderService({
   })
 }
 
-export function getIktiaZagSliderApi(
-  service: IktiaZagSliderService | null
+export function getNaosZagSliderApi(
+  service: NaosZagSliderService | null
 ): ZagSliderApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagSliderService(
-  service: IktiaZagSliderService | null
+export function stopNaosZagSliderService(
+  service: NaosZagSliderService | null
 ) {
   service?.stop()
 }

@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Iktia demo cases for native Web Components generated from typed TSX."
+      content="Naos demo cases for native Web Components generated from typed TSX."
     />
-    <title>Iktia demos</title>
+    <title>Naos demos</title>
   </head>
   <body>
     <header class="site-header">
-      <p class="eyebrow">Iktia demos</p>
+      <p class="eyebrow">Naos demos</p>
       <h1>Typed TSX authoring, native Web Component output.</h1>
       <p class="intro">
         These examples isolate the current compiler vertical slice: reactive
@@ -159,7 +159,7 @@ return &lt;Counter label="Nested count" /&gt;</code></pre>
           <h2 id="theme-title">CSS variable theming</h2>
           <p>
             v0.1 keeps CSS flat and bundler-owned. Host pages theme generated
-            elements through custom properties rather than an Iktia CSS graph.
+            elements through custom properties rather than an Naos CSS graph.
           </p>
           <ul>
             <li>CSS text arrives from Vite <code>?inline</code> imports.</li>
@@ -171,26 +171,26 @@ return &lt;Counter label="Nested count" /&gt;</code></pre>
           <x-counter
             label="Themed"
             style="
-              --iktia-control-border: #7c3aed;
-              --iktia-control-bg: #f5f3ff;
-              --iktia-control-bg-hover: #ede9fe;
-              --iktia-control-fg: #2e1065;
+              --naos-control-border: #7c3aed;
+              --naos-control-bg: #f5f3ff;
+              --naos-control-bg-hover: #ede9fe;
+              --naos-control-fg: #2e1065;
             "
           ></x-counter>
           <x-toggle
             label="Theme"
             style="
-              --iktia-toggle-border: #0f766e;
-              --iktia-toggle-bg: #f0fdfa;
-              --iktia-toggle-fg: #134e4a;
-              --iktia-toggle-on-bg: #ccfbf1;
-              --iktia-toggle-on-border: #0d9488;
-              --iktia-toggle-muted: #0f766e;
+              --naos-toggle-border: #0f766e;
+              --naos-toggle-bg: #f0fdfa;
+              --naos-toggle-fg: #134e4a;
+              --naos-toggle-on-bg: #ccfbf1;
+              --naos-toggle-on-border: #0d9488;
+              --naos-toggle-muted: #0f766e;
             "
           >
             themed slot
           </x-toggle>
-          <pre><code>style="--iktia-control-bg: #f5f3ff"</code></pre>
+          <pre><code>style="--naos-control-bg: #f5f3ff"</code></pre>
         </div>
       </section>
 
@@ -203,7 +203,7 @@ return &lt;Counter label="Nested count" /&gt;</code></pre>
           <p class="case-kicker">Use case 07</p>
           <h2 id="primitive-suite-title">Design-system primitives</h2>
           <p>
-            A small primitive set shows Iktia output as framework-neutral UI:
+            A small primitive set shows Naos output as framework-neutral UI:
             interactive disclosure and field controls expose native attributes,
             events, slots, parts, and CSS variables.
           </p>
@@ -217,9 +217,9 @@ return &lt;Counter label="Nested count" /&gt;</code></pre>
           <x-disclosure
             label="Deployment settings"
             style="
-              --iktia-disclosure-border: #334155;
-              --iktia-disclosure-button-bg: #e2e8f0;
-              --iktia-disclosure-panel-bg: #f8fafc;
+              --naos-disclosure-border: #334155;
+              --naos-disclosure-button-bg: #e2e8f0;
+              --naos-disclosure-panel-bg: #f8fafc;
             "
           >
             <span slot="summary">Production</span>
@@ -230,8 +230,8 @@ return &lt;Counter label="Nested count" /&gt;</code></pre>
           <x-field
             label="Package scope"
             style="
-              --iktia-field-border: #0f766e;
-              --iktia-field-status: #0f766e;
+              --naos-field-border: #0f766e;
+              --naos-field-status: #0f766e;
             "
           >
             Used by generated package names and docs examples.
@@ -251,8 +251,8 @@ dispatch native CustomEvents.</code></pre>
           <p class="case-kicker">Use case 08</p>
           <h2 id="primitive-package-title">Packaged primitives</h2>
           <p>
-            The first <code>@iktia/primitives</code> package ships compiled
-            Iktia-authored Web Components. These are package imports, not local
+            The first <code>@naos-ui/primitives</code> package ships compiled
+            Naos-authored Web Components. These are package imports, not local
             demo fixtures.
           </p>
           <ul>
@@ -264,137 +264,137 @@ dispatch native CustomEvents.</code></pre>
         <div class="case-surface package-surface">
           <div class="primitive-stack">
             <form id="primitive-form" class="primitive-form">
-              <iktia-field label="Release checklist">
+              <naos-field label="Release checklist">
                 <div class="primitive-row">
-                  <iktia-checkbox
+                  <naos-checkbox
                     name="docs"
                     value="reviewed"
                     label="Docs reviewed"
-                  ></iktia-checkbox>
-                  <iktia-toggle
+                  ></naos-checkbox>
+                  <naos-toggle
                     name="preview"
                     value="enabled"
                     label="Publish preview"
-                  ></iktia-toggle>
-                  <iktia-switch
+                  ></naos-toggle>
+                  <naos-switch
                     name="notify"
                     value="enabled"
                     label="Notify team"
                     checked
-                  ></iktia-switch>
+                  ></naos-switch>
                 </div>
                 <span slot="hint">Checkbox, toggle, and switch contribute native FormData.</span>
-              </iktia-field>
-              <iktia-radio-group
+              </naos-field>
+              <naos-radio-group
                 name="audience"
                 label="Release audience"
                 orientation="horizontal"
               >
-                <iktia-radio value="stable" label="Stable"></iktia-radio>
-                <iktia-radio value="beta" label="Beta"></iktia-radio>
-                <iktia-radio value="canary" label="Canary" disabled></iktia-radio>
-              </iktia-radio-group>
-              <iktia-toggle-group
+                <naos-radio value="stable" label="Stable"></naos-radio>
+                <naos-radio value="beta" label="Beta"></naos-radio>
+                <naos-radio value="canary" label="Canary" disabled></naos-radio>
+              </naos-radio-group>
+              <naos-toggle-group
                 name="channels"
                 label="Release channels"
                 value="web"
                 multiple
               >
-                <iktia-toggle-item value="web" label="Web"></iktia-toggle-item>
-                <iktia-toggle-item value="docs" label="Docs"></iktia-toggle-item>
-                <iktia-toggle-item value="cli" label="CLI" disabled></iktia-toggle-item>
-              </iktia-toggle-group>
-              <iktia-segmented-control
+                <naos-toggle-item value="web" label="Web"></naos-toggle-item>
+                <naos-toggle-item value="docs" label="Docs"></naos-toggle-item>
+                <naos-toggle-item value="cli" label="CLI" disabled></naos-toggle-item>
+              </naos-toggle-group>
+              <naos-segmented-control
                 name="cadence"
                 label="Release cadence"
                 value="weekly"
               >
-                <iktia-segmented-item value="daily" label="Daily"></iktia-segmented-item>
-                <iktia-segmented-item value="weekly" label="Weekly"></iktia-segmented-item>
-                <iktia-segmented-item value="monthly" label="Monthly"></iktia-segmented-item>
-                <iktia-segmented-item value="frozen" label="Frozen" disabled></iktia-segmented-item>
-              </iktia-segmented-control>
-              <iktia-select
+                <naos-segmented-item value="daily" label="Daily"></naos-segmented-item>
+                <naos-segmented-item value="weekly" label="Weekly"></naos-segmented-item>
+                <naos-segmented-item value="monthly" label="Monthly"></naos-segmented-item>
+                <naos-segmented-item value="frozen" label="Frozen" disabled></naos-segmented-item>
+              </naos-segmented-control>
+              <naos-select
                 name="region"
                 label="Release region"
                 value="eu"
                 placeholder="Choose region"
               >
-                <iktia-select-item value="us" label="United States"></iktia-select-item>
-                <iktia-select-item value="eu" label="Europe"></iktia-select-item>
-                <iktia-select-item value="apac" label="APAC"></iktia-select-item>
-                <iktia-select-item value="hold" label="On hold" disabled></iktia-select-item>
-              </iktia-select>
-              <iktia-listbox
+                <naos-select-item value="us" label="United States"></naos-select-item>
+                <naos-select-item value="eu" label="Europe"></naos-select-item>
+                <naos-select-item value="apac" label="APAC"></naos-select-item>
+                <naos-select-item value="hold" label="On hold" disabled></naos-select-item>
+              </naos-select>
+              <naos-listbox
                 name="lane"
                 label="Release lane"
                 value="review"
               >
-                <iktia-listbox-item value="dev" label="Development"></iktia-listbox-item>
-                <iktia-listbox-item value="review" label="Review"></iktia-listbox-item>
-                <iktia-listbox-item value="frozen" label="Frozen" disabled></iktia-listbox-item>
-                <iktia-listbox-item value="audit" label="Audit"></iktia-listbox-item>
-              </iktia-listbox>
-              <iktia-combobox
+                <naos-listbox-item value="dev" label="Development"></naos-listbox-item>
+                <naos-listbox-item value="review" label="Review"></naos-listbox-item>
+                <naos-listbox-item value="frozen" label="Frozen" disabled></naos-listbox-item>
+                <naos-listbox-item value="audit" label="Audit"></naos-listbox-item>
+              </naos-listbox>
+              <naos-combobox
                 name="owner"
                 label="Release owner"
                 value="ops"
                 placeholder="Search owner"
               >
-                <iktia-combobox-item value="ops" label="Operations"></iktia-combobox-item>
-                <iktia-combobox-item value="docs" label="Docs team"></iktia-combobox-item>
-                <iktia-combobox-item value="qa" label="QA"></iktia-combobox-item>
-                <iktia-combobox-item value="blocked" label="Blocked" disabled></iktia-combobox-item>
-              </iktia-combobox>
-              <iktia-number-input
+                <naos-combobox-item value="ops" label="Operations"></naos-combobox-item>
+                <naos-combobox-item value="docs" label="Docs team"></naos-combobox-item>
+                <naos-combobox-item value="qa" label="QA"></naos-combobox-item>
+                <naos-combobox-item value="blocked" label="Blocked" disabled></naos-combobox-item>
+              </naos-combobox>
+              <naos-number-input
                 name="approvals"
                 label="Required approvals"
                 value="2"
                 min="1"
                 max="5"
                 step="1"
-              ></iktia-number-input>
-              <iktia-pin-input
+              ></naos-number-input>
+              <naos-pin-input
                 name="release-code"
                 label="Release code"
                 value="123"
                 count="4"
                 otp
-              ></iktia-pin-input>
-              <iktia-tags-input
+              ></naos-pin-input>
+              <naos-tags-input
                 name="release-tags"
                 label="Release tags"
                 value="docs,preview"
                 placeholder="Add tag"
-              ></iktia-tags-input>
-              <iktia-file-upload
+              ></naos-tags-input>
+              <naos-file-upload
                 name="release-file"
                 label="Release file"
                 accept=".txt"
-              ></iktia-file-upload>
-              <iktia-date-picker
+              ></naos-file-upload>
+              <naos-date-picker
                 name="release-date"
                 label="Release date"
                 value="2026-06-18"
-              ></iktia-date-picker>
-              <iktia-editable
+              ></naos-date-picker>
+              <naos-editable
                 name="release-note"
                 label="Release note"
                 value="Launch checklist"
-              ></iktia-editable>
-              <iktia-rating-group
+              ></naos-editable>
+              <naos-rating-group
                 name="release-rating"
                 label="Release rating"
                 value="3"
-              ></iktia-rating-group>
-              <iktia-slider
+              ></naos-rating-group>
+              <naos-slider
                 name="confidence"
                 label="Release confidence"
                 value="40"
                 min="0"
                 max="100"
                 step="10"
-              ></iktia-slider>
+              ></naos-slider>
               <div class="primitive-row">
                 <button type="submit" class="native-action">Read FormData</button>
                 <button type="reset" class="native-action secondary">Reset</button>
@@ -402,105 +402,105 @@ dispatch native CustomEvents.</code></pre>
             </form>
             <output id="primitive-form-event">Last primitive form data: none</output>
 
-            <iktia-button-group label="Primitive actions">
-              <iktia-button variant="primary" label="Build"></iktia-button>
-              <iktia-button variant="ghost" label="Preview"></iktia-button>
-            </iktia-button-group>
+            <naos-button-group label="Primitive actions">
+              <naos-button variant="primary" label="Build"></naos-button>
+              <naos-button variant="ghost" label="Preview"></naos-button>
+            </naos-button-group>
 
-            <iktia-tabs value="contract">
-              <iktia-tab value="contract" label="Contract"></iktia-tab>
-              <iktia-tab value="behavior" label="Behavior"></iktia-tab>
-              <iktia-tab value="forms" label="Forms"></iktia-tab>
-              <iktia-tab-panel value="contract">
+            <naos-tabs value="contract">
+              <naos-tab value="contract" label="Contract"></naos-tab>
+              <naos-tab value="behavior" label="Behavior"></naos-tab>
+              <naos-tab value="forms" label="Forms"></naos-tab>
+              <naos-tab-panel value="contract">
                 Parts, slots, data-state, and CSS variables.
-              </iktia-tab-panel>
-              <iktia-tab-panel value="behavior">
-                Behavior stays inside Iktia-authored kernels or native controls.
-              </iktia-tab-panel>
-              <iktia-tab-panel value="forms">
+              </naos-tab-panel>
+              <naos-tab-panel value="behavior">
+                Behavior stays inside Naos-authored kernels or native controls.
+              </naos-tab-panel>
+              <naos-tab-panel value="forms">
                 Checkbox and toggle submit through ElementInternals.
-              </iktia-tab-panel>
-            </iktia-tabs>
+              </naos-tab-panel>
+            </naos-tabs>
 
-            <iktia-dropdown label="Package notes">
+            <naos-dropdown label="Package notes">
               <p>Dropdown is experimental and compiler-compatible in this first pass.</p>
-            </iktia-dropdown>
+            </naos-dropdown>
 
-            <iktia-menu label="Release actions">
-              <iktia-menu-item value="ship" label="Ship release"></iktia-menu-item>
-              <iktia-menu-item value="schedule" label="Schedule release"></iktia-menu-item>
-              <iktia-menu-item value="rollback" label="Rollback" disabled></iktia-menu-item>
-            </iktia-menu>
+            <naos-menu label="Release actions">
+              <naos-menu-item value="ship" label="Ship release"></naos-menu-item>
+              <naos-menu-item value="schedule" label="Schedule release"></naos-menu-item>
+              <naos-menu-item value="rollback" label="Rollback" disabled></naos-menu-item>
+            </naos-menu>
 
-            <iktia-context-menu>
+            <naos-context-menu>
               <span slot="trigger">Right-click for release context actions.</span>
-              <iktia-menu-item value="copy" label="Copy release link"></iktia-menu-item>
-              <iktia-menu-item value="assign" label="Assign owner"></iktia-menu-item>
-              <iktia-menu-item value="archive" label="Archive" disabled></iktia-menu-item>
-            </iktia-context-menu>
+              <naos-menu-item value="copy" label="Copy release link"></naos-menu-item>
+              <naos-menu-item value="assign" label="Assign owner"></naos-menu-item>
+              <naos-menu-item value="archive" label="Archive" disabled></naos-menu-item>
+            </naos-context-menu>
 
-            <iktia-collapsible label="Release notes">
+            <naos-collapsible label="Release notes">
               This section uses Zag-backed trigger and content props while
-              keeping the Iktia Custom Element contract.
-            </iktia-collapsible>
+              keeping the Naos Custom Element contract.
+            </naos-collapsible>
 
-            <iktia-accordion label="Release checklist details" value="quality">
-              <iktia-accordion-item value="quality" label="Quality gates">
+            <naos-accordion label="Release checklist details" value="quality">
+              <naos-accordion-item value="quality" label="Quality gates">
                 Browser, docs, and package-release checks must be green.
-              </iktia-accordion-item>
-              <iktia-accordion-item value="handoff" label="Handoff">
+              </naos-accordion-item>
+              <naos-accordion-item value="handoff" label="Handoff">
                 Commit focused slices before moving to the next primitive.
-              </iktia-accordion-item>
-              <iktia-accordion-item value="blocked" label="Blocked" disabled>
+              </naos-accordion-item>
+              <naos-accordion-item value="blocked" label="Blocked" disabled>
                 Disabled accordion items remain focus-safe.
-              </iktia-accordion-item>
-            </iktia-accordion>
+              </naos-accordion-item>
+            </naos-accordion>
 
-            <iktia-popover label="Deployment hint" title="Before release">
+            <naos-popover label="Deployment hint" title="Before release">
               Confirm that package docs, browser tests, and release metadata are
               aligned before opening the release PR.
-            </iktia-popover>
+            </naos-popover>
 
-            <iktia-dialog
+            <naos-dialog
               label="Open release dialog"
               title="Release approval"
               description="Dialog behavior comes from Zag and keeps focus inside while open."
-            ></iktia-dialog>
+            ></naos-dialog>
 
-            <iktia-tooltip
+            <naos-tooltip
               label="Why checks?"
               text="The package stays experimental until browser and release gates pass."
-            ></iktia-tooltip>
+            ></naos-tooltip>
 
-            <iktia-hover-card
+            <naos-hover-card
               label="Release owner"
               title="Operations"
               text="The operations team owns the release checklist and rollback plan."
-            ></iktia-hover-card>
+            ></naos-hover-card>
 
-            <iktia-progress
+            <naos-progress
               label="Release progress"
               value="80"
-            ></iktia-progress>
+            ></naos-progress>
 
-            <iktia-avatar
+            <naos-avatar
               alt="Operations"
               fallback="OP"
               src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http://www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%230f766e%22/%3E%3C/svg%3E"
-            ></iktia-avatar>
+            ></naos-avatar>
 
-            <iktia-toast
+            <naos-toast
               label="Show release toast"
               title="Release queued"
               description="The release notification is managed by the Zag toast store."
               type="success"
               duration="5000"
-            ></iktia-toast>
-            <iktia-toast-root label="Release notifications"></iktia-toast-root>
+            ></naos-toast>
+            <naos-toast-root label="Release notifications"></naos-toast-root>
 
             <output id="primitive-event">Last primitive event: none</output>
           </div>
-          <pre><code>import "@iktia/primitives"</code></pre>
+          <pre><code>import "@naos-ui/primitives"</code></pre>
         </div>
       </section>
 
@@ -509,7 +509,7 @@ dispatch native CustomEvents.</code></pre>
           <p class="case-kicker">Use case 09</p>
           <h2 id="router-title">Custom Element router</h2>
           <p>
-            The optional <code>@iktia/router</code> package maps browser URLs to
+            The optional <code>@naos-ui/router</code> package maps browser URLs to
             native Custom Element views without a framework runtime.
           </p>
           <ul>
@@ -520,18 +520,18 @@ dispatch native CustomEvents.</code></pre>
         </div>
         <div class="case-surface router-surface">
           <nav class="router-nav" aria-label="Router demo routes">
-            <a data-router-to="/" data-iktia-active-match="exact" href="./">Home</a>
+            <a data-router-to="/" data-naos-active-match="exact" href="./">Home</a>
             <a
               data-router-to="/products/:id"
-              data-iktia-active-match="prefix"
+              data-naos-active-match="prefix"
               href="./products/42?tab=details"
             >
               Product
             </a>
-            <a data-router-to="/settings" data-iktia-active-match="exact" href="./settings">
+            <a data-router-to="/settings" data-naos-active-match="exact" href="./settings">
               Settings
             </a>
-            <a data-router-to="/missing" data-iktia-active-match="exact" href="./missing">
+            <a data-router-to="/missing" data-naos-active-match="exact" href="./missing">
               Missing
             </a>
           </nav>

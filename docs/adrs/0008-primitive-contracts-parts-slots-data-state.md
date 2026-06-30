@@ -8,7 +8,7 @@ Weight: P2
 
 Component primitives need stable styling, accessibility, and inspection
 contracts. Web Components already provide `part`, slots, attributes, properties,
-and ARIA. Iktia should Iktia on those mechanisms rather than invent a styling
+and ARIA. Naos should Naos on those mechanisms rather than invent a styling
 runtime.
 
 ## Decision

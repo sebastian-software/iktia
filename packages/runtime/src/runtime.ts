@@ -4,7 +4,7 @@ export type EventInitOptions = {
   composed?: boolean
 }
 
-export function createIktiaEvent<Detail>(
+export function createNaosEvent<Detail>(
   name: string,
   detail: Detail,
   options: Readonly<EventInitOptions> = {}
@@ -17,7 +17,7 @@ export function createIktiaEvent<Detail>(
   })
 }
 
-export function scheduleIktiaUpdate(callback: () => void): void {
+export function scheduleNaosUpdate(callback: () => void): void {
   if (typeof queueMicrotask === "function") {
     queueMicrotask(callback)
     return

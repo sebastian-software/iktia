@@ -6,17 +6,17 @@ import {
   onDisconnected,
   state,
   type ComponentOptions,
-} from "@iktia/core"
+} from "@naos-ui/core"
 import {
   avatarImageProps,
-  createIktiaZagAvatarService,
-  getIktiaZagAvatarApi,
-  stopIktiaZagAvatarService,
+  createNaosZagAvatarService,
+  getNaosZagAvatarApi,
+  stopNaosZagAvatarService,
 } from "./internal/zag/avatar.js"
-import type { IktiaZagAvatarService } from "./internal/zag/avatar.js"
+import type { NaosZagAvatarService } from "./internal/zag/avatar.js"
 import css from "./avatar.wc.css?inline"
 
-export type IktiaAvatarProps = {
+export type NaosAvatarProps = {
   alt?: string
   fallback?: string
   src?: string
@@ -26,20 +26,20 @@ export const options = {
   styles: [css],
 } satisfies ComponentOptions
 
-export function IktiaAvatar({
+export function NaosAvatar({
   alt = "",
   fallback = "?",
   src = "",
-}: IktiaAvatarProps = {}) {
+}: NaosAvatarProps = {}) {
   const status = state<"error" | "loaded">("error")
-  const avatarService = state<IktiaZagAvatarService | null>(null)
-  const avatarApi = computed(() => getIktiaZagAvatarApi(avatarService()))
-  const statusChanged = event<{ status: "error" | "loaded" }>("iktia-status-change")
+  const avatarService = state<NaosZagAvatarService | null>(null)
+  const avatarApi = computed(() => getNaosZagAvatarApi(avatarService()))
+  const statusChanged = event<{ status: "error" | "loaded" }>("naos-status-change")
 
   onConnected(() => {
-    avatarService.set(createIktiaZagAvatarService({
+    avatarService.set(createNaosZagAvatarService({
       host: host().element,
-      id: "iktia-avatar",
+      id: "naos-avatar",
       onStatusChange(details) {
         status.set(details.status)
         statusChanged.emit(details)
@@ -48,7 +48,7 @@ export function IktiaAvatar({
     }))
   })
   onDisconnected(() => {
-    stopIktiaZagAvatarService(avatarService())
+    stopNaosZagAvatarService(avatarService())
     avatarService.set(null)
   })
 

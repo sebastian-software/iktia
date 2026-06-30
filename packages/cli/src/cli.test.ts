@@ -2,7 +2,7 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 
-import { IktiaCompilerError, setNativeBindingsForTesting } from "@iktia/compiler"
+import { NaosCompilerError, setNativeBindingsForTesting } from "@naos-ui/compiler"
 import { afterEach, describe, expect, it } from "vitest"
 
 import { runCli, type CliIo } from "./cli.js"
@@ -31,7 +31,7 @@ function createIo(cwd?: string): CliIo & { stderrText(): string; stdoutText(): s
   }
 }
 
-describe("@iktia/cli", () => {
+describe("@naos-ui/cli", () => {
   afterEach(() => {
     setNativeBindingsForTesting(null)
   })
@@ -87,13 +87,13 @@ describe("@iktia/cli", () => {
     const io = createIo()
 
     await expect(runCli(["compile", "--help"], io)).resolves.toBe(0)
-    expect(io.stdoutText()).toContain("iktia compile <input>")
+    expect(io.stdoutText()).toContain("naos compile <input>")
     expect(io.stdoutText()).toContain("--json")
     expect(io.stderrText()).toBe("")
   })
 
   it("compiles to stdout", async () => {
-    const root = await mkdtemp(join(tmpdir(), "iktia-cli-"))
+    const root = await mkdtemp(join(tmpdir(), "naos-cli-"))
     try {
       await writeFile(join(root, "counter.wc.tsx"), "source")
       setNativeBindingsForTesting({
@@ -121,7 +121,7 @@ describe("@iktia/cli", () => {
   })
 
   it("writes compiled code and source maps to files", async () => {
-    const root = await mkdtemp(join(tmpdir(), "iktia-cli-"))
+    const root = await mkdtemp(join(tmpdir(), "naos-cli-"))
     try {
       await writeFile(join(root, "counter.wc.tsx"), "source")
       setNativeBindingsForTesting({
@@ -166,7 +166,7 @@ describe("@iktia/cli", () => {
   })
 
   it("writes compile JSON summaries when output is file-backed", async () => {
-    const root = await mkdtemp(join(tmpdir(), "iktia-cli-"))
+    const root = await mkdtemp(join(tmpdir(), "naos-cli-"))
     try {
       await writeFile(join(root, "counter.wc.tsx"), "source")
       setNativeBindingsForTesting({
@@ -211,7 +211,7 @@ describe("@iktia/cli", () => {
   })
 
   it("prerenders with props and resolved inline styles", async () => {
-    const root = await mkdtemp(join(tmpdir(), "iktia-cli-"))
+    const root = await mkdtemp(join(tmpdir(), "naos-cli-"))
     try {
       await writeFile(
         join(root, "counter.wc.tsx"),
@@ -260,7 +260,7 @@ describe("@iktia/cli", () => {
   })
 
   it("writes prerender JSON summaries when output is file-backed", async () => {
-    const root = await mkdtemp(join(tmpdir(), "iktia-cli-"))
+    const root = await mkdtemp(join(tmpdir(), "naos-cli-"))
     try {
       await writeFile(join(root, "counter.wc.tsx"), "source")
 
@@ -296,7 +296,7 @@ describe("@iktia/cli", () => {
   })
 
   it("rejects JSON summaries when stdout carries generated output", async () => {
-    const root = await mkdtemp(join(tmpdir(), "iktia-cli-"))
+    const root = await mkdtemp(join(tmpdir(), "naos-cli-"))
     try {
       await writeFile(join(root, "counter.wc.tsx"), "source")
       setNativeBindingsForTesting({
@@ -317,7 +317,7 @@ describe("@iktia/cli", () => {
         runCli(["compile", "counter.wc.tsx", "--stdout", "--json"], io)
       ).resolves.toBe(1)
       expect(io.stderrText()).toBe(
-        "iktia compile --json cannot be combined with --stdout\n"
+        "naos compile --json cannot be combined with --stdout\n"
       )
       expect(io.stdoutText()).toBe("")
     } finally {
@@ -326,7 +326,7 @@ describe("@iktia/cli", () => {
   })
 
   it("renders missing input files as stable CLI errors", async () => {
-    const root = await mkdtemp(join(tmpdir(), "iktia-cli-"))
+    const root = await mkdtemp(join(tmpdir(), "naos-cli-"))
     try {
       const io = createIo(root)
 
@@ -339,7 +339,7 @@ describe("@iktia/cli", () => {
   })
 
   it("renders structured compiler diagnostics to stderr", async () => {
-    const root = await mkdtemp(join(tmpdir(), "iktia-cli-"))
+    const root = await mkdtemp(join(tmpdir(), "naos-cli-"))
     try {
       await writeFile(join(root, "counter.wc.tsx"), "source")
       setNativeBindingsForTesting({
@@ -353,9 +353,9 @@ describe("@iktia/cli", () => {
           usesDeclarativeShadowDom: true,
         }),
         transformComponent: () => {
-          throw new IktiaCompilerError("Unsupported JSX", [
+          throw new NaosCompilerError("Unsupported JSX", [
             {
-              code: "IKTIA_UNSUPPORTED_SYNTAX",
+              code: "NAOS_UNSUPPORTED_SYNTAX",
               filename: "counter.wc.tsx",
               hint: "Use supported syntax.",
               message: "Unsupported JSX",
@@ -369,7 +369,7 @@ describe("@iktia/cli", () => {
 
       await expect(runCli(["compile", "counter.wc.tsx"], io)).resolves.toBe(1)
       expect(io.stderrText()).toBe(
-        "counter.wc.tsx:4-12 error IKTIA_UNSUPPORTED_SYNTAX: Unsupported JSX\nhint: Use supported syntax.\n"
+        "counter.wc.tsx:4-12 error NAOS_UNSUPPORTED_SYNTAX: Unsupported JSX\nhint: Use supported syntax.\n"
       )
     } finally {
       await rm(root, { force: true, recursive: true })

@@ -1,6 +1,6 @@
 import "./demo.css"
-import "@iktia/primitives"
-import { createRouter, defineRoutes, type IktiaRouteMatch } from "@iktia/router"
+import "@naos-ui/primitives"
+import { createRouter, defineRoutes, type NaosRouteMatch } from "@naos-ui/router"
 import "./counter.wc.tsx"
 import "./disclosure.wc.tsx"
 import "./field.wc.tsx"
@@ -46,7 +46,7 @@ class RouterProductView extends HTMLElement {
   productId = ""
 
   connectedCallback() {
-    const route = this.iktiaRoute
+    const route = this.naosRoute
     this.productId = this.productId || route?.params.id || ""
     const data = route?.data as RouterProductData | undefined
     const actionData = route?.actionData as RouterProductActionData | undefined
@@ -57,7 +57,7 @@ class RouterProductView extends HTMLElement {
         <h3>${escapeHtml(data?.label ?? `Product ${this.productId}`)}</h3>
         <p>Search tab: ${route?.search.get("tab") ?? "none"}</p>
         <p>Loader data: ${escapeHtml(data?.inventory ?? "not loaded")}</p>
-        <form class="router-form" data-iktia-action method="post">
+        <form class="router-form" data-naos-action method="post">
           <label>
             <span>Route note</span>
             <input name="note" value="${escapeHtml(note)}">
@@ -103,7 +103,7 @@ declare global {
   }
 
   interface HTMLElement {
-    iktiaRoute?: IktiaRouteMatch
+    naosRoute?: NaosRouteMatch
   }
 }
 
@@ -126,7 +126,7 @@ if (routerOutlet && routerSection) {
       path: "/",
       tag: "router-home-view",
       focusTarget: "h3",
-      title: "Iktia demos",
+      title: "Naos demos",
     },
     {
       path: "/products/:id",
@@ -153,7 +153,7 @@ if (routerOutlet && routerSection) {
         return { "data-product-id": params.id ?? null }
       },
       title({ params }) {
-        return `Product ${params.id} - Iktia demos`
+        return `Product ${params.id} - Naos demos`
       },
     },
     {
@@ -186,9 +186,9 @@ if (routerOutlet && routerSection) {
     }
   }
 
-  router.addEventListener("iktia:routechange", (event) => {
+  router.addEventListener("naos:routechange", (event) => {
     if (event instanceof CustomEvent) {
-      const detail = event.detail as { match: IktiaRouteMatch }
+      const detail = event.detail as { match: NaosRouteMatch }
       const value = detail.match.url.pathname + detail.match.url.search
       document.body.dataset.lastRouterRoute = value
       if (routerEvent) {
@@ -197,9 +197,9 @@ if (routerOutlet && routerSection) {
     }
   })
 
-  router.addEventListener("iktia:actioncommit", (event) => {
+  router.addEventListener("naos:actioncommit", (event) => {
     if (event instanceof CustomEvent) {
-      const detail = event.detail as { match: IktiaRouteMatch }
+      const detail = event.detail as { match: NaosRouteMatch }
       const actionData = detail.match.actionData as RouterProductActionData | undefined
       if (!actionData) return
       document.body.dataset.lastRouterAction = actionData.note
@@ -271,7 +271,7 @@ document.addEventListener("field-change", (event) => {
   }
 })
 
-document.addEventListener("iktia-change", (event) => {
+document.addEventListener("naos-change", (event) => {
   if (event instanceof CustomEvent) {
     const value = JSON.stringify(event.detail)
     document.body.dataset.lastPrimitive = value
@@ -281,7 +281,7 @@ document.addEventListener("iktia-change", (event) => {
   }
 })
 
-document.addEventListener("iktia-open-change", (event) => {
+document.addEventListener("naos-open-change", (event) => {
   if (event instanceof CustomEvent) {
     const value = JSON.stringify(event.detail)
     document.body.dataset.lastPrimitive = value
@@ -291,7 +291,7 @@ document.addEventListener("iktia-open-change", (event) => {
   }
 })
 
-document.addEventListener("iktia-edit-change", (event) => {
+document.addEventListener("naos-edit-change", (event) => {
   if (event instanceof CustomEvent) {
     const value = JSON.stringify(event.detail)
     document.body.dataset.lastPrimitive = value
@@ -301,7 +301,7 @@ document.addEventListener("iktia-edit-change", (event) => {
   }
 })
 
-document.addEventListener("iktia-submit", (event) => {
+document.addEventListener("naos-submit", (event) => {
   if (event instanceof CustomEvent) {
     const value = JSON.stringify(event.detail)
     document.body.dataset.lastPrimitive = value
@@ -311,7 +311,7 @@ document.addEventListener("iktia-submit", (event) => {
   }
 })
 
-document.addEventListener("iktia-cancel", (event) => {
+document.addEventListener("naos-cancel", (event) => {
   if (event instanceof CustomEvent) {
     const value = JSON.stringify(event.detail)
     document.body.dataset.lastPrimitive = value
@@ -321,7 +321,7 @@ document.addEventListener("iktia-cancel", (event) => {
   }
 })
 
-document.addEventListener("iktia-create", (event) => {
+document.addEventListener("naos-create", (event) => {
   if (event instanceof CustomEvent) {
     const value = JSON.stringify(event.detail)
     document.body.dataset.lastPrimitive = value
@@ -331,7 +331,7 @@ document.addEventListener("iktia-create", (event) => {
   }
 })
 
-document.addEventListener("iktia-status-change", (event) => {
+document.addEventListener("naos-status-change", (event) => {
   if (event instanceof CustomEvent) {
     const value = JSON.stringify(event.detail)
     document.body.dataset.lastPrimitive = value
@@ -341,7 +341,7 @@ document.addEventListener("iktia-status-change", (event) => {
   }
 })
 
-document.addEventListener("iktia-select", (event) => {
+document.addEventListener("naos-select", (event) => {
   if (event instanceof CustomEvent) {
     const value = JSON.stringify(event.detail)
     document.body.dataset.lastPrimitive = value
@@ -351,7 +351,7 @@ document.addEventListener("iktia-select", (event) => {
   }
 })
 
-document.addEventListener("iktia-press", (event) => {
+document.addEventListener("naos-press", (event) => {
   if (event instanceof CustomEvent) {
     const value = JSON.stringify(event.detail)
     document.body.dataset.lastPrimitive = value

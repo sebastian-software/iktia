@@ -11,9 +11,9 @@ import { normalizeZagProps } from "./props.js"
 import { createZagScope } from "./scope.js"
 import { createZagService } from "./service.js"
 
-export type IktiaZagEditableService = ReturnType<typeof createZagService>
+export type NaosZagEditableService = ReturnType<typeof createZagService>
 
-type IktiaZagEditableServiceOptions = {
+type NaosZagEditableServiceOptions = {
   disabled: boolean
   host: HTMLElement
   id: string
@@ -36,7 +36,7 @@ export function editableFormValue(value: string): FormDataEntryValue | null {
   return value ? value : null
 }
 
-export function createIktiaZagEditableService({
+export function createNaosZagEditableService({
   disabled,
   host,
   id,
@@ -53,7 +53,7 @@ export function createIktiaZagEditableService({
   root,
   submitMode,
   value,
-}: IktiaZagEditableServiceOptions): IktiaZagEditableService {
+}: NaosZagEditableServiceOptions): NaosZagEditableService {
   return createZagService({
     machine: editableMachine as never,
     props: {
@@ -87,15 +87,15 @@ export function createIktiaZagEditableService({
   })
 }
 
-export function getIktiaZagEditableApi(
-  service: IktiaZagEditableService | null
+export function getNaosZagEditableApi(
+  service: NaosZagEditableService | null
 ): ZagEditableApi | null {
   if (service == null) return null
   return connect(service as never, normalizeZagProps as never)
 }
 
-export function stopIktiaZagEditableService(
-  service: IktiaZagEditableService | null
+export function stopNaosZagEditableService(
+  service: NaosZagEditableService | null
 ) {
   service?.stop()
 }
